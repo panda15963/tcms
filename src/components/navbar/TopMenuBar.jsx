@@ -1,28 +1,30 @@
-import { useRef, useState } from 'react';
 import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/react';
-import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { HiOutlineDocumentSearch } from 'react-icons/hi';
-import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
 import MapAPIsLists from '../dropdown/mapAPIsLists';
-import MapCoordLists from '../dropdown/mapCoordLists';
+import { useRef, useState } from 'react';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import StoreModal from '../modals/storeModal';
 import LogModal from '../modals/logModal';
+import { HiOutlineDocumentSearch } from 'react-icons/hi';
+import MapCoordLists from '../dropdown/mapCoordLists';
+import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
 
-export default function MapNavbar() {
+const TopMenuBar = () => {
   const [inputValue, setInputValue] = useState('');
+
   const storeModalRef = useRef();
   const logModalRef = useRef();
+
   const storeShowModal = () => {
     storeModalRef.current.show();
   };
 
-  const logShowModal = () => {
-    logModalRef.current.show();
+  const handleChange = (event) => {
+    setInputValue(event.target.value);
   };
 
   const handleKeyDown = (event) => {
@@ -32,8 +34,8 @@ export default function MapNavbar() {
     }
   };
 
-  const handleChange = (event) => {
-    setInputValue(event.target.value);
+  const logShowModal = () => {
+    logModalRef.current.show();
   };
 
   return (
@@ -45,7 +47,7 @@ export default function MapNavbar() {
               <div className="flex items-center lg:px-0 ">
                 <div className="hidden lg:ml-6 lg:block">
                   <div className="flex">
-                    <label className="pr-3 py-2 text-sm font-bold text-white">
+                    <label className="pr-3 py-2 text-sm font-bold text-gray-300">
                       지도 선택
                     </label>
                     <MapAPIsLists />
@@ -69,7 +71,7 @@ export default function MapNavbar() {
 
                           <button
                             type="button"
-                            onClick={() => storeShowModal()}
+                            // onClick={() => storeShowModal()}
                             className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
                           >
                             <MagnifyingGlassIcon
@@ -86,7 +88,7 @@ export default function MapNavbar() {
                     </label>
                     <button
                       type="button"
-                      onClick={() => logShowModal()}
+                      // onClick={() => logShowModal()}s
                       className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
                     >
                       <HiOutlineDocumentSearch
@@ -104,7 +106,6 @@ export default function MapNavbar() {
                         <div className="relative">
                           <button
                             type="button"
-                            onClick={''}
                             className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
                           >
                             <TbWorldLongitude
@@ -124,7 +125,6 @@ export default function MapNavbar() {
                         <div className="relative">
                           <button
                             type="button"
-                            onClick={''}
                             className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
                           >
                             <TbWorldLatitude
@@ -147,7 +147,7 @@ export default function MapNavbar() {
                         type="button"
                         className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                       >
-                        Search
+                        조회
                       </button>
                     </div>
                     <div className="flex flex-0 justify-center lg:ml-3">
@@ -155,7 +155,7 @@ export default function MapNavbar() {
                         type="button"
                         className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                       >
-                        Copy
+                        복사
                       </button>
                     </div>
                   </div>
@@ -191,7 +191,6 @@ export default function MapNavbar() {
                   <div className="inset-y-0 left-0 flex items-center pl-3">
                     <button
                       type="button"
-                      onClick={''}
                       className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
                     >
                       <MagnifyingGlassIcon
@@ -232,7 +231,6 @@ export default function MapNavbar() {
                   <div className="relative py-1">
                     <button
                       type="button"
-                      onClick={''}
                       className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
                     >
                       <TbWorldLongitude
@@ -248,7 +246,6 @@ export default function MapNavbar() {
                   <div className="relative">
                     <button
                       type="button"
-                      onClick={''}
                       className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
                     >
                       <TbWorldLatitude
@@ -288,4 +285,6 @@ export default function MapNavbar() {
       )}
     </Disclosure>
   );
-}
+};
+
+export default TopMenuBar;

@@ -54,8 +54,7 @@ const LogModal = forwardRef((props, ref) => {
                   </button>
                 </div>
                 <div className="w-full border-t border-gray-500" />
-                <div className="p-5">
-                </div>
+                <div className="p-5"></div>
               </DialogPanel>
             </TransitionChild>
           </div>

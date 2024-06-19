@@ -72,7 +72,7 @@ const StoreModal = forwardRef((props, ref) => {
                     </div>
                   </div>
                 </div>
-                <div className='p-3'>
+                <div className="p-3">
                   <StoreTable />
                 </div>
               </DialogPanel>
