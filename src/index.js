@@ -9,9 +9,9 @@ import Dashboard from './pages/Dashboard';
 import ManagementUsers from './pages/ManagementUsers';
 import TMap from './pages/TMap';
 import GoogleMap from './pages/GoogleMap';
-import RoutoMap from './components/mapApis/RoutoMap';
-import TomTomMap from './components/mapApis/TomTomMap';
-import HereMap from './components/mapApis/HereMap';
+import RoutoMap from './pages/RoutoMap';
+import TomTomMap from './pages/TomTomMap';
+import HereMap from './pages/HereMap';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

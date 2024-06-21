@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import TopMenuBar from '../navbars/TopMenuBar';
+import TopMenuBar from '../components/navbars/TopMenuBar';
 export default function RoutoMap() {
   const mapSize = {
     width: '100%',

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import TopMenuBar from '../navbars/TopMenuBar';
+import TopMenuBar from '../components/navbars/TopMenuBar';
 import H from '@here/maps-api-for-javascript';
 
 const Map = ({ apikey }) => {
@@ -12,7 +12,7 @@ const Map = ({ apikey }) => {
       if (!map.current) {
         platform.current = new H.service.Platform({
           apikey,
-          container: mapRef.current
+          container: mapRef.current,
         });
 
         const defaultLayers = platform.current.createDefaultLayers({
