@@ -1,5 +1,7 @@
 import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
-import TopMenuBar from '../navbar/TopMenuBar';
+import TopMenuBar from '../components/navbar/TopMenuBar';
+import RightSideSlide from '../components/slideOver/RightSideSlide';
+import LeftSideSlide from '../components/slideOver/LeftSideSlide';
 
 export default function GoogleMap() {
   const position = { lat: 53.54992, lng: 10.00678 };
@@ -9,6 +11,8 @@ export default function GoogleMap() {
       <header>
         <TopMenuBar />
       </header>
+      <LeftSideSlide />
+      <RightSideSlide />
       <APIProvider apiKey="AIzaSyCIobZGCZzf-wbQlKQb6Ae2VWP2RrEdlog">
         <Map
           style={{ height: `calc(100vh - 130px)`, zIndex: '1' }}

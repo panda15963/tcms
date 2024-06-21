@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import TopMenuBar from '../navbar/TopMenuBar';
+import TopMenuBar from '../components/navbar/TopMenuBar';
 
 export default function TMap() {
   const mapElement = useRef(null);
