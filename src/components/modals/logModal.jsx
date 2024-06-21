@@ -2,12 +2,10 @@ import { forwardRef, useImperativeHandle, useState } from 'react';
 import {
   Dialog,
   DialogPanel,
-  DialogTitle,
   Transition,
   TransitionChild,
 } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
-import LogTable from '../table/logTable';
 
 const LogModal = forwardRef((props, ref) => {
   const [open, setOpen] = useState(false);
@@ -21,7 +19,7 @@ const LogModal = forwardRef((props, ref) => {
 
   return (
     <Transition show={open}>
-      <Dialog className="relative" onClose={() => setOpen(false)}>
+      <Dialog className="relative z-10" onClose={() => setOpen(false)}>
         <TransitionChild
           enter="ease-out duration-300"
           enterFrom="opacity-0"

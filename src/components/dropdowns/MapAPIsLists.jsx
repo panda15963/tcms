@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Listbox,
   ListboxButton,
@@ -8,12 +8,13 @@ import {
 } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { useNavigate } from 'react-router-dom';
+
 const mapAPIs = [
-  { id: 1, name: 'HERE' },
-  { id: 2, name: 'TMAP' },
+  { id: 1, name: 'GOOGLE' },
+  { id: 2, name: 'HERE' },
   { id: 3, name: 'ROUTO' },
-  { id: 4, name: 'TOMTOM' },
-  { id: 5, name: 'GOOGLE' },
+  { id: 4, name: 'TMAP' },
+  { id: 5, name: 'TOMTOM' },
 ];
 
 function classNames(...classes) {
@@ -25,20 +26,38 @@ export default function MapAPIsLists() {
   const [selected, setSelected] = useState(mapAPIs[0]);
 
   const handleOnSelectMap = (selectedMap) => {
-    console.log('🚀 ~ MapAPIsLists ~ selectedMap:', selectedMap);
     setSelected(selectedMap);
+    console.log(
+      '🚀 ~ MapAPIsLists ~ selected & selectedMap:',
+      selected,
+      selectedMap,
+    );
     if (selectedMap) {
-      console.log('🚀 ~ handleOnSelectMap ~ selected:', selected);
+      console.log(
+        '🚀 ~ handleOnSelectMap ~ selected & selectedMap:',
+        selected,
+        selectedMap,
+      );
       switch (selectedMap.id) {
+        case 1:
+          navigate('/main/');
+          break;
         case 2:
+          navigate('/main/here');
+          break;
+        case 3:
+          navigate('/main/routo');
+          break;
+        case 4:
           navigate('/main/tmap');
           break;
         case 5:
-          navigate('/main/');
+          navigate('/main/tomtom');
+          break;
       }
     }
   };
-
+  console.log(handleOnSelectMap)
   return (
     <>
       <Listbox value={selected} onChange={handleOnSelectMap}>

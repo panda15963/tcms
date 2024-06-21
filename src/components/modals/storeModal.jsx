@@ -7,7 +7,7 @@ import {
   TransitionChild,
 } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
-import StoreTable from '../table/storeTable';
+import StoreTable from '../tables/StoreTable';
 
 const StoreModal = forwardRef((props, ref) => {
   const [open, setOpen] = useState(false);

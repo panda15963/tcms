@@ -8,10 +8,10 @@ import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { HiOutlineDocumentSearch } from 'react-icons/hi';
 import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
-import MapAPIsLists from '../dropdown/mapAPIsLists';
+import MapAPIsLists from '../dropdown/MapAPIsLists';
 import MapCoordLists from '../dropdown/mapCoordLists';
-import StoreModal from '../modals/storeModal';
-import LogModal from '../modals/logModal';
+import StoreModal from '../modals/StoreModal';
+import LogModal from '../modals/LogModal';
 
 export default function MapNavbar() {
   const [inputValue, setInputValue] = useState('');

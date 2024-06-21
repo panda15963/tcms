@@ -23,7 +23,8 @@ const tableHeader = [
   },
 ];
 export default function StoreTable() {
-  return (
+  console.log(stores.length);
+  return (      
     <div className="flow-root">
       <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -42,15 +43,38 @@ export default function StoreTable() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-500">
+                {stores.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={tableHeader.length}
+                      className="px-6 py-4 text-sm leading-5 text-black
+                        text-center font-semibold"
+                    >
+                      가게가 없습니다.
+                    </td>
+                  </tr>
+                )}
                 {stores.map((store) => (
-                    <tr key={store.name} className="divide-x divide-gray-500">
-                        <td className="px-6 py-4 text-sm leading-5 text-black
-                        text-center font-semibold">{store.name}</td>
-                        <td className="px-6 py-4 text-sm leading-5 text-black
-                        text-center font-semibold">{store.latitude}</td>
-                        <td className="px-6 py-4 text-sm leading-5 text-black
-                        text-center font-semibold">{store.longitude}</td>
-                    </tr>
+                  <tr key={store.name} className="divide-x divide-gray-500">
+                    <td
+                      className="px-6 py-4 text-sm leading-5 text-black
+                        text-center font-semibold"
+                    >
+                      {store.name}
+                    </td>
+                    <td
+                      className="px-6 py-4 text-sm leading-5 text-black
+                        text-center font-semibold"
+                    >
+                      {store.latitude}
+                    </td>
+                    <td
+                      className="px-6 py-4 text-sm leading-5 text-black
+                        text-center font-semibold"
+                    >
+                      {store.longitude}
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>

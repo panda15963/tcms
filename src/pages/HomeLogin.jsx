@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function Login() {
   return (
-    <div className="App">
+    <div>
       <div className="container m-auto p-auto border-2 border-gray-500 shadow-lg shadow-gray-500 w-1/4 mt-48">
         <div className="flex min-h-full flex-1 flex-col justify-center py-6 lg:px-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-sm">
