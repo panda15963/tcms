@@ -6,6 +6,10 @@ import React, { useEffect } from 'react';
 export default function TomTomMap() {
   const longitude = '-121.91599';
   const latitude = '37.36765';
+  const mapSize = {
+    width: '100%',
+    height: '86vh',
+  };
   useEffect(() => {
     // Initialize map
     const map = tt.map({
@@ -24,7 +28,7 @@ export default function TomTomMap() {
   return (
     <div>
       <TopMenuBar />
-      <div id="map-container" className="w-full h-screen"></div>
+      <div id="map-container" className="w-full h-screen" style={mapSize}></div>
     </div>
   );
 }
