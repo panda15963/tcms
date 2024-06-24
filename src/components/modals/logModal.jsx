@@ -1,20 +1,19 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import {
-  Combobox,
-  ComboboxButton,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
   Dialog,
   DialogPanel,
-  Label,
   Transition,
   TransitionChild,
 } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { MdClose } from 'react-icons/md';
-import { FaRegFolderOpen, FaCloudDownloadAlt, FaCheck } from 'react-icons/fa';
+import {
+  FaRegFolderOpen,
+  FaCloudDownloadAlt,
+  FaCheck,
+  FaSearch,
+} from 'react-icons/fa';
 import MultipleSelectDropDown from '../dropdowns/MultipleSelecDropDown';
+import MainGrid from '../tables/MainGrid';
 
 const fields = [
   {
@@ -34,8 +33,13 @@ const fields = [
   { id: 'tags', name: 'Tags' },
 ];
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
 const LogModal = forwardRef((props, ref) => {
   const [open, setOpen] = useState(false);
+  const [selectedSearchFields, setSelectedSearchFields] = useState([]);
 
   useImperativeHandle(ref, () => ({
     show() {
@@ -92,82 +96,45 @@ const LogModal = forwardRef((props, ref) => {
                       options={fields}
                       onChange={(options) => {
                         console.log('SELECTED OPTIONS ', options);
+                        setSelectedSearchFields(options);
                       }}
                     />
-                    {/* <Combobox
-                      as={'div'}
-                      value={selectedFields}
-                      onChange={handleSelectionChange}
-                      className="w-2/5 px-2 mb-2"
-                    >
-                      <div className="relative mt-2">
-                        <ComboboxInput
-                          className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                          onChange={(event) => setQuery(event.target.value)}
-                          onBlur={() => setQuery('')}
-                          displayValue={(fields) =>
-                            fields && fields.map((f) => f.name).join(', ')
-                          }
-                        />
-                        <ComboboxButton className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                          <ChevronUpDownIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                        </ComboboxButton>
-                        {filteredFields.length > 0 && (
-                          <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                            {filteredFields.map((field) => (
-                              <ComboboxOption
-                                key={field.id}
-                                value={field}
-                                className={({ focus }) =>
-                                  classNames(
-                                    'relative cursor-default select-none py-2 pl-3 pr-9',
-                                    focus
-                                      ? 'bg-indigo-600 text-white'
-                                      : 'text-gray-900',
-                                  )
-                                }
-                              >
-                                {({ focus, selected }) => (
-                                  <>
-                                    <span
-                                      className={classNames(
-                                        'block truncate',
-                                        selected && 'font-semibold',
-                                      )}
-                                    >
-                                      {field.name}
-                                    </span>
-
-                                    {selected && (
-                                      <span
-                                        className={classNames(
-                                          'absolute inset-y-0 right-0 flex items-center pr-4',
-                                          focus
-                                            ? 'text-white'
-                                            : 'text-indigo-600',
-                                        )}
-                                      >
-                                        <CheckIcon
-                                          className="h-5 w-5"
-                                          aria-hidden="true"
-                                        />
-                                      </span>
-                                    )}
-                                  </>
-                                )}
-                              </ComboboxOption>
-                            ))}
-                          </ComboboxOptions>
-                        )}
-                      </div>
-                    </Combobox> */}
                   </div>
+                  {/* Dyanmic Search fields*/}
+                  <div className="flex flex-wrap mb-4 mt-4">
+                    {selectedSearchFields.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="flex w-full sm:w-1/2 items-center mt-2"
+                      >
+                        <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
+                          {field.name}
+                        </label>
+                        <input
+                          type="text"
+                          id={field.id}
+                          className={classNames(
+                            'w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6',
+                          )}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-end">
+                    <button className="inline-flex items-center gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 border rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer hover:border-2">
+                      <FaSearch
+                        className="-ml-0.5 h-5 w-5 text-sky-500  cursor-pointer"
+                        aria-hidden="true"
+                      />
+                      <label className="text-base text-sky-500 font-normal cursor-pointer">
+                        Find
+                      </label>
+                    </button>
+                  </div>
+                  <MainGrid />
                   <div
                     id="download_container"
-                    className="grid grid-cols-[20%_1fr_15%] items-center gap-2"
+                    className="grid grid-cols-[20%_1fr_15%] items-center"
                   >
                     <span class=" text-sm font-semibold text-slate-700">
                       Download directory
@@ -175,9 +142,9 @@ const LogModal = forwardRef((props, ref) => {
                     <input
                       type="text"
                       name="download_dir"
-                      class="w-full mx-2 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 rounded-md sm:text-sm focus:ring-1"
+                      class="w-full px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 rounded-md sm:text-sm focus:ring-1"
                     />
-                    <div className="flex w-full">
+                    <div className="flex w-full justify-end">
                       <button className="font-semibold border-slate-300 border  rounded-md px-3 py-2 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500">
                         <FaRegFolderOpen
                           className="-ml-0.5 h-5 w-5 text-slate-700"
@@ -193,7 +160,7 @@ const LogModal = forwardRef((props, ref) => {
                       </button>
                     </div>
                   </div>
-                  <div className="flex justify-end px-2 mt-3">
+                  <div className="flex justify-end mt-3">
                     <button className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500">
                       <FaCheck
                         className="-ml-0.5 h-5 w-5 text-slate-700"

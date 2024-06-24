@@ -37,20 +37,27 @@ export default function MultipleSelectDropDown({
     // console.log('selectedFields => ', selectedFields);
   }, [selectedFields]);
 
-  const handleSelectionChange = (field) => {
-    if (selectedFields.includes(field)) {
-      setSelectedFields(selectedFields.filter((f) => f !== field));
-    } else {
-      setSelectedFields([...selectedFields, field]);
+  const handleSelectionChange = (fields) => {
+    console.log('handleSelectionChange=>', fields);
+    setSelectedFields(fields);
+    setQuery('');
+    if (onChange) {
+      onChange(fields);
     }
   };
 
   const handleSelectAllClick = () => {
     setSelectedFields(options);
+    if (onChange) {
+      onChange(options);
+    }
   };
 
   const handleOnClearOptions = () => {
     setSelectedFields([]);
+    if (onChange) {
+      onChange([]);
+    }
   };
 
   const filteredOptions = options.filter((option) =>
@@ -64,16 +71,23 @@ export default function MultipleSelectDropDown({
 
   return (
     <Combobox
+      multiple
       as={'div'}
       value={selectedFields}
       onChange={handleSelectionChange}
-      className="w-2/5 px-2 mb-2"
+      className="w-2/5 mb-2"
     >
       <div className="relative mt-2">
         <ComboboxInput
+          disabled={true}
           className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue_ncs sm:text-sm sm:leading-6"
-          onChange={(event) => setQuery(event.target.value)}
-          onBlur={() => setQuery('')}
+          onChange={(event) => {
+            console.log('event', event);
+            setQuery(event.target.value);
+          }}
+          onBlur={() => {
+            setQuery('');
+          }}
           displayValue={() => selectedFieldsString}
         />
         <ComboboxButton className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
@@ -84,7 +98,7 @@ export default function MultipleSelectDropDown({
         </ComboboxButton>
         {filteredOptions.length > 0 && (
           <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            <div className="flex w-full justify-between pb-3 px-3">
+            <div className="flex w-full justify-between pb-3 px-3 pt-1">
               <button
                 className="inline-flex items-center gap-1 rounded-lg shadow bg-slate-100 px-2 py-1 text-blue-600 disabled:opacity-50 hover:text-blue-700 hover:font-semibold disabled:font-normal disabled:cursor-not-allowed"
                 onClick={handleSelectAllClick}
