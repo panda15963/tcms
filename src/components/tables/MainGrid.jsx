@@ -1,10 +1,9 @@
 import {
-  createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useMemo, useState, version } from 'react';
+import { useMemo, useState } from 'react';
 
 const defaultColumns = [
   {
@@ -71,14 +70,14 @@ const MainGrid = ({}) => {
   });
   return (
     <div className="py-6">
-      <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-gray-200 border-gray-300">
+        <thead className="bg-gray-50 border-2">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 border-2 text-center text-xs font-bold text-black uppercase tracking-wider"
                 >
                   {header.isPlaceholder
                     ? null
@@ -97,7 +96,7 @@ const MainGrid = ({}) => {
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
-                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                  className="px-6 py-4 whitespace-nowrap text-center border-2 text-sm text-black"
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>

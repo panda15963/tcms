@@ -14,7 +14,7 @@ import {
 import LogModal from '../modals/LogModal';
 import StoreModal from '../modals/StoreModal';
 import MapAPIsLists from '../dropdowns/MapAPIsLists';
-import MapCoordLists from '../dropdowns/mapCoordLists';
+import MapCoordLists from '../dropdowns/MapCoordLists';
 
 const TopMenuBar = () => {
   const [inputValue, setInputValue] = useState('');
@@ -187,29 +187,30 @@ const TopMenuBar = () => {
               <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
                 지점 검색
               </label>
-              <div className="flex flex-1 justify-center  lg:justify-end">
+              <div className="flex flex-1 justify-center lg:justify-end">
                 <div className="w-full max-w-lg lg:max-w-xs">
                   <label htmlFor="search" className="sr-only">
                     Search
                   </label>
-                  <div className="inset-y-0 left-0 flex items-center pl-3">
+                  <div className="inset-y-0 flex items-center px-2">
+                    <input
+                      type="text"
+                      value={inputValue}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
+                      placeholder="Search"
+                    />
                     <button
                       type="button"
-                      className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                      onClick={() => storeShowModal()}
+                      className="inset-y-5 px-3 flex items-center border-1 rounded-md p-2 bg-gray-700"
                     >
                       <MagnifyingGlassIcon
                         className="h-5 w-5 text-gray-400"
                         aria-hidden="true"
                       />
                     </button>
-                    <input
-                      id="search"
-                      name="search"
-                      className="block w-full rounded-md border-0 bg-gray-700 py-1.5 pl-3 pr-3 text-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
-                      placeholder="Search"
-                      type="search"
-                      onKeyDown={() => onKeyDown()}
-                    />
                   </div>
                 </div>
               </div>
@@ -218,8 +219,8 @@ const TopMenuBar = () => {
               </label>
               <button
                 type="button"
-                onClick={() => logModalRef}
-                className="inset-y-5 px-3 flex js pr-3 border-1 rounded-md p-2 bg-gray-700"
+                onClick={() => logShowModal()}
+                className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
               >
                 <HiOutlineDocumentSearch
                   className="h-5 w-5 text-white"

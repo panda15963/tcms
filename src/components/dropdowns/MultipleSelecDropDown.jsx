@@ -4,15 +4,9 @@ import {
   ComboboxInput,
   ComboboxOption,
   ComboboxOptions,
-  Dialog,
-  DialogPanel,
-  Label,
-  Transition,
-  TransitionChild,
 } from '@headlessui/react';
-import { MdOutlineClear } from 'react-icons/md';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   IoCheckmarkDoneCircleOutline,
   IoCloseCircleOutline,
