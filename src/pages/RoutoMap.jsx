@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 export default function RoutoMap() {
   const mapSize = {
@@ -16,7 +16,7 @@ export default function RoutoMap() {
           center: { lat: 37.507009, lng: 127.0586339 }, // Initial map center
           zoom: 18,
         });
-        var marker = new routo.maps.Marker({
+        new routo.maps.Marker({
           position: { lat: 37.507009, lng: 127.0586339 },
           map: map,
           title: '현대 오토에버',

@@ -23,7 +23,6 @@ const tableHeader = [
   },
 ];
 export default function StoreTable() {
-  console.log(stores.length);
   return (
     <div className="flow-root">
       <table className="min-w-full divide-y divide-gray-200 border-gray-300">

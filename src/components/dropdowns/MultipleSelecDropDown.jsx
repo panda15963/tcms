@@ -6,7 +6,7 @@ import {
   ComboboxOptions,
 } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   IoCheckmarkDoneCircleOutline,
   IoCloseCircleOutline,
@@ -16,20 +16,12 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function MultipleSelectDropDown({
-  formFieldName,
-  options,
-  onChange,
-}) {
+export default function MultipleSelectDropDown({ options, onChange }) {
   const [selectedFields, setSelectedFields] = useState([]);
   const [query, setQuery] = useState('');
 
   const isSelectAllEnabled = selectedFields.length < options.length;
   const isClearSelectionEnabled = selectedFields.length > 0;
-
-  useEffect(() => {
-    // console.log('selectedFields => ', selectedFields);
-  }, [selectedFields]);
 
   const handleSelectionChange = (fields) => {
     console.log('handleSelectionChange=>', fields);
@@ -132,7 +124,7 @@ export default function MultipleSelectDropDown({
                   )
                 }
               >
-                {({ focus, selected }) => (
+                {({ focus }) => (
                   <>
                     <span
                       className={classNames(
@@ -161,84 +153,4 @@ export default function MultipleSelectDropDown({
       </div>
     </Combobox>
   );
-
-  //   const [selectedOptions, setSelectedOptions] = useState([]);
-  //   const optionsListRef = useRef();
-  //   const isSelectAllEnabled = selectedOptions.length < options.length;
-  //   const isClearSelectionEnabled = selectedOptions.length > 0;
-  //   const handleChange = (e) => {
-  //     const isChecked = e.target.checked;
-  //     const option = e.target.value;
-  //     const selectedOptionSet = new Set(selectedOptions);
-  //     if (isChecked) {
-  //       selectedOptionSet.add(option);
-  //     } else {
-  //       selectedOptionSet.delete(option);
-  //     }
-  //     const newSelectedOptions = Array.from(selectedOptionSet);
-  //     setSelectedOptions(newSelectedOptions);
-  //     onChange(newSelectedOptions);
-  //   };
-  //   const handleSelectAllClick = (e) => {
-  //     e.preventDefault();
-  //     const optionsInputs = optionsListRef.current.querySelectorAll('input');
-  //     optionsInputs.forEach((input) => {
-  //       input.checked = true;
-  //     });
-  //     setSelectedOptions([...options]);
-  //     onChange([...options]);
-  //   };
-  //   const handleClearSelectionClick = (e) => {
-  //     e.preventDefault();
-  //     const optionsInputs = optionsListRef.current.querySelectorAll('input');
-  //     optionsInputs.forEach((input) => {
-  //       input.checked = false;
-  //     });
-  //     setSelectedOptions([]);
-  //     onChange([]);
-  //   };
-  //   return (
-  //     <label className="relative">
-  //       <input type="checkbox" className="hidden peer" />
-  //       {'Show the dropdown'}
-  //       <div className="absolute bg-white border transition-opacity opacity-0 pointer-events-none peer-checked:opacity-100 peer-checked:pointer-events-auto">
-  //         <ul ref={optionsListRef}>
-  //           <li>
-  //             <button
-  //               onClick={handleSelectAllClick}
-  //               disabled={!isSelectAllEnabled}
-  //               className="w-full text-left px-2 py-1 text-blue-600 disabled:opacity-50"
-  //             >
-  //               {'Select All'}
-  //             </button>
-  //           </li>
-  //           <li>
-  //             <button
-  //               onClick={handleClearSelectionClick}
-  //               disabled={!isClearSelectionEnabled}
-  //               className="w-full text-left px-2 py-1 text-blue-600 disabled:opacity-50"
-  //             >
-  //               {'Clear selection'}
-  //             </button>
-  //           </li>
-  //           {options.map((option, i) => {
-  //             return (
-  //               <li key={option.id}>
-  //                 <label className="flex whitespace-nowrap cursor-pointer px-2 py-1 transition-colors hover:bg-blue-100 [&:has(input:checked)]:bg-blue-200">
-  //                   <input
-  //                     type="checkbox"
-  //                     name={formFieldName}
-  //                     value={option}
-  //                     className="cursor-pointer"
-  //                     onChange={handleChange}
-  //                   />
-  //                   <span className="ml-1">{option.name}</span>
-  //                 </label>
-  //               </li>
-  //             );
-  //           })}
-  //         </ul>
-  //       </div>
-  //     </label>
-  //   );
 }

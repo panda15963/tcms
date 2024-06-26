@@ -59,8 +59,7 @@ const defaultData = [
 
 const MainGrid = ({}) => {
   const columns = useMemo(() => defaultColumns, []);
-  const [data, setData] = useState(defaultData);
-  const [sorting, setSorting] = useState([]);
+  const [data] = useState(defaultData);
   const table = useReactTable({
     data,
     columns,

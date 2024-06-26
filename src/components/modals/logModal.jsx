@@ -1,4 +1,5 @@
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import axios from 'axios';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import {
   Dialog,
   DialogPanel,
@@ -14,6 +15,7 @@ import {
 } from 'react-icons/fa';
 import MultipleSelectDropDown from '../dropdowns/MultipleSelecDropDown';
 import MainGrid from '../tables/MainGrid';
+import { axiosInstance, nonAuthInstance } from '../../server/AxiosConfig';
 
 const fields = [
   {
@@ -37,13 +39,22 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-const LogModal = forwardRef((props, ref) => {
+const LogModal = forwardRef((_props, ref) => {
   const [open, setOpen] = useState(false);
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
+  const fetchData = async () => {
+    console.log("heeloo");
+    try {
+      const response = await nonAuthInstance.get('/main/feature');
+      console.log('Response:', response);
+      setSelectedSearchFields(response);
+    } catch (error) {
+      console.error('Error fetching search fields:', error);
+    }
+  };
 
   useImperativeHandle(ref, () => ({
     show() {
-      console.log('Called show func inside modal');
       setOpen(true);
     },
   }));
@@ -120,7 +131,10 @@ const LogModal = forwardRef((props, ref) => {
                     ))}
                   </div>
                   <div className="flex justify-end">
-                    <button className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer">
+                    <button
+                      className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                      onClick={fetchData}
+                    >
                       <FaSearch
                         className="-ml-0.5 h-5 w-5 text-sky-500  cursor-pointer"
                         aria-hidden="true"
@@ -129,6 +143,7 @@ const LogModal = forwardRef((props, ref) => {
                         Find
                       </label>
                     </button>
+                    {selectedSearchFields}
                   </div>
                   <MainGrid />
                   <div
@@ -177,5 +192,4 @@ const LogModal = forwardRef((props, ref) => {
     </Transition>
   );
 });
-
 export default LogModal;

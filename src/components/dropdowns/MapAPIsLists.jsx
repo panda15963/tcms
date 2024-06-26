@@ -41,11 +41,6 @@ export default function MapAPIsLists() {
 
   const handleOnSelectMap = (selectedMap) => {
     setSelected(selectedMap);
-    console.log(
-      '🚀 ~ MapAPIsLists ~ selected & selectedMap:',
-      selected,
-      selectedMap,
-    );
   };
   
   useEffect(() => {

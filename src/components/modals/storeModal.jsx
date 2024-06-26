@@ -9,12 +9,11 @@ import {
 import { MdClose } from 'react-icons/md';
 import StoreTable from '../tables/StoreTable';
 
-const StoreModal = forwardRef((props, ref) => {
+const StoreModal = forwardRef((_props, ref) => {
   const [open, setOpen] = useState(false);
 
   useImperativeHandle(ref, () => ({
     show() {
-      console.log('Called show func inside modal');
       setOpen(true);
     },
   }));

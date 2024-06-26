@@ -42,13 +42,6 @@ const treeData = [
 
 export default function LeftSideSlide() {
   const [open, setOpen] = useState(false);
-  const [expandedRows, setExpandedRows] = useState([]);
-
-  const toggleRow = (id) => {
-    setExpandedRows((pre) =>
-      pre.includes(id) ? pre.filter((rowId) => rowId !== id) : [...pre, id],
-    );
-  };
 
   return (
     <div className="flex">

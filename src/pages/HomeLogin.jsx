@@ -1,17 +1,6 @@
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 
 export default function Login() {
-  const handleSubmit = async (event) => {
-    try {
-      const response = await axios.post('http://192.168.0.88:8080/api/main/test',{
-        withCredentials: true
-      });
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-    }    
-  }
   return (
     <div>
       <div className="container m-auto p-auto border-2 border-gray-500 shadow-lg shadow-gray-500 w-1/4 mt-48">
@@ -81,7 +70,6 @@ export default function Login() {
               <button
                 type="submit"
                 className="w-full flex justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                onClick={handleSubmit}
               >
                 로그인
               </button>

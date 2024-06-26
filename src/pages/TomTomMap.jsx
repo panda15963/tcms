@@ -1,6 +1,6 @@
 import tt from '@tomtom-international/web-sdk-maps';
 import '@tomtom-international/web-sdk-maps/dist/maps.css';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
 export default function TomTomMap() {
   const longitude = '-121.91599';
@@ -19,7 +19,7 @@ export default function TomTomMap() {
     });
 
     // Add a marker to the map
-    const marker = new tt.Marker().setLngLat([longitude, latitude]).addTo(map);
+    new tt.Marker().setLngLat([longitude, latitude]).addTo(map);
 
     return () => map.remove(); // Clean up
   }, []);
