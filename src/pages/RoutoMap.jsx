@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import TopMenuBar from '../components/navbars/TopMenuBar';
+
 export default function RoutoMap() {
   const mapSize = {
     width: '100%',
@@ -29,9 +29,6 @@ export default function RoutoMap() {
   }, []);
   return (
     <>
-      <header>
-        <TopMenuBar />
-      </header>
       <main>
         <div className="flex flex-col items-center">
           <div id="map" style={mapSize}></div>

@@ -9,12 +9,19 @@ import {
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+// const mapAPIs = [
+//   { id: 1, name: 'GOOGLE' },
+//   { id: 2, name: 'HERE' },
+//   { id: 3, name: 'ROUTO' },
+//   { id: 4, name: 'TMAP' },
+//   { id: 5, name: 'TOMTOM' },
+// ];
+
 const mapAPIs = [
   { id: 1, name: 'GOOGLE' },
-  { id: 2, name: 'HERE' },
-  { id: 3, name: 'ROUTO' },
-  { id: 4, name: 'TMAP' },
-  { id: 5, name: 'TOMTOM' },
+  { id: 2, name: 'ROUTO' },
+  { id: 3, name: 'TMAP' },
+  { id: 4, name: 'TOMTOM' },
 ];
 
 function classNames(...classes) {
@@ -40,14 +47,10 @@ export default function MapAPIsLists() {
       selectedMap,
     );
   };
-
+  
   useEffect(() => {
     if (selected) {
-      if (selected.name !== 'GOOGLE') {
-        navigate(`/main/${selected.name.toLowerCase()}`);
-      } else {
-        navigate(`/main`);
-      }
+      navigate(`/main/map/${selected.name.toLowerCase()}`);
     }
   }, [selected, navigate]);
 

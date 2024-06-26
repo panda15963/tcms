@@ -1,4 +1,3 @@
-import TopMenuBar from '../components/navbars/TopMenuBar';
 import tt from '@tomtom-international/web-sdk-maps';
 import '@tomtom-international/web-sdk-maps/dist/maps.css';
 import React, { useEffect } from 'react';
@@ -27,7 +26,6 @@ export default function TomTomMap() {
 
   return (
     <div>
-      <TopMenuBar />
       <div id="map-container" className="w-full h-screen" style={mapSize}></div>
     </div>
   );

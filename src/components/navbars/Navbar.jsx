@@ -26,7 +26,7 @@ const userNavigation = [
 const navBarMenus = [
   {
     title: '지도',
-    link: '/main',
+    link: '/main/map/google',
   },
   {
     title: '통계',
@@ -47,10 +47,6 @@ function classNames(...classes) {
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const navigateToHome = () => {
-    navigate('/main');
-  };
-
   const navMenus = () => {
     return (
       <>
@@ -58,7 +54,11 @@ const Navbar = () => {
           <Menu key={index} as="div" className="relative mt-4 ml-32">
             <MenuButton
               className="inline-flex items-center border-b-2 px-7 pt-1 py-4 border-transparent text-base font-semibold text-gray-800  hover:border-gray-300 hover:text-gray-600"
-              onClick={() => navigateToHome()}
+              onClick={
+                menu.title === '지도'
+                  ? () => navigate('/main/map/google')
+                  : () => {}
+              }
             >
               {menu.title}
               {menu.subMenu && (
@@ -68,7 +68,6 @@ const Navbar = () => {
                 />
               )}
             </MenuButton>
-
             {menu.subMenu && (
               <Transition
                 enter="transition ease-out duration-200"
@@ -78,7 +77,7 @@ const Navbar = () => {
                 leaveFrom="transform opacity-100 scale-100"
                 leaveTo="transform opacity-0 scale-95"
               >
-                <MenuItems className="z-10 absolute -left-8 w-40 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <MenuItems className=" z-10 absolute -left-8 w-40 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                   {menu.subMenu.map((subMenu, subIndex) => (
                     <MenuItem key={subIndex}>
                       {({ focus }) => (
@@ -108,7 +107,14 @@ const Navbar = () => {
       <>
         {navBarMenus.map((menu, index) => (
           <Menu key={index} as="div" className="relative mt-4">
-            <MenuButton className="inline-flex items-center border-b-2 px-5 pt-1 py-4 border-transparent text-xl font-semibold text-gray-500 hover:border-gray-300 hover:text-gray-700">
+            <MenuButton
+              className="inline-flex items-center border-b-2 px-5 pt-1 py-4 border-transparent text-xl font-semibold text-gray-500 hover:border-gray-300 hover:text-gray-700"
+              onClick={
+                menu.title === '지도'
+                  ? () => navigate('/main/map/google')
+                  : () => {}
+              }
+            >
               {menu.title}
               {menu.subMenu && (
                 <ChevronDownIcon
@@ -202,7 +208,7 @@ const Navbar = () => {
           <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
               <div className="flex items-center">
-                <Link to={'/main'}>
+                <Link to={'/main/map/google'}>
                   <div className="flex-shrink-0">
                     <h1 className="text-5xl font-bold font-serif">TCMS</h1>
                   </div>

@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import TopMenuBar from '../components/navbars/TopMenuBar';
+import { useEffect, useRef } from 'react';
 
 export default function TMap() {
   const mapElement = useRef(null);
@@ -20,9 +19,6 @@ export default function TMap() {
 
   return (
     <>
-      <header>
-        <TopMenuBar />
-      </header>
       <main>
         <div id="map_div" style={{ overflow: 'hidden' }}></div>
       </main>

@@ -12,6 +12,7 @@ import GoogleMap from './pages/GoogleMap';
 import RoutoMap from './pages/RoutoMap';
 import TomTomMap from './pages/TomTomMap';
 import HereMap from './pages/HereMap';
+import MapLayout from './layout/MapLayout';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -20,11 +21,18 @@ root.render(
       <Routes>
         <Route path="/" element={<HomeLogin />} />
         <Route path="/main" element={<Layout />}>
-          <Route index element={<GoogleMap />} />
+          <Route path="/main/map" element={<MapLayout />}>
+            <Route path="google" element={<GoogleMap />} />
+            <Route path="tmap" element={<TMap />} />
+            <Route path="routo" element={<RoutoMap />} />
+            <Route path="tomtom" element={<TomTomMap />} />
+            <Route path="here" element={<HereMap />} />            
+          </Route>          
+          {/* <Route path="/main/google" element={<GoogleMap />} />
           <Route path="/main/tmap" element={<TMap />} />
           <Route path="/main/routo" element={<RoutoMap />} />
           <Route path="/main/tomtom" element={<TomTomMap />} />
-          <Route path="/main/here" element={<HereMap />} />
+          <Route path="/main/here" element={<HereMap />} /> */}
           <Route path="/main/admins" element={<ManagementAdmins />} />
           <Route path="/main/users" element={<ManagementUsers />} />
           <Route path="/main/dashboard" element={<Dashboard />} />
