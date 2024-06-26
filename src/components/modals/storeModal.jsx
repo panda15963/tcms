@@ -21,7 +21,7 @@ const StoreModal = forwardRef((props, ref) => {
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-10" onClose={() => setOpen(false)}>
+      <Dialog className="relative z-50" onClose={() => setOpen(false)}>
         <TransitionChild
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -44,28 +44,27 @@ const StoreModal = forwardRef((props, ref) => {
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <DialogPanel className="relative rounded-lg shadow-xl bg-white">
-                <div className="flex justify-between pb-2">
-                  <h1 className="font-semibold pl-3">지점 선택</h1>
+                <div className="flex justify-between py-3 px-5 bg-blue_ncs rounded-t-lg">
+                  <h1 className="font-semibold pl-3 text-white">지점 선택</h1>
                   <button
-                    className="font-semibold pr-1"
+                    className="font-semibold"
                     onClick={() => setOpen(false)}
                   >
-                    <MdClose size={24} />
+                    <MdClose className="text-white" size={16} />
                   </button>
                 </div>
-                <div className="w-full border-t border-gray-500" />
-                <div>
+                <div className="p-5">
                   <div className="text-center">
                     <div className="mt-2">
-                      <div className="grid grid-cols-3 py-2 px-4 items-center">
+                      <div className="grid grid-cols-3 px-4 items-center">
                         <DialogTitle
                           as="h3"
-                          className="text-base font-semibold leading-6 text-gray-900"
+                          className="text-base font-semibold leading-6"
                         >
                           Search Name
                         </DialogTitle>
-                        <input type="text" className="border-black border-2" />
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded w-24 justify-self-center p-1 border-2 border-blue-500 hover:border-blue-700">
+                        <input type="text" className="ring-1 ring-inset ring-gray-400 p-1 rounded-md" />
+                        <button className="font-bold rounded w-24 justify-self-center p-1 border-0 ring-gray-400 ring-1 hover:text-blue_ncs hover:ring-blue_ncs">
                           Search
                         </button>
                       </div>

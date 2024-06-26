@@ -21,11 +21,11 @@ const fields = [
     name: 'Find description',
   },
   { id: 'regions', name: 'Regions' },
-  { id: 'countrys', name: 'Countrys' },
-  { id: 'prioritys', name: 'Prioritys' },
+  { id: 'countries', name: 'Countries' },
+  { id: 'priorities', name: 'Priorities' },
   { id: 'features', name: 'Features' },
   { id: 'targets', name: 'Targets' },
-  { id: 'virtuals', name: 'Virtuals' },
+  { id: 'virtualities', name: 'Virtualities ' },
   {
     id: 'formats',
     name: 'Formats',
@@ -50,7 +50,7 @@ const LogModal = forwardRef((props, ref) => {
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-10" onClose={() => setOpen(false)}>
+      <Dialog className="relative z-50" onClose={() => setOpen(false)}>
         <TransitionChild
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -82,13 +82,12 @@ const LogModal = forwardRef((props, ref) => {
                     <MdClose className="text-white" size={16} />
                   </button>
                 </div>
-                <div className="w-full border-t border-gray-200" />
                 <div className="p-5">
                   <div
                     id="search_fieds"
                     className="flex items-center justify-start z-20"
                   >
-                    <span className="w-1/5 text-sm font-semibold text-slate-700">
+                    <span className="w-1/5 text-md font-semibold text-slate-700 text-center">
                       Search Fields
                     </span>
                     <MultipleSelectDropDown
@@ -114,19 +113,19 @@ const LogModal = forwardRef((props, ref) => {
                           type="text"
                           id={field.id}
                           className={classNames(
-                            'w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6',
+                            'w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6',
                           )}
                         />
                       </div>
                     ))}
                   </div>
                   <div className="flex justify-end">
-                    <button className="inline-flex items-center gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 border rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer hover:border-2">
+                    <button className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer">
                       <FaSearch
                         className="-ml-0.5 h-5 w-5 text-sky-500  cursor-pointer"
                         aria-hidden="true"
                       />
-                      <label className="text-base text-sky-500 font-normal cursor-pointer">
+                      <label className="text-base text-sky-500 font-bold cursor-pointer">
                         Find
                       </label>
                     </button>
@@ -136,13 +135,13 @@ const LogModal = forwardRef((props, ref) => {
                     id="download_container"
                     className="grid grid-cols-[20%_1fr_15%] items-center"
                   >
-                    <span class=" text-sm font-semibold text-slate-700">
+                    <span class=" text-md font-semibold text-slate-700 text-center">
                       Download directory
                     </span>
                     <input
                       type="text"
                       name="download_dir"
-                      class="w-full px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 rounded-md sm:text-sm focus:ring-1"
+                      class="w-full px-3 py-2 bg-white border shadow-sm border-slate-400 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 rounded-md sm:text-sm focus:ring-1"
                     />
                     <div className="flex w-full justify-end">
                       <button className="font-semibold border-slate-300 border  rounded-md px-3 py-2 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500">
