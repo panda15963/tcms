@@ -18,20 +18,14 @@ import MainGrid from '../tables/MainGrid';
 import { axiosInstance, nonAuthInstance } from '../../server/AxiosConfig';
 
 const fields = [
-  {
-    id: 'description',
-    name: 'Find description',
-  },
+  { id: 'description', name: 'Find description' },
   { id: 'regions', name: 'Regions' },
   { id: 'countries', name: 'Countries' },
   { id: 'priorities', name: 'Priorities' },
   { id: 'features', name: 'Features' },
   { id: 'targets', name: 'Targets' },
   { id: 'virtualities', name: 'Virtualities ' },
-  {
-    id: 'formats',
-    name: 'Formats',
-  },
+  { id: 'formats', name: 'Formats' },
   { id: 'tags', name: 'Tags' },
 ];
 
@@ -42,14 +36,20 @@ function classNames(...classes) {
 const LogModal = forwardRef((_props, ref) => {
   const [open, setOpen] = useState(false);
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
-  const fetchData = async () => {
-    console.log("heeloo");
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const axiosData = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const response = await nonAuthInstance.get('/main/feature');
+      const response = await nonAuthInstance.get('/auth/test');
       console.log('Response:', response);
-      setSelectedSearchFields(response);
-    } catch (error) {
-      console.error('Error fetching search fields:', error);
+      setData(response.data);
+    } catch (e) {
+      console.error('Error:', e.response ? e.response : e.message);
+      setError(e.response ? e.response.data : e.message);
     }
   };
 
@@ -83,7 +83,7 @@ const LogModal = forwardRef((_props, ref) => {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <DialogPanel className="relative rounded-lg transform overflow-hidden shadow-xl bg-white  text-left transition-all sm:w-full sm:my-8 sm:max-w-screen-xl sm:p-0">
+              <DialogPanel className="relative rounded-lg transform overflow-hidden shadow-xl bg-white text-left transition-all sm:w-full sm:my-8 sm:max-w-screen-xl sm:p-0">
                 <div className="flex justify-between py-3 px-5 bg-blue_ncs">
                   <h1 className="font-semibold text-white">로그 검색</h1>
                   <button
@@ -133,7 +133,7 @@ const LogModal = forwardRef((_props, ref) => {
                   <div className="flex justify-end">
                     <button
                       className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
-                      onClick={fetchData}
+                      onClick={axiosData}
                     >
                       <FaSearch
                         className="-ml-0.5 h-5 w-5 text-sky-500  cursor-pointer"
@@ -143,23 +143,34 @@ const LogModal = forwardRef((_props, ref) => {
                         Find
                       </label>
                     </button>
-                    {selectedSearchFields}
                   </div>
+                  {loading && <p>Loading...</p>}
+                  {error && <p className="text-red-500">{error}</p>}
+                  {data && (
+                    <div>
+                      <h2 className="text-xl font-semibold mt-4">
+                        Fetched Data:
+                      </h2>
+                      <pre className="bg-gray-100 p-4 rounded-md">
+                        {JSON.stringify(data, null, 2)}
+                      </pre>
+                    </div>
+                  )}
                   <MainGrid />
                   <div
                     id="download_container"
                     className="grid grid-cols-[20%_1fr_15%] items-center"
                   >
-                    <span class=" text-md font-semibold text-slate-700 text-center">
+                    <span className="text-md font-semibold text-slate-700 text-center">
                       Download directory
                     </span>
                     <input
                       type="text"
                       name="download_dir"
-                      class="w-full px-3 py-2 bg-white border shadow-sm border-slate-400 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 rounded-md sm:text-sm focus:ring-1"
+                      className="w-full px-3 py-2 bg-white border shadow-sm border-slate-400 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 rounded-md sm:text-sm focus:ring-1"
                     />
                     <div className="flex w-full justify-end">
-                      <button className="font-semibold border-slate-300 border  rounded-md px-3 py-2 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500">
+                      <button className="font-semibold border-slate-300 border rounded-md px-3 py-2 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500">
                         <FaRegFolderOpen
                           className="-ml-0.5 h-5 w-5 text-slate-700"
                           aria-hidden="true"
