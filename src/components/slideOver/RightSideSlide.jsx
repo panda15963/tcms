@@ -150,7 +150,7 @@ export default function RightSideSlide() {
     <div className="flex">
       {/* Open button */}
       {!open && (
-        <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-50">
+        <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
             className=" text-white px-3 py-3 rounded-l-full bg-blue_ncs hover:bg-blue_lapis"
             onClick={() => setOpen(true)}
