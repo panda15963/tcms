@@ -14,8 +14,8 @@ const mapAPIs = [
   { id: 2, name: 'ROUTO' },
   { id: 3, name: 'TMAP' },
   { id: 4, name: 'TOMTOM' },
-  // { id: 5, name: 'HERE' },
-  // { id: 6, name: 'BAIDU' },
+  { id: 5, name: 'BAIDU' },
+  // { id: 6, name: 'HERE' },
 ];
 
 function classNames(...classes) {

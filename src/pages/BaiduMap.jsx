@@ -1,17 +1,24 @@
-import React from 'react';
-import { Map, Marker, NavigationControl, InfoWindow, MapApiLoaderHOC } from 'react-bmapgl';
+import React, { useEffect } from 'react';
+import { MapApiLoaderHOC } from 'react-bmapgl';
 
-const BaiduMapComponent = () => {
-  return (
-    <Map center={{ lng: 116.404, lat: 39.915 }} zoom="15" style={{ width: '100%', height: '400px' }}>
-      <Marker position={{ lng: 116.404, lat: 39.915 }} />
-      <NavigationControl />
-      <InfoWindow position={{ lng: 116.404, lat: 39.915 }} text="Hello, Baidu Map!" title="Info Window" />
-    </Map>
-  );
+export default function BaiduMapComponent(){
+  useEffect(() => {
+    const loadBaiduMap = () => {
+      const script = document.createElement('script');
+      script.src =
+        'https://api.map.baidu.com/api?v=3.0&type=webgl&ak=pk4x7SQnHzjrRn3FwPPXZCIdxcn5YQ2r';
+      script.onload = () => {
+        const map = new window.BMapGL.Map('allmap');
+        map.centerAndZoom(new window.BMapGL.Point(116.28019, 40.049191), 19);
+        map.enableScrollWheelZoom(true);
+        map.setHeading(64.5);
+        map.setTilt(73);
+      };
+      document.head.appendChild(script);
+    };
+
+    loadBaiduMap();
+  }, []);
+
+  return <div id="allmap" className="w-full h-screen" style={{ height: `calc(100vh - 130px)`, zIndex: '1' }}></div>;
 };
-
-// Use the HOC to load the API
-const BaiduMap = MapApiLoaderHOC({ ak: 'npGHwQuv3UzGZgeQBLe0lkDorJx9b8gn' })(BaiduMapComponent);
-
-export default BaiduMap;
