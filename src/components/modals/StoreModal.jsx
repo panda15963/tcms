@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
 import {
   Dialog,
   DialogPanel,
@@ -8,11 +8,43 @@ import {
 } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import StoreTable from '../tables/StoreTable';
+import { GoogleSearch } from '../searchResults/GoogleSearch';
 
-const StoreModal = forwardRef((_props, ref) => {
+const StoreModal = forwardRef((props, ref) => {
+  const { enters: pressedEnter, values: bringValue } = props;
   const [open, setOpen] = useState(false);
+  const [searches, setSearches] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    if (pressedEnter === 'Enter') {
+      setSearchQuery(bringValue);
+      GoogleSearch(bringValue).then(setSearches);
+    }
+  }, [pressedEnter, bringValue]);
+
+  const handleEnter = (event) => {
+    if (event.key === 'Enter') {
+      GoogleSearch(searchQuery).then(setSearches);
+    }
+  };
+
+  const handleEvent = () => {
+    if (bringValue !== '') {
+      GoogleSearch(bringValue).then(setSearches);
+    } else if (searchQuery !== '') {
+      GoogleSearch(searchQuery).then(setSearches);
+    }
+  };
+
+  const handleClosed = () => {
+    setOpen(false);
+  };
 
   useImperativeHandle(ref, () => ({
+    hide() {
+      setOpen(false);
+    },
     show() {
       setOpen(true);
     },
@@ -20,7 +52,7 @@ const StoreModal = forwardRef((_props, ref) => {
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-50" onClose={() => setOpen(false)}>
+      <Dialog className="relative z-50" onClose={() => handleClosed()}>
         <TransitionChild
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -45,12 +77,11 @@ const StoreModal = forwardRef((_props, ref) => {
               <DialogPanel className="relative rounded-lg shadow-xl bg-white">
                 <div className="flex justify-between py-3 px-5 bg-blue_ncs rounded-t-lg">
                   <h1 className="font-semibold pl-3 text-white">지점 선택</h1>
-                  <button
-                    className="font-semibold"
-                    onClick={() => setOpen(false)}
-                  >
-                    <MdClose className="text-white" size={16} />
-                  </button>
+                  <MdClose
+                    className="text-white font-semibold size-6"
+                    size={16}
+                    onClick={() => handleClosed()}
+                  />
                 </div>
                 <div className="p-5">
                   <div className="text-center">
@@ -62,8 +93,28 @@ const StoreModal = forwardRef((_props, ref) => {
                         >
                           Search Name
                         </DialogTitle>
-                        <input type="text" className="ring-1 ring-inset ring-gray-400 p-1 rounded-md" />
-                        <button className="font-bold rounded w-24 justify-self-center p-1 border-0 ring-gray-400 ring-1 hover:text-blue_ncs hover:ring-blue_ncs">
+                        {bringValue === '' ? (
+                          <input
+                            type="text"
+                            className="ring-1 pl-4 ring-inset text-black p-1 rounded-md"
+                            placeholder="Search"
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyPress={handleEnter}
+                          />
+                        ) : (
+                          <input
+                            type="text"
+                            className="ring-1 pl-4 ring-inset text-black p-1 rounded-md"
+                            defaultValue={bringValue}
+                            onKeyPress={handleEnter}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                          />
+                        )}
+
+                        <button
+                          className="font-bold rounded w-24 justify-self-center p-1 border-0 ring-gray-400 ring-1 hover:text-blue_ncs hover:ring-blue_ncs"
+                          onClick={handleEvent}
+                        >
                           Search
                         </button>
                       </div>
@@ -71,7 +122,13 @@ const StoreModal = forwardRef((_props, ref) => {
                   </div>
                 </div>
                 <div className="p-3">
-                  <StoreTable />
+                  <StoreTable
+                    stores={searches.map((place) => ({
+                      name: place.displayName,
+                      latitude: place.Eg.location.lat.toFixed(7),
+                      longitude: place.Eg.location.lng.toFixed(7),
+                    }))}
+                  />
                 </div>
               </DialogPanel>
             </TransitionChild>
@@ -82,4 +139,4 @@ const StoreModal = forwardRef((_props, ref) => {
   );
 });
 
-export default StoreModal;
+export { StoreModal };
