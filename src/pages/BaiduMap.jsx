@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { MapApiLoaderHOC } from 'react-bmapgl';
 
 export default function BaiduMapComponent(){
   useEffect(() => {
