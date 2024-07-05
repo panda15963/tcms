@@ -6,18 +6,16 @@ import {
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/react';
-import {
-  Bars3Icon,
-  XMarkIcon,
-  MagnifyingGlassIcon,
-} from '@heroicons/react/24/outline';
+import { FaMagnifyingGlass, FaXmark, FaBars } from "react-icons/fa6";
 import LogModal from '../modals/LogModal';
-import StoreModal from '../modals/StoreModal';
+import { StoreModal } from '../modals/StoreModal';
 import MapAPIsLists from '../dropdowns/MapAPIsLists';
 import MapCoordLists from '../dropdowns/MapCoordLists';
 
 const TopMenuBar = () => {
-  const [inputValue, setInputValue] = useState('');
+  const [stringInputValue, setStringInputValue] = useState('');
+  const [floatInputValue, setFloatInputValue] = useState(0);
+  const [keyPressed, setKeyPressed] = useState('');
 
   const storeModalRef = useRef();
   const logModalRef = useRef();
@@ -25,16 +23,30 @@ const TopMenuBar = () => {
   const storeShowModal = () => {
     storeModalRef.current.show();
   };
+  
+  const inputValue =
+    stringInputValue !== '' ? stringInputValue : floatInputValue;
+  // console.log('inputValue test: ', inputValue())
 
   const handleChange = (event) => {
-    setInputValue(event.target.value);
+    if (isNaN(Number(event.target.value))) {
+      setStringInputValue(event.target.value);
+    } else if (parseFloat(event.target.value) >= 0) {
+      setFloatInputValue(parseFloat(event.target.value));
+    }
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === 'Enter' && inputValue !== '') {
+    const reg = /[\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g;
+    if (
+      event.key === 'Enter' &&
+      event.target.value !== '' &&
+      !reg.test(event.target.value)
+    ) {
       storeShowModal();
-      setInputValue('');
+      setKeyPressed(event.key);
     }
+    console.log('Input Value : ', event.target.value);
   };
 
   const logShowModal = () => {
@@ -65,7 +77,6 @@ const TopMenuBar = () => {
                         <div className="inset-y-0 flex items-center px-2">
                           <input
                             type="text"
-                            value={inputValue}
                             onChange={handleChange}
                             onKeyDown={handleKeyDown}
                             className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
@@ -76,7 +87,7 @@ const TopMenuBar = () => {
                             onClick={() => storeShowModal()}
                             className="inset-y-5 px-3 flex items-center border-1 rounded-md p-2 bg-gray-700"
                           >
-                            <MagnifyingGlassIcon
+                            <FaMagnifyingGlass
                               className="h-5 w-5 text-gray-400"
                               aria-hidden="true"
                             />
@@ -84,7 +95,11 @@ const TopMenuBar = () => {
                         </div>
                       </div>
                     </div>
-                    <StoreModal ref={storeModalRef} />
+                    <StoreModal
+                      ref={storeModalRef}
+                      values={inputValue}
+                      enters={keyPressed}
+                    />
                     <div className="flex flex-1 justify-center lg:ml-3">
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
                         로그 검색
@@ -170,9 +185,9 @@ const TopMenuBar = () => {
                 <DisclosureButton className="relative inline-flex items-center justify-between rounded-md p-2 text-gray-400 right-2 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                   <span className="absolute -inset-0.5" />
                   {open ? (
-                    <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                    <FaXmark className="block h-6 w-6" aria-hidden="true" />
                   ) : (
-                    <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                    <FaBars className="block h-6 w-6" aria-hidden="true" />
                   )}
                 </DisclosureButton>
               </div>
@@ -195,7 +210,6 @@ const TopMenuBar = () => {
                   <div className="inset-y-0 flex items-center px-2">
                     <input
                       type="text"
-                      value={inputValue}
                       onChange={handleChange}
                       onKeyDown={handleKeyDown}
                       className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
@@ -206,12 +220,13 @@ const TopMenuBar = () => {
                       onClick={() => storeShowModal()}
                       className="inset-y-5 px-3 flex items-center border-1 rounded-md p-2 bg-gray-700"
                     >
-                      <MagnifyingGlassIcon
+                      <FaMagnifyingGlass
                         className="h-5 w-5 text-gray-400"
                         aria-hidden="true"
                       />
                     </button>
                   </div>
+                  stringInputValue
                 </div>
               </div>
               <label className="block rounded-md px-3 py-2 text-base font-medium text-white">

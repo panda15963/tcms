@@ -6,7 +6,7 @@ import {
   ListboxOptions,
   Transition,
 } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+import { FaAngleDown, FaCheck } from "react-icons/fa6";
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const mapAPIs = [
@@ -29,14 +29,15 @@ export default function MapAPIsLists() {
 
   useEffect(() => {
     const path = location.pathname.split('/').pop().toUpperCase();
-    const initialSelected = mapAPIs.find((api) => api.name === path) || mapAPIs[0];
+    const initialSelected =
+      mapAPIs.find((api) => api.name === path) || mapAPIs[0];
     setSelected(initialSelected);
   }, [location.pathname]);
 
   const handleOnSelectMap = (selectedMap) => {
     setSelected(selectedMap);
   };
-  
+
   useEffect(() => {
     if (selected) {
       navigate(`/main/map/${selected.name.toLowerCase()}`);
@@ -53,7 +54,7 @@ export default function MapAPIsLists() {
             <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
               <span className="block truncate">{selected.name}</span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <ChevronUpDownIcon
+                <FaAngleDown
                   className="h-5 w-5 text-gray-400"
                   aria-hidden="true"
                 />
@@ -95,10 +96,7 @@ export default function MapAPIsLists() {
                               'absolute inset-y-0 left-0 flex items-center pl-1.5',
                             )}
                           >
-                            <CheckIcon
-                              className="h-5 w-5"
-                              aria-hidden="true"
-                            />
+                            <FaCheck className="h-5 w-5" aria-hidden="true" />
                           </span>
                         ) : null}
                       </>

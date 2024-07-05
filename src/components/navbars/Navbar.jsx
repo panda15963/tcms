@@ -8,8 +8,7 @@ import {
   MenuItems,
   Transition,
 } from '@headlessui/react';
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { FaXmark, FaBars, FaAngleDown,FaBell } from "react-icons/fa6";
 import { Link, useNavigate } from 'react-router-dom';
 
 const profileMenus = [
@@ -62,7 +61,7 @@ const Navbar = () => {
             >
               {menu.title}
               {menu.subMenu && (
-                <ChevronDownIcon
+                <FaAngleDown
                   className="-mr-1 h-5 w-5 text-gray-400"
                   aria-hidden="true"
                 />
@@ -117,7 +116,7 @@ const Navbar = () => {
             >
               {menu.title}
               {menu.subMenu && (
-                <ChevronDownIcon
+                <FaAngleDown
                   className="-mr-1 h-5 w-5 text-gray-400"
                   aria-hidden="true"
                 />
@@ -226,9 +225,9 @@ const Navbar = () => {
                   <span className="absolute -inset-0.5" />
                   <span className="sr-only">Open main menu</span>
                   {open ? (
-                    <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                    <FaXmark className="block h-6 w-6" aria-hidden="true" />
                   ) : (
-                    <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                    <FaBars className="block h-6 w-6" aria-hidden="true" />
                   )}
                 </DisclosureButton>
               </div>
@@ -259,7 +258,7 @@ const Navbar = () => {
                 >
                   <span className="absolute -inset-1.5" />
                   <span className="sr-only">View notifications</span>
-                  <BellIcon className="h-6 w-6" aria-hidden="true" />
+                  <FaBell className="h-6 w-6" aria-hidden="true" />
                 </button>
               </div>
               <div className="mt-3 space-y-1 px-2">

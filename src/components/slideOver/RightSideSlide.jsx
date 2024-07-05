@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import { Transition } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { FaXmark } from "react-icons/fa6";
 import { FaArrowCircleLeft } from 'react-icons/fa';
 import { CiSquarePlus, CiSquareMinus } from 'react-icons/ci';
 
@@ -183,7 +183,7 @@ export default function RightSideSlide() {
                 >
                   <span className="absolute -inset-2.5" />
                   <span className="sr-only">Close panel</span>
-                  <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                  <FaXmark className="h-6 w-6" aria-hidden="true" />
                 </button>
               </div>
             </div>
