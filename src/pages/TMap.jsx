@@ -1,24 +1,39 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import '../style/MapStyle.css';
 
 export default function TMap() {
-  const { Tmapv2 } = window;
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   useEffect(() => {
-    initMap();
-  }, []);
+    const { Tmapv2 } = window;
+    if (Tmapv2 && !mapLoaded) {
+      initMap(Tmapv2);
+      setMapLoaded(true);
+    }
+  }, [mapLoaded]);
 
-  function initMap() {
-    new window.Tmapv2.Map('map_div', {
-      center: new Tmapv2.LatLng(37.566481622437934, 126.98502302169841), // 지도 초기 좌표
-      height: `calc(100vh - 130px)`,
-      zoom: 10,
+  function initMap(Tmapv2) {
+    const map = new Tmapv2.Map('map_div', {
+      center: new Tmapv2.LatLng(
+        Number(process.env.REACT_APP_LATITUDE),
+        Number(process.env.REACT_APP_LONGITUDE),
+      ),
+      zoom: Number(process.env.REACT_APP_ZOOM),
+    });
+    new Tmapv2.Marker({
+      position: new Tmapv2.LatLng(
+        Number(process.env.REACT_APP_LATITUDE),
+        Number(process.env.REACT_APP_LONGITUDE),
+      ),
+      map: map,
+      title: '현대 오토에버',
     });
   }
 
   return (
     <>
       <main>
-        <div id="map_div" style={{ overflow: 'hidden' }}></div>
+        <div id="map_div" className="map"></div>
       </main>
     </>
   );

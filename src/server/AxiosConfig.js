@@ -1,12 +1,15 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
+const baseURL = process.env.REACT_APP_BASEURL;
+const timeout = process.env.REACT_APP_TIMEOUT;
+
 export const axiosInstance = axios.create({
   /**
    * [Swagger API Server]
    */
-  baseURL: 'http://192.168.0.88:8080/api',
-  timeout: 300000,
+  baseURL: baseURL,
+  timeout: timeout,
   headers: {
     Authorization: `Bearer ${Cookies.get('access-token')}`,
     'Access-Control-Allow-Origin': '*',
@@ -20,9 +23,8 @@ export const nonAuthInstance = axios.create({
   /**
    * [Swagger API Server]
    */
-  baseURL: 'http://210.106.106.80:8080/api',
-  
-  timeout: 300000,
+  baseURL: baseURL,  
+  timeout: timeout,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -34,7 +36,11 @@ export const nonAuthInstance = axios.create({
 });
 
 export const axiosMultipartInstance = axios.create({
-  timeout: 300000,
+  /**
+   * [Swagger API Server]
+   */
+  baseURL: baseURL,
+  timeout: timeout,
   headers: {
     Authorization: `Bearer ${Cookies.get('access-token')}`,
     'Content-Type': 'multipart/form-data',

@@ -1,7 +1,7 @@
 import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import './index.css';
+import './style/Index.css';
 import HomeLogin from './pages/HomeLogin';
 import Layout from './layout/Layout';
 import ManagementAdmins from './pages/ManagementAdmins';
@@ -17,27 +17,26 @@ import BaiduMap from './pages/BaiduMap';
 // Current Pending MAP
 import HereMap from './pages/HereMap';
 
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomeLogin />} />
-        <Route path="/main" element={<Layout />}>
-          <Route path="/main/map" element={<MapLayout />}>
-            <Route path="google" element={<GoogleMap />} />
-            <Route path="tmap" element={<TMap />} />
-            <Route path="routo" element={<RoutoMap />} />
-            <Route path="tomtom" element={<TomTomMap />} />
-            <Route path="here" element={<HereMap />} />
-            <Route path="baidu" element={<BaiduMap />} />
+    <StrictMode>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomeLogin />} />
+          <Route path="/main" element={<Layout />}>
+            <Route path="/main/map" element={<MapLayout />}>
+              <Route path="google" element={<GoogleMap />} />
+              <Route path="tmap" element={<TMap />} />
+              <Route path="routo" element={<RoutoMap />} />
+              <Route path="tomtom" element={<TomTomMap />} />
+              <Route path="here" element={<HereMap />} />
+              <Route path="baidu" element={<BaiduMap />} />
+            </Route>
+            <Route path="/main/admins" element={<ManagementAdmins />} />
+            <Route path="/main/users" element={<ManagementUsers />} />
+            <Route path="/main/dashboard" element={<Dashboard />} />
           </Route>
-          <Route path="/main/admins" element={<ManagementAdmins />} />
-          <Route path="/main/users" element={<ManagementUsers />} />
-          <Route path="/main/dashboard" element={<Dashboard />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  </StrictMode>,
+        </Routes>
+      </BrowserRouter>
+    </StrictMode>
 );

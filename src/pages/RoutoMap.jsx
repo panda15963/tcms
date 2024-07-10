@@ -1,23 +1,21 @@
 import { useEffect } from 'react';
+import '../style/MapStyle.css';
 
 export default function RoutoMap() {
-  const mapSize = {
-    width: '100%',
-    height: '86vh',
-  };
   useEffect(() => {
     const loadScript = () => {
       const script = document.createElement('script');
       script.src =
-        'https://api.routo.com/v2/maps/map?key=07161293-d747-4473-8d6e-50252bfd83fb';
+        'https://api.routo.com/v2/maps/map?key=' +
+        process.env.REACT_APP_ROUTTO_MAP_API;
       script.async = true;
       script.onload = () => {
         var map = new routo.maps.Map('map', {
-          center: { lat: 37.507009, lng: 127.0586339 }, // Initial map center
-          zoom: 18,
+          center: { lat: Number(process.env.REACT_APP_LATITUDE), lng: Number(process.env.REACT_APP_LONGITUDE) },
+          zoom: Number(process.env.REACT_APP_ZOOM),
         });
         new routo.maps.Marker({
-          position: { lat: 37.507009, lng: 127.0586339 },
+          position: { lat: Number(process.env.REACT_APP_LATITUDE), lng: Number(process.env.REACT_APP_LONGITUDE) },
           map: map,
           title: '현대 오토에버',
         });
@@ -27,13 +25,5 @@ export default function RoutoMap() {
     loadScript();
     return () => {};
   }, []);
-  return (
-    <>
-      <main>
-        <div className="flex flex-col items-center">
-          <div id="map" style={mapSize}></div>
-        </div>
-      </main>
-    </>
-  );
+  return <div id='map' className='map'></div>;
 }

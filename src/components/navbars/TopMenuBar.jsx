@@ -6,9 +6,9 @@ import {
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/react';
-import { FaMagnifyingGlass, FaXmark, FaBars } from "react-icons/fa6";
+import { FaMagnifyingGlass, FaXmark, FaBars } from 'react-icons/fa6';
 import LogModal from '../modals/LogModal';
-import { StoreModal } from '../modals/StoreModal';
+import StoreModal from '../modals/StoreModal';
 import MapAPIsLists from '../dropdowns/MapAPIsLists';
 import MapCoordLists from '../dropdowns/MapCoordLists';
 
@@ -23,10 +23,9 @@ const TopMenuBar = () => {
   const storeShowModal = () => {
     storeModalRef.current.show();
   };
-  
+
   const inputValue =
     stringInputValue !== '' ? stringInputValue : floatInputValue;
-  // console.log('inputValue test: ', inputValue())
 
   const handleChange = (event) => {
     if (isNaN(Number(event.target.value))) {
@@ -46,7 +45,6 @@ const TopMenuBar = () => {
       storeShowModal();
       setKeyPressed(event.key);
     }
-    console.log('Input Value : ', event.target.value);
   };
 
   const logShowModal = () => {
@@ -306,5 +304,4 @@ const TopMenuBar = () => {
     </Disclosure>
   );
 };
-
 export default TopMenuBar;
