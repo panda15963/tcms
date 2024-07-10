@@ -42,13 +42,24 @@ const StoreModal = forwardRef((props, ref) => {
   };
 
   useImperativeHandle(ref, () => ({
-    hide() {
-      setOpen(false);
-    },
     show() {
       setOpen(true);
     },
+    close() {
+      setOpen(false);
+    },
   }));
+
+  const handleStoreTableData = (dataFromStoreTable) => {
+    if (
+      dataFromStoreTable.latitude !== undefined &&
+      dataFromStoreTable.longitude !== undefined
+    ) {
+      setOpen(false);
+    } else {
+      alert('지점을 선택하여 주십시오!');
+    }
+  };
 
   return (
     <Transition show={open}>
@@ -63,7 +74,6 @@ const StoreModal = forwardRef((props, ref) => {
         >
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75" />
         </TransitionChild>
-
         <div className="fixed inset-0">
           <div className="flex min-h-full items-center justify-center text-center">
             <TransitionChild
@@ -96,7 +106,7 @@ const StoreModal = forwardRef((props, ref) => {
                         {bringValue === '' ? (
                           <input
                             type="text"
-                            className="ring-1 pl-4 ring-inset text-black p-1 rounded-md"
+                            className="pl-4 border-2 text-black p-1 rounded-md"
                             placeholder="Search"
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyPress={handleEnter}
@@ -104,15 +114,14 @@ const StoreModal = forwardRef((props, ref) => {
                         ) : (
                           <input
                             type="text"
-                            className="ring-1 pl-4 ring-inset text-black p-1 rounded-md"
+                            className="pl-4 border-2 border-black text-black p-1 rounded-md"
                             defaultValue={bringValue}
                             onKeyPress={handleEnter}
                             onChange={(e) => setSearchQuery(e.target.value)}
                           />
                         )}
-
                         <button
-                          className="font-bold rounded w-24 justify-self-center p-1 border-0 ring-gray-400 ring-1 hover:text-blue_ncs hover:ring-blue_ncs"
+                          className="font-bold rounded w-24 justify-self-center p-1 border-2 border-black ring-gray-400 hover:border-blue_ncs hover:text-blue_ncs hover:ring-blue_ncs"
                           onClick={handleEvent}
                         >
                           Search
@@ -128,6 +137,7 @@ const StoreModal = forwardRef((props, ref) => {
                       latitude: place.Eg.location.lat.toFixed(7),
                       longitude: place.Eg.location.lng.toFixed(7),
                     }))}
+                    onDataReceive={handleStoreTableData}
                   />
                 </div>
               </DialogPanel>
@@ -138,5 +148,4 @@ const StoreModal = forwardRef((props, ref) => {
     </Transition>
   );
 });
-
-export { StoreModal };
+export default StoreModal;

@@ -1,18 +1,34 @@
-import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  APIProvider,
+  Map,
+  MapCameraChangedEvent,
+} from '@vis.gl/react-google-maps';
+import '../style/MapStyle.css';
 
-export default function GoogleMap() {
-  const position = { lat: 53.54992, lng: 10.00678 };
+export default function GoogleMap({ lat, lng }) {
+  const initialCenter = {
+    lat: Number(process.env.REACT_APP_LATITUDE),
+    lng: Number(process.env.REACT_APP_LONGITUDE),
+  };
+  const coords = {
+    lat: lat,
+    lng: lng,
+  };
 
+  const chosenCoords =
+    coords.lat !== undefined && coords.lng !== undefined
+      ? coords
+      : initialCenter;
+  console.log(chosenCoords)
   return (
     <>
-      <APIProvider apiKey="AIzaSyCIobZGCZzf-wbQlKQb6Ae2VWP2RrEdlog">
+      <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAP_API}>
         <Map
-          style={{ height: `calc(100vh - 130px)`, zIndex: '1' }}
-          defaultCenter={position}
-          defaultZoom={10}
-        >
-          <Marker position={position} />
-        </Map>
+          className="map"
+          defaultCenter={initialCenter}
+          defaultZoom={Number(process.env.REACT_APP_ZOOM)}
+        ></Map>
       </APIProvider>
     </>
   );
