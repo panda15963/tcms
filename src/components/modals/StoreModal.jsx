@@ -11,7 +11,7 @@ import StoreTable from '../tables/StoreTable';
 import { GoogleSearch } from '../searchResults/GoogleSearch';
 
 const StoreModal = forwardRef((props, ref) => {
-  const { enters: pressedEnter, values: bringValue } = props;
+  const { enters: pressedEnter, values: bringValue, onDataReceiveBack } = props;
   const [open, setOpen] = useState(false);
   const [searches, setSearches] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,6 +56,7 @@ const StoreModal = forwardRef((props, ref) => {
       dataFromStoreTable.longitude !== undefined
     ) {
       setOpen(false);
+      onDataReceiveBack(open);
     } else {
       alert('지점을 선택하여 주십시오!');
     }
@@ -115,7 +116,8 @@ const StoreModal = forwardRef((props, ref) => {
                           <input
                             type="text"
                             className="pl-4 border-2 border-black text-black p-1 rounded-md"
-                            defaultValue={bringValue}
+                            defaultValue={bringValue === 0 ? '' : bringValue}
+                            placeholder={bringValue === 0 ? 'Search' : ''}
                             onKeyPress={handleEnter}
                             onChange={(e) => setSearchQuery(e.target.value)}
                           />

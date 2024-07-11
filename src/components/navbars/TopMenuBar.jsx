@@ -14,6 +14,7 @@ import MapCoordLists from '../dropdowns/MapCoordLists';
 
 const TopMenuBar = () => {
   const [stringInputValue, setStringInputValue] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [floatInputValue, setFloatInputValue] = useState(0);
   const [keyPressed, setKeyPressed] = useState('');
 
@@ -44,6 +45,10 @@ const TopMenuBar = () => {
     ) {
       storeShowModal();
       setKeyPressed(event.key);
+      setIsModalOpen(true);
+    }
+    if(event.key === 'Backspace'){
+      setStringInputValue('')
     }
   };
 
@@ -51,6 +56,13 @@ const TopMenuBar = () => {
     logModalRef.current.show();
   };
 
+  const handleEmptyValue = () => {
+    if (isModalOpen) {
+      setStringInputValue('');
+      setIsModalOpen(false);
+      console.log(inputValue)
+    }
+  };
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -77,6 +89,7 @@ const TopMenuBar = () => {
                             type="text"
                             onChange={handleChange}
                             onKeyDown={handleKeyDown}
+                            value={stringInputValue}
                             className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
                             placeholder="Search"
                           />
@@ -97,6 +110,7 @@ const TopMenuBar = () => {
                       ref={storeModalRef}
                       values={inputValue}
                       enters={keyPressed}
+                      onDataReceiveBack={handleEmptyValue}
                     />
                     <div className="flex flex-1 justify-center lg:ml-3">
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
