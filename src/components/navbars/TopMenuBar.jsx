@@ -13,9 +13,8 @@ import MapAPIsLists from '../dropdowns/MapAPIsLists';
 import MapCoordLists from '../dropdowns/MapCoordLists';
 
 const TopMenuBar = () => {
-  const [stringInputValue, setStringInputValue] = useState('');
+  const [inputValue, setinputValue] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [floatInputValue, setFloatInputValue] = useState(0);
   const [keyPressed, setKeyPressed] = useState('');
 
   const storeModalRef = useRef();
@@ -25,15 +24,8 @@ const TopMenuBar = () => {
     storeModalRef.current.show();
   };
 
-  const inputValue =
-    stringInputValue !== '' ? stringInputValue : floatInputValue;
-
   const handleChange = (event) => {
-    if (isNaN(Number(event.target.value))) {
-      setStringInputValue(event.target.value);
-    } else if (parseFloat(event.target.value) >= 0) {
-      setFloatInputValue(parseFloat(event.target.value));
-    }
+    setinputValue(event.target.value);
   };
 
   const handleKeyDown = (event) => {
@@ -47,8 +39,8 @@ const TopMenuBar = () => {
       setKeyPressed(event.key);
       setIsModalOpen(true);
     }
-    if(event.key === 'Backspace'){
-      setStringInputValue('')
+    if (event.key === 'Backspace') {
+      setinputValue('');
     }
   };
 
@@ -58,9 +50,8 @@ const TopMenuBar = () => {
 
   const handleEmptyValue = () => {
     if (isModalOpen) {
-      setStringInputValue('');
+      setinputValue('');
       setIsModalOpen(false);
-      console.log(inputValue)
     }
   };
   return (
@@ -89,7 +80,7 @@ const TopMenuBar = () => {
                             type="text"
                             onChange={handleChange}
                             onKeyDown={handleKeyDown}
-                            value={stringInputValue}
+                            value={inputValue}
                             className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
                             placeholder="Search"
                           />

@@ -107,7 +107,7 @@ const StoreModal = forwardRef((props, ref) => {
                         {bringValue === '' ? (
                           <input
                             type="text"
-                            className="pl-4 border-2 text-black p-1 rounded-md"
+                            className="pl-4 border-2  border-black text-black p-1 rounded-md"
                             placeholder="Search"
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyPress={handleEnter}
