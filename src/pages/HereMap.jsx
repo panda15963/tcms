@@ -1,5 +1,5 @@
 import H from '@here/maps-api-for-javascript';
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import '../style/MapStyle.css';
 
 export default function HereMap() {

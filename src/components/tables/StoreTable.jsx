@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { FaLongArrowAltLeft, FaLongArrowAltRight } from 'react-icons/fa';
 import GoogleMap from '../../pages/GoogleMap';
-
 const tableHeader = [
   {
     title: '지점 이름',
@@ -38,8 +37,11 @@ export default function StoreTable(props) {
 
   const getCoord = (store) => {
     const { latitude, longitude } = store;
-    GoogleMap({ lat: Number(latitude), lng: Number(longitude) });
     onDataReceive(store);
+    GoogleMap({
+      lat: latitude,
+      lng: longitude,
+    });
   };
 
   return (
@@ -48,7 +50,7 @@ export default function StoreTable(props) {
         <span className="text-sm font-bold text-gray-700">
           {stores.length}개의 지역 또는 지점이 검색 되었습니다
         </span>
-      ) : stores.legth === 0 ? (
+      ) : stores.length === 0 ? (
         <span className="text-sm font-bold text-gray-700">
           검색된 지역 또는 지점이 없습니다
         </span>
@@ -58,20 +60,20 @@ export default function StoreTable(props) {
           {Math.min(indexOfLastStore, stores.length)}번째를 보여주고 있습니다.
         </span>
       )}
-      <table className="min-w-full divide-y divide-gray-400 border-2 border-black border-b-2 rounded-lg">
-        <thead className="bg-gray-300 border-2 border-black rounded-lg">
+      <table className="min-w-full divide-gray-400 border-black rounded-lg border">
+        <thead className="bg-gray-300 divide-y-2 divide-solid">
           <tr>
-            {tableHeader.map((header, index) => (
+            {tableHeader.map((header) => (
               <th
                 key={header.key}
-                className={`px-6 py-3 text-md font-bold text-center tracking-wider ${index < tableHeader.length - 1 ? 'border-r border-black' : ''} ${index === 0 ? 'rounded-tl-lg' : ''} ${index === tableHeader.length - 1 ? 'rounded-tr-lg' : ''}`}
+                className={`px-6 py-3 text-md font-bold text-center tracking-wider`}
               >
                 {header.title}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-400 border-black font-bold">
+        <tbody className="bg-white divide-gray-400 border-black font-bold">
           {currentStores.length === 0 ? (
             <tr>
               <td colSpan={tableHeader.length} className="text-center">
@@ -88,7 +90,7 @@ export default function StoreTable(props) {
                 {tableHeader.map((header) => (
                   <td
                     key={header.key}
-                    className="px-6 py-4 whitespace-nowrap text-sm border-r border-black"
+                    className="px-6 py-4 whitespace-nowrap text-sm border border-black"
                   >
                     {store[header.key]}
                   </td>
@@ -103,7 +105,7 @@ export default function StoreTable(props) {
         className="flex items-center justify-between border-t border-gray-200 bg-white py-3"
       >
         <button
-          className={`relative inline-flex items-center rounded-lg px-4 py-2 -ml-px text-sm font-bold text-black bg-white border-2 border-black ${
+          className={`relative inline-flex items-center rounded-lg px-4 py-2 -ml-px text-sm font-bold text-black bg-white border border-black ${
             indexOfFirstStore === 0
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-gray-200'
@@ -120,7 +122,7 @@ export default function StoreTable(props) {
               {pageNumbers.map((number) => (
                 <td key={number}>
                   <button
-                    className={`relative inline-flex items-center rounded-lg px-4 py-2 -ml-px text-sm font-bold text-black bg-white border-2 border-black ${
+                    className={`relative inline-flex items-center rounded-lg px-4 py-2 -ml-px text-sm font-bold text-black bg-white border border-black ${
                       currentPage === number
                         ? 'bg-gray-400'
                         : 'hover:bg-slate-200'
@@ -135,7 +137,7 @@ export default function StoreTable(props) {
           </tbody>
         </table>
         <button
-          className={`relative inline-flex rounded-lg items-center px-4 py-2 ml-2 text-sm font-bold text-black bg-white border-2 border-black ${
+          className={`relative inline-flex rounded-lg items-center px-4 py-2 ml-2 text-sm font-bold text-black bg-white border border-black ${
             indexOfLastStore >= stores.length
               ? 'opacity-50 cursor-not-allowed'
               : 'hover:bg-gray-200'

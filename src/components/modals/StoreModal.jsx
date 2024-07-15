@@ -9,7 +9,6 @@ import {
 import { MdClose } from 'react-icons/md';
 import StoreTable from '../tables/StoreTable';
 import { GoogleSearch } from '../searchResults/GoogleSearch';
-
 const StoreModal = forwardRef((props, ref) => {
   const { enters: pressedEnter, values: bringValue, onDataReceiveBack } = props;
   const [open, setOpen] = useState(false);
@@ -50,15 +49,10 @@ const StoreModal = forwardRef((props, ref) => {
     },
   }));
 
-  const handleStoreTableData = (dataFromStoreTable) => {
-    if (
-      dataFromStoreTable.latitude !== undefined &&
-      dataFromStoreTable.longitude !== undefined
-    ) {
-      setOpen(false);
+  const handleStoreTableData = () => {
+    if (open === true) {
       onDataReceiveBack(open);
-    } else {
-      alert('지점을 선택하여 주십시오!');
+      setOpen(false)
     }
   };
 
@@ -107,7 +101,7 @@ const StoreModal = forwardRef((props, ref) => {
                         {bringValue === '' ? (
                           <input
                             type="text"
-                            className="pl-4 border-2  border-black text-black p-1 rounded-md"
+                            className="pl-4 border  border-black text-black p-1 rounded-md"
                             placeholder="Search"
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyPress={handleEnter}
@@ -115,7 +109,7 @@ const StoreModal = forwardRef((props, ref) => {
                         ) : (
                           <input
                             type="text"
-                            className="pl-4 border-2 border-black text-black p-1 rounded-md"
+                            className="pl-4 border border-black text-black p-1 rounded-md"
                             defaultValue={bringValue === 0 ? '' : bringValue}
                             placeholder={bringValue === 0 ? 'Search' : ''}
                             onKeyPress={handleEnter}
@@ -123,7 +117,7 @@ const StoreModal = forwardRef((props, ref) => {
                           />
                         )}
                         <button
-                          className="font-bold rounded w-24 justify-self-center p-1 border-2 border-black ring-gray-400 hover:border-blue_ncs hover:text-blue_ncs hover:ring-blue_ncs"
+                          className="font-bold rounded w-24 justify-self-center p-1 border border-black ring-gray-400 hover:border-blue_ncs hover:text-blue_ncs hover:ring-blue_ncs"
                           onClick={handleEvent}
                         >
                           Search
@@ -139,7 +133,12 @@ const StoreModal = forwardRef((props, ref) => {
                       latitude: place.Eg.location.lat.toFixed(7),
                       longitude: place.Eg.location.lng.toFixed(7),
                     }))}
-                    onDataReceive={handleStoreTableData}
+                    onDataReceive={(dataFromStoreTable) =>
+                      dataFromStoreTable.latitude !== undefined &&
+                      dataFromStoreTable.longitude !== undefined
+                        ? handleStoreTableData(dataFromStoreTable)
+                        : alert('지점을 선택하여 주십시오!')
+                    }
                   />
                 </div>
               </DialogPanel>

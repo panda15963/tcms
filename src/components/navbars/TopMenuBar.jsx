@@ -66,7 +66,8 @@ const TopMenuBar = () => {
                     <label className="px-3 py-2 text-sm font-bold text-white">
                       지도 선택
                     </label>
-                    <MapAPIsLists />
+                    <MapAPIsLists
+                    />
                     <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3">
                       지점 검색
                     </label>
