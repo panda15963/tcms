@@ -4,9 +4,10 @@ import LeftSideSlide from '../components/slideOver/LeftSideSlide';
 import RightSideSlide from '../components/slideOver/RightSideSlide';
 
 export default function MapLayout() {
+
   return (
     <>
-      <TopMenuBar />      
+      <TopMenuBar />
       <LeftSideSlide />
       <RightSideSlide />
       <main>

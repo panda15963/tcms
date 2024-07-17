@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FaLongArrowAltLeft, FaLongArrowAltRight } from 'react-icons/fa';
-import GoogleMap from '../../pages/GoogleMap';
 const tableHeader = [
   {
     title: '지점 이름',
@@ -20,7 +19,6 @@ export default function StoreTable(props) {
   const { stores, onDataReceive } = props;
   const [currentPage, setCurrentPage] = useState(1);
   const [storesPerPage] = useState(5);
-  const [selectedCoords, setSelectedCoords] = useState(null);
 
   const indexOfLastStore = currentPage * storesPerPage;
   const indexOfFirstStore = indexOfLastStore - storesPerPage;
@@ -39,7 +37,6 @@ export default function StoreTable(props) {
   const getCoord = (store) => {
     const { latitude, longitude } = store;
     onDataReceive(store);
-    setSelectedCoords({ lat: latitude, lng: longitude });
   };
 
   return (
@@ -147,9 +144,6 @@ export default function StoreTable(props) {
           <FaLongArrowAltRight className="w-5 h-5 ml-2" />
         </button>
       </nav>
-      <div className="mt-3 hidden">
-        {selectedCoords && <GoogleMap lat={selectedCoords.lat} lng={selectedCoords.lng} />}
-      </div>
     </div>
   );
 }

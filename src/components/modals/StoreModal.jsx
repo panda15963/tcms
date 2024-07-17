@@ -9,6 +9,7 @@ import {
 import { MdClose } from 'react-icons/md';
 import StoreTable from '../tables/StoreTable';
 import { GoogleSearch } from '../searchResults/GoogleSearch';
+
 const StoreModal = forwardRef((props, ref) => {
   const { enters: pressedEnter, values: bringValue, onDataReceiveBack } = props;
   const [open, setOpen] = useState(false);
@@ -48,13 +49,6 @@ const StoreModal = forwardRef((props, ref) => {
       setOpen(false);
     },
   }));
-
-  const handleStoreTableData = () => {
-    if (open === true) {
-      onDataReceiveBack(open);
-      setOpen(false)
-    }
-  };
 
   return (
     <Transition show={open}>
@@ -101,7 +95,7 @@ const StoreModal = forwardRef((props, ref) => {
                         {bringValue === '' ? (
                           <input
                             type="text"
-                            className="pl-4 border  border-black text-black p-1 rounded-md"
+                            className="pl-4 border border-black text-black p-1 rounded-md"
                             placeholder="Search"
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyPress={handleEnter}
@@ -134,10 +128,7 @@ const StoreModal = forwardRef((props, ref) => {
                       longitude: place.Eg.location.lng.toFixed(7),
                     }))}
                     onDataReceive={(dataFromStoreTable) =>
-                      dataFromStoreTable.latitude !== undefined &&
-                      dataFromStoreTable.longitude !== undefined
-                        ? handleStoreTableData(dataFromStoreTable)
-                        : alert('지점을 선택하여 주십시오!')
+                      onDataReceiveBack(dataFromStoreTable)
                     }
                   />
                 </div>
@@ -149,4 +140,5 @@ const StoreModal = forwardRef((props, ref) => {
     </Transition>
   );
 });
+
 export default StoreModal;

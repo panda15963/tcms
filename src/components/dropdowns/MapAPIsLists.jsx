@@ -6,7 +6,7 @@ import {
   ListboxOptions,
   Transition,
 } from '@headlessui/react';
-import { FaAngleDown, FaCheck } from "react-icons/fa6";
+import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const mapAPIs = [
@@ -22,7 +22,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function MapAPIsLists() {
+export default function MapAPIsLists({ setSelectedAPI }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [selected, setSelected] = useState(null);
@@ -40,7 +40,7 @@ export default function MapAPIsLists() {
 
   useEffect(() => {
     if (selected) {
-      navigate(`/main/map/${selected.name.toLowerCase()}`);
+      setSelectedAPI(selected);
     }
   }, [selected, navigate]);
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
 import '../style/MapStyle.css';
 
@@ -26,18 +26,34 @@ export default function GoogleMap({ lat, lng }) {
   return (
     <>
       <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAP_API}>
-        <Map
-          className="map"
-          center={center}
-          zoom={Number(process.env.REACT_APP_ZOOM)}
-        >
-          {markers.map((marker, index) => (
-            <Marker
-              key={index}
-              position={{ lat: marker.lat, lng: marker.lng }}
-            />
-          ))}
-        </Map>
+        {center.lat === parseFloat(process.env.REACT_APP_LATITUDE) &&
+        center.lng === parseFloat(process.env.REACT_APP_LONGITUDE) ? (
+          <Map
+            className="map"
+            defaultCenter={center}
+            defaultZoom={Number(process.env.REACT_APP_ZOOM)}
+          >
+            {markers.map((marker, index) => (
+              <Marker
+                key={index}
+                position={{ lat: marker.lat, lng: marker.lng }}
+              />
+            ))}
+          </Map>
+        ) : (
+          <Map
+            className="map"
+            center={center}
+            defaultZoom={Number(process.env.REACT_APP_ZOOM)}
+          >
+            {markers.map((marker, index) => (
+              <Marker
+                key={index}
+                position={{ lat: marker.lat, lng: marker.lng }}
+              />
+            ))}
+          </Map>
+        )}
       </APIProvider>
     </>
   );
