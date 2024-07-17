@@ -71,8 +71,10 @@ const TopMenuBar = () => {
         return <TomTomMap />;
       case 'baidu':
         return <BaiduMap />;
+      default:
+        return <GoogleCoords selectedCoords={selectedCoords} />;
     }
-  }
+  };
   return (
     <>
       <Disclosure as="nav" className="bg-gray-800">
@@ -86,9 +88,7 @@ const TopMenuBar = () => {
                       <label className="px-3 py-2 text-sm font-bold text-white">
                         지도 선택
                       </label>
-                      <MapAPIsLists
-                        setSelectedAPI={setSelectedAPI}
-                      />
+                      <MapAPIsLists setSelectedAPI={setSelectedAPI} />
                       <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3">
                         지점 검색
                       </label>
@@ -123,7 +123,8 @@ const TopMenuBar = () => {
                         ref={storeModalRef}
                         values={inputValue}
                         enters={keyPressed}
-                        onDataReceiveBack={handleDataReceiveBack}
+                        onDataReceiveBack={handleDataReceiveBack}                        
+                        chosenMapAPIs={selectedAPI.name.toLowerCase()}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
@@ -251,7 +252,6 @@ const TopMenuBar = () => {
                         />
                       </button>
                     </div>
-                    stringInputValue
                   </div>
                 </div>
                 <label className="block rounded-md px-3 py-2 text-base font-medium text-white">

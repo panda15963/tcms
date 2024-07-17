@@ -1,7 +1,6 @@
 import GoogleMap from '../../pages/GoogleMap';
 
-export default function GoogleCoords(props) {
-  const { selectedCoords } = props;
+export default function GoogleCoords({ selectedCoords }) {
   return (
     <div>
       {selectedCoords !== null ? (

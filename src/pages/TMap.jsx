@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import '../style/MapStyle.css';
 
-export default function TMap() {
+export default function TMap({ lat, lng }) {
   const [mapLoaded, setMapLoaded] = useState(false);
+  console.log(lat, lng)
 
   useEffect(() => {
     const { Tmapv2 } = window;

@@ -25,7 +25,7 @@ const userNavigation = [
 const navBarMenus = [
   {
     title: '지도',
-    link: '/main/map/google',
+    link: '/main/map',
   },
   {
     title: '통계',
@@ -207,7 +207,7 @@ const Navbar = () => {
           <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
               <div className="flex items-center">
-                <Link to={'/main/map/google'}>
+                <Link to={'/main/map'}>
                   <div className="flex-shrink-0">
                     <h1 className="text-5xl font-bold font-serif">TCMS</h1>
                   </div>

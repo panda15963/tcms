@@ -9,16 +9,26 @@ import {
 import { MdClose } from 'react-icons/md';
 import StoreTable from '../tables/StoreTable';
 import { GoogleSearch } from '../searchResults/GoogleSearch';
+import TMapSearch from '../searchResults/TMapSearch'
 
-const StoreModal = forwardRef((props, ref) => {
-  const { enters: pressedEnter, values: bringValue, onDataReceiveBack } = props;
+const StoreModal = forwardRef(({ enters: pressedEnter, values: bringValue, onDataReceiveBack, chosenMapAPIs }, ref) => {
   const [open, setOpen] = useState(false);
   const [searches, setSearches] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
+  console.log(chosenMapAPIs)
+
   useEffect(() => {
     if (pressedEnter === 'Enter') {
       setSearchQuery(bringValue);
+      switch(chosenMapAPIs){
+        case 'Google':
+          GoogleSearch(bringValue).then(setSearches);
+          break;
+        case 'TMap':
+          TMapSearch(bringValue).then(setSearches);
+          break;
+      }
       GoogleSearch(bringValue).then(setSearches);
     }
   }, [pressedEnter, bringValue]);
