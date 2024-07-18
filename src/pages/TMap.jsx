@@ -1,10 +1,22 @@
 import { useEffect, useState } from 'react';
 import '../style/MapStyle.css';
 
-export default function TMap({ lat, lng }) {
-  const [mapLoaded, setMapLoaded] = useState(false);
-  console.log(lat, lng)
+function calculateCenterAndMarker(lat, lng) {
+  const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
+  const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
 
+  if (lat !== undefined && lng !== undefined) {
+    return { lat: parseFloat(lat), lng: parseFloat(lng) };
+  }
+  return { lat: defaultLat, lng: defaultLng };
+}
+
+export default function TMap({ lat, lng }) {
+  const initialCoords = calculateCenterAndMarker(lat, lng);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [center, setCenter] = useState(initialCoords);
+  const [markers, setMarkers] = useState([initialCoords]);
+  console.log(lat, lng)
   useEffect(() => {
     const { Tmapv2 } = window;
     if (Tmapv2 && !mapLoaded) {
@@ -16,18 +28,18 @@ export default function TMap({ lat, lng }) {
   function initMap(Tmapv2) {
     const map = new Tmapv2.Map('map_div', {
       center: new Tmapv2.LatLng(
-        Number(process.env.REACT_APP_LATITUDE),
-        Number(process.env.REACT_APP_LONGITUDE),
+        center.lat,
+        center.lng
       ),
       zoom: Number(process.env.REACT_APP_ZOOM),
     });
     new Tmapv2.Marker({
       position: new Tmapv2.LatLng(
-        Number(process.env.REACT_APP_LATITUDE),
-        Number(process.env.REACT_APP_LONGITUDE),
+        markers[0].lat,
+        markers[0].lng
       ),
       map: map,
-      title: '현대 오토에버',
+      title: '모디엠',
     });
   }
 

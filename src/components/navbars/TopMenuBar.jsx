@@ -11,11 +11,12 @@ import LogModal from '../modals/LogModal';
 import StoreModal from '../modals/StoreModal';
 import MapAPIsLists from '../dropdowns/MapAPIsLists';
 import MapCoordLists from '../dropdowns/MapCoordLists';
-import TMap from '../../pages/TMap';
 import RoutoMap from '../../pages/RoutoMap';
 import TomTomMap from '../../pages/TomTomMap';
 import BaiduMap from '../../pages/BaiduMap';
 import GoogleCoords from '../displayCoords/GoogleCoords';
+import TMapCoords from '../displayCoords/TMapCoords';
+import TMap from '../../pages/TMap';
 
 const TopMenuBar = () => {
   const [inputValue, setinputValue] = useState('');
@@ -66,7 +67,7 @@ const TopMenuBar = () => {
       case 'routo':
         return <RoutoMap />;
       case 'tmap':
-        return <TMap />;
+        return <TMapCoords selectedCoords={selectedCoords} />;
       case 'tomtom':
         return <TomTomMap />;
       case 'baidu':
@@ -124,7 +125,7 @@ const TopMenuBar = () => {
                         values={inputValue}
                         enters={keyPressed}
                         onDataReceiveBack={handleDataReceiveBack}                        
-                        chosenMapAPIs={selectedAPI.name.toLowerCase()}
+                        chosenMapAPIs={selectedAPI}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white">

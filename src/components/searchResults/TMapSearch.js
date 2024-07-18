@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 const options = {
   method: 'GET',
   headers: {
@@ -8,18 +6,32 @@ const options = {
   },
 };
 
-const TMapSearch = (value) => {
-  const [searchResults, setSearchResults] = useState([]);
+const TMapSearch = async (value) => {
+  try {
+    const response = await fetch(
+      `https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${value}&resCoordType=WGS84GEO&searchType=all&count=10&page=1&appKey=l7xx8a1100ddc88c4681acdf968333275cc4`,      
+      options,
+    );
 
-  fetch(
-    `https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${value}&appKey=l7xx8a1100ddc88c4681acdf968333275cc4`,
-    options,
-  )
-    .then((response) => response.json())
-    .then((data) => setSearchResults(data.searchPoiInfo.pois.poi))
-    .catch((error) => console.error('Error:', error));
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-  return searchResults;
+    const data = await response.json();
+
+    if (data.searchPoiInfo.pois.poi) {
+      return data.searchPoiInfo.pois.poi.map((place) => ({
+        name: place.name,
+        latitude: place.frontLat,
+        longitude: place.frontLon,
+      }));
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching TMap search results:', error);
+    return [];
+  }
 };
 
-export default TMapSearch;
+export { TMapSearch };

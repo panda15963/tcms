@@ -35,7 +35,6 @@ export default function StoreTable(props) {
     paginate(Math.min(pageNumbers.length, currentPage + 1));
 
   const getCoord = (store) => {
-    const { latitude, longitude } = store;
     onDataReceive(store);
   };
 
