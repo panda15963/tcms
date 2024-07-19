@@ -15,8 +15,7 @@ const tableHeader = [
   },
 ];
 
-export default function StoreTable(props) {
-  const { stores, onDataReceive } = props;
+export default function StoreTable({ stores, onDataReceive }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [storesPerPage] = useState(5);
 

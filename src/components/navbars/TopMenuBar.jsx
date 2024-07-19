@@ -54,7 +54,6 @@ const TopMenuBar = () => {
         lng: parseFloat(store.longitude),
       });
       storeModalRef.current.close();
-      console.log(selectedCoords);
     } else {
       alert('지점을 선택하여 주십시오!');
     }

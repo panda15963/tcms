@@ -24,32 +24,32 @@ const StoreModal = forwardRef(
     const [open, setOpen] = useState(false);
     const [searches, setSearches] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    console.log(searches);
+
     useEffect(() => {
       if (pressedEnter === 'Enter' && chosenMapAPIs && chosenMapAPIs.name) {
         setSearchQuery(bringValue);
-
-        switch (chosenMapAPIs.name) {
-          case 'GOOGLE':
-            GoogleSearch(bringValue).then(setSearches);
-            break;
-          case 'TMAP':
-            TMapSearch(bringValue).then(setSearches);
-            break;
-        }
+        handleSearch(bringValue, chosenMapAPIs.name);
       }
     }, [pressedEnter, bringValue, chosenMapAPIs]);
 
-    const handleEnter = (event) => {
-      if (event.key === 'Enter' && chosenMapAPIs && chosenMapAPIs.name) {
-        switch (chosenMapAPIs.name) {
+    const handleSearch = async (query, apiName) => {
+      if (query && apiName) {
+        let results = [];
+        switch (apiName) {
           case 'GOOGLE':
-            GoogleSearch(bringValue).then(setSearches);
+            results = await GoogleSearch(query);
             break;
           case 'TMAP':
-            TMapSearch(bringValue).then(setSearches);
+            results = await TMapSearch(query);
             break;
         }
+        setSearches(results);
+      }
+    };
+
+    const handleEnter = (event) => {
+      if (event.key === 'Enter' && chosenMapAPIs && chosenMapAPIs.name) {
+        handleSearch(bringValue, chosenMapAPIs.name);
       }
     };
 
@@ -59,14 +59,7 @@ const StoreModal = forwardRef(
         chosenMapAPIs &&
         chosenMapAPIs.name
       ) {
-        switch (chosenMapAPIs.name) {
-          case 'GOOGLE':
-            GoogleSearch(bringValue).then(setSearches);
-            break;
-          case 'TMAP':
-            TMapSearch(bringValue).then(setSearches);
-            break;
-        }
+        handleSearch(bringValue, chosenMapAPIs.name);
       }
     };
 
@@ -145,17 +138,7 @@ const StoreModal = forwardRef(
                   </div>
                   <div className="p-3">
                     <StoreTable
-                      stores={
-                        searches.length
-                          ? searches
-                          : [
-                              {
-                                name: 'No Data',
-                                latitude: 0,
-                                longitude: 0,
-                              },
-                            ]
-                      }
+                      stores={searches}
                       onDataReceive={(dataFromStoreTable) =>
                         onDataReceiveBack(dataFromStoreTable)
                       }

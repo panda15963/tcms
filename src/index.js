@@ -6,7 +6,7 @@ import Dashboard from './pages/Dashboard';
 import ManagementUsers from './pages/ManagementUsers';
 import MapLayout from './layout/MapLayout';
 import { StrictMode } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
