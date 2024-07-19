@@ -16,6 +16,8 @@ import BaiduMap from '../../pages/BaiduMap';
 import GoogleCoords from '../displayCoords/GoogleCoords';
 import TMapCoords from '../displayCoords/TMapCoords';
 import RoutoCoords from '../displayCoords/RoutoCoords';
+import TomTomCoords from '../displayCoords/TomTomCoords';
+import BaiduCoords from '../displayCoords/BaiduCoords';
 
 const TopMenuBar = () => {
   const [inputValue, setinputValue] = useState('');

@@ -11,6 +11,8 @@ import StoreTable from '../tables/StoreTable';
 import { GoogleSearch } from '../searchResults/GoogleSearch';
 import { TMapSearch } from '../searchResults/TMapSearch';
 import { RoutoSearch } from '../searchResults/RoutoSearch';
+import { TomTomSearch } from '../searchResults/TomTomSearch';
+import { BaiduSearch } from '../searchResults/BaiduSearch';
 
 const StoreModal = forwardRef(
   (
@@ -45,6 +47,12 @@ const StoreModal = forwardRef(
             break;
           case 'ROUTO':
             results = await RoutoSearch(query);
+            break;
+          case 'TOMTOM':
+            results = await TomTomSearch(query);
+            break;
+          case 'BAIDU':
+            results = await BaiduSearch(query);
             break;
         }
         setSearches(results);

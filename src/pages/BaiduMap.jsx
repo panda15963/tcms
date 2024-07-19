@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import '../style/MapStyle.css';
 
-export default function BaiduMapComponent(){
+export default function BaiduMap(){
   useEffect(() => {
     const loadBaiduMap = () => {
       const script = document.createElement('script');

@@ -5,13 +5,12 @@ const options = {
   },
 };
 
-const TMapSearch = async (value) => {
+export const TMapSearch = async (value) => {
   try {
     const response = await fetch(
       `https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${encodeURIComponent(value)}&resCoordType=WGS84GEO&searchType=all&count=10&page=1&appKey=l7xx8a1100ddc88c4681acdf968333275cc4`,      
       options,
     );
-    console.log(response)
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -34,5 +33,3 @@ const TMapSearch = async (value) => {
     console.error('Error:', error);
   }
 };
-
-export { TMapSearch };
