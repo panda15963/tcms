@@ -11,12 +11,11 @@ import LogModal from '../modals/LogModal';
 import StoreModal from '../modals/StoreModal';
 import MapAPIsLists from '../dropdowns/MapAPIsLists';
 import MapCoordLists from '../dropdowns/MapCoordLists';
-import RoutoMap from '../../pages/RoutoMap';
 import TomTomMap from '../../pages/TomTomMap';
 import BaiduMap from '../../pages/BaiduMap';
 import GoogleCoords from '../displayCoords/GoogleCoords';
 import TMapCoords from '../displayCoords/TMapCoords';
-import TMap from '../../pages/TMap';
+import RoutoCoords from '../displayCoords/RoutoCoords';
 
 const TopMenuBar = () => {
   const [inputValue, setinputValue] = useState('');
@@ -64,15 +63,13 @@ const TopMenuBar = () => {
       case 'google':
         return <GoogleCoords selectedCoords={selectedCoords} />;
       case 'routo':
-        return <RoutoMap />;
+        return <RoutoCoords selectedCoords={selectedCoords} />;
       case 'tmap':
         return <TMapCoords selectedCoords={selectedCoords} />;
       case 'tomtom':
         return <TomTomMap />;
       case 'baidu':
         return <BaiduMap />;
-      default:
-        return <GoogleCoords selectedCoords={selectedCoords} />;
     }
   };
   return (

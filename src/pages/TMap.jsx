@@ -49,7 +49,7 @@ export default function TMap({ lat, lng }) {
   }, [center]);
 
   function initMap() {
-    if (mapRef.current) return; // If map is already initialized, do nothing
+    if (mapRef.current) return;
 
     const { Tmapv2 } = window;
     mapRef.current = new Tmapv2.Map('map_div', {
@@ -65,16 +65,13 @@ export default function TMap({ lat, lng }) {
     if (mapRef.current && Tmapv2) {
       mapRef.current.setCenter(new Tmapv2.LatLng(center.lat, center.lng));
 
-      // Remove the previous marker
       if (markerRef.current) {
         markerRef.current.setMap(null);
       }
 
-      // Add a new marker
       markerRef.current = new Tmapv2.Marker({
         position: new Tmapv2.LatLng(center.lat, center.lng),
         map: mapRef.current,
-        title: '모디엠',
       });
     }
   }

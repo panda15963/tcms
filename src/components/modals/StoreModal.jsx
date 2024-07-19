@@ -10,6 +10,7 @@ import { MdClose } from 'react-icons/md';
 import StoreTable from '../tables/StoreTable';
 import { GoogleSearch } from '../searchResults/GoogleSearch';
 import { TMapSearch } from '../searchResults/TMapSearch';
+import { RoutoSearch } from '../searchResults/RoutoSearch';
 
 const StoreModal = forwardRef(
   (
@@ -41,6 +42,9 @@ const StoreModal = forwardRef(
             break;
           case 'TMAP':
             results = await TMapSearch(query);
+            break;
+          case 'ROUTO':
+            results = await RoutoSearch(query);
             break;
         }
         setSearches(results);

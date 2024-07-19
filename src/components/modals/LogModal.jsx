@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import {
   Dialog,
   DialogPanel,
@@ -15,7 +14,7 @@ import {
 } from 'react-icons/fa';
 import MultipleSelectDropDown from '../dropdowns/MultipleSelecDropDown';
 import MainGrid from '../tables/MainGrid';
-import { axiosInstance, nonAuthInstance } from '../../server/AxiosConfig';
+import { nonAuthInstance } from '../../server/AxiosConfig';
 
 const fields = [
   { id: 'description', name: 'Find description' },
