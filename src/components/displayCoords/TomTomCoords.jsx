@@ -1,4 +1,4 @@
-import TomTomMap from "../../pages/TomTomMap";
+import TomTomMap from "../../pages/mapPages/TomTomMap";
 
 export default function TomTomCoords({ selectedCoords }) {
   return (

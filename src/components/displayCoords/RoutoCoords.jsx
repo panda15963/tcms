@@ -1,4 +1,4 @@
-import RoutoMap from "../../pages/RoutoMap";
+import RoutoMap from "../../pages/mapPages/RoutoMap";
 
 export default function RoutoCoords({ selectedCoords }) {
   return (

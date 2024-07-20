@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
-import '../style/MapStyle.css';
+import '../../style/MapStyle.css';
 
 function calculateCenterAndMarker(lat, lng) {
   const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
@@ -27,7 +27,7 @@ export default function GoogleMap({ lat, lng }) {
     <>
       <APIProvider apiKey={process.env.REACT_APP_GOOGLE_MAP_API}>
         {center.lat === parseFloat(process.env.REACT_APP_LATITUDE) &&
-        center.lng === parseFloat(process.env.REACT_APP_LONGITUDE) ? (
+          center.lng === parseFloat(process.env.REACT_APP_LONGITUDE) ? (
           <Map
             className="map"
             defaultCenter={center}

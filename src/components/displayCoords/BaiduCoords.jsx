@@ -1,4 +1,4 @@
-import BaiduMap from "../../pages/BaiduMap";
+import BaiduMap from "../../pages/mapPages/BaiduMap";
 
 export default function BaiduCoords({ selectedCoords }) {
   return (

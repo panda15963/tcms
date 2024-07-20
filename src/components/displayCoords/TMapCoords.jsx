@@ -1,4 +1,4 @@
-import TMap from '../../pages/TMap';
+import TMap from '../../pages/mapPages/TMap';
 
 export default function TMapCoords({ selectedCoords }) {
   return (

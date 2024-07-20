@@ -1,4 +1,4 @@
-import GoogleMap from '../../pages/GoogleMap';
+import GoogleMap from '../../pages/mapPages/GoogleMap';
 
 export default function GoogleCoords({ selectedCoords }) {
   return (

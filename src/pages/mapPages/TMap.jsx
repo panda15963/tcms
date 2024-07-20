@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import '../style/MapStyle.css';
+import '../../style/MapStyle.css';
 
 function calculateCenterAndMarker(lat, lng) {
   const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
