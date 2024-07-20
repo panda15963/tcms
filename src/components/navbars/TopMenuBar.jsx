@@ -69,7 +69,7 @@ const TopMenuBar = () => {
       case 'tmap':
         return <TMapCoords selectedCoords={selectedCoords} />;
       case 'tomtom':
-        return <TomTomMap />;
+        return <TomTomCoords selectedCoords={selectedCoords} />;
       case 'baidu':
         return <BaiduMap />;
     }
@@ -122,7 +122,7 @@ const TopMenuBar = () => {
                         ref={storeModalRef}
                         values={inputValue}
                         enters={keyPressed}
-                        onDataReceiveBack={handleDataReceiveBack}                        
+                        onDataReceiveBack={handleDataReceiveBack}
                         chosenMapAPIs={selectedAPI}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
