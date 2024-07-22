@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { HiOutlineDocumentSearch } from 'react-icons/hi';
 import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
 import {
@@ -11,7 +11,6 @@ import LogModal from '../modals/LogModal';
 import StoreModal from '../modals/StoreModal';
 import MapAPIsLists from '../dropdowns/MapAPIsLists';
 import MapCoordLists from '../dropdowns/MapCoordLists';
-import BaiduMap from '../../pages/mapPages/BaiduMap';
 import GoogleCoords from '../displayCoords/GoogleCoords';
 import TMapCoords from '../displayCoords/TMapCoords';
 import RoutoCoords from '../displayCoords/RoutoCoords';
@@ -61,7 +60,7 @@ const TopMenuBar = () => {
 
   const handleChoosingMapAPIs = () => {
     switch (selectedAPI.name.toLowerCase()) {
-      case 'google':
+      case 'google':        
         return <GoogleCoords selectedCoords={selectedCoords} />;
       case 'routo':
         return <RoutoCoords selectedCoords={selectedCoords} />;
@@ -70,9 +69,16 @@ const TopMenuBar = () => {
       case 'tomtom':
         return <TomTomCoords selectedCoords={selectedCoords} />;
       case 'baidu':
-        return <BaiduMap />;
+        return <BaiduCoords selectedCoords={selectedCoords} />;
+      default:
+        return null;
     }
   };
+
+  useEffect(() => {
+    setSelectedCoords(null);
+  }, [selectedAPI]);
+
   return (
     <>
       <Disclosure as="nav" className="bg-gray-800">
@@ -222,7 +228,7 @@ const TopMenuBar = () => {
                 <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
                   지도 선택
                 </label>
-                <MapAPIsLists />
+                <MapAPIsLists setSelectedAPI={setSelectedAPI} />
                 <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
                   지점 검색
                 </label>

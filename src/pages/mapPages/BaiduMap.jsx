@@ -1,24 +1,73 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import '../../style/MapStyle.css';
 
-export default function BaiduMap() {
+function calculateCenterAndMarker(lat, lng) {
+  const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
+  const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
+
+  if (lat !== undefined && lng !== undefined) {
+
+    return { lat: parseFloat(lat), lng: parseFloat(lng) };
+  } else {
+    return { lat: defaultLat, lng: defaultLng };
+  }
+}
+
+export default function BaiduMap({ lat, lng }) {
+  const initialCoords = calculateCenterAndMarker(lat, lng);
+  const [center, setCenter] = useState(initialCoords);
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    const newCenter = calculateCenterAndMarker(lat, lng);
+    setCenter(newCenter);
+  }, [lat, lng]);
+
   useEffect(() => {
     const loadBaiduMap = () => {
-      const script = document.createElement('script');
-      script.src =
-        'https://api.map.baidu.com/api?v=3.0&type=webgl&ak=' + process.env.REACT_APP_BAIDU_MAP_API;
-      script.onload = () => {
-        const map = new window.BMapGL.Map('allmap');
-        map.centerAndZoom(new window.BMapGL.Point(Number(process.env.REACT_APP_LONGITUDE), Number(process.env.REACT_APP_LATITUDE)), Number(process.env.REACT_APP_ZOOM));
-        map.enableScrollWheelZoom(true);
-        map.setHeading(64.5);
-        map.setTilt(73);
-      };
-      document.head.appendChild(script);
+      if (!window.BMapGL) {
+        const script = document.createElement('script');
+        script.src =
+          'https://api.map.baidu.com/api?v=3.0&type=webgl&ak=' +
+          process.env.REACT_APP_BAIDU_MAP_API;
+        script.onload = () => {
+          const mapInstance = new window.BMapGL.Map('allmap');
+          const point = new window.BMapGL.Point(center.lng, center.lat);
+          mapInstance.centerAndZoom(point, Number(process.env.REACT_APP_ZOOM));
+          mapInstance.enableScrollWheelZoom(true);
+          const marker = new window.BMapGL.Marker(point);
+          mapInstance.addOverlay(marker);
+
+          mapRef.current = { mapInstance, marker };
+        };
+        document.head.appendChild(script);
+      } else {
+        const mapInstance = new window.BMapGL.Map('allmap');
+        const point = new window.BMapGL.Point(center.lng, center.lat);
+        mapInstance.centerAndZoom(point, Number(process.env.REACT_APP_ZOOM));
+        mapInstance.enableScrollWheelZoom(true);
+        const marker = new window.BMapGL.Marker(point);
+        mapInstance.addOverlay(marker);
+
+        mapRef.current = { mapInstance, marker };
+      }
     };
 
     loadBaiduMap();
   }, []);
 
-  return <div id="allmap" className="map"></div>;
-};
+  useEffect(() => {
+    if (mapRef.current) {
+      const { mapInstance, marker } = mapRef.current;
+      const point = new window.BMapGL.Point(center.lng, center.lat);
+      mapInstance.centerAndZoom(point, Number(process.env.REACT_APP_ZOOM));
+      marker.setPosition(point);
+    }
+  }, [center]);
+
+  return (
+    <div>
+      <div id="allmap" className="map"></div>
+    </div>
+  );
+}
