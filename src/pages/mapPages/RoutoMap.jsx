@@ -38,6 +38,14 @@ export default function RoutoMap({ lat, lng }) {
           },
           map: mapRef.current,
         });
+
+        // Add click event listener
+        mapRef.current.addListener('click', (event) => {
+          const clickedLat = event.latLng.lat();
+          const clickedLng = event.latLng.lng();
+          setCenter({ lat: clickedLat, lng: clickedLng });
+          markerRef.current.setPosition({ lat: clickedLat, lng: clickedLng });
+        });
       };
       document.body.appendChild(script);
     };
@@ -58,8 +66,14 @@ export default function RoutoMap({ lat, lng }) {
         },
         map: mapRef.current,
       });
+
+      mapRef.current.addListener('click', (event) => {
+        const clickedLat = event.latLng.lat();
+        const clickedLng = event.latLng.lng();
+        console.log(clickedLat, clickedLng) // 클릭시 좌표 얻기
+      });
     }
-  }, []);
+  }, [center.lat, center.lng]);
 
   useEffect(() => {
     if (mapRef.current && markerRef.current) {

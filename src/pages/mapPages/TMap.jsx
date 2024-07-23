@@ -57,6 +57,13 @@ export default function TMap({ lat, lng }) {
       zoom: Number(process.env.REACT_APP_ZOOM),
     });
 
+    mapRef.current.addListener('click', (evt) => {
+      const clickedLat = evt.latLng.lat();
+      const clickedLng = evt.latLng.lng();
+      // setCenter({ lat: clickedLat, lng: clickedLng });
+      console.log(clickedLat, clickedLng)
+    });
+
     updateMapCenter();
   }
 
@@ -76,9 +83,5 @@ export default function TMap({ lat, lng }) {
     }
   }
 
-  return (
-    <main>
-      <div id="map_div" className="map" />
-    </main>
-  );
+  return <div id="map_div" className="map" />;
 }

@@ -6,7 +6,6 @@ function calculateCenterAndMarker(lat, lng) {
   const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
 
   if (lat !== undefined && lng !== undefined) {
-
     return { lat: parseFloat(lat), lng: parseFloat(lng) };
   } else {
     return { lat: defaultLat, lng: defaultLng };
@@ -30,27 +29,29 @@ export default function BaiduMap({ lat, lng }) {
         script.src =
           'https://api.map.baidu.com/api?v=3.0&type=webgl&ak=' +
           process.env.REACT_APP_BAIDU_MAP_API;
-        script.onload = () => {
-          const mapInstance = new window.BMapGL.Map('allmap');
-          const point = new window.BMapGL.Point(center.lng, center.lat);
-          mapInstance.centerAndZoom(point, Number(process.env.REACT_APP_ZOOM));
-          mapInstance.enableScrollWheelZoom(true);
-          const marker = new window.BMapGL.Marker(point);
-          mapInstance.addOverlay(marker);
-
-          mapRef.current = { mapInstance, marker };
-        };
+        script.onload = initializeMap;
         document.head.appendChild(script);
       } else {
-        const mapInstance = new window.BMapGL.Map('allmap');
-        const point = new window.BMapGL.Point(center.lng, center.lat);
-        mapInstance.centerAndZoom(point, Number(process.env.REACT_APP_ZOOM));
-        mapInstance.enableScrollWheelZoom(true);
-        const marker = new window.BMapGL.Marker(point);
-        mapInstance.addOverlay(marker);
-
-        mapRef.current = { mapInstance, marker };
+        initializeMap();
       }
+    };
+
+    const initializeMap = () => {
+      const mapInstance = new window.BMapGL.Map('allmap');
+      const point = new window.BMapGL.Point(center.lng, center.lat);
+      mapInstance.centerAndZoom(point, Number(process.env.REACT_APP_ZOOM));
+      mapInstance.enableScrollWheelZoom(true);
+      const marker = new window.BMapGL.Marker(point);
+      mapInstance.addOverlay(marker);
+
+      mapInstance.addEventListener('click', (event) => {
+        const clickedPoint = event.latlng;
+        const clickedLat = clickedPoint.lat;
+        const clickedLng = clickedPoint.lng;
+        console.log(clickedLat, clickedLng)
+      });
+
+      mapRef.current = { mapInstance, marker };
     };
 
     loadBaiduMap();

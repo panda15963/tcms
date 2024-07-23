@@ -21,8 +21,7 @@ export default function TomTomMap({ lat, lng }) {
   useEffect(() => {
     const loadScript = () => {
       const script = document.createElement('script');
-      script.src =
-        'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.14.0/maps/maps-web.min.js';
+      script.src = 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.14.0/maps/maps-web.min.js';
       script.async = true;
       script.onload = initializeMap;
       document.body.appendChild(script);
@@ -35,6 +34,13 @@ export default function TomTomMap({ lat, lng }) {
         center: [center.lng, center.lat],
         zoom: Number(process.env.REACT_APP_ZOOM),
       });
+
+      mapRef.current.on('click', (event) => {
+        const { lat, lng } = event.lngLat;
+        // setCenter({ lat, lng });
+        console.log(lat, lng)
+      });
+
       markerRef.current = new tt.Marker().setLngLat([center.lng, center.lat]).addTo(mapRef.current);
     };
 
@@ -58,7 +64,7 @@ export default function TomTomMap({ lat, lng }) {
 
   return (
     <div>
-      <div id="map-container" className="map" ></div>
+      <div id="map-container" className="map"></div>
     </div>
   );
 }
