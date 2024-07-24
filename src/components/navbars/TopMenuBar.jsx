@@ -19,6 +19,8 @@ import BaiduCoords from '../displayCoords/BaiduCoords';
 import { ConvertToMMS } from '../calculateCoords/MMS';
 import { ConvertToDEC } from '../calculateCoords/DEC';
 import { ConvertToDEG } from '../calculateCoords/DEG';
+import CopiedCopletion from '../alerts/CopiedCopletion';
+import CopiedError from '../alerts/CopiedError';
 
 const TopMenuBar = () => {
   const [inputValue, setInputValue] = useState('');
@@ -28,6 +30,9 @@ const TopMenuBar = () => {
   const [clickedCoords, setClickedCoords] = useState(null);
   const [selectedMapList, setSelectedMapList] = useState(null);
   const [convertedCoords, setConvertedCoords] = useState(null);
+  const [isCopied, setIsCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
+  const [copyErrorValue, setCopyErrorValue] = useState('');
 
   const storeModalRef = useRef();
   const logModalRef = useRef();
@@ -37,7 +42,7 @@ const TopMenuBar = () => {
   };
 
   const handleKeyDown = (event) => {
-    const reg = /[\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/g;
+    const reg = /[\{\}\[\]\/?,;:|\)*~!^\-_+<>@\#$%&\\\=\(\'\"]/g;
     if (
       event.key === 'Enter' &&
       event.target.value !== '' &&
@@ -106,6 +111,28 @@ const TopMenuBar = () => {
     }
   };
 
+  const handleCopy = () => {
+    if (convertedCoords) {
+      const coordsText = `Latitude: ${convertedCoords.lat}, Longitude: ${convertedCoords.lng}`;
+      navigator.clipboard
+        .writeText(coordsText)
+        .then(() => {
+          setIsCopied(true);
+          setTimeout(() => setIsCopied(false), 2000);
+        })
+        .catch((err) => {
+          console.error('Could not copy text: ', err, '!');
+          setCopyErrorValue(err.message, '!' || 'Error copying text!');
+          setCopyError(true);
+          setTimeout(() => setCopyError(false), 2000);
+        });
+    } else {
+      setCopyErrorValue('No coordinates to copy!');
+      setCopyError(true);
+      setTimeout(() => setCopyError(false), 2000);
+    }
+  };
+
   useEffect(() => {
     setSelectedCoords(null);
   }, [selectedAPI]);
@@ -130,6 +157,8 @@ const TopMenuBar = () => {
 
   return (
     <>
+      {isCopied && <CopiedCopletion />}
+      {copyError && <CopiedError errorMessage={copyErrorValue} />}
       <Disclosure as="nav" className="bg-gray-800">
         {({ open }) => (
           <>
@@ -199,7 +228,7 @@ const TopMenuBar = () => {
                         입력 표출 좌표
                       </label>
                       <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
-                      <div className="flex flex-0 justify-center lg:ml-3">
+                      <div className="flex flex-0 justify-center lg:ml-3 lg:justify-center">
                         <div className="w-full max-w-lg lg:max-w-xs">
                           <div className="relative">
                             <button
@@ -255,6 +284,7 @@ const TopMenuBar = () => {
                         <button
                           type="button"
                           className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+                          onClick={handleCopy}
                         >
                           복사
                         </button>
@@ -379,6 +409,7 @@ const TopMenuBar = () => {
                   <button
                     type="button"
                     className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+                    onClick={handleCopy}
                   >
                     Copy
                   </button>
