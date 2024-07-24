@@ -1,12 +1,16 @@
 import TMap from '../../pages/mapPages/TMap';
 
-export default function TMapCoords({ selectedCoords }) {
+export default function TMapCoords({ selectedCoords, tmapLocation }) {
   return (
     <>
       {selectedCoords !== null ? (
-        <TMap lat={selectedCoords.lat} lng={selectedCoords.lng} />
+        <TMap
+          lat={selectedCoords.lat}
+          lng={selectedCoords.lng}
+          locationCoords={tmapLocation}
+        />
       ) : (
-        <TMap />
+        <TMap locationCoords={tmapLocation} />
       )}
     </>
   );

@@ -10,7 +10,7 @@ function calculateCenterAndMarker(lat, lng) {
   return { lat: defaultLat, lng: defaultLng };
 }
 
-export default function TMap({ lat, lng }) {
+export default function TMap({ lat, lng, locationCoords = () => {} }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
   const [center, setCenter] = useState(initialCoords);
   const mapRef = useRef(null);
@@ -23,7 +23,7 @@ export default function TMap({ lat, lng }) {
 
   useEffect(() => {
     if (!window.Tmapv2) {
-      const scriptUrl = `https://api2.sktelecom.com/tmap/js?version=1&appKey=${process.env.REACT_APP_TMAP_API}`;
+      const scriptUrl = `https://api2.sktelecom.com/tmap/djs?version=1&appKey=${process.env.REACT_APP_TMAP_API}`;
       console.log('Loading script:', scriptUrl);
 
       const script = document.createElement('script');
@@ -60,8 +60,7 @@ export default function TMap({ lat, lng }) {
     mapRef.current.addListener('click', (evt) => {
       const clickedLat = evt.latLng.lat();
       const clickedLng = evt.latLng.lng();
-      // setCenter({ lat: clickedLat, lng: clickedLng });
-      console.log(clickedLat, clickedLng)
+      locationCoords({ lat: clickedLat, lng: clickedLng });
     });
 
     updateMapCenter();

@@ -12,7 +12,7 @@ function calculateCenterAndMarker(lat, lng) {
   return { lat: defaultLat, lng: defaultLng };
 }
 
-export default function TomTomMap({ lat, lng }) {
+export default function TomTomMap({ lat, lng, locationCoords = () => {} }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
   const [center, setCenter] = useState(initialCoords);
   const mapRef = useRef(null);
@@ -37,8 +37,7 @@ export default function TomTomMap({ lat, lng }) {
 
       mapRef.current.on('click', (event) => {
         const { lat, lng } = event.lngLat;
-        // setCenter({ lat, lng });
-        console.log(lat, lng)
+        locationCoords({ lat, lng });
       });
 
       markerRef.current = new tt.Marker().setLngLat([center.lng, center.lat]).addTo(mapRef.current);

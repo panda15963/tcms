@@ -12,7 +12,7 @@ function calculateCenterAndMarker(lat, lng) {
   }
 }
 
-export default function BaiduMap({ lat, lng }) {
+export default function BaiduMap({ lat, lng, locationCoords = () => {} }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
   const [center, setCenter] = useState(initialCoords);
   const mapRef = useRef(null);
@@ -48,7 +48,7 @@ export default function BaiduMap({ lat, lng }) {
         const clickedPoint = event.latlng;
         const clickedLat = clickedPoint.lat;
         const clickedLng = clickedPoint.lng;
-        console.log(clickedLat, clickedLng)
+        locationCoords({ lat: clickedLat, lng: clickedLng });
       });
 
       mapRef.current = { mapInstance, marker };

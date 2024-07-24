@@ -16,18 +16,24 @@ import TMapCoords from '../displayCoords/TMapCoords';
 import RoutoCoords from '../displayCoords/RoutoCoords';
 import TomTomCoords from '../displayCoords/TomTomCoords';
 import BaiduCoords from '../displayCoords/BaiduCoords';
+import { ConvertToMMS } from '../calculateCoords/MMS';
+import { ConvertToDEC } from '../calculateCoords/DEC';
+import { ConvertToDEG } from '../calculateCoords/DEG';
 
 const TopMenuBar = () => {
-  const [inputValue, setinputValue] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [keyPressed, setKeyPressed] = useState('');
   const [selectedCoords, setSelectedCoords] = useState(null);
   const [selectedAPI, setSelectedAPI] = useState(null);
+  const [clickedCoords, setClickedCoords] = useState(null);
+  const [selectedMapList, setSelectedMapList] = useState(null);
+  const [convertedCoords, setConvertedCoords] = useState(null);
 
   const storeModalRef = useRef();
   const logModalRef = useRef();
 
   const handleChange = (event) => {
-    setinputValue(event.target.value);
+    setInputValue(event.target.value);
   };
 
   const handleKeyDown = (event) => {
@@ -41,13 +47,13 @@ const TopMenuBar = () => {
       setKeyPressed(event.key);
     }
     if (event.key === 'Backspace') {
-      setinputValue('');
+      setInputValue('');
     }
   };
 
   const handleDataReceiveBack = (store) => {
     if (store.latitude !== undefined && store.longitude !== undefined) {
-      setinputValue('');
+      setInputValue('');
       setSelectedCoords({
         lat: parseFloat(store.latitude),
         lng: parseFloat(store.longitude),
@@ -60,16 +66,41 @@ const TopMenuBar = () => {
 
   const handleChoosingMapAPIs = () => {
     switch (selectedAPI.name.toLowerCase()) {
-      case 'google':        
-        return <GoogleCoords selectedCoords={selectedCoords} />;
+      case 'google':
+        return (
+          <GoogleCoords
+            selectedCoords={selectedCoords}
+            googleLocation={setClickedCoords}
+          />
+        );
       case 'routo':
-        return <RoutoCoords selectedCoords={selectedCoords} />;
+        return (
+          <RoutoCoords
+            selectedCoords={selectedCoords}
+            routoLocation={setClickedCoords}
+          />
+        );
       case 'tmap':
-        return <TMapCoords selectedCoords={selectedCoords} />;
+        return (
+          <TMapCoords
+            selectedCoords={selectedCoords}
+            tmapLocation={setClickedCoords}
+          />
+        );
       case 'tomtom':
-        return <TomTomCoords selectedCoords={selectedCoords} />;
+        return (
+          <TomTomCoords
+            selectedCoords={selectedCoords}
+            tomtomLocation={setClickedCoords}
+          />
+        );
       case 'baidu':
-        return <BaiduCoords selectedCoords={selectedCoords} />;
+        return (
+          <BaiduCoords
+            selectedCoords={selectedCoords}
+            baiduLocation={setClickedCoords}
+          />
+        );
       default:
         return null;
     }
@@ -78,6 +109,24 @@ const TopMenuBar = () => {
   useEffect(() => {
     setSelectedCoords(null);
   }, [selectedAPI]);
+
+  useEffect(() => {
+    if (!clickedCoords) return;
+
+    let result;
+    switch (selectedMapList.name) {
+      case 'MMS':
+        result = ConvertToMMS(clickedCoords);
+        break;
+      case 'DEC':
+        result = ConvertToDEC(clickedCoords);
+        break;
+      case 'DEG':
+        result = ConvertToDEG(clickedCoords);
+        break;
+    }
+    setConvertedCoords(result);
+  }, [clickedCoords, selectedMapList]);
 
   return (
     <>
@@ -149,7 +198,7 @@ const TopMenuBar = () => {
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
                         입력 표출 좌표
                       </label>
-                      <MapCoordLists />
+                      <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
                       <div className="flex flex-0 justify-center lg:ml-3">
                         <div className="w-full max-w-lg lg:max-w-xs">
                           <div className="relative">
@@ -165,6 +214,8 @@ const TopMenuBar = () => {
                             <input
                               className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-gray-500 focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                               placeholder="Longitude"
+                              value={convertedCoords ? convertedCoords.lng : ''}
+                              readOnly
                             />
                           </div>
                         </div>
@@ -186,7 +237,8 @@ const TopMenuBar = () => {
                               name="search"
                               className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-gray-500 focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                               placeholder="Latitude"
-                              type="search"
+                              value={convertedCoords ? convertedCoords.lat : ''}
+                              readOnly
                             />
                           </div>
                         </div>
@@ -274,7 +326,7 @@ const TopMenuBar = () => {
                 <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
                   입력표출좌표
                 </label>
-                <MapCoordLists />
+                <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
                 <div className="flex flex-0 justify-center lg:ml-3">
                   <div className=" max-w-lg lg:max-w-xs">
                     <div className="relative py-1">
@@ -290,6 +342,8 @@ const TopMenuBar = () => {
                       <input
                         className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-gray-300 placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                         placeholder="Longitude"
+                        value={convertedCoords ? convertedCoords.lng : ''}
+                        readOnly
                       />
                     </div>
                     <div className="relative">
@@ -307,7 +361,8 @@ const TopMenuBar = () => {
                         name="search"
                         className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-gray-300 placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                         placeholder="Latitude"
-                        type="search"
+                        value={convertedCoords ? convertedCoords.lat : ''}
+                        readOnly
                       />
                     </div>
                   </div>
@@ -339,4 +394,5 @@ const TopMenuBar = () => {
     </>
   );
 };
+
 export default TopMenuBar;

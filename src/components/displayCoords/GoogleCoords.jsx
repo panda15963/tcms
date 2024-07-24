@@ -1,12 +1,16 @@
 import GoogleMap from '../../pages/mapPages/GoogleMap';
 
-export default function GoogleCoords({ selectedCoords }) {
+export default function GoogleCoords({ selectedCoords, googleLocation }) {
   return (
     <>
       {selectedCoords !== null ? (
-        <GoogleMap lat={selectedCoords.lat} lng={selectedCoords.lng} />
+        <GoogleMap
+          lat={selectedCoords.lat}
+          lng={selectedCoords.lng}
+          locationCoords={googleLocation}
+        />
       ) : (
-        <GoogleMap />
+        <GoogleMap locationCoords={googleLocation} />
       )}
     </>
   );

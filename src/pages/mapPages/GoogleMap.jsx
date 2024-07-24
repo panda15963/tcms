@@ -11,7 +11,7 @@ function calculateCenterAndMarker(lat, lng) {
   return { lat: defaultLat, lng: defaultLng };
 }
 
-export default function GoogleMap({ lat, lng }) {
+export default function GoogleMap({ lat, lng, locationCoords = () => {} }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
   const [center, setCenter] = useState(initialCoords);
   const [markers, setMarkers] = useState([initialCoords]);
@@ -71,8 +71,8 @@ export default function GoogleMap({ lat, lng }) {
       .then((result) => {
         const { results } = result;
         const location = results[0].geometry.location;
-        map.setCenter(location);        
-        console.log(location.lat(), location.lng()) // 클릭시 좌표 얻기
+        map.setCenter(location);
+        locationCoords({ lat: location.lat(), lng: location.lng() });
       })
       .catch((e) => {
         alert('Geocode was not successful for the following reason: ' + e);

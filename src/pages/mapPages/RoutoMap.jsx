@@ -10,7 +10,7 @@ function calculateCenterAndMarker(lat, lng) {
   return { lat: defaultLat, lng: defaultLng };
 }
 
-export default function RoutoMap({ lat, lng }) {
+export default function RoutoMap({ lat, lng, locationCoords = () => {} }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
   const [center, setCenter] = useState(initialCoords);
   const mapRef = useRef(null);
@@ -39,12 +39,10 @@ export default function RoutoMap({ lat, lng }) {
           map: mapRef.current,
         });
 
-        // Add click event listener
         mapRef.current.addListener('click', (event) => {
           const clickedLat = event.latLng.lat();
           const clickedLng = event.latLng.lng();
-          setCenter({ lat: clickedLat, lng: clickedLng });
-          markerRef.current.setPosition({ lat: clickedLat, lng: clickedLng });
+          locationCoords({ lat: clickedLat, lng: clickedLng });
         });
       };
       document.body.appendChild(script);
@@ -70,10 +68,10 @@ export default function RoutoMap({ lat, lng }) {
       mapRef.current.addListener('click', (event) => {
         const clickedLat = event.latLng.lat();
         const clickedLng = event.latLng.lng();
-        console.log(clickedLat, clickedLng) // 클릭시 좌표 얻기
+        locationCoords({ lat: clickedLat, lng: clickedLng });
       });
     }
-  }, [center.lat, center.lng]);
+  }, [center.lat, center.lng, locationCoords]);
 
   useEffect(() => {
     if (mapRef.current && markerRef.current) {
