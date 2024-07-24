@@ -29,7 +29,7 @@ const TopMenuBar = () => {
   const [selectedAPI, setSelectedAPI] = useState(null);
   const [clickedCoords, setClickedCoords] = useState(null);
   const [selectedMapList, setSelectedMapList] = useState(null);
-  const [convertedCoords, setConvertedCoords] = useState(null);
+  const [convertedCoords, setConvertedCoords] = useState({ lat: '', lng: '' });
   const [isCopied, setIsCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
   const [copyErrorValue, setCopyErrorValue] = useState('');
@@ -157,6 +157,22 @@ const TopMenuBar = () => {
     setConvertedCoords(result);
   }, [clickedCoords, selectedMapList]);
 
+  const handleCoordsChange = (e) => {
+    const { name, value } = e.target;
+    setConvertedCoords((prevCoords) => ({
+      ...prevCoords,
+      [name]: value,
+    }));
+  };
+
+  const handleCoordsClick = (e) => {
+    const { name } = e.target;
+    setConvertedCoords((prevCoords) => ({
+      ...prevCoords,
+      [name]: '',
+    }));
+  };
+
   return (
     <>
       {isCopied && <CopiedCopletion />}
@@ -237,16 +253,19 @@ const TopMenuBar = () => {
                               type="button"
                               className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
                             >
-                              <TbWorldLongitude
+                              <TbWorldLatitude
                                 className="h-5 w-5 text-gray-400"
                                 aria-hidden="true"
                               />
                             </button>
                             <input
-                              className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-gray-500 focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                              placeholder="Longitude"
-                              value={convertedCoords ? convertedCoords.lng : ''}
-                              readOnly
+                              id="search"
+                              name="lat"
+                              className="block w-36 rounded-md border-0 bg-white py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                              placeholder="Latitude"
+                              value={convertedCoords.lat}
+                              onChange={handleCoordsChange}
+                              onClick={handleCoordsClick}
                             />
                           </div>
                         </div>
@@ -258,18 +277,18 @@ const TopMenuBar = () => {
                               type="button"
                               className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
                             >
-                              <TbWorldLatitude
+                              <TbWorldLongitude
                                 className="h-5 w-5 text-gray-400"
                                 aria-hidden="true"
                               />
                             </button>
                             <input
-                              id="search"
-                              name="search"
-                              className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-gray-500 focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                              placeholder="Latitude"
-                              value={convertedCoords ? convertedCoords.lat : ''}
-                              readOnly
+                              className="block w-36 rounded-md border-0 bg-white py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                              placeholder="Longitude"
+                              name="lng"
+                              value={convertedCoords.lng}
+                              onChange={handleCoordsChange}
+                              onClick={handleCoordsClick}
                             />
                           </div>
                         </div>
@@ -366,23 +385,6 @@ const TopMenuBar = () => {
                         type="button"
                         className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
                       >
-                        <TbWorldLongitude
-                          className="h-5 w-5 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </button>
-                      <input
-                        className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-gray-300 placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                        placeholder="Longitude"
-                        value={convertedCoords ? convertedCoords.lng : ''}
-                        readOnly
-                      />
-                    </div>
-                    <div className="relative">
-                      <button
-                        type="button"
-                        className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
-                      >
                         <TbWorldLatitude
                           className="h-5 w-5 text-gray-400"
                           aria-hidden="true"
@@ -390,11 +392,31 @@ const TopMenuBar = () => {
                       </button>
                       <input
                         id="search"
-                        name="search"
-                        className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-gray-300 placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                        name="lat"
+                        className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                         placeholder="Latitude"
-                        value={convertedCoords ? convertedCoords.lat : ''}
-                        readOnly
+                        value={convertedCoords.lat}
+                        onChange={handleCoordsChange}
+                        onClick={handleCoordsClick}
+                      />
+                    </div>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+                      >
+                        <TbWorldLongitude
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      </button>
+                      <input
+                        className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                        placeholder="Longitude"
+                        name="lng"
+                        value={convertedCoords.lng}
+                        onChange={handleCoordsChange}
+                        onClick={handleCoordsClick}
                       />
                     </div>
                   </div>
