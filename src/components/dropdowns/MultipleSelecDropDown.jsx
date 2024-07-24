@@ -5,12 +5,13 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from '@headlessui/react';
-import { FaAngleDown, FaCheck } from "react-icons/fa6";
-import { useState } from 'react';
 import {
-  IoCheckmarkDoneCircleOutline,
-  IoCloseCircleOutline,
-} from 'react-icons/io5';
+  FaAngleDown,
+  FaCheck,
+  FaRegCircleCheck,
+  FaRegCircleXmark,
+} from 'react-icons/fa6';
+import { useState } from 'react';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -77,10 +78,7 @@ export default function MultipleSelectDropDown({ options, onChange }) {
           displayValue={() => selectedFieldsString}
         />
         <ComboboxButton className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-          <FaAngleDown
-            className="h-5 w-5 text-gray-400"
-            aria-hidden="true"
-          />
+          <FaAngleDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
         </ComboboxButton>
         {filteredOptions.length > 0 && (
           <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
@@ -90,7 +88,7 @@ export default function MultipleSelectDropDown({ options, onChange }) {
                 onClick={handleSelectAllClick}
                 disabled={!isSelectAllEnabled}
               >
-                <IoCheckmarkDoneCircleOutline
+                <FaRegCircleCheck
                   className="-ml-0.5 h-5 w-5 text-slate-700"
                   aria-hidden="true"
                 />
@@ -101,7 +99,7 @@ export default function MultipleSelectDropDown({ options, onChange }) {
                 disabled={!isClearSelectionEnabled}
                 onClick={handleOnClearOptions}
               >
-                <IoCloseCircleOutline
+                <FaRegCircleXmark
                   className="-ml-0.5 h-5 w-5 text-slate-700"
                   aria-hidden="true"
                 />

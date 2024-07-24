@@ -1,12 +1,12 @@
 import { useRef, useState, useEffect } from 'react';
 import { HiOutlineDocumentSearch } from 'react-icons/hi';
 import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
+import { FaMagnifyingGlass, FaXmark, FaBars } from 'react-icons/fa6';
 import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/react';
-import { FaMagnifyingGlass, FaXmark, FaBars } from 'react-icons/fa6';
 import LogModal from '../modals/LogModal';
 import StoreModal from '../modals/StoreModal';
 import MapAPIsLists from '../dropdowns/MapAPIsLists';
@@ -57,7 +57,7 @@ const TopMenuBar = () => {
   };
 
   const handleDataReceiveBack = (store) => {
-    if (store.latitude !== undefined && store.longitude !== undefined) {
+    if (store.latitude && store.longitude !== undefined) {
       setInputValue('');
       setSelectedCoords({
         lat: parseFloat(store.latitude),
@@ -70,36 +70,36 @@ const TopMenuBar = () => {
   };
 
   const handleChoosingMapAPIs = () => {
-    switch (selectedAPI.name.toLowerCase()) {
-      case 'google':
+    switch (selectedAPI.name) {
+      case 'GOOGLE':
         return (
           <GoogleCoords
             selectedCoords={selectedCoords}
             googleLocation={setClickedCoords}
           />
         );
-      case 'routo':
+      case 'ROUTO':
         return (
           <RoutoCoords
             selectedCoords={selectedCoords}
             routoLocation={setClickedCoords}
           />
         );
-      case 'tmap':
+      case 'TMAP':
         return (
           <TMapCoords
             selectedCoords={selectedCoords}
             tmapLocation={setClickedCoords}
           />
         );
-      case 'tomtom':
+      case 'TOMTOM':
         return (
           <TomTomCoords
             selectedCoords={selectedCoords}
             tomtomLocation={setClickedCoords}
           />
         );
-      case 'baidu':
+      case 'BAIDU':
         return (
           <BaiduCoords
             selectedCoords={selectedCoords}
@@ -138,7 +138,7 @@ const TopMenuBar = () => {
   }, [selectedAPI]);
 
   useEffect(() => {
-    if (!clickedCoords) return;
+    if (!clickedCoords || !selectedMapList) return;
 
     let result;
     switch (selectedMapList.name) {
@@ -151,6 +151,8 @@ const TopMenuBar = () => {
       case 'DEG':
         result = ConvertToDEG(clickedCoords);
         break;
+      default:
+        result = null;
     }
     setConvertedCoords(result);
   }, [clickedCoords, selectedMapList]);
