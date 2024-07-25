@@ -55,7 +55,7 @@ const Navbar = () => {
               className="inline-flex items-center border-b-2 px-7 pt-1 py-4 border-transparent text-base font-semibold text-gray-800  hover:border-gray-300 hover:text-gray-600"
               onClick={
                 menu.title === '지도'
-                  ? () => navigate('/main/map/google')
+                  ? () => navigate('/main/map')
                   : () => {}
               }
             >

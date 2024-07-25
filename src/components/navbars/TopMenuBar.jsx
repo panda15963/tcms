@@ -19,8 +19,8 @@ import BaiduCoords from '../displayCoords/BaiduCoords';
 import { ConvertToMMS } from '../calculateCoords/MMS';
 import { ConvertToDEC } from '../calculateCoords/DEC';
 import { ConvertToDEG } from '../calculateCoords/DEG';
-import CopiedCopletion from '../alerts/CopiedCopletion';
-import CopiedError from '../alerts/CopiedError';
+import Completion from '../alerts/Completion';
+import Error from '../alerts/Error';
 
 const TopMenuBar = () => {
   const [inputValue, setInputValue] = useState('');
@@ -30,9 +30,10 @@ const TopMenuBar = () => {
   const [clickedCoords, setClickedCoords] = useState(null);
   const [selectedMapList, setSelectedMapList] = useState(null);
   const [convertedCoords, setConvertedCoords] = useState({ lat: '', lng: '' });
-  const [isCopied, setIsCopied] = useState(false);
-  const [copyError, setCopyError] = useState(false);
-  const [copyErrorValue, setCopyErrorValue] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [successValue, setSuccessValue] = useState('');
+  const [error, setError] = useState(false);
+  const [errorValue, setErrorValue] = useState('');
 
   const storeModalRef = useRef();
   const logModalRef = useRef();
@@ -111,25 +112,188 @@ const TopMenuBar = () => {
     }
   };
 
+  const handleCoordsChange = (e) => {
+    const { name, value } = e.target;
+    setConvertedCoords((prevCoords) => ({
+      ...prevCoords,
+      [name]: value,
+    }));
+  };
+
+  const handleCoordsClick = (e) => {
+    const { name } = e.target;
+    setConvertedCoords((prevCoords) => ({
+      ...prevCoords,
+      [name]: '',
+    }));
+  };
+
   const handleCopy = () => {
-    if (convertedCoords) {
-      const coordsText = `Latitude: ${convertedCoords.lat}, Longitude: ${convertedCoords.lng}`;
+    if (convertedCoords.lat && convertedCoords.lng) {
+      const coordsText = `위도(Latitude): ${convertedCoords.lat}, 경도(Longitude): ${convertedCoords.lng}`;
       navigator.clipboard
         .writeText(coordsText)
         .then(() => {
-          setIsCopied(true);
-          setTimeout(() => setIsCopied(false), 2000);
+          setSuccessValue('클립보드에 복사되었습니다!');
+          setSuccess(true);
+          setTimeout(() => setSuccess(false), 2000);
         })
         .catch((err) => {
           console.error('Could not copy text: ', err, '!');
-          setCopyErrorValue(err.message, '!' || 'Error copying text!');
-          setCopyError(true);
-          setTimeout(() => setCopyError(false), 2000);
+          setErrorValue(err.message || 'Error copying text!');
+          setError(true);
+          setTimeout(() => setError(false), 2000);
         });
     } else {
-      setCopyErrorValue('No coordinates to copy!');
-      setCopyError(true);
-      setTimeout(() => setCopyError(false), 2000);
+      setErrorValue('복사 할 좌표가 없습니다!');
+      setError(true);
+      setTimeout(() => setError(false), 2000);
+    }
+  };
+
+  const handleSearch = () => {
+    if (convertedCoords.lat && convertedCoords.lng) {
+      if (selectedAPI.name === 'ROUTO') {
+        switch (selectedMapList.name) {
+          case 'MMS':
+            if (
+              11880000 <= parseFloat(convertedCoords.lat) &&
+              parseFloat(convertedCoords.lat) <= 15480000 &&
+              44820000 <= parseFloat(convertedCoords.lng) &&
+              parseFloat(convertedCoords.lng) <= 47520000
+            ) {
+              setSelectedCoords({
+                lat: parseFloat(convertedCoords.lat),
+                lng: parseFloat(convertedCoords.lng),
+              });
+            } else {
+              setErrorValue(
+                'MMS는 위도 11880000~15480000, 경도 44820000~47520000 범위만 가능합니다!',
+              );
+              setError(true);
+              setTimeout(() => setError(false), 2000);
+            }
+            break;
+          case 'DEC':
+            if (
+              33.0 <= parseFloat(convertedCoords.lat) &&
+              parseFloat(convertedCoords.lat) <= 43.0 &&
+              124.5 <= parseFloat(convertedCoords.lng) &&
+              parseFloat(convertedCoords.lng) <= 132.0
+            ) {
+              setSelectedCoords({
+                lat: parseFloat(convertedCoords.lat),
+                lng: parseFloat(convertedCoords.lng),
+              });
+            } else {
+              setErrorValue(
+                'DEC는 위도 33.0~43.0, 경도 124.5~132.0 범위만 가능합니다!',
+              );
+              setError(true);
+              setTimeout(() => setError(false), 2000);
+            }
+            break;
+          case 'DEG':
+            const latPattern =
+              /^(33|34|35|36|37|38|39|40|41|42) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
+            const lngPattern =
+              /^(124|125|126|127|128|129|130|131) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
+            if (
+              latPattern.test(convertedCoords.lat) &&
+              lngPattern.test(convertedCoords.lng)
+            ) {
+              setSelectedCoords({
+                lat: parseFloat(convertedCoords.lat),
+                lng: parseFloat(convertedCoords.lng),
+              });
+            } else {
+              setErrorValue(
+                'DEG는 위도 33~43, 경도 124~132 범위만 가능합니다!',
+              );
+              setError(true);
+              setTimeout(() => setError(false), 2000);
+            }
+            break;
+          default:
+            setConvertedCoords({ lat: '', lng: '' });
+        }
+      } else if (selectedAPI.name === 'TMAP') {
+        switch (selectedMapList.name) {
+          case 'MMS':
+            if (
+              11880000 <= parseFloat(convertedCoords.lat) &&
+              parseFloat(convertedCoords.lat) <= 14004000 &&
+              44820000 <= parseFloat(convertedCoords.lng) &&
+              parseFloat(convertedCoords.lng) <= 47520000
+            ) {
+              setSelectedCoords({
+                lat: parseFloat(convertedCoords.lat),
+                lng: parseFloat(convertedCoords.lng),
+              });
+            } else {
+              setErrorValue(
+                'MMS는 위도 11880000~14004000, 경도 44820000~47520000 범위만 가능합니다!',
+              );
+              setError(true);
+              setTimeout(() => setError(false), 2000);
+            }
+            break;
+          case 'DEC':
+            if (
+              33.0 <= parseFloat(convertedCoords.lat) &&
+              parseFloat(convertedCoords.lat) <= 38.9 &&
+              124.5 <= parseFloat(convertedCoords.lng) &&
+              parseFloat(convertedCoords.lng) <= 132.0
+            ) {
+              setSelectedCoords({
+                lat: parseFloat(convertedCoords.lat),
+                lng: parseFloat(convertedCoords.lng),
+              });
+            } else {
+              setErrorValue(
+                'DEC는 위도 33.0~38.9, 경도 124.5~132.0 범위만 가능합니다!',
+              );
+              setError(true);
+              setTimeout(() => setError(false), 2000);
+            }
+            break;
+          case 'DEG':
+            const latPattern =
+              /^(33|34|35|36|37|38) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
+            const lngPattern =
+              /^(124|125|126|127|128|129|130|131) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
+            if (
+              latPattern.test(convertedCoords.lat) &&
+              lngPattern.test(convertedCoords.lng)
+            ) {
+              setSelectedCoords({
+                lat: parseFloat(convertedCoords.lat),
+                lng: parseFloat(convertedCoords.lng),
+              });
+            } else {
+              setErrorValue(
+                'DEG는 위도 33~38, 경도 124~132 범위만 가능합니다!',
+              );
+              setError(true);
+              setTimeout(() => setError(false), 2000);
+            }
+            break;
+          default:
+            setConvertedCoords({ lat: '', lng: '' });
+        }
+      } else {
+        setSelectedCoords({
+          lat: parseFloat(convertedCoords.lat),
+          lng: parseFloat(convertedCoords.lng),
+        });
+        setSuccessValue('조회되었습니다!');
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 2000);
+      }
+    } else {
+      setErrorValue('조회 할 좌표가 없습니다!');
+      setError(true);
+      setTimeout(() => setError(false), 2000);
     }
   };
 
@@ -157,26 +321,10 @@ const TopMenuBar = () => {
     setConvertedCoords(result);
   }, [clickedCoords, selectedMapList]);
 
-  const handleCoordsChange = (e) => {
-    const { name, value } = e.target;
-    setConvertedCoords((prevCoords) => ({
-      ...prevCoords,
-      [name]: value,
-    }));
-  };
-
-  const handleCoordsClick = (e) => {
-    const { name } = e.target;
-    setConvertedCoords((prevCoords) => ({
-      ...prevCoords,
-      [name]: '',
-    }));
-  };
-
   return (
     <>
-      {isCopied && <CopiedCopletion />}
-      {copyError && <CopiedError errorMessage={copyErrorValue} />}
+      {success && <Completion successfulMessage={successValue} />}
+      {error && <Error errorMessage={errorValue} />}
       <Disclosure as="nav" className="bg-gray-800">
         {({ open }) => (
           <>
@@ -297,6 +445,7 @@ const TopMenuBar = () => {
                         <button
                           type="button"
                           className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+                          onClick={handleSearch}
                         >
                           조회
                         </button>

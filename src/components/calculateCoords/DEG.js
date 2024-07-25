@@ -4,7 +4,7 @@ export function ConvertToDEG(coords) {
     const minutes = Math.floor((coord - degrees) * 60);
     const seconds = (((coord - degrees) * 60 - minutes) * 60).toFixed(1);
 
-    return `${degrees}° ${minutes}' ${seconds}"`;
+    return `${degrees} ${minutes} ${seconds}`;
   };
 
   const DEGLat = convertToDMS(coords.lat);
