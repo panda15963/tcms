@@ -16,9 +16,15 @@ import TMapCoords from '../displayCoords/TMapCoords';
 import RoutoCoords from '../displayCoords/RoutoCoords';
 import TomTomCoords from '../displayCoords/TomTomCoords';
 import BaiduCoords from '../displayCoords/BaiduCoords';
-import { ConvertToMMS } from '../calculateCoords/MMS';
-import { ConvertToDEC } from '../calculateCoords/DEC';
-import { ConvertToDEG } from '../calculateCoords/DEG';
+import { DECToMMS } from '../calculateCoords/convertsDEC/DECToMMS';
+import { DECToDEC } from '../calculateCoords/convertsDEC/DECToDEC';
+import { DECToDEG } from '../calculateCoords/convertsDEC/DECToDEG';
+import { MMSToMMS } from '../calculateCoords/convertsMMS/MMSToMMS';
+import { MMSToDEC } from '../calculateCoords/convertsMMS/MMSToDEC';
+import { MMSToDEG } from '../calculateCoords/convertsMMS/MMSToDEG';
+import { DEGToMMS } from '../calculateCoords/convertsDEG/DEGToMMS';
+import { DEGToDEC } from '../calculateCoords/convertsDEG/DEGToDEC';
+import { DEGToDEG } from '../calculateCoords/convertsDEG/DEGToDEG';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
 
@@ -34,6 +40,7 @@ const TopMenuBar = () => {
   const [successValue, setSuccessValue] = useState('');
   const [error, setError] = useState(false);
   const [errorValue, setErrorValue] = useState('');
+  const [mapList, setMapList] = useState([]);
 
   const storeModalRef = useRef();
   const logModalRef = useRef();
@@ -151,8 +158,7 @@ const TopMenuBar = () => {
     }
   };
 
-  const handleSearch = (e) => {
-    console.log(e.key)
+  const handleSearch = () => {
     if (convertedCoords.lat && convertedCoords.lng) {
       let valid = false;
       let lat = parseFloat(convertedCoords.lat);
@@ -215,43 +221,7 @@ const TopMenuBar = () => {
   };
 
   useEffect(() => {
-    if (selectedCoords) {
-      let result;
-      switch (selectedMapList.name) {
-        case 'MMS':
-          result = ConvertToMMS(selectedCoords);
-          break;
-        case 'DEC':
-          result = ConvertToDEC(selectedCoords);
-          break;
-        case 'DEG':
-          result = ConvertToDEG(selectedCoords);
-          break;
-        default:
-          result = { lat: '', lng: '' };
-      }
-      setConvertedCoords(result);
-    }
-  }, [selectedCoords, selectedMapList]);
-
-  useEffect(() => {
-    if (selectedCoords) {
-      let result;
-      switch (selectedMapList.name) {
-        case 'MMS':
-          result = ConvertToMMS(selectedCoords);
-          break;
-        case 'DEC':
-          result = ConvertToDEC(selectedCoords);
-          break;
-        case 'DEG':
-          result = ConvertToDEG(selectedCoords);
-          break;
-        default:
-          result = { lat: '', lng: '' };
-      }
-      setConvertedCoords(result);
-    }
+    
   }, [selectedCoords, selectedMapList]);
 
   useEffect(() => {
@@ -264,13 +234,13 @@ const TopMenuBar = () => {
     let result;
     switch (selectedMapList.name) {
       case 'MMS':
-        result = ConvertToMMS(clickedCoords);
+        result = DECToMMS(clickedCoords);
         break;
       case 'DEC':
-        result = ConvertToDEC(clickedCoords);
+        result = DECToDEC(clickedCoords);
         break;
       case 'DEG':
-        result = ConvertToDEG(clickedCoords);
+        result = DECToDEG(clickedCoords);
         break;
       default:
         result = null;

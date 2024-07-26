@@ -1,4 +1,4 @@
-export function ConvertToDEG(coords) {
+export function DECToDEG(coords) {
   const convertToDMS = (coord) => {
     const degrees = Math.floor(coord);
     const minutes = Math.floor((coord - degrees) * 60);

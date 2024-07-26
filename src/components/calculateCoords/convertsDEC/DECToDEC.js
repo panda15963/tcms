@@ -1,5 +1,9 @@
-export function ConvertToDEC(coords) {
-  if (!coords || typeof coords.lat !== 'number' || typeof coords.lng !== 'number') {
+export function DECToDEC(coords) {
+  if (
+    !coords ||
+    typeof coords.lat !== 'number' ||
+    typeof coords.lng !== 'number'
+  ) {
     return { lat: '', lng: '' };
   }
 
