@@ -151,135 +151,52 @@ const TopMenuBar = () => {
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = (e) => {
+    console.log(e.key)
     if (convertedCoords.lat && convertedCoords.lng) {
-      if (selectedAPI.name === 'ROUTO') {
-        switch (selectedMapList.name) {
-          case 'MMS':
-            if (
-              11880000 <= parseFloat(convertedCoords.lat) &&
-              parseFloat(convertedCoords.lat) <= 15480000 &&
-              44820000 <= parseFloat(convertedCoords.lng) &&
-              parseFloat(convertedCoords.lng) <= 47520000
-            ) {
-              setSelectedCoords({
-                lat: parseFloat(convertedCoords.lat),
-                lng: parseFloat(convertedCoords.lng),
-              });
-            } else {
-              setErrorValue(
-                'MMS는 위도 11880000~15480000, 경도 44820000~47520000 범위만 가능합니다!',
-              );
-              setError(true);
-              setTimeout(() => setError(false), 2000);
-            }
-            break;
-          case 'DEC':
-            if (
-              33.0 <= parseFloat(convertedCoords.lat) &&
-              parseFloat(convertedCoords.lat) <= 43.0 &&
-              124.5 <= parseFloat(convertedCoords.lng) &&
-              parseFloat(convertedCoords.lng) <= 132.0
-            ) {
-              setSelectedCoords({
-                lat: parseFloat(convertedCoords.lat),
-                lng: parseFloat(convertedCoords.lng),
-              });
-            } else {
-              setErrorValue(
-                'DEC는 위도 33.0~43.0, 경도 124.5~132.0 범위만 가능합니다!',
-              );
-              setError(true);
-              setTimeout(() => setError(false), 2000);
-            }
-            break;
-          case 'DEG':
-            const latPattern =
-              /^(33|34|35|36|37|38|39|40|41|42) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
-            const lngPattern =
-              /^(124|125|126|127|128|129|130|131) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
-            if (
-              latPattern.test(convertedCoords.lat) &&
-              lngPattern.test(convertedCoords.lng)
-            ) {
-              setSelectedCoords({
-                lat: parseFloat(convertedCoords.lat),
-                lng: parseFloat(convertedCoords.lng),
-              });
-            } else {
-              setErrorValue(
-                'DEG는 위도 33~43, 경도 124~132 범위만 가능합니다!',
-              );
-              setError(true);
-              setTimeout(() => setError(false), 2000);
-            }
-            break;
-          default:
-            setConvertedCoords({ lat: '', lng: '' });
+      let valid = false;
+      let lat = parseFloat(convertedCoords.lat);
+      let lng = parseFloat(convertedCoords.lng);
+
+      if (
+        selectedAPI &&
+        (selectedAPI.name === 'ROUTO' || selectedAPI.name === 'TMAP')
+      ) {
+        if (selectedMapList.name === 'MMS') {
+          const minLat = 11880000;
+          const maxLat = selectedAPI.name === 'ROUTO' ? 15480000 : 14004000;
+          const minLng = 44820000;
+          const maxLng = 47520000;
+
+          valid =
+            minLat <= lat && lat <= maxLat && minLng <= lng && lng <= maxLng;
+        } else if (selectedMapList.name === 'DEC') {
+          const minLat = 33.0;
+          const maxLat = selectedAPI.name === 'ROUTO' ? 43.0 : 38.9;
+          const minLng = 124.5;
+          const maxLng = 132.0;
+
+          valid =
+            minLat <= lat && lat <= maxLat && minLng <= lng && lng <= maxLng;
+        } else if (selectedMapList.name === 'DEG') {
+          const latPattern =
+            selectedAPI.name === 'ROUTO'
+              ? /^(33|34|35|36|37|38|39|40|41|42) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/
+              : /^(33|34|35|36|37|38) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
+          const lngPattern =
+            /^(124|125|126|127|128|129|130|131) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
+
+          valid =
+            latPattern.test(convertedCoords.lat) &&
+            lngPattern.test(convertedCoords.lng);
         }
-      } else if (selectedAPI.name === 'TMAP') {
-        switch (selectedMapList.name) {
-          case 'MMS':
-            if (
-              11880000 <= parseFloat(convertedCoords.lat) &&
-              parseFloat(convertedCoords.lat) <= 14004000 &&
-              44820000 <= parseFloat(convertedCoords.lng) &&
-              parseFloat(convertedCoords.lng) <= 47520000
-            ) {
-              setSelectedCoords({
-                lat: parseFloat(convertedCoords.lat),
-                lng: parseFloat(convertedCoords.lng),
-              });
-            } else {
-              setErrorValue(
-                'MMS는 위도 11880000~14004000, 경도 44820000~47520000 범위만 가능합니다!',
-              );
-              setError(true);
-              setTimeout(() => setError(false), 2000);
-            }
-            break;
-          case 'DEC':
-            if (
-              33.0 <= parseFloat(convertedCoords.lat) &&
-              parseFloat(convertedCoords.lat) <= 38.9 &&
-              124.5 <= parseFloat(convertedCoords.lng) &&
-              parseFloat(convertedCoords.lng) <= 132.0
-            ) {
-              setSelectedCoords({
-                lat: parseFloat(convertedCoords.lat),
-                lng: parseFloat(convertedCoords.lng),
-              });
-            } else {
-              setErrorValue(
-                'DEC는 위도 33.0~38.9, 경도 124.5~132.0 범위만 가능합니다!',
-              );
-              setError(true);
-              setTimeout(() => setError(false), 2000);
-            }
-            break;
-          case 'DEG':
-            const latPattern =
-              /^(33|34|35|36|37|38) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
-            const lngPattern =
-              /^(124|125|126|127|128|129|130|131) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
-            if (
-              latPattern.test(convertedCoords.lat) &&
-              lngPattern.test(convertedCoords.lng)
-            ) {
-              setSelectedCoords({
-                lat: parseFloat(convertedCoords.lat),
-                lng: parseFloat(convertedCoords.lng),
-              });
-            } else {
-              setErrorValue(
-                'DEG는 위도 33~38, 경도 124~132 범위만 가능합니다!',
-              );
-              setError(true);
-              setTimeout(() => setError(false), 2000);
-            }
-            break;
-          default:
-            setConvertedCoords({ lat: '', lng: '' });
+
+        if (valid) {
+          setSelectedCoords({ lat, lng });
+        } else {
+          setErrorValue('잘못된 형식의 좌표입니다!');
+          setError(true);
+          setTimeout(() => setError(false), 2000);
         }
       } else {
         setSelectedCoords({
@@ -291,11 +208,51 @@ const TopMenuBar = () => {
         setTimeout(() => setSuccess(false), 2000);
       }
     } else {
-      setErrorValue('조회 할 좌표가 없습니다!');
+      setErrorValue('검색된 좌표가 없습니다!');
       setError(true);
       setTimeout(() => setError(false), 2000);
     }
   };
+
+  useEffect(() => {
+    if (selectedCoords) {
+      let result;
+      switch (selectedMapList.name) {
+        case 'MMS':
+          result = ConvertToMMS(selectedCoords);
+          break;
+        case 'DEC':
+          result = ConvertToDEC(selectedCoords);
+          break;
+        case 'DEG':
+          result = ConvertToDEG(selectedCoords);
+          break;
+        default:
+          result = { lat: '', lng: '' };
+      }
+      setConvertedCoords(result);
+    }
+  }, [selectedCoords, selectedMapList]);
+
+  useEffect(() => {
+    if (selectedCoords) {
+      let result;
+      switch (selectedMapList.name) {
+        case 'MMS':
+          result = ConvertToMMS(selectedCoords);
+          break;
+        case 'DEC':
+          result = ConvertToDEC(selectedCoords);
+          break;
+        case 'DEG':
+          result = ConvertToDEG(selectedCoords);
+          break;
+        default:
+          result = { lat: '', lng: '' };
+      }
+      setConvertedCoords(result);
+    }
+  }, [selectedCoords, selectedMapList]);
 
   useEffect(() => {
     setSelectedCoords(null);
@@ -574,6 +531,7 @@ const TopMenuBar = () => {
                   <button
                     type="button"
                     className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+                    onClick={handleSearch}
                   >
                     Search
                   </button>
