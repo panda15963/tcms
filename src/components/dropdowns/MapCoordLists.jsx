@@ -9,9 +9,9 @@ import {
 import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 
 const mapCoords = [
-  { id: 1, name: 'MMS' },
-  { id: 2, name: 'DEC' },
-  { id: 3, name: 'DEG' },
+  { id: 1, name: 'DEC' },
+  { id: 2, name: 'DEG' },
+  { id: 3, name: 'MMS' },  
 ];
 
 function classNames(...classes) {
