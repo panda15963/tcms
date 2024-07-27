@@ -35,5 +35,8 @@ export function DEGToMMS(coords) {
 
     const latDEC = calculateMMSLat(convertToDMSlat(lat));
     const lngDEC = calculateMMSLng(convertToDMSlng(lng));
+    console.log(
+        `DEG to MMS: ${lat} ${lng} -> ${latDEC} ${lngDEC}`
+    );
     return { lat: latDEC, lng: lngDEC };
 }

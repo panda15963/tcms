@@ -8,7 +8,9 @@ export function MMSToDEG(coords) {
 
     return `${degrees} ${minutes} ${seconds}`;
   };
-
+  console.log(
+    `MMS to DEG: ${coords.lat} ${coords.lng} -> ${DECLat} ${DECLng}`
+  );
   return {
     lat: convertToDMS(DECLat),
     lng: convertToDMS(DECLng),

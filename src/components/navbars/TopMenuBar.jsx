@@ -345,7 +345,7 @@ const TopMenuBar = () => {
 
   useEffect(() => {
     if (!selectedCoords || !selectedMapList) return;
-    if(mapList[0].name === 'MMS'){
+    if (mapList[mapList.length-1].name === 'MMS') {
       let result;
       switch (selectedMapList?.name) {
         case 'MMS':
@@ -361,7 +361,7 @@ const TopMenuBar = () => {
           result = null;
       }
       setConvertedCoords(result || { lat: '', lng: '' });
-    } else if(mapList[0].name === 'DEG'){
+    } else if (mapList[mapList.length-1].name === 'DEG') {
       let result;
       switch (selectedMapList?.name) {
         case 'MMS':
@@ -394,13 +394,15 @@ const TopMenuBar = () => {
       }
       setConvertedCoords(result || { lat: '', lng: '' });
     }
+    console.log(mapList[mapList.length-1].name === 'DEC')
+    console.log("First element in mapList:", mapList[0]);
   }, [selectedCoords, selectedMapList]);
 
   useEffect(() => {
     if (selectedMapList) {
       setMapList((prevList) => [...prevList, selectedMapList]);
+      console.log("Updated mapList:", [...mapList, selectedMapList]);
     }
-    console.log(mapList)
   }, [selectedMapList]);
 
   useEffect(() => {

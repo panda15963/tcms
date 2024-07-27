@@ -1,6 +1,6 @@
 export function DEGToDEG(coords) {
   const { lat, lng } = coords;
-  
+
   function convertToDMSlat(decimal) {
     const degrees = Math.floor(decimal / 10000);
     const minutes = Math.floor((decimal % 10000) / 100);
@@ -17,5 +17,8 @@ export function DEGToDEG(coords) {
 
   const latDMS = convertToDMSlat(lat);
   const lngDMS = convertToDMSlng(lng);
+  console.log(
+    `DEG to DEG: ${lat} ${lng} -> ${latDMS} ${lngDMS}`
+  );
   return { lat: latDMS, lng: lngDMS };
 }

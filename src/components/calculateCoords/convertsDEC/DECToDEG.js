@@ -9,7 +9,9 @@ export function DECToDEG(coords) {
 
   const DEGLat = convertToDMS(coords.lat);
   const DEGLng = convertToDMS(coords.lng);
-
+  console.log(
+    `DEC to DEG: ${coords.lat} ${coords.lng} -> ${DEGLat} ${DEGLng}`
+  );
   return {
     lat: DEGLat,
     lng: DEGLng,
