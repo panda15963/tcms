@@ -2,11 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { HiOutlineDocumentSearch } from 'react-icons/hi';
 import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
 import { FaMagnifyingGlass, FaXmark, FaBars } from 'react-icons/fa6';
-import {
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-} from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import LogModal from '../modals/LogModal';
 import StoreModal from '../modals/StoreModal';
 import MapAPIsLists from '../dropdowns/MapAPIsLists';
@@ -64,12 +60,20 @@ const TopMenuBar = () => {
     }
   };
 
+  const parseDEG = (deg) => {
+    const parts = deg.split(' ');
+    const degrees = parseFloat(parts[0]);
+    const minutes = parseFloat(parts[1]);
+    const seconds = parseFloat(parts[2]);
+    return degrees + minutes / 60 + seconds / 3600;
+  };
+
   const handleDataReceiveBack = (store) => {
     if (store.latitude && store.longitude !== undefined) {
       setInputValue('');
       setSelectedCoords({
-        lat: parseFloat(store.latitude),
-        lng: parseFloat(store.longitude),
+        lat: parseDEG(store.latitude),
+        lng: parseDEG(store.longitude),
       });
       storeModalRef.current.close();
     } else {
@@ -78,42 +82,17 @@ const TopMenuBar = () => {
   };
 
   const handleChoosingMapAPIs = () => {
-    switch (selectedAPI.name) {
+    switch (selectedAPI?.name) {
       case 'GOOGLE':
-        return (
-          <GoogleCoords
-            selectedCoords={selectedCoords}
-            googleLocation={setClickedCoords}
-          />
-        );
+        return <GoogleCoords selectedCoords={selectedCoords} googleLocation={setClickedCoords} />;
       case 'ROUTO':
-        return (
-          <RoutoCoords
-            selectedCoords={selectedCoords}
-            routoLocation={setClickedCoords}
-          />
-        );
+        return <RoutoCoords selectedCoords={selectedCoords} routoLocation={setClickedCoords} />;
       case 'TMAP':
-        return (
-          <TMapCoords
-            selectedCoords={selectedCoords}
-            tmapLocation={setClickedCoords}
-          />
-        );
+        return <TMapCoords selectedCoords={selectedCoords} tmapLocation={setClickedCoords} />;
       case 'TOMTOM':
-        return (
-          <TomTomCoords
-            selectedCoords={selectedCoords}
-            tomtomLocation={setClickedCoords}
-          />
-        );
+        return <TomTomCoords selectedCoords={selectedCoords} tomtomLocation={setClickedCoords} />;
       case 'BAIDU':
-        return (
-          <BaiduCoords
-            selectedCoords={selectedCoords}
-            baiduLocation={setClickedCoords}
-          />
-        );
+        return <BaiduCoords selectedCoords={selectedCoords} baiduLocation={setClickedCoords} />;
       default:
         return null;
     }
@@ -159,60 +138,204 @@ const TopMenuBar = () => {
   };
 
   const handleSearch = () => {
+    function hasSpaces(str) {
+      return /\s/.test(str);
+    }
     if (convertedCoords.lat && convertedCoords.lng) {
-      let valid = false;
-      let lat = parseFloat(convertedCoords.lat);
-      let lng = parseFloat(convertedCoords.lng);
-
-      if (
-        selectedAPI &&
-        (selectedAPI.name === 'ROUTO' || selectedAPI.name === 'TMAP')
-      ) {
-        if (selectedMapList.name === 'MMS') {
-          const minLat = 11880000;
-          const maxLat = selectedAPI.name === 'ROUTO' ? 15480000 : 14004000;
-          const minLng = 44820000;
-          const maxLng = 47520000;
-
-          valid =
-            minLat <= lat && lat <= maxLat && minLng <= lng && lng <= maxLng;
-        } else if (selectedMapList.name === 'DEC') {
-          const minLat = 33.0;
-          const maxLat = selectedAPI.name === 'ROUTO' ? 43.0 : 38.9;
-          const minLng = 124.5;
-          const maxLng = 132.0;
-
-          valid =
-            minLat <= lat && lat <= maxLat && minLng <= lng && lng <= maxLng;
-        } else if (selectedMapList.name === 'DEG') {
-          const latPattern =
-            selectedAPI.name === 'ROUTO'
-              ? /^(33|34|35|36|37|38|39|40|41|42) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/
-              : /^(33|34|35|36|37|38) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
-          const lngPattern =
-            /^(124|125|126|127|128|129|130|131) [0-5]?[0-9] [0-5]?[0-9](\.\d+)?$/;
-
-          valid =
-            latPattern.test(convertedCoords.lat) &&
-            lngPattern.test(convertedCoords.lng);
-        }
-
+      if (hasSpaces(convertedCoords.lat) && hasSpaces(convertedCoords.lng)) {
+        const lat = convertedCoords.lat.replace(/\s/g, '');
+        const lng = convertedCoords.lng.replace(/\s/g, '');
+        const valid = !isNaN(lat) && !isNaN(lng);
         if (valid) {
-          setSelectedCoords({ lat, lng });
+          const latValue = parseFloat(lat);
+          const lngValue = parseFloat(lng);
+          if (selectedAPI && (selectedAPI.name === 'ROUTO')) {
+            if (selectedMapList.name === 'MMS') {
+              const minLat = 11520000;
+              const maxLat = 15480000;
+              const minLng = 44640000;
+              const maxLng = 47520000;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            } else if (selectedMapList.name === 'DEC') {
+              const minLat = 32.0;
+              const maxLat = 43.0;
+              const minLng = 124.0;
+              const maxLng = 132.0;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            } else if (selectedMapList.name === 'DEG') {
+              const minLat = 37;
+              const maxLat = 43;
+              const minLng = 123;
+              const maxLng = 132;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            }
+          } else if (selectedAPI.name === 'TMAP') {
+            if (selectedMapList.name === 'MMS') {
+              const minLat = 11520000;
+              const maxLat = 14040000;
+              const minLng = 44640000;
+              const maxLng = 47520000;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            } else if (selectedMapList.name === 'DEC') {
+              const minLat = 32.0;
+              const maxLat = 39.0;
+              const minLng = 124.0;
+              const maxLng = 132.0;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            } else if (selectedMapList.name === 'DEG') {
+              const minLat = 32;
+              const maxLat = 39;
+              const minLng = 124;
+              const maxLng = 132;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            }
+          } else {
+            setSelectedCoords({ lat: latValue, lng: lngValue });
+          }
         } else {
           setErrorValue('잘못된 형식의 좌표입니다!');
           setError(true);
           setTimeout(() => setError(false), 2000);
         }
       } else {
-        setSelectedCoords({
-          lat: parseFloat(convertedCoords.lat),
-          lng: parseFloat(convertedCoords.lng),
-        });
-        setSuccessValue('조회되었습니다!');
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 2000);
+        const valid = !isNaN(convertedCoords.lat) && !isNaN(convertedCoords.lng);
+        if (valid) {
+          const latValue = parseFloat(convertedCoords.lat);
+          const lngValue = parseFloat(convertedCoords.lng);
+          if (selectedAPI && (selectedAPI.name === 'ROUTO')) {
+            if (selectedMapList.name === 'MMS') {
+              const minLat = 11520000;
+              const maxLat = 15480000;
+              const minLng = 44640000;
+              const maxLng = 47520000;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            } else if (selectedMapList.name === 'DEC') {
+              const minLat = 32.0;
+              const maxLat = 43.0;
+              const minLng = 124.0;
+              const maxLng = 132.0;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            } else if (selectedMapList.name === 'DEG') {
+              const minLat = 37;
+              const maxLat = 43;
+              const minLng = 123;
+              const maxLng = 132;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            }
+          } else if (selectedAPI.name === 'TMAP') {
+            if (selectedMapList.name === 'MMS') {
+              const minLat = 11520000;
+              const maxLat = 14040000;
+              const minLng = 44640000;
+              const maxLng = 47520000;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            } else if (selectedMapList.name === 'DEC') {
+              const minLat = 32.0;
+              const maxLat = 39.0;
+              const minLng = 124.0;
+              const maxLng = 132.0;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            } else if (selectedMapList.name === 'DEG') {
+              const minLat = 32;
+              const maxLat = 39;
+              const minLng = 124;
+              const maxLng = 132;
+              if (latValue < minLat || latValue > maxLat || lngValue < minLng || lngValue > maxLng) {
+                setErrorValue('검색된 좌표가 없습니다!');
+                setError(true);
+                setTimeout(() => setError(false), 2000);
+                return;
+              } else {
+                setSelectedCoords({ lat: latValue, lng: lngValue });
+              }
+            }
+          } else {
+            setSelectedCoords({ lat: latValue, lng: lngValue });
+          }
+        } else {
+          setErrorValue('잘못된 형식의 좌표입니다!');
+          setError(true);
+          setTimeout(() => setError(false), 2000);
+        }
       }
+
     } else {
       setErrorValue('검색된 좌표가 없습니다!');
       setError(true);
@@ -221,7 +344,23 @@ const TopMenuBar = () => {
   };
 
   useEffect(() => {
-    
+    if (!selectedCoords || !selectedMapList) return;
+
+    let result;
+    switch (selectedMapList?.name) {
+      case 'MMS':
+        result = DECToMMS(selectedCoords);
+        break;
+      case 'DEC':
+        result = DECToDEC(selectedCoords);
+        break;
+      case 'DEG':
+        result = DECToDEG(selectedCoords);
+        break;
+      default:
+        result = null;
+    }
+    setConvertedCoords(result || { lat: '', lng: '' });
   }, [selectedCoords, selectedMapList]);
 
   useEffect(() => {
@@ -232,7 +371,7 @@ const TopMenuBar = () => {
     if (!clickedCoords || !selectedMapList) return;
 
     let result;
-    switch (selectedMapList.name) {
+    switch (selectedMapList?.name) {
       case 'MMS':
         result = DECToMMS(clickedCoords);
         break;
@@ -245,7 +384,7 @@ const TopMenuBar = () => {
       default:
         result = null;
     }
-    setConvertedCoords(result);
+    setConvertedCoords(result || { lat: '', lng: '' });
   }, [clickedCoords, selectedMapList]);
 
   return (
@@ -257,7 +396,7 @@ const TopMenuBar = () => {
           <>
             <div className="mx-auto inset-x-0">
               <div className="flex h-16 justify-between">
-                <div className="flex items-center lg:px-0 ">
+                <div className="flex items-center lg:px-0">
                   <div className="hidden lg:ml-6 lg:block">
                     <div className="flex">
                       <label className="px-3 py-2 text-sm font-bold text-white">
@@ -503,7 +642,7 @@ const TopMenuBar = () => {
                     className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                     onClick={handleSearch}
                   >
-                    Search
+                    조회
                   </button>
                 </div>
                 <div className="flex flex-0 justify-center lg:ml-3">
@@ -512,7 +651,7 @@ const TopMenuBar = () => {
                     className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                     onClick={handleCopy}
                   >
-                    Copy
+                    복사
                   </button>
                 </div>
               </div>

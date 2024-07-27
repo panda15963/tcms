@@ -1,14 +1,39 @@
 export function DEGToMMS(coords) {
-    const convertToOriginal = (coords) => {
-        const [degrees, minutes, seconds] = coords.split(' ');
-        return (
-        parseFloat(degrees) +
-        parseFloat(minutes) / 60 +
-        parseFloat(seconds) / 3600
-        );
-    };
-    const [lat, lon] = coords.split(',').map(convertToOriginal);
-    const MMSLat = parseInt(lat * 360000);
-    const MMSLng = parseInt(lon * 360000);
-    return { lat: MMSLat, lng: MMSLng };
+    const { lat, lng } = coords;
+
+    function convertToDMSlat(decimal) {
+        const degrees = Math.floor(decimal / 10000);
+        const minutes = Math.floor((decimal % 10000) / 100);
+        const seconds = (decimal % 100).toFixed(1);
+        return `${degrees} ${minutes} ${seconds}`;
+    }
+
+    function convertToDMSlng(decimal) {
+        const degrees = Math.floor(decimal / 1000);
+        const minutes = Math.floor((decimal % 1000) / 100);
+        const seconds = (decimal % 100).toFixed(1);
+        return `${degrees} ${minutes} ${seconds}`;
+    }
+
+    function calculateMMSLat(lat) {
+        const partsLat = lat.split(' ');
+        const degrees = parseFloat(partsLat[0]);
+        const minutes = parseFloat(partsLat[1]) / 60;
+        const seconds = parseFloat(partsLat[2]) / 3600;
+        const latDEC = ((degrees + minutes + seconds).toFixed(6)*360000).toFixed(0);
+        return latDEC;
+    }
+
+    function calculateMMSLng(lng) {
+        const partsLng = lng.split(' ');
+        const degrees = parseFloat(partsLng[0]);
+        const minutes = parseFloat(partsLng[1]) / 60;
+        const seconds = parseFloat(partsLng[2]) / 3600;
+        const lngDEC = ((degrees + minutes + seconds).toFixed(6)*360000).toFixed(0);
+        return lngDEC;
+    }
+
+    const latDEC = calculateMMSLat(convertToDMSlat(lat));
+    const lngDEC = calculateMMSLng(convertToDMSlng(lng));
+    return { lat: latDEC, lng: lngDEC };
 }

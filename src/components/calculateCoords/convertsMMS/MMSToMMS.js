@@ -9,5 +9,6 @@ export function MMSToMMS(coords) {
 
   const MMSLat = parseInt(coords.lat);
   const MMSLng = parseInt(coords.lng)
+  console.log(MMSLat,MMSLng)
   return { lat: MMSLat, lng: MMSLng };
 }
