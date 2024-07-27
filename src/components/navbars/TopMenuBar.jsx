@@ -345,23 +345,63 @@ const TopMenuBar = () => {
 
   useEffect(() => {
     if (!selectedCoords || !selectedMapList) return;
-
-    let result;
-    switch (selectedMapList?.name) {
-      case 'MMS':
-        result = DECToMMS(selectedCoords);
-        break;
-      case 'DEC':
-        result = DECToDEC(selectedCoords);
-        break;
-      case 'DEG':
-        result = DECToDEG(selectedCoords);
-        break;
-      default:
-        result = null;
+    if(mapList[0].name === 'MMS'){
+      let result;
+      switch (selectedMapList?.name) {
+        case 'MMS':
+          result = MMSToMMS(selectedCoords);
+          break;
+        case 'DEC':
+          result = MMSToDEC(selectedCoords);
+          break;
+        case 'DEG':
+          result = MMSToDEG(selectedCoords);
+          break;
+        default:
+          result = null;
+      }
+      setConvertedCoords(result || { lat: '', lng: '' });
+    } else if(mapList[0].name === 'DEG'){
+      let result;
+      switch (selectedMapList?.name) {
+        case 'MMS':
+          result = DEGToMMS(selectedCoords);
+          break;
+        case 'DEC':
+          result = DEGToDEC(selectedCoords);
+          break;
+        case 'DEG':
+          result = DEGToDEG(selectedCoords);
+          break;
+        default:
+          result = null;
+      }
+      setConvertedCoords(result || { lat: '', lng: '' });
+    } else {
+      let result;
+      switch (selectedMapList?.name) {
+        case 'MMS':
+          result = DECToMMS(selectedCoords);
+          break;
+        case 'DEC':
+          result = DECToDEC(selectedCoords);
+          break;
+        case 'DEG':
+          result = DECToDEG(selectedCoords);
+          break;
+        default:
+          result = null;
+      }
+      setConvertedCoords(result || { lat: '', lng: '' });
     }
-    setConvertedCoords(result || { lat: '', lng: '' });
   }, [selectedCoords, selectedMapList]);
+
+  useEffect(() => {
+    if (selectedMapList) {
+      setMapList((prevList) => [...prevList, selectedMapList]);
+    }
+    console.log(mapList)
+  }, [selectedMapList]);
 
   useEffect(() => {
     setSelectedCoords(null);
