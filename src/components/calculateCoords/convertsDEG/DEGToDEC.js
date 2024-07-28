@@ -35,8 +35,6 @@ export function DEGToDEC(coords) {
 
   const latDEC = calculateDECLat(convertToDMSlat(lat));
   const lngDEC = calculateDECLng(convertToDMSlng(lng));
-  console.log(
-    `DEG to DEC: ${lat} ${lng} -> ${latDEC} ${lngDEC}`
-  );
+  
   return { lat: latDEC, lng: lngDEC };
 }

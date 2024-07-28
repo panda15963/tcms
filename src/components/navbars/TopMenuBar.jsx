@@ -164,14 +164,15 @@ const TopMenuBar = () => {
 
   const handleSearch = () => {
     if (convertedCoords.lat && convertedCoords.lng) {
-      const lat = convertedCoords.lat.replace(/\s/g, '');
-      const lng = convertedCoords.lng.replace(/\s/g, '');
+      // Ensure lat and lng are strings
+      const lat = String(convertedCoords.lat).replace(/\s/g, '');
+      const lng = String(convertedCoords.lng).replace(/\s/g, '');
       const valid = !isNaN(lat) && !isNaN(lng);
-
+  
       if (valid) {
         const latValue = parseFloat(lat);
         const lngValue = parseFloat(lng);
-
+  
         const ranges = {
           ROUTO: {
             MMS: {
@@ -194,10 +195,10 @@ const TopMenuBar = () => {
             DEG: { minLat: 32, maxLat: 39, minLng: 123, maxLng: 132 },
           },
         };
-
+  
         const currentRanges =
           ranges[selectedAPI?.name]?.[selectedMapList?.name];
-
+  
         if (
           currentRanges &&
           (latValue < currentRanges.minLat ||
@@ -210,7 +211,7 @@ const TopMenuBar = () => {
           setTimeout(() => setError(false), 2000);
           return;
         }
-
+  
         let result;
         if (selectedMapList.name === 'MMS') {
           result = MMSToDEC({ lat: latValue, lng: lngValue });
@@ -219,7 +220,7 @@ const TopMenuBar = () => {
         } else if (selectedMapList.name === 'DEG') {
           result = DEGToDEC({ lat: latValue, lng: lngValue });
         }
-
+  
         setSelectedCoords(result);
         setDisplayCoords(result);
       } else {
@@ -233,6 +234,7 @@ const TopMenuBar = () => {
       setTimeout(() => setError(false), 2000);
     }
   };
+  
 
   useEffect(() => {
     if (!displayCoords) return;
