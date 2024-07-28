@@ -37,6 +37,8 @@ const TopMenuBar = () => {
   const [error, setError] = useState(false);
   const [errorValue, setErrorValue] = useState('');
   const [mapList, setMapList] = useState([]);
+  const [mapStartingPoint, setMapStartingPoint] = ('');
+  const [mapEndingPoint, setMapEndingPoint] = ('');
 
   const storeModalRef = useRef();
   const logModalRef = useRef();
@@ -343,57 +345,54 @@ const TopMenuBar = () => {
     }
   };
 
+  const convertCoordinates = (coords, from, to) => {
+    let result = null;
+    switch (from) {
+      case 'MMS':
+        switch (to) {
+          case 'MMS':
+            result = MMSToMMS(coords);
+            break;
+          case 'DEC':
+            result = MMSToDEC(coords);
+            break;
+          case 'DEG':
+            result = MMSToDEG(coords);
+            break;
+        }
+        break;
+      case 'DEC':
+        switch (to) {
+          case 'MMS':
+            result = DECToMMS(coords);
+            break;
+          case 'DEC':
+            result = DECToDEC(coords);
+            break;
+          case 'DEG':
+            result = DECToDEG(coords);
+            break;
+        }
+        break;
+      case 'DEG':
+        switch (to) {
+          case 'MMS':
+            result = DEGToMMS(coords);
+            break;
+          case 'DEC':
+            result = DEGToDEC(coords);
+            break;
+          case 'DEG':
+            result = DEGToDEG(coords);
+            break;
+        }
+        break;
+      }
+    return result;
+  };
+
   useEffect(() => {
     if (!selectedCoords || !selectedMapList) return;
-    if (mapList[mapList.length-1].name === 'MMS') {
-      let result;
-      switch (selectedMapList?.name) {
-        case 'MMS':
-          result = MMSToMMS(selectedCoords);
-          break;
-        case 'DEC':
-          result = MMSToDEC(selectedCoords);
-          break;
-        case 'DEG':
-          result = MMSToDEG(selectedCoords);
-          break;
-        default:
-          result = null;
-      }
-      setConvertedCoords(result || { lat: '', lng: '' });
-    } else if (mapList[mapList.length-1].name === 'DEG') {
-      let result;
-      switch (selectedMapList?.name) {
-        case 'MMS':
-          result = DEGToMMS(selectedCoords);
-          break;
-        case 'DEC':
-          result = DEGToDEC(selectedCoords);
-          break;
-        case 'DEG':
-          result = DEGToDEG(selectedCoords);
-          break;
-        default:
-          result = null;
-      }
-      setConvertedCoords(result || { lat: '', lng: '' });
-    } else {
-      let result;
-      switch (selectedMapList?.name) {
-        case 'MMS':
-          result = DECToMMS(selectedCoords);
-          break;
-        case 'DEC':
-          result = DECToDEC(selectedCoords);
-          break;
-        case 'DEG':
-          result = DECToDEG(selectedCoords);
-          break;
-        default:
-          result = null;
-      }
-      setConvertedCoords(result || { lat: '', lng: '' });
-    }
     console.log(mapList[mapList.length-1].name === 'DEC')
     console.log("First element in mapList:", mapList[0]);
   }, [selectedCoords, selectedMapList]);
