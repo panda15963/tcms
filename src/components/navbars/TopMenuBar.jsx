@@ -163,69 +163,103 @@ const TopMenuBar = () => {
   };
 
   const handleSearch = () => {
+    function hasSpace(str) {
+      return /\s/.test(str);
+    }
     if (convertedCoords.lat && convertedCoords.lng) {
-      const lat = String(convertedCoords.lat).replace(/\s/g, '');
-      const lng = String(convertedCoords.lng).replace(/\s/g, '');
-      const valid = !isNaN(lat) && !isNaN(lng);
-
-      if (valid) {
-        const latValue = parseFloat(lat);
-        const lngValue = parseFloat(lng);
-
-        const ranges = {
-          ROUTO: {
-            MMS: {
-              minLat: 11520000,
-              maxLat: 15480000,
-              minLng: 44640000,
-              maxLng: 47520000,
+      if (hasSpace(convertedCoords.lat) && hasSpace(convertedCoords.lng)) {
+        const lat = String(convertedCoords.lat).replace(/\s/g, '');
+        const lng = String(convertedCoords.lng).replace(/\s/g, '');
+        const valid = !isNaN(lat) && !isNaN(lng);
+        if (valid) {
+          const latValue = parseFloat(lat);
+          const lngValue = parseFloat(lng);
+          const ranges = {
+            ROUTO: {
+              DEG: { minLat: 32, maxLat: 43, minLng: 123, maxLng: 132 },
             },
-            DEC: { minLat: 32.0, maxLat: 43.0, minLng: 123.0, maxLng: 132.0 },
-            DEG: { minLat: 32, maxLat: 43, minLng: 123, maxLng: 132 },
-          },
-          TMAP: {
-            MMS: {
-              minLat: 11520000,
-              maxLat: 14040000,
-              minLng: 44640000,
-              maxLng: 47520000,
+            TMAP: {
+              DEG: { minLat: 32, maxLat: 39, minLng: 123, maxLng: 132 },
             },
-            DEC: { minLat: 32.0, maxLat: 39.0, minLng: 123.0, maxLng: 132.0 },
-            DEG: { minLat: 32, maxLat: 39, minLng: 123, maxLng: 132 },
-          },
-        };
-
-        const currentRanges =
-          ranges[selectedAPI?.name]?.[selectedMapList?.name];
-
-        if (
-          currentRanges &&
-          (latValue < currentRanges.minLat ||
-            latValue > currentRanges.maxLat ||
-            lngValue < currentRanges.minLng ||
-            lngValue > currentRanges.maxLng)
-        ) {
-          setErrorValue('검색된 좌표가 없습니다!');
-          setError(true);
-          setTimeout(() => setError(false), 2000);
-          return;
+          };
+          const currentRanges =
+            ranges[selectedAPI?.name]?.[selectedMapList?.name];
+          if (
+            currentRanges &&
+            (latValue < currentRanges.minLat ||
+              latValue > currentRanges.maxLat ||
+              lngValue < currentRanges.minLng ||
+              lngValue > currentRanges.maxLng)
+          ) {
+            setErrorValue('검색된 좌표가 없습니다!');
+            setError(true);
+            setTimeout(() => setError(false), 2000);
+            return;
+          }
+          let result;
+          if (selectedMapList.name === 'MMS') {
+            result = MMSToDEC({ lat: latValue, lng: lngValue });
+          } else if (selectedMapList.name === 'DEC') {
+            result = DECToDEC({ lat: latValue, lng: lngValue });
+          } else if (selectedMapList.name === 'DEG') {
+            result = DEGToDEC({ lat: latValue, lng: lngValue });
+          }
+          setSelectedCoords(result);
+          setDisplayCoords(result);
         }
 
-        let result;
-        if (selectedMapList.name === 'MMS') {
-          result = MMSToDEC({ lat: latValue, lng: lngValue });
-        } else if (selectedMapList.name === 'DEC') {
-          result = DECToDEC({ lat: latValue, lng: lngValue });
-        } else if (selectedMapList.name === 'DEG') {
-          result = DEGToDEC({ lat: latValue, lng: lngValue });
-        }
-
-        setSelectedCoords(result);
-        setDisplayCoords(result);
       } else {
-        setErrorValue('잘못된 형식의 좌표입니다!');
-        setError(true);
-        setTimeout(() => setError(false), 2000);
+        const lat = String(convertedCoords.lat).replace(/\s/g, '');
+        const lng = String(convertedCoords.lng).replace(/\s/g, '');
+        const valid = !isNaN(lat) && !isNaN(lng);
+        if (valid) {
+          const latValue = parseFloat(lat);
+          const lngValue = parseFloat(lng);
+          const ranges = {
+            ROUTO: {
+              MMS: {
+                minLat: 11520000,
+                maxLat: 15480000,
+                minLng: 44640000,
+                maxLng: 47520000,
+              },
+              DEC: { minLat: 32.0, maxLat: 43.0, minLng: 123.0, maxLng: 132.0 },
+            },
+            TMAP: {
+              MMS: {
+                minLat: 11520000,
+                maxLat: 14040000,
+                minLng: 44640000,
+                maxLng: 47520000,
+              },
+              DEC: { minLat: 32.0, maxLat: 39.0, minLng: 123.0, maxLng: 132.0 },
+            },
+          };
+          const currentRanges =
+            ranges[selectedAPI?.name]?.[selectedMapList?.name];
+          if (
+            currentRanges &&
+            (latValue < currentRanges.minLat ||
+              latValue > currentRanges.maxLat ||
+              lngValue < currentRanges.minLng ||
+              lngValue > currentRanges.maxLng)
+          ) {
+            setErrorValue('검색된 좌표가 없습니다!');
+            setError(true);
+            setTimeout(() => setError(false), 2000);
+            return;
+          }
+          let result;
+          if (selectedMapList.name === 'MMS') {
+            result = MMSToDEC({ lat: latValue, lng: lngValue });
+          } else if (selectedMapList.name === 'DEC') {
+            result = DECToDEC({ lat: latValue, lng: lngValue });
+          } else if (selectedMapList.name === 'DEG') {
+            result = DEGToDEC({ lat: latValue, lng: lngValue });
+          }
+          setSelectedCoords(result);
+          setDisplayCoords(result);
+        }
       }
     } else {
       setErrorValue('검색된 좌표가 없습니다!');
@@ -233,6 +267,7 @@ const TopMenuBar = () => {
       setTimeout(() => setError(false), 2000);
     }
   };
+
 
   useEffect(() => {
     if (!displayCoords) return;
@@ -260,7 +295,6 @@ const TopMenuBar = () => {
 
   useEffect(() => {
     setSelectedCoords(null);
-    setConvertedCoords({ lat: '', lng: '' });
   }, [selectedAPI]);
 
   useEffect(() => {
