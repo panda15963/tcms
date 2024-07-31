@@ -147,118 +147,170 @@ const TopMenuBar = () => {
         .then(() => {
           setSuccessValue('클립보드에 복사되었습니다!');
           setSuccess(true);
-          setTimeout(() => setSuccess(false), 2000);
+          setTimeout(() => setSuccess(false), 5000);
         })
         .catch((err) => {
-          console.error('Could not copy text: ', err, '!');
-          setErrorValue(err.message || 'Error copying text!');
+          console.error('복사하지 못한 텍스트: ', err, '!');
+          setErrorValue(err.message || '텍스트를 복사하지 못 하였습니다!');
           setError(true);
-          setTimeout(() => setError(false), 2000);
+          setTimeout(() => setError(false), 5000);
         });
     } else {
       setErrorValue('복사 할 좌표가 없습니다!');
       setError(true);
-      setTimeout(() => setError(false), 2000);
+      setTimeout(() => setError(false), 5000);
     }
-  };
-
-  const hasSpace = (value) => {
-    return value.includes(' ');
-  };
-
-  const hasPeriod = (value) => {
-    return value.includes('.');
   };
 
   const handleSearch = () => {
-    if (convertedCoords.lat && convertedCoords.lng) {
-      const lat = String(convertedCoords.lat).trim();
-      const lng = String(convertedCoords.lng).trim();
-      const validLat = !isNaN(lat);
-      const validLng = !isNaN(lng);
-
-      if (validLat && validLng) {
-        const latValue = parseFloat(lat);
-        const lngValue = parseFloat(lng);
-
-        // 범위 정의
-        const ranges = {
-          ROUTO: {
-            MMS: {
-              minLat: 11520000,
-              maxLat: 15480000,
-              minLng: 44640000,
-              maxLng: 47520000,
-            },
-            DEC: { minLat: 32.0, maxLat: 43.0, minLng: 123.0, maxLng: 132.0 },
-            DEG: { minLat: 32, maxLat: 43, minLng: 123, maxLng: 132 },
-          },
-          TMAP: {
-            MMS: {
-              minLat: 11520000,
-              maxLat: 14040000,
-              minLng: 44640000,
-              maxLng: 47520000,
-            },
-            DEC: { minLat: 32.0, maxLat: 39.0, minLng: 123.0, maxLng: 132.0 },
-            DEG: { minLat: 32, maxLat: 39, minLng: 123, maxLng: 132 },
-          },
-        };
-
-        const currentRanges = ranges[selectedAPI?.name]?.[selectedMapList?.name];
-
-        if (
-          currentRanges &&
-          (latValue < currentRanges.minLat ||
-            latValue > currentRanges.maxLat ||
-            lngValue < currentRanges.minLng ||
-            lngValue > currentRanges.maxLng)
-        ) {
-          setErrorValue('검색된 좌표가 없습니다!');
-          setError(true);
-          setTimeout(() => setError(false), 2000);
-          return;
-        }
-
-        let result;
-        if (selectedMapList.name === 'MMS') {
-          if (Number.isInteger(latValue) && Number.isInteger(lngValue)) {
-            result = MMSToDEC({ lat: latValue, lng: lngValue });
-          } else {
-            setErrorValue('MMS 좌표는 정수여야 합니다.');
-            setError(true);
-            setTimeout(() => setError(false), 2000);
-            return;
-          }
-        } else if (selectedMapList.name === 'DEC') {
-          if (hasPeriod(lat) && hasPeriod(lng)) {
-            result = DECToDEC({ lat: latValue, lng: lngValue });
-          } else {
-            setErrorValue('DEC 좌표는 소수점을 포함해야 합니다.');
-            setError(true);
-            setTimeout(() => setError(false), 2000);
-            return;
-          }
-        } else if (selectedMapList.name === 'DEG') {
-          if (hasSpace(lat) && hasSpace(lng)) {
-            result = DEGToDEC({ lat: latValue, lng: lngValue });
-          } else {
-            setErrorValue('DEG 좌표는 공백을 포함해야 합니다.');
-            setError(true);
-            setTimeout(() => setError(false), 2000);
-            return;
-          }
-        }
-
-        setSelectedCoords(result);
-        setDisplayCoords(result);
+    const lat = convertedCoords.lat;
+    const lng = convertedCoords.lng;
+  
+    let latitude = '위도(Latitude)';
+    let longitude = '경도(Longitude)';
+  
+    let decError = '에서 소수점이 무조건 포함되어야 합니다';
+    let mmsError = '는 무조건 숫자이여야 합니다';
+    let degError = '에서는 띄어쓰기가 무조건 있어야 합니다';
+  
+    let latError = '';
+    let lngError = '';
+  
+    if (lat === undefined || lat === null || lat === '') {
+      latError = `${latitude}이 비어있습니다.`;
+    }
+    if (lng === undefined || lng === null || lng === '') {
+      lngError = `${longitude}이 비어있습니다.`;
+    }
+  
+    if (latError || lngError) {
+      let combinedError = '';
+      if (latError && lngError) {
+        combinedError = `위도와 경도에서 발생한 에러: ${latError} ${lngError}`;
+      } else if (latError) {
+        combinedError = `위도에서 발생한 에러: ${latError}`;
+      } else if (lngError) {
+        combinedError = `경도에서 발생한 에러: ${lngError}`;
       }
+      setErrorValue(combinedError);
+      setError(true);
+      setTimeout(() => setError(false), 2000);
+      return;
+    }
+  
+    const isDecimal = (value) => !isNaN(value) && value.toString().includes('.');
+    const isInteger = (value) => Number.isInteger(Number(value));
+    const hasSpaces = (value) => typeof value === 'string' && value.split(' ').length > 1;
+  
+    let latSpaceError = false;
+    let lngSpaceError = false;
+  
+    if (selectedMapList.name === 'DEC') {
+      if (!isDecimal(lat)) {
+        latError = `${latitude} ${decError}`;
+      }
+      if (!isDecimal(lng)) {
+        lngError = `${longitude} ${decError}`;
+      }
+    } else if (selectedMapList.name === 'MMS') {
+      if (!isInteger(lat)) {
+        latError = `${latitude} ${mmsError}`;
+      }
+      if (!isInteger(lng)) {
+        lngError = `${longitude} ${mmsError}`;
+      }
+    } else if (selectedMapList.name === 'DEG') {
+      if (!hasSpaces(lat)) {
+        latSpaceError = true;
+      }
+      if (!hasSpaces(lng)) {
+        lngSpaceError = true;
+      }
+      if (latSpaceError && lngSpaceError) {
+        latError = lngError = `${latitude}와 ${longitude}에서 ${degError}`;
+      } else if (latSpaceError) {
+        latError = `${latitude} ${degError}`;
+      } else if (lngSpaceError) {
+        lngError = `${longitude} ${degError}`;
+      }
+    }
+  
+    if (latError || lngError) {
+      let combinedError = '';
+      if (latError && lngError) {
+        combinedError = `위도와 경도에서 발생한 에러: ${latitude}와 ${lngError}.`;
+      } else if (latError) {
+        combinedError = `위도에서 발생한 에러: ${latError}.`;
+      } else if (lngError) {
+        combinedError = `경도에서 발생한 에러: ${lngError}.`;
+      }
+      setErrorValue(combinedError);
+      setError(true);
+      setTimeout(() => setError(false), 2000);
+      return;
+    }
+  
+    const latValue = parseFloat(lat);
+    const lngValue = parseFloat(lng);
+    const validLat = !isNaN(latValue);
+    const validLng = !isNaN(lngValue);
+  
+    if (validLat && validLng) {
+      const ranges = {
+        ROUTO: {
+          MMS: {
+            minLat: 11520000,
+            maxLat: 15480000,
+            minLng: 44640000,
+            maxLng: 47520000,
+          },
+          DEC: { minLat: 32.0, maxLat: 43.0, minLng: 123.0, maxLng: 132.0 },
+          DEG: { minLat: 32, maxLat: 43, minLng: 123, maxLng: 132 },
+        },
+        TMAP: {
+          MMS: {
+            minLat: 11520000,
+            maxLat: 14040000,
+            minLng: 44640000,
+            maxLng: 47520000,
+          },
+          DEC: { minLat: 32.0, maxLat: 39.0, minLng: 123.0, maxLng: 132.0 },
+          DEG: { minLat: 32, maxLat: 39, minLng: 123, maxLng: 132 },
+        },
+      };
+  
+      const currentRanges = ranges[selectedAPI?.name]?.[selectedMapList?.name];
+  
+      if (
+        currentRanges &&
+        (latValue < currentRanges.minLat ||
+          latValue > currentRanges.maxLat ||
+          lngValue < currentRanges.minLng ||
+          lngValue > currentRanges.maxLng)
+      ) {
+        setErrorValue('The entered coordinates are out of range.');
+        setError(true);
+        setTimeout(() => setError(false), 2000);
+        return;
+      }
+  
+      let result;
+      if (selectedMapList.name === 'MMS') {
+        result = MMSToDEC({ lat: latValue, lng: lngValue });
+      } else if (selectedMapList.name === 'DEC') {
+        result = DECToDEC({ lat: latValue, lng: lngValue });
+      } else if (selectedMapList.name === 'DEG') {
+        result = DEGToDEC({ lat: latValue, lng: lngValue });
+      }
+  
+      setSelectedCoords(result);
+      setDisplayCoords(result);
     } else {
-      setErrorValue('검색된 좌표가 없습니다!');
+      setErrorValue('입력한 좌표를 확인해 주십시오.');
       setError(true);
       setTimeout(() => setError(false), 2000);
     }
-  };
+  };  
 
   useEffect(() => {
     if (!displayCoords) return;
