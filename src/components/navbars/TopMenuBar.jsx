@@ -60,20 +60,12 @@ const TopMenuBar = () => {
     }
   };
 
-  const parseDEG = (deg) => {
-    const parts = deg.split(' ');
-    const degrees = parseFloat(parts[0]);
-    const minutes = parseFloat(parts[1]);
-    const seconds = parseFloat(parts[2]);
-    return degrees + minutes / 60 + seconds / 3600;
-  };
-
   const handleDataReceiveBack = (store) => {
     if (store.latitude && store.longitude !== undefined) {
       setInputValue('');
       setSelectedCoords({
-        lat: parseDEG(store.latitude),
-        lng: parseDEG(store.longitude),
+        lat: store.latitude,
+        lng: store.longitude,
       });
       storeModalRef.current.close();
     } else {
@@ -162,49 +154,62 @@ const TopMenuBar = () => {
     }
   };
 
+  const parseDEGToDecimal = (degString) => {
+    const parts = degString.split(' ');
+    if (parts.length !== 3) {
+      throw new Error('Invalid DEG format. Please provide a valid DEG coordinate.');
+    }
+
+    const degrees = parseFloat(parts[0]);
+    const minutes = parseFloat(parts[1]);
+    const seconds = parseFloat(parts[2]);
+
+    if (isNaN(degrees) || isNaN(minutes) || isNaN(seconds)) {
+      throw new Error('Invalid number in DEG format.');
+    }
+
+    return degrees + (minutes / 60) + (seconds / 3600);
+  };
+
   const handleSearch = () => {
     const lat = convertedCoords.lat;
     const lng = convertedCoords.lng;
-  
+    console.log(lat, lng, typeof(lat))
     let latitude = '위도(Latitude)';
     let longitude = '경도(Longitude)';
-  
+
     let decError = '에서 소수점이 무조건 포함되어야 합니다';
     let mmsError = '는 무조건 숫자이여야 합니다';
     let degError = '에서는 띄어쓰기가 무조건 있어야 합니다';
-  
+
     let latError = '';
     let lngError = '';
-  
-    if (lat === undefined || lat === null || lat === '') {
+
+    if (!lat) {
       latError = `${latitude}이 비어있습니다.`;
     }
-    if (lng === undefined || lng === null || lng === '') {
+    if (!lng) {
       lngError = `${longitude}이 비어있습니다.`;
     }
-  
+
     if (latError || lngError) {
-      let combinedError = '';
-      if (latError && lngError) {
-        combinedError = `위도와 경도에서 발생한 에러: ${latError} ${lngError}`;
-      } else if (latError) {
-        combinedError = `위도에서 발생한 에러: ${latError}`;
-      } else if (lngError) {
-        combinedError = `경도에서 발생한 에러: ${lngError}`;
-      }
+      let combinedError = latError && lngError
+        ? `위도와 경도에서 발생한 에러: ${latError} ${lngError}`
+        : latError ? `위도에서 발생한 에러: ${latError}`
+          : `경도에서 발생한 에러: ${lngError}`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
       return;
     }
-  
+
     const isDecimal = (value) => !isNaN(value) && value.toString().includes('.');
     const isInteger = (value) => Number.isInteger(Number(value));
     const hasSpaces = (value) => typeof value === 'string' && value.split(' ').length > 1;
-  
+
     let latSpaceError = false;
     let lngSpaceError = false;
-  
+
     if (selectedMapList.name === 'DEC') {
       if (!isDecimal(lat)) {
         latError = `${latitude} ${decError}`;
@@ -234,27 +239,38 @@ const TopMenuBar = () => {
         lngError = `${longitude} ${degError}`;
       }
     }
-  
+
     if (latError || lngError) {
-      let combinedError = '';
-      if (latError && lngError) {
-        combinedError = `위도와 경도에서 발생한 에러: ${latitude}와 ${lngError}.`;
-      } else if (latError) {
-        combinedError = `위도에서 발생한 에러: ${latError}.`;
-      } else if (lngError) {
-        combinedError = `경도에서 발생한 에러: ${lngError}.`;
-      }
+      let combinedError = latError && lngError
+        ? `위도와 경도에서 발생한 에러: ${latitude}와 ${lngError}.`
+        : latError ? `위도에서 발생한 에러: ${latError}.`
+          : `경도에서 발생한 에러: ${lngError}.`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
       return;
     }
-  
-    const latValue = parseFloat(lat);
-    const lngValue = parseFloat(lng);
+
+    let latValue, lngValue;
+
+    if (selectedMapList.name === 'DEG') {
+      try {
+        latValue = parseDEGToDecimal(lat);
+        lngValue = parseDEGToDecimal(lng);
+      } catch (error) {
+        setErrorValue(error.message);
+        setError(true);
+        setTimeout(() => setError(false), 2000);
+        return;
+      }
+    } else {
+      latValue = parseFloat(lat);
+      lngValue = parseFloat(lng);
+    }
+
     const validLat = !isNaN(latValue);
     const validLng = !isNaN(lngValue);
-  
+
     if (validLat && validLng) {
       const ranges = {
         ROUTO: {
@@ -278,9 +294,9 @@ const TopMenuBar = () => {
           DEG: { minLat: 32, maxLat: 39, minLng: 123, maxLng: 132 },
         },
       };
-  
+
       const currentRanges = ranges[selectedAPI?.name]?.[selectedMapList?.name];
-  
+
       if (
         currentRanges &&
         (latValue < currentRanges.minLat ||
@@ -293,7 +309,7 @@ const TopMenuBar = () => {
         setTimeout(() => setError(false), 2000);
         return;
       }
-  
+
       let result;
       if (selectedMapList.name === 'MMS') {
         result = MMSToDEC({ lat: latValue, lng: lngValue });
@@ -302,7 +318,7 @@ const TopMenuBar = () => {
       } else if (selectedMapList.name === 'DEG') {
         result = DEGToDEC({ lat: latValue, lng: lngValue });
       }
-  
+
       setSelectedCoords(result);
       setDisplayCoords(result);
     } else {
@@ -310,7 +326,7 @@ const TopMenuBar = () => {
       setError(true);
       setTimeout(() => setError(false), 2000);
     }
-  };  
+  };
 
   useEffect(() => {
     if (!displayCoords) return;

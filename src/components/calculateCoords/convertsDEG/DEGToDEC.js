@@ -1,22 +1,18 @@
 export function DEGToDEC(coords) {
   const { lat, lng } = coords;
+  console.log(coords, typeof(coords), typeof(lat));
 
-  function convertToDMSlat(decimal) {
-    const degrees = Math.floor(decimal / 10000);
-    const minutes = Math.floor((decimal % 10000) / 100);
-    const seconds = (decimal % 100).toFixed(1);
-    return `${degrees} ${minutes} ${seconds}`;
-  }
-
-  function convertToDMSlng(decimal) {
-    const degrees = Math.floor(decimal / 1000);
-    const minutes = Math.floor((decimal % 1000) / 100);
-    const seconds = (decimal % 100).toFixed(1);
-    return `${degrees} ${minutes} ${seconds}`;
+  function formatToDEG(decimal) {
+    const degrees = Math.floor(decimal);
+    const minutesFull = (decimal - degrees) * 60;
+    const minutes = Math.floor(minutesFull);
+    const seconds = (minutesFull - minutes) * 60;
+    return `${degrees} ${minutes} ${seconds.toFixed(1)}`;
   }
 
   function calculateDECLat(lat) {
-    const partsLat = lat.split(' ');
+    const partsLat = formatToDEG(lat).split(' ');
+    if (partsLat.length !== 3) throw new Error('Invalid latitude format');
     const degrees = parseFloat(partsLat[0]);
     const minutes = parseFloat(partsLat[1]) / 60;
     const seconds = parseFloat(partsLat[2]) / 3600;
@@ -25,7 +21,8 @@ export function DEGToDEC(coords) {
   }
 
   function calculateDECLng(lng) {
-    const partsLng = lng.split(' ');
+    const partsLng = formatToDEG(lng).split(' ');
+    if (partsLng.length !== 3) throw new Error('Invalid longitude format');
     const degrees = parseFloat(partsLng[0]);
     const minutes = parseFloat(partsLng[1]) / 60;
     const seconds = parseFloat(partsLng[2]) / 3600;
@@ -33,8 +30,12 @@ export function DEGToDEC(coords) {
     return lngDEC.toFixed(6);
   }
 
-  const latDEC = calculateDECLat(convertToDMSlat(lat));
-  const lngDEC = calculateDECLng(convertToDMSlng(lng));
-
-  return { lat: latDEC, lng: lngDEC };
+  try {
+    const latDEC = calculateDECLat(lat);
+    const lngDEC = calculateDECLng(lng);
+    return { lat: latDEC, lng: lngDEC };
+  } catch (error) {
+    console.error(error.message);
+    return { lat: 'Invalid', lng: 'Invalid' };
+  }
 }
