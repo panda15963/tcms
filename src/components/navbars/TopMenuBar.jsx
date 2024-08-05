@@ -157,7 +157,7 @@ const TopMenuBar = () => {
   const parseDEGToDecimal = (degString) => {
     const parts = degString.split(' ');
     if (parts.length !== 3) {
-      throw new Error('Invalid DEG format. Please provide a valid DEG coordinate.');
+      throw new Error('DEG 형식이 틀립니다. 제대로 된 형식을 입력하세요');
     }
 
     const degrees = parseFloat(parts[0]);
@@ -165,7 +165,7 @@ const TopMenuBar = () => {
     const seconds = parseFloat(parts[2]);
 
     if (isNaN(degrees) || isNaN(minutes) || isNaN(seconds)) {
-      throw new Error('Invalid number in DEG format.');
+      throw new Error('형식이 제대로 되어있지 않습니다.');
     }
 
     return degrees + (minutes / 60) + (seconds / 3600);
@@ -304,7 +304,7 @@ const TopMenuBar = () => {
           lngValue < currentRanges.minLng ||
           lngValue > currentRanges.maxLng)
       ) {
-        setErrorValue('The entered coordinates are out of range.');
+        setErrorValue('범위 밖으로 벗어났습니다.');
         setError(true);
         setTimeout(() => setError(false), 2000);
         return;
