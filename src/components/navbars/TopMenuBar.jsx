@@ -168,13 +168,13 @@ const TopMenuBar = () => {
       throw new Error('형식이 제대로 되어있지 않습니다.');
     }
 
-    return degrees + (minutes / 60) + (seconds / 3600);
+    return degrees + minutes / 60 + seconds / 3600;
   };
 
   const handleSearch = () => {
     const lat = convertedCoords.lat;
     const lng = convertedCoords.lng;
-    console.log(lat, lng, typeof(lat))
+    console.log(lat, lng, typeof lat);
     let latitude = '위도(Latitude)';
     let longitude = '경도(Longitude)';
 
@@ -193,19 +193,23 @@ const TopMenuBar = () => {
     }
 
     if (latError || lngError) {
-      let combinedError = latError && lngError
-        ? `위도와 경도에서 발생한 에러: ${latError} ${lngError}`
-        : latError ? `위도에서 발생한 에러: ${latError}`
-          : `경도에서 발생한 에러: ${lngError}`;
+      let combinedError =
+        latError && lngError
+          ? `위도와 경도에서 발생한 에러: ${latError} ${lngError}`
+          : latError
+            ? `위도에서 발생한 에러: ${latError}`
+            : `경도에서 발생한 에러: ${lngError}`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
       return;
     }
 
-    const isDecimal = (value) => !isNaN(value) && value.toString().includes('.');
+    const isDecimal = (value) =>
+      !isNaN(value) && value.toString().includes('.');
     const isInteger = (value) => Number.isInteger(Number(value));
-    const hasSpaces = (value) => typeof value === 'string' && value.split(' ').length > 1;
+    const hasSpaces = (value) =>
+      typeof value === 'string' && value.split(' ').length > 1;
 
     let latSpaceError = false;
     let lngSpaceError = false;
@@ -241,10 +245,12 @@ const TopMenuBar = () => {
     }
 
     if (latError || lngError) {
-      let combinedError = latError && lngError
-        ? `위도와 경도에서 발생한 에러: ${latitude}와 ${lngError}.`
-        : latError ? `위도에서 발생한 에러: ${latError}.`
-          : `경도에서 발생한 에러: ${lngError}.`;
+      let combinedError =
+        latError && lngError
+          ? `위도와 경도에서 발생한 에러: ${latitude}와 ${lngError}.`
+          : latError
+            ? `위도에서 발생한 에러: ${latError}.`
+            : `경도에서 발생한 에러: ${lngError}.`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -352,7 +358,6 @@ const TopMenuBar = () => {
     }
   }, [selectedMapList, displayCoords]);
 
-
   useEffect(() => {
     setSelectedCoords(null);
   }, [selectedAPI]);
@@ -446,6 +451,21 @@ const TopMenuBar = () => {
                         </button>
                       </div>
                       <LogModal ref={logModalRef} />
+                      <div className="flex flex-1 justify-center lg:ml-3">
+                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
+                          공간 검색
+                        </label>
+                        <button
+                          type="button"
+                          // onClick={() => logModalRef.current.show()}
+                          className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                        >
+                          <HiOutlineDocumentSearch
+                            className="h-5 w-5 text-white"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      </div>
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
                         입력 표출 좌표
                       </label>
