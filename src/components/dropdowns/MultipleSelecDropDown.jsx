@@ -62,7 +62,7 @@ export default function MultipleSelectDropDown({ options, onChange }) {
       as={'div'}
       value={selectedFields}
       onChange={handleSelectionChange}
-      className="w-2/5 mb-2"
+      className="w-full mb-2"
     >
       <div className="relative mt-2">
         <ComboboxInput
