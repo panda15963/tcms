@@ -48,14 +48,14 @@ const LogModal = forwardRef((_props, ref) => {
     { id: 'c', name: 'C' },
   ];
 
-  const virtual = [
+  const format = [
     { id: 'all', name: 'ALL (*.*)' },
     { id: 'hippo', name: 'HIPPO (*.hip)' },
     { id: 'kml', name: 'KML (*.kml)' },
     { id: 'nmea', name: 'NMEA (*.nmea)' },
   ];
 
-  const format = [
+  const virtual = [
     { id: 'all', name: 'ALL' },
     { id: 'virtualLog', name: 'Virtual Log' },
     { id: 'reallog', name: 'Real Log' },
