@@ -74,6 +74,7 @@ const LogModal = forwardRef((_props, ref) => {
   const [featureList, setFeatureList] = useState(initialList);
   const [targetList, setTargetList] = useState(initialList);
   const [tagList, setTagList] = useState(initialList);
+  const [list, setList] = useState(initialList);
 
   console.log('countryList', countryList);
 
@@ -91,16 +92,68 @@ const LogModal = forwardRef((_props, ref) => {
     MAIN_TAG();
   }, []);
 
-  const axiosData = async () => {
+  useEffect(() => {
+    console.log('[LIST]유즈이팩 실행 체크 ==>');
+    console.log('useEffect of list ==>', list);
+  }, [list]);
+
+  /**
+   * Find 클릭 이벤트
+   */
+  const onFindMeta = async () => {
     setLoading(true);
     setError(null);
+
+    const condTmp = {
+      searchWord: '',
+      continent: '',
+      region: '',
+      priority: '',
+      target: '',
+      format: '',
+      feature: '',
+      virtual: -1,
+      tag: '',
+      group_id: -1,
+      operation: 0,
+    };
+
+    console.log('onFindMeta of condTmp ==>', condTmp);
+    FIND_META(condTmp);
+  };
+
+  /**
+   * FIND META API
+   */
+  const FIND_META = async (inputCond) => {
     try {
-      const response = await nonAuthInstance.get('/auth/test');
-      console.log('Response:', response);
-      setData(response.data);
+      await logService
+        .FIND_META({
+          cond: inputCond,
+        })
+        .then((res) => {
+          console.log('FIND_META of res ==>', res.findMeta);
+          setList((prevState) => {
+            return {
+              ...prevState,
+              list: res.findMeta,
+            };
+          });
+          setLoading(false);
+        });
+
+      // 기존코드 백업 24.08.12 -JOHN
+      // try {
+      //   const response = await nonAuthInstance.get('/auth/test');
+      //   console.log('Response:', response);
+      //   setData(response.data);
+      // } catch (e) {
+      //   console.error('Error:', e.response ? e.response : e.message);
+      //   setError(e.response ? e.response.data : e.message);
+      // }
     } catch (e) {
-      console.error('Error:', e.response ? e.response : e.message);
-      setError(e.response ? e.response.data : e.message);
+      console.log('FIND_META of error ==>', e);
+      setLoading(false);
     }
   };
 
@@ -449,15 +502,17 @@ const LogModal = forwardRef((_props, ref) => {
                             </div>
                           </div>
                         ) : (
-                          <MultipleSelectDropDown
-                            options={getOptionsByFieldId(field.id)}
-                            // onChange={(options) => {
-                            //   const newFields = selectedSearchFields.map((f) =>
-                            //     f.id === field.id ? { ...f, selectedOptions: options } : f
-                            //   );
-                            //   setSelectedSearchFields(newFields);
-                            // }}
-                          />
+                          <div className="w-3/4 flex flex-row space-x-2">
+                            <MultipleSelectDropDown
+                              options={getOptionsByFieldId(field.id)}
+                              // onChange={(options) => {
+                              //   const newFields = selectedSearchFields.map((f) =>
+                              //     f.id === field.id ? { ...f, selectedOptions: options } : f
+                              //   );
+                              //   setSelectedSearchFields(newFields);
+                              // }}
+                            />
+                          </div>
                         )}
                         {/* <input
                           type="text"
@@ -472,7 +527,7 @@ const LogModal = forwardRef((_props, ref) => {
                   <div className="flex justify-end">
                     <button
                       className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
-                      onClick={axiosData}
+                      onClick={onFindMeta}
                     >
                       <FaSearch
                         className="-ml-0.5 h-5 w-5 text-sky-500  cursor-pointer"
