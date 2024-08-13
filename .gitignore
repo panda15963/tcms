@@ -1,2 +1,5 @@
 node_modules
 .env
+
+## 폴더 무시
+build/
