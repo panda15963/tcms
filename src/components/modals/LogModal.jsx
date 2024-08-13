@@ -550,7 +550,7 @@ const LogModal = forwardRef((_props, ref) => {
                       </pre>
                     </div>
                   )}
-                  <MainGrid />
+                  <MainGrid list={list} />
                   <div
                     id="download_container"
                     className="grid grid-cols-[20%_1fr_15%] items-center"

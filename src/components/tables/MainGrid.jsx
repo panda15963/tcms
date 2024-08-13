@@ -3,7 +3,8 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useMemo, useState } from 'react';
+import { isEmpty } from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
 
 const defaultColumns = [
   {
@@ -11,23 +12,27 @@ const defaultColumns = [
     header: 'Uploaded date',
   },
   {
-    accessorKey: 'name',
+    accessorKey: 'log_name',
     header: 'Name',
   },
   {
-    accessorKey: 'version',
+    accessorKey: 'version_id',
     header: 'Version',
   },
   {
-    accessorKey: 'country',
+    accessorKey: 'country_str',
     header: 'Country',
   },
   {
-    accessorKey: 'logType',
+    accessorKey: 'b_virtual',
     header: 'Log Type',
+    cell: ({ getValue }) => {
+      const value = getValue();
+      return value === 0 ? 'Virtual Log' : 'Real Log';
+    },
   },
   {
-    accessorKey: 'summary',
+    accessorKey: 'summary_str',
     header: 'Summary',
   },
   {
@@ -36,30 +41,11 @@ const defaultColumns = [
   },
 ];
 
-const defaultData = [
-  {
-    upload_date: '2023-12-25',
-    name: 'HippoLog',
-    version: '1',
-    country: 'KOR',
-    logType: 'None',
-    summary: 'Real Log',
-    map: '',
-  },
-  {
-    upload_date: '2023-12-30',
-    name: 'HippoLog1',
-    version: '2',
-    country: 'KOR',
-    logType: 'None',
-    summary: 'Real Log',
-    map: '',
-  },
-];
+const initialData = [];
 
-const MainGrid = ({}) => {
+const MainGrid = ({ list }) => {
   const columns = useMemo(() => defaultColumns, []);
-  const [data] = useState(defaultData);
+  const [data, setData] = useState(list ?? initialData);
   const table = useReactTable({
     data,
     columns,
@@ -67,10 +53,19 @@ const MainGrid = ({}) => {
     getSortedRowModel: getCoreRowModel(),
     state: {},
   });
+
+  useEffect(() => {
+    console.log('LIST => ', list);
+    if (list && !isEmpty(list.list)) {
+      console.log('SETTING LIST => ', list);
+      setData(list.list);
+    }
+  }, [list]);
+
   return (
-    <div className="py-6">
-      <table className="min-w-full divide-y divide-gray-200 border-gray-300">
-        <thead className="bg-gray-50 border-2">
+    <div className="my-2 h-96 block overflow-x-auto">
+      <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
+        <thead className="bg-gray-50 border-2 sticky top-0 ">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
