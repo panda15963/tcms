@@ -104,9 +104,11 @@ const LogModal = forwardRef((_props, ref) => {
     setLoading(true);
     setError(null);
 
+    // 49
+    // 14 + 35
     const condTmp = {
       searchWord: '',
-      continent: '',
+      continent: 'NA,EU,AS',
       region: '',
       priority: '',
       target: '',
@@ -118,6 +120,20 @@ const LogModal = forwardRef((_props, ref) => {
       operation: 0,
     };
 
+    // const condTmp = {
+    //   searchWord: '',
+    //   continent: '',
+    //   region: '',
+    //   priority: '',
+    //   target: '',
+    //   format: '',
+    //   feature: '',
+    //   virtual: -1,
+    //   tag: '',
+    //   group_id: -1,
+    //   operation: 0,
+    // };
+
     console.log('onFindMeta of condTmp ==>', condTmp);
     FIND_META(condTmp);
   };
@@ -128,7 +144,7 @@ const LogModal = forwardRef((_props, ref) => {
   const FIND_META = async (inputCond) => {
     try {
       await logService
-        .FIND_META({
+        .FIND_META2({
           cond: inputCond,
         })
         .then((res) => {

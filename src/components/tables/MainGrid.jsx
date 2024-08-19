@@ -55,9 +55,9 @@ const MainGrid = ({ list }) => {
   });
 
   useEffect(() => {
-    console.log('LIST => ', list);
+    console.log('useEffect LIST ==>', list);
     if (list && !isEmpty(list.list)) {
-      console.log('SETTING LIST => ', list);
+      // console.log('SETTING LIST ==>', list);
       setData(list.list);
     }
   }, [list]);
