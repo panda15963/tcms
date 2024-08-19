@@ -104,8 +104,6 @@ const LogModal = forwardRef((_props, ref) => {
     setLoading(true);
     setError(null);
 
-    // 49
-    // 14 + 35
     const condTmp = {
       searchWord: '',
       continent: 'NA,EU,AS',
