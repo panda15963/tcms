@@ -16,11 +16,9 @@ import TMapCoords from '../displayCoords/TMapCoords';
 import RoutoCoords from '../displayCoords/RoutoCoords';
 import TomTomCoords from '../displayCoords/TomTomCoords';
 import BaiduCoords from '../displayCoords/BaiduCoords';
-import { DECToMMS } from '../calculateCoords/convertsDEC/DECToMMS';
-import { DECToDEC } from '../calculateCoords/convertsDEC/DECToDEC';
-import { DECToDEG } from '../calculateCoords/convertsDEC/DECToDEG';
-import { MMSToDEC } from '../calculateCoords/convertsMMS/MMSToDEC';
-import { DEGToDEC } from '../calculateCoords/convertsDEG/DEGToDEC';
+import { DECToMMS, DECToDEC, DECToDEG } from '../calculateCoords/ConvertsDEC';
+import { MMSToDEC } from '../calculateCoords/ConvertsMMS';
+import { DEGToDEC } from '../calculateCoords/ConvertsDEG';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
 
