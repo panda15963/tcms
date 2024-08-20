@@ -3,16 +3,22 @@ import { Link } from 'react-router-dom';
 export default function Login() {
   return (
     <div>
+      {/* 컨테이너: 로그인 폼을 중앙에 배치하고, 테두리와 그림자 추가 */}
       <div className="container m-auto p-auto border-2 border-gray-500 shadow-lg shadow-gray-500 w-1/4 mt-48">
         <div className="flex min-h-full flex-1 flex-col justify-center py-6 lg:px-8">
+          {/* 제목 섹션 */}
           <div className="sm:mx-auto sm:w-full sm:max-w-sm">
             <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900">
               Test Course <br />
               Mgmt System
             </h2>
           </div>
+
+          {/* 로그인 폼 섹션 */}
           <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm space-y-6">
+            {/* 로그인 폼 */}
             <form className="space-y-6" action="#" method="POST">
+              {/* 이메일 입력 필드 */}
               <div>
                 <label
                   htmlFor="email"
@@ -31,6 +37,8 @@ export default function Login() {
                   />
                 </div>
               </div>
+
+              {/* 비밀번호 입력 필드 */}
               <div>
                 <div className="flex items-center justify-between">
                   <label
@@ -51,6 +59,8 @@ export default function Login() {
                   />
                 </div>
               </div>
+
+              {/* 로그인 정보 저장 체크박스 */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input
@@ -67,12 +77,16 @@ export default function Login() {
                   </label>
                 </div>
               </div>
+
+              {/* 로그인 버튼 */}
               <button
                 type="submit"
                 className="w-full flex justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
                 로그인
               </button>
+
+              {/* 메인페이지로 가는 링크 */}
               <div>
                 <Link
                   to="/main/map"

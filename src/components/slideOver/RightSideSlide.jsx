@@ -5,6 +5,7 @@ import { FaArrowCircleLeft } from 'react-icons/fa';
 import { CiSquarePlus, CiSquareMinus } from 'react-icons/ci';
 
 const rows = [
+  // 메타 데이터 목록
   {
     id: 1,
     col1: 'Name',
@@ -134,12 +135,17 @@ const rows = [
       },
     ],
   },
+  // 더 많은 행들...
 ];
 
 export default function RightSideSlide() {
   const [open, setOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState([]);
 
+  /**
+   * 행 확장/축소를 처리하는 함수
+   * @param {number} id - 확장 또는 축소할 행의 id
+   */
   const toggleRow = (id) => {
     setExpandedRows((pre) =>
       pre.includes(id) ? pre.filter((rowId) => rowId !== id) : [...pre, id],
@@ -148,7 +154,7 @@ export default function RightSideSlide() {
 
   return (
     <div className="flex">
-      {/* Open button */}
+      {/* 패널 열기 버튼 */}
       {!open && (
         <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
@@ -159,7 +165,7 @@ export default function RightSideSlide() {
           </button>
         </div>
       )}
-      {/* Sidebar */}
+      {/* 사이드바 */}
       <Transition
         show={open}
         enter="transform transition ease-in-out duration-500 sm:duration-700"
@@ -178,7 +184,7 @@ export default function RightSideSlide() {
               <div className="ml-3 flex h-7 items-center">
                 <button
                   type="button"
-                  className="relative rounded-md  text-indigo-200 hover:text-white focus:outline-none hover:outline-none "
+                  className="relative rounded-md text-indigo-200 hover:text-white focus:outline-none hover:outline-none"
                   onClick={() => setOpen(false)}
                 >
                   <span className="absolute -inset-2.5" />
@@ -204,6 +210,7 @@ export default function RightSideSlide() {
                   <Fragment key={index}>
                     <tr>
                       <td className="flex text-center justify-center items-center bg-stone-100">
+                        {/* 자식 요소가 있는 경우 행 확장/축소 버튼 */}
                         {row.children && (
                           <button
                             className="focus:outline-none"
@@ -224,16 +231,17 @@ export default function RightSideSlide() {
                         {row.col2}
                       </td>
                     </tr>
+                    {/* 자식 요소가 확장된 경우 표시 */}
                     {row.children &&
                       expandedRows.includes(index) &&
                       row.children.map((child) => (
-                        <tr>
+                        <tr key={child.id}>
                           <td className="bg-gray-100" />
                           <td className="border border-gray-300 ps-5 pr-2 text-xs font-normal text-gray-900">
                             {child.col1}
                           </td>
                           <td className="border border-gray-300 ps-5 pr-2 text-xs font-normal text-gray-900">
-                            {child.col1}
+                            {child.col2}
                           </td>
                         </tr>
                       ))}
@@ -247,3 +255,4 @@ export default function RightSideSlide() {
     </div>
   );
 }
+

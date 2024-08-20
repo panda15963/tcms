@@ -43,20 +43,27 @@ const treeData = [
 export default function LeftSideSlide() {
   const [open, setOpen] = useState(false);
 
+  /**
+   * 패널 열기/닫기를 처리하는 함수
+   */
+  const togglePanel = () => {
+    setOpen(!open);
+  };
+
   return (
     <div className="flex">
-      {/* Open button */}
+      {/* 패널 열기 버튼 */}
       {!open && (
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
             className=" text-white px-3 py-3 rounded-r-full bg-blue_ncs hover:bg-blue_lapis"
-            onClick={() => setOpen(true)}
+            onClick={togglePanel}
           >
             <FaArrowCircleRight />
           </button>
         </div>
       )}
-      {/* Sidebar */}
+      {/* 사이드바 */}
       <Transition
         show={open}
         enter="transform transition ease-in-out duration-500 sm:duration-700"
@@ -76,7 +83,7 @@ export default function LeftSideSlide() {
                 <button
                   type="button"
                   className="relative rounded-md  text-indigo-200 hover:text-white focus:outline-none hover:outline-none "
-                  onClick={() => setOpen(false)}
+                  onClick={togglePanel}
                 >
                   <span className="absolute -inset-2.5" />
                   <span className="sr-only">Close panel</span>
@@ -86,6 +93,7 @@ export default function LeftSideSlide() {
             </div>
           </div>
           <div className="px-2 overflow-x-auto pb-5 scroll-smooth overflow-auto">
+            {/* 트리 메뉴 컴포넌트 */}
             <Tree data={treeData} />
           </div>
         </div>

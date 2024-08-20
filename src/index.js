@@ -5,12 +5,14 @@ import ManagementAdmins from './pages/ManagementAdmins';
 import Dashboard from './pages/Dashboard';
 import ManagementUsers from './pages/ManagementUsers';
 import MapLayout from './layout/MapLayout';
+import { LanguageProvider } from './context/LanguageProvider'
 import { StrictMode } from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = createRoot(document.getElementById('root'));
 root.render(
+    <LanguageProvider>
     <StrictMode>
       <BrowserRouter>
         <Routes>
@@ -24,4 +26,5 @@ root.render(
         </Routes>
       </BrowserRouter>
     </StrictMode>
+  </LanguageProvider>
 );
