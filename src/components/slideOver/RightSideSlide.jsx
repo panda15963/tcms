@@ -5,6 +5,7 @@ import { FaArrowCircleLeft } from 'react-icons/fa';
 import { CiSquarePlus, CiSquareMinus } from 'react-icons/ci';
 
 const rows = [
+  // 메타 데이터 목록
   {
     id: 1,
     col1: 'Name',
@@ -23,123 +24,17 @@ const rows = [
     children: [{ id: 9, col1: 'Feature', col2: 'None' }],
   },
   { id: 10, col1: 'Virtual', col2: 'True' },
-  {
-    id: 11,
-    col1: 'TC',
-    col2: '',
-    children: [{ id: 12, col1: '-', col2: 'None' }],
-  },
-  { id: 13, col1: 'Target', col2: 'None' },
-  { id: 14, col1: 'Summary', col2: '20231227_154444_JPN_Kizugawa' },
-  {
-    id: 15,
-    col1: 'Departure',
-    col2: 'Matsuo-jinja',
-    children: [
-      { id: 16, col1: 'Lon', col2: '135.820174' },
-      { id: 17, col1: 'Lat', col2: '34.650981' },
-    ],
-  },
-  {
-    id: 18,
-    col1: 'Destination',
-    col2: '48, Minaminagaicho, Nara-shi, Nara',
-    children: [
-      { id: 19, col1: 'Lon', col2: '135.820174' },
-      { id: 20, col1: 'Lat', col2: '34.650981' },
-    ],
-  },
-  {
-    id: 18,
-    col1: 'VIA',
-    col2: '',
-    children: [
-      {
-        id: 19,
-        col1: 'Address 1',
-        col2: '69-6 Kawakamicho, Nara-shi, Nara 630-8202, Japan',
-      },
-      { id: 20, col1: 'LonLat 1', col2: '135.820174, 34.650981' },
-    ],
-  },
-  {
-    id: 18,
-    col1: 'Distance',
-    col2: '',
-    children: [
-      {
-        id: 19,
-        col1: 'Way 1',
-        col2: '8.734 km',
-      },
-      { id: 20, col1: 'Way 2', col2: '6.845 km' },
-    ],
-  },
-  {
-    id: 18,
-    col1: 'Trip Total Time',
-    col2: '00:16:32',
-  },
-  {
-    id: 18,
-    col1: 'Trip Start Time',
-    col2: '2023-12-27 15:44:51',
-  },
-  {
-    id: 18,
-    col1: 'Trip End Time',
-    col2: '2023-12-27 16:01:23',
-  },
-  {
-    id: 18,
-    col1: 'Description',
-    col2: '20231227_154444_JPN_Kizugawa-shi_E_JPN',
-  },
-  {
-    id: 18,
-    col1: 'Tag List',
-    col2: 'etc',
-    children: [
-      {
-        id: 19,
-        col1: 'TAG 1',
-        col2: 'etc',
-      },
-    ],
-  },
-  {
-    id: 18,
-    col1: 'File Name',
-    col2: '20231227_154444_JPN_Kizugawa-shi_E_JPN',
-  },
-  {
-    id: 18,
-    col1: 'Passing Point',
-    col2: 'etc',
-    children: [
-      {
-        id: 19,
-        col1: 'Address 2',
-        col2: 'Kizugawa-shi',
-      },
-      {
-        id: 19,
-        col1: 'Address 3',
-        col2: 'Nara-shi',
-      },
-      {
-        id: 19,
-        col1: 'Road Name 3',
-        col2: 'Nara-shi',
-      },
-    ],
-  },
+  // 더 많은 행들...
 ];
 
 export default function RightSideSlide() {
   const [open, setOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState([]);
 
+  /**
+   * 행 확장/축소를 처리하는 함수
+   * @param {number} id - 확장 또는 축소할 행의 id
+   */
   const toggleRow = (id) => {
     setExpandedRows((pre) =>
       pre.includes(id) ? pre.filter((rowId) => rowId !== id) : [...pre, id],
@@ -148,7 +43,7 @@ export default function RightSideSlide() {
 
   return (
     <div className="flex">
-      {/* Open button */}
+      {/* 패널 열기 버튼 */}
       {!open && (
         <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
@@ -159,7 +54,7 @@ export default function RightSideSlide() {
           </button>
         </div>
       )}
-      {/* Sidebar */}
+      {/* 사이드바 */}
       <Transition
         show={open}
         enter="transform transition ease-in-out duration-500 sm:duration-700"
@@ -178,7 +73,7 @@ export default function RightSideSlide() {
               <div className="ml-3 flex h-7 items-center">
                 <button
                   type="button"
-                  className="relative rounded-md  text-indigo-200 hover:text-white focus:outline-none hover:outline-none "
+                  className="relative rounded-md text-indigo-200 hover:text-white focus:outline-none hover:outline-none"
                   onClick={() => setOpen(false)}
                 >
                   <span className="absolute -inset-2.5" />
@@ -204,6 +99,7 @@ export default function RightSideSlide() {
                   <Fragment key={index}>
                     <tr>
                       <td className="flex text-center justify-center items-center bg-stone-100">
+                        {/* 자식 요소가 있는 경우 행 확장/축소 버튼 */}
                         {row.children && (
                           <button
                             className="focus:outline-none"
@@ -224,16 +120,17 @@ export default function RightSideSlide() {
                         {row.col2}
                       </td>
                     </tr>
+                    {/* 자식 요소가 확장된 경우 표시 */}
                     {row.children &&
                       expandedRows.includes(index) &&
                       row.children.map((child) => (
-                        <tr>
+                        <tr key={child.id}>
                           <td className="bg-gray-100" />
                           <td className="border border-gray-300 ps-5 pr-2 text-xs font-normal text-gray-900">
                             {child.col1}
                           </td>
                           <td className="border border-gray-300 ps-5 pr-2 text-xs font-normal text-gray-900">
-                            {child.col1}
+                            {child.col2}
                           </td>
                         </tr>
                       ))}
@@ -247,3 +144,4 @@ export default function RightSideSlide() {
     </div>
   );
 }
+
