@@ -24,6 +24,117 @@ const rows = [
     children: [{ id: 9, col1: 'Feature', col2: 'None' }],
   },
   { id: 10, col1: 'Virtual', col2: 'True' },
+  {
+    id: 11,
+    col1: 'TC',
+    col2: '',
+    children: [{ id: 12, col1: '-', col2: 'None' }],
+  },
+  { id: 13, col1: 'Target', col2: 'None' },
+  { id: 14, col1: 'Summary', col2: '20231227_154444_JPN_Kizugawa' },
+  {
+    id: 15,
+    col1: 'Departure',
+    col2: 'Matsuo-jinja',
+    children: [
+      { id: 16, col1: 'Lon', col2: '135.820174' },
+      { id: 17, col1: 'Lat', col2: '34.650981' },
+    ],
+  },
+  {
+    id: 18,
+    col1: 'Destination',
+    col2: '48, Minaminagaicho, Nara-shi, Nara',
+    children: [
+      { id: 19, col1: 'Lon', col2: '135.820174' },
+      { id: 20, col1: 'Lat', col2: '34.650981' },
+    ],
+  },
+  {
+    id: 18,
+    col1: 'VIA',
+    col2: '',
+    children: [
+      {
+        id: 19,
+        col1: 'Address 1',
+        col2: '69-6 Kawakamicho, Nara-shi, Nara 630-8202, Japan',
+      },
+      { id: 20, col1: 'LonLat 1', col2: '135.820174, 34.650981' },
+    ],
+  },
+  {
+    id: 18,
+    col1: 'Distance',
+    col2: '',
+    children: [
+      {
+        id: 19,
+        col1: 'Way 1',
+        col2: '8.734 km',
+      },
+      { id: 20, col1: 'Way 2', col2: '6.845 km' },
+    ],
+  },
+  {
+    id: 18,
+    col1: 'Trip Total Time',
+    col2: '00:16:32',
+  },
+  {
+    id: 18,
+    col1: 'Trip Start Time',
+    col2: '2023-12-27 15:44:51',
+  },
+  {
+    id: 18,
+    col1: 'Trip End Time',
+    col2: '2023-12-27 16:01:23',
+  },
+  {
+    id: 18,
+    col1: 'Description',
+    col2: '20231227_154444_JPN_Kizugawa-shi_E_JPN',
+  },
+  {
+    id: 18,
+    col1: 'Tag List',
+    col2: 'etc',
+    children: [
+      {
+        id: 19,
+        col1: 'TAG 1',
+        col2: 'etc',
+      },
+    ],
+  },
+  {
+    id: 18,
+    col1: 'File Name',
+    col2: '20231227_154444_JPN_Kizugawa-shi_E_JPN',
+  },
+  {
+    id: 18,
+    col1: 'Passing Point',
+    col2: 'etc',
+    children: [
+      {
+        id: 19,
+        col1: 'Address 2',
+        col2: 'Kizugawa-shi',
+      },
+      {
+        id: 19,
+        col1: 'Address 3',
+        col2: 'Nara-shi',
+      },
+      {
+        id: 19,
+        col1: 'Road Name 3',
+        col2: 'Nara-shi',
+      },
+    ],
+  },
   // 더 많은 행들...
 ];
 
