@@ -12,10 +12,10 @@ import {
   FaCheck,
   FaSearch,
 } from 'react-icons/fa';
-import MultipleSelectDropDown from '../dropdowns/MultipleSelecDropDown';
 import MainGrid from '../tables/MainGrid';
 import { nonAuthInstance } from '../../server/AxiosConfig';
 import logService from '../../service/logService';
+import MultipleSelectDropDown from '../dropdowns/MultipleSelectDropDown';
 
 /**
  * 로그 검색
