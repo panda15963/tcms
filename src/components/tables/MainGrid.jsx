@@ -6,8 +6,69 @@ import {
 import { isEmpty } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
+// 테이블의 기본 컬럼 정의
+const defaultColumns = [
+  {
+    accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
+    header: 'Uploaded date', // 컬럼 헤더에 표시될 텍스트
+  },
+  {
+    accessorKey: 'log_name',
+    header: 'Name',
+  },
+  {
+    accessorKey: 'version_id',
+    header: 'Version',
+  },
+  {
+    accessorKey: 'country_str',
+    header: 'Country',
+  },
+  {
+    accessorKey: 'b_virtual',
+    header: 'Log Type',
+    cell: ({ getValue }) => {
+      const value = getValue();
+      return value === 0 ? 'Virtual Log' : 'Real Log';
+    },
+  },
+  {
+    accessorKey: 'summary_str',
+    header: 'Summary',
+  },
+  {
+    accessorKey: 'map',
+    header: 'Map',
+  },
+];
+
+// 기본 데이터 (테이블에 표시될 데이터)
+const defaultData = [
+  {
+    upload_date: '2023-12-25',
+    name: 'HippoLog',
+    version: '1',
+    country: 'KOR',
+    logType: 'None',
+    summary: 'Real Log',
+    map: '',
+  },
+  {
+    upload_date: '2023-12-30',
+    name: 'HippoLog1',
+    version: '2',
+    country: 'KOR',
+    logType: 'None',
+    summary: 'Real Log',
+    map: '',
+  },
+];
+
 // MainGrid 컴포넌트 정의
-const MainGrid = () => {
+const MainGrid = ({ list }) => {
+  const columns = useMemo(() => defaultColumns, []);
+  const [data, setData] = useState(list ?? initialData);
+
   useEffect(() => {
     console.log('useEffect LIST ==>', list);
     if (list && !isEmpty(list.list)) {
@@ -15,9 +76,6 @@ const MainGrid = () => {
       setData(list.list);
     }
   }, [list]);
-
-  const columns = useMemo(() => defaultColumns, []); // 메모이제이션된 컬럼 정의
-  const [data] = useState(defaultData); // 테이블 데이터를 상태로 관리
 
   const table = useReactTable({
     data, // 테이블에 사용할 데이터
