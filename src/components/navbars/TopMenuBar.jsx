@@ -396,7 +396,7 @@ const TopMenuBar = () => {
                         지도 선택
                       </label>
                       <MapAPIsLists setSelectedAPI={setSelectedAPI} />
-                      <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3">
+                      <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3 ">
                         지점 검색
                       </label>
                       <div className="flex flex-1 justify-center lg:justify-end">
@@ -410,8 +410,9 @@ const TopMenuBar = () => {
                               onChange={handleChange}
                               onKeyDown={handleKeyDown}
                               value={inputValue}
+                              style={{ width: '200px' }}
                               className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
-                              placeholder="Search"
+                              placeholder="지점을 입력해 주세요"
                             />
                             <button
                               type="button"
@@ -465,7 +466,7 @@ const TopMenuBar = () => {
                         </button>
                       </div>
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
-                        입력 표출 좌표
+                        입력 좌표 출력
                       </label>
                       <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
                       <div className="flex flex-0 justify-center lg:ml-3 lg:justify-center">
@@ -483,7 +484,7 @@ const TopMenuBar = () => {
                             <input
                               id="search"
                               name="lat"
-                              className="block w-36 rounded-md border-0 bg-white py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                              className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                               placeholder="Latitude"
                               value={convertedCoords.lat}
                               onChange={handleCoordsChange}
@@ -505,7 +506,7 @@ const TopMenuBar = () => {
                               />
                             </button>
                             <input
-                              className="block w-36 rounded-md border-0 bg-white py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                              className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                               placeholder="Longitude"
                               name="lng"
                               value={convertedCoords.lng}
@@ -598,7 +599,7 @@ const TopMenuBar = () => {
                   />
                 </button>
                 <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
-                  입력표출좌표
+                  입력 좌표 출력
                 </label>
                 <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
                 <div className="flex flex-0 justify-center lg:ml-3">
