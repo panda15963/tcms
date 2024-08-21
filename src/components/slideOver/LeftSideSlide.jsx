@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Transition } from '@headlessui/react';
-import { FaXmark } from "react-icons/fa6";
+import { FaXmark } from 'react-icons/fa6';
 import { FaArrowCircleRight } from 'react-icons/fa';
 
 import Tree from '../treeMenu/Tree';
@@ -56,7 +56,7 @@ export default function LeftSideSlide() {
       {!open && (
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className=" text-white px-3 py-3 rounded-r-full bg-blue_ncs hover:bg-blue_lapis"
+            className=" text-white px-3 py-6 rounded-r-full bg-blue_ncs hover:bg-blue_lapis"
             onClick={togglePanel}
           >
             <FaArrowCircleRight />

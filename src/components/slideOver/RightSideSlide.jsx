@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import { Transition } from '@headlessui/react';
-import { FaXmark } from "react-icons/fa6";
+import { FaXmark } from 'react-icons/fa6';
 import { FaArrowCircleLeft } from 'react-icons/fa';
 import { CiSquarePlus, CiSquareMinus } from 'react-icons/ci';
 
@@ -158,7 +158,7 @@ export default function RightSideSlide() {
       {!open && (
         <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className=" text-white px-3 py-3 rounded-l-full bg-blue_ncs hover:bg-blue_lapis"
+            className=" text-white px-3 py-6 rounded-l-full bg-blue_ncs hover:bg-blue_lapis"
             onClick={() => setOpen(true)}
           >
             <FaArrowCircleLeft />
@@ -255,4 +255,3 @@ export default function RightSideSlide() {
     </div>
   );
 }
-
