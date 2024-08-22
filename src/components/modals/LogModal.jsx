@@ -17,6 +17,7 @@ import { nonAuthInstance } from '../../server/AxiosConfig';
 import logService from '../../service/logService';
 import MultipleSelectDropDown from '../dropdowns/MultipleSelectDropDown';
 import { useLanguage } from '../../context/LanguageProvider';
+import { isArray, isEmpty } from 'lodash';
 
 /**
  * 로그 검색
@@ -114,10 +115,10 @@ const LogModal = forwardRef((_props, ref) => {
 
   useEffect(() => {
     console.log('유즈이팩 실행 체크 ==>');
-    // MAIN_COUNTRY();
-    // MAIN_FEATURE();
-    // MAIN_TARGET();
-    // MAIN_TAG();
+    MAIN_COUNTRY();
+    MAIN_FEATURE();
+    MAIN_TARGET();
+    MAIN_TAG();
   }, []);
 
   useEffect(() => {
@@ -477,108 +478,113 @@ const LogModal = forwardRef((_props, ref) => {
                         ...field,
                         name: field.name[language.toLowerCase()], // Ensure you're getting the string for the active language
                       }))}
+                      onChange={(val) => {
+                        console.log('SELECTED SEARCH FIELDS', val);
+                        setSelectedSearchFields(val);
+                      }}
                     />
                   </div>
                   {/* Dyanmic Search fields*/}
                   <div className="flex flex-wrap mb-4 mt-4">
-                    {selectedSearchFields.map((field, index) => (
-                      <div
-                        key={field.id}
-                        className="flex w-full sm:w-1/2 items-center mt-2"
-                      >
-                        <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
-                          {field.name}
-                        </label>
-                        {field.id === 'description' ? (
-                          <input
-                            type="text"
-                            id={field.id}
-                            className="w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6"
-                            // onChange={(e) => {
-                            //   const newFields = selectedSearchFields.map((f) =>
-                            //     f.id === field.id ? { ...f, value: e.target.value } : f
-                            //   );
-                            //   setSelectedSearchFields(newFields);
-                            // }}
-                          />
-                        ) : field.id === 'feature' ? (
-                          <div className="w-3/4 flex flex-row space-x-2">
-                            <MultipleSelectDropDown
-                              options={getOptionsByFieldId(`${field.id}-1`)}
-                              className="flex-1"
-                              // onChange={(options) => {
+                    {!isEmpty(selectedSearchFields) &&
+                      selectedSearchFields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="flex w-full sm:w-1/2 items-center mt-2"
+                        >
+                          <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
+                            {field.name}
+                          </label>
+                          {field.id === 'description' ? (
+                            <input
+                              type="text"
+                              id={field.id}
+                              className="w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6"
+                              // onChange={(e) => {
                               //   const newFields = selectedSearchFields.map((f) =>
-                              //     f.id === field.id ? { ...f, selectedOptions1: options } : f
+                              //     f.id === field.id ? { ...f, value: e.target.value } : f
                               //   );
                               //   setSelectedSearchFields(newFields);
                               // }}
                             />
-                            <MultipleSelectDropDown
-                              options={getOptionsByFieldId(`${field.id}-2`)}
-                              className="flex-1"
-                              // onChange={(options) => {
-                              //   const newFields = selectedSearchFields.map((f) =>
-                              //     f.id === field.id ? { ...f, selectedOptions2: options } : f
-                              //   );
-                              //   setSelectedSearchFields(newFields);
-                              // }}
-                            />
-                          </div>
-                        ) : field.id === 'tag' ? (
-                          <div className="w-3/4 flex flex-row space-x-2">
-                            <MultipleSelectDropDown
-                              options={getOptionsByFieldId(`${field.id}`)}
-                              className="flex-1"
-                              // onChange={(options) => {
-                              //   const newFields = selectedSearchFields.map((f) =>
-                              //     f.id === field.id ? { ...f, selectedOptions1: options } : f
-                              //   );
-                              //   setSelectedSearchFields(newFields);
-                              // }}
-                            />
-                            <div className="flex items-center space-x-2">
-                              <label className="flex items-center">
-                                <input
-                                  type="radio"
-                                  name={`${field.id}-option`}
-                                  value="AND"
-                                  className="form-radio"
-                                />
-                                <span className="ml-1">AND</span>
-                              </label>
-                              <label className="flex items-center">
-                                <input
-                                  type="radio"
-                                  name={`${field.id}-option`}
-                                  value="OR"
-                                  className="form-radio"
-                                />
-                                <span className="ml-1">OR</span>
-                              </label>
+                          ) : field.id === 'feature' ? (
+                            <div className="w-3/4 flex flex-row space-x-2">
+                              <MultipleSelectDropDown
+                                options={getOptionsByFieldId(`${field.id}-1`)}
+                                className="flex-1"
+                                // onChange={(options) => {
+                                //   const newFields = selectedSearchFields.map((f) =>
+                                //     f.id === field.id ? { ...f, selectedOptions1: options } : f
+                                //   );
+                                //   setSelectedSearchFields(newFields);
+                                // }}
+                              />
+                              <MultipleSelectDropDown
+                                options={getOptionsByFieldId(`${field.id}-2`)}
+                                className="flex-1"
+                                // onChange={(options) => {
+                                //   const newFields = selectedSearchFields.map((f) =>
+                                //     f.id === field.id ? { ...f, selectedOptions2: options } : f
+                                //   );
+                                //   setSelectedSearchFields(newFields);
+                                // }}
+                              />
                             </div>
-                          </div>
-                        ) : (
-                          <div className="w-3/4 flex flex-row space-x-2">
-                            <MultipleSelectDropDown
-                              options={getOptionsByFieldId(field.id)}
-                              // onChange={(options) => {
-                              //   const newFields = selectedSearchFields.map((f) =>
-                              //     f.id === field.id ? { ...f, selectedOptions: options } : f
-                              //   );
-                              //   setSelectedSearchFields(newFields);
-                              // }}
-                            />
-                          </div>
-                        )}
-                        {/* <input
+                          ) : field.id === 'tag' ? (
+                            <div className="w-3/4 flex flex-row space-x-2">
+                              <MultipleSelectDropDown
+                                options={getOptionsByFieldId(`${field.id}`)}
+                                className="flex-1"
+                                // onChange={(options) => {
+                                //   const newFields = selectedSearchFields.map((f) =>
+                                //     f.id === field.id ? { ...f, selectedOptions1: options } : f
+                                //   );
+                                //   setSelectedSearchFields(newFields);
+                                // }}
+                              />
+                              <div className="flex items-center space-x-2">
+                                <label className="flex items-center">
+                                  <input
+                                    type="radio"
+                                    name={`${field.id}-option`}
+                                    value="AND"
+                                    className="form-radio"
+                                  />
+                                  <span className="ml-1">AND</span>
+                                </label>
+                                <label className="flex items-center">
+                                  <input
+                                    type="radio"
+                                    name={`${field.id}-option`}
+                                    value="OR"
+                                    className="form-radio"
+                                  />
+                                  <span className="ml-1">OR</span>
+                                </label>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="w-3/4 flex flex-row space-x-2">
+                              <MultipleSelectDropDown
+                                options={getOptionsByFieldId(field.id)}
+                                // onChange={(options) => {
+                                //   const newFields = selectedSearchFields.map((f) =>
+                                //     f.id === field.id ? { ...f, selectedOptions: options } : f
+                                //   );
+                                //   setSelectedSearchFields(newFields);
+                                // }}
+                              />
+                            </div>
+                          )}
+                          {/* <input
                           type="text"
                           id={field.id}
                           className={classNames(
                             'w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6',
                           )}
                         /> */}
-                      </div>
-                    ))}
+                        </div>
+                      ))}
                   </div>
                   <div className="flex justify-end">
                     <button
