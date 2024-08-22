@@ -74,8 +74,9 @@ export default function MultipleSelectDropDown({ options, onChange }) {
    * 옵션을 필터링하는 함수
    * 사용자가 입력한 검색어(query)에 따라 옵션 목록을 필터링합니다.
    */
-  const filteredOptions = options.filter((option) =>
-    option.name.toLowerCase().includes(query.toLowerCase()),
+  const filteredOptions = options.filter(
+    (option) =>
+      option.name && option.name.toLowerCase().includes(query.toLowerCase()),
   );
 
   /**

@@ -46,7 +46,7 @@ const TopMenuBar = () => {
       ? {
           mapSelection: 'Map Selection',
           storeSearch: 'Place Search',
-          searchPlaceholder: 'Type a store',
+          searchPlaceholder: 'Type the name of a store',
           logSearch: 'Log Search',
           coordsOutput: 'Display Input Coordinates',
           spaceSearch: 'Space Search',

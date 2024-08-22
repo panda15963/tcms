@@ -205,25 +205,39 @@ const LogModal = forwardRef((_props, ref) => {
   const getOptionsByFieldId = (fieldId) => {
     console.log('getOptionsByFieldId of fieldId ==>', fieldId);
 
+    const extractName = (item) => {
+      if (typeof item.name === 'object') {
+        return language === 'ENG' ? item.name.eng : item.name.kor;
+      }
+      return item.name;
+    };
+
+    const mapOptions = (optionsList) => {
+      return optionsList.map((option) => ({
+        ...option,
+        name: extractName(option),
+      }));
+    };
+
     switch (fieldId) {
       case 'continent':
-        return countryList.continent;
+        return mapOptions(countryList.continent);
       case 'country':
-        return countryList.country;
+        return mapOptions(countryList.country);
       case 'priority':
-        return priority;
+        return mapOptions(priority);
       case 'feature-1':
-        return featureList.featureTop;
+        return mapOptions(featureList.featureTop);
       case 'feature-2':
-        return featureList.featureBottom;
+        return mapOptions(featureList.featureBottom);
       case 'target':
-        return targetList.target;
+        return mapOptions(targetList.target);
       case 'virtual':
-        return virtual;
+        return mapOptions(virtual);
       case 'format':
-        return format;
+        return mapOptions(format);
       case 'tag':
-        return tagList.tag;
+        return mapOptions(tagList.tag);
       default:
         return [];
     }
@@ -459,12 +473,10 @@ const LogModal = forwardRef((_props, ref) => {
                       {labels.searchFields}
                     </span>
                     <MultipleSelectDropDown
-                      formFieldName={'Search fields'}
-                      options={fields}
-                      onChange={(options) => {
-                        console.log('SELECTED OPTIONS ', options);
-                        setSelectedSearchFields(options);
-                      }}
+                      options={fields.map((field) => ({
+                        ...field,
+                        name: field.name[language.toLowerCase()], // Ensure you're getting the string for the active language
+                      }))}
                     />
                   </div>
                   {/* Dyanmic Search fields*/}
