@@ -33,12 +33,12 @@ export default function StoreTable({ stores, onDataReceive }) {
     language === 'ENG'
       ? {
           noResult: 'No search results',
-          noStore: 'No stores(areas) found',
+          noStore: 'No stores found',
           oneStore: '1 store(area) found',
           previousButton: 'Previous',
           nextButton: 'Next',
           paginationText: (totalStores, firstStore, lastStore) =>
-            `Showing ${firstStore} to ${lastStore} of ${totalStores} stores(areas).`,
+            `Showing ${firstStore} to ${lastStore} of ${totalStores} stores.`,
         }
       : {
           noResult: '검색 결과가 없습니다.',

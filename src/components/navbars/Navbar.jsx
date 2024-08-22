@@ -47,10 +47,7 @@ const Navbar = () => {
           ],
         },
       ]);
-      setProfileMenus([
-        { title: 'My Page', link: '#' },
-        { title: 'Sign Out' },
-      ]);
+      setProfileMenus([{ title: 'My Page', link: '#' }, { title: 'Sign Out' }]);
     } else {
       setNavBarMenus([
         { title: '지도', link: '/main/map' },
@@ -147,9 +144,7 @@ const Navbar = () => {
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end py">
           {/* Language switcher */}
-          <div className="py-2">
-            <SwitchLanguages />
-          </div>
+          <SwitchLanguages />
           <Menu as="div" className="relative ml-3">
             <MenuButton className="flex items-center">
               <img

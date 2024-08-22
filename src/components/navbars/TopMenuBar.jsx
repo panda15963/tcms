@@ -19,10 +19,12 @@ import BaiduCoords from '../displayCoords/BaiduCoords';
 import { DECToMMS, DECToDEC, DECToDEG } from '../calculateCoords/ConvertsDEC';
 import { MMSToDEC } from '../calculateCoords/ConvertsMMS';
 import { DEGToDEC } from '../calculateCoords/ConvertsDEG';
+import { useLanguage } from '../../context/LanguageProvider';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
 
 const TopMenuBar = () => {
+  const { language } = useLanguage();
   const [inputValue, setInputValue] = useState('');
   const [keyPressed, setKeyPressed] = useState('');
   const [selectedCoords, setSelectedCoords] = useState(null);
@@ -38,6 +40,33 @@ const TopMenuBar = () => {
 
   const storeModalRef = useRef();
   const logModalRef = useRef();
+
+  const labels =
+    language === 'ENG'
+      ? {
+          mapSelection: 'Map Selection',
+          storeSearch: 'Place Search',
+          searchPlaceholder: 'Type a store',
+          logSearch: 'Log Search',
+          coordsOutput: 'Display Input Coordinates',
+          spaceSearch: 'Space Search',
+          searchButton: 'Search',
+          copyButton: 'Copy',
+          latitude: 'Latitude',
+          longitude: 'Longitude',
+        }
+      : {
+          mapSelection: '지도 선택',
+          storeSearch: '지점 검색',
+          searchPlaceholder: '지점을 입력해 주세요',
+          logSearch: '로그 검색',
+          spaceSearch: '공간 검색',
+          coordsOutput: '입력 좌표 출력',
+          searchButton: '조회',
+          copyButton: '복사',
+          latitude: '위도',
+          longitude: '경도',
+        };
 
   const handleChange = (event) => {
     setInputValue(event.target.value);
@@ -67,7 +96,11 @@ const TopMenuBar = () => {
       });
       storeModalRef.current.close();
     } else {
-      alert('지점을 선택하여 주십시오!');
+      if (language === 'ENG') {
+        alert('Please select a store');
+      } else {
+        alert('지점을 선택해 주세요');
+      }
     }
   };
 
@@ -131,31 +164,57 @@ const TopMenuBar = () => {
 
   const handleCopy = () => {
     if (convertedCoords.lat && convertedCoords.lng) {
-      const coordsText = `위도(Latitude): ${convertedCoords.lat}, 경도(Longitude): ${convertedCoords.lng}`;
+      const coordsText =
+        language === 'ENG'
+          ? `Latitude: ${convertedCoords.lat}, Longitude: ${convertedCoords.lng}`
+          : `위도: ${convertedCoords.lat}, 경도: ${convertedCoords.lng}`;
       navigator.clipboard
         .writeText(coordsText)
         .then(() => {
-          setSuccessValue('클립보드에 복사되었습니다!');
-          setSuccess(true);
-          setTimeout(() => setSuccess(false), 5000);
+          if (language === 'ENG') {
+            setSuccessValue('Copied to clipboard!');
+            setSuccess(true);
+            setTimeout(() => setSuccess(false), 5000);
+          } else {
+            setSuccessValue('클립보드에 복사되었습니다!');
+            setSuccess(true);
+            setTimeout(() => setSuccess(false), 5000);
+          }
         })
         .catch((err) => {
-          console.error('복사하지 못한 텍스트: ', err, '!');
-          setErrorValue(err.message || '텍스트를 복사하지 못 하였습니다!');
-          setError(true);
-          setTimeout(() => setError(false), 5000);
+          if (language === 'ENG') {
+            console.error('Failed to copy text: ', err, '!');
+            setErrorValue(err.message || 'Could not copy text!');
+            setError(true);
+            setTimeout(() => setError(false), 5000);
+          } else {
+            console.error('복사하지 못한 텍스트: ', err, '!');
+            setErrorValue(err.message || '텍스트를 복사하지 못 하였습니다!');
+            setError(true);
+            setTimeout(() => setError(false), 5000);
+          }
         });
     } else {
-      setErrorValue('복사 할 좌표가 없습니다!');
-      setError(true);
-      setTimeout(() => setError(false), 5000);
+      if (language === 'ENG') {
+        setErrorValue('No coordinates to copy!');
+        setError(true);
+        setTimeout(() => setError(false), 5000);
+      } else {
+        setErrorValue('복사 할 좌표가 없습니다!');
+        setError(true);
+        setTimeout(() => setError(false), 5000);
+      }
     }
   };
 
   const parseDEGToDecimal = (degString) => {
     const parts = degString.split(' ');
     if (parts.length !== 3) {
-      throw new Error('DEG 형식이 틀립니다. 제대로 된 형식을 입력하세요');
+      if (language === 'ENG') {
+        throw new Error('The format is not correct.');
+      } else {
+        throw new Error('DEG 형식이 틀립니다. 제대로 된 형식을 입력하세요');
+      }
     }
 
     const degrees = parseFloat(parts[0]);
@@ -163,7 +222,11 @@ const TopMenuBar = () => {
     const seconds = parseFloat(parts[2]);
 
     if (isNaN(degrees) || isNaN(minutes) || isNaN(seconds)) {
-      throw new Error('형식이 제대로 되어있지 않습니다.');
+      if (language === 'ENG') {
+        throw new Error('The format is not correct.');
+      } else {
+        throw new Error('DEG 형식이 틀립니다. 제대로 된 형식을 입력하세요');
+      }
     }
 
     return degrees + minutes / 60 + seconds / 3600;
@@ -173,30 +236,50 @@ const TopMenuBar = () => {
     const lat = convertedCoords.lat;
     const lng = convertedCoords.lng;
     console.log(lat, lng, typeof lat);
-    let latitude = '위도(Latitude)';
-    let longitude = '경도(Longitude)';
+    let latitude = language === 'ENG' ? 'Latitude' : '위도(Latitude)';
+    let longitude = language === 'ENG' ? 'Longitude' : '경도(Longitude)';
 
-    let decError = '에서 소수점이 무조건 포함되어야 합니다';
-    let mmsError = '는 무조건 숫자이여야 합니다';
-    let degError = '에서는 띄어쓰기가 무조건 있어야 합니다';
+    let decError =
+      language === 'ENG' ? 'Longitude' : '에서는 무조건 소수점이 있어야 합니다';
+
+    let mmsError =
+      language === 'ENG'
+        ? '에서는 무조건 정수여야 합니다'
+        : '에서는 무조건 정수여야 합니다';
+    let degError =
+      language === 'ENG'
+        ? 'should have 3 parts separated by spaces'
+        : '는 3개의 부분으로 나누어져야 합니다';
 
     let latError = '';
     let lngError = '';
 
     if (!lat) {
-      latError = `${latitude}이 비어있습니다.`;
+      latError =
+        language === 'ENG'
+          ? `${latitude} is empty.`
+          : `${latitude}이 비어있습니다.`;
     }
     if (!lng) {
-      lngError = `${longitude}이 비어있습니다.`;
+      lngError =
+        language === 'ENG'
+          ? `${longitude} is empty.`
+          : `${longitude}이 비어있습니다.`;
     }
 
     if (latError || lngError) {
       let combinedError =
-        latError && lngError
-          ? `위도와 경도에서 발생한 에러: ${latError} ${lngError}`
-          : latError
-            ? `위도에서 발생한 에러: ${latError}`
-            : `경도에서 발생한 에러: ${lngError}`;
+        language === 'ENG'
+          ? latError && lngError
+            ? `Errors in Latitude and Longitude: ${latitude} and ${lngError}.`
+            : latError
+              ? `Error in Latitude: ${latError}.`
+              : `Error in Longitude: ${lngError}.`
+          : latError && lngError
+            ? `위도와 경도에서 발생한 에러: ${latitude}와 ${lngError}.`
+            : latError
+              ? `위도에서 발생한 에러: ${latError}.`
+              : `경도에서 발생한 에러: ${lngError}.`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -234,7 +317,7 @@ const TopMenuBar = () => {
         lngSpaceError = true;
       }
       if (latSpaceError && lngSpaceError) {
-        latError = lngError = `${latitude}와 ${longitude}에서 ${degError}`;
+        latError = lngError = language === 'ENG' ? degError : degError;
       } else if (latSpaceError) {
         latError = `${latitude} ${degError}`;
       } else if (lngSpaceError) {
@@ -244,11 +327,17 @@ const TopMenuBar = () => {
 
     if (latError || lngError) {
       let combinedError =
-        latError && lngError
-          ? `위도와 경도에서 발생한 에러: ${latitude}와 ${lngError}.`
-          : latError
-            ? `위도에서 발생한 에러: ${latError}.`
-            : `경도에서 발생한 에러: ${lngError}.`;
+        language === 'ENG'
+          ? latError && lngError
+            ? `Errors in Latitude and Longitude: ${latError} and ${lngError}.`
+            : latError
+              ? `Error in Latitude: ${latError}.`
+              : `Error in Longitude: ${lngError}.`
+          : latError && lngError
+            ? `위도와 경도에서 발생한 에러: ${latError}와 ${lngError}.`
+            : latError
+              ? `위도에서 발생한 에러: ${latError}.`
+              : `경도에서 발생한 에러: ${lngError}.`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -308,10 +397,16 @@ const TopMenuBar = () => {
           lngValue < currentRanges.minLng ||
           lngValue > currentRanges.maxLng)
       ) {
-        setErrorValue('범위 밖으로 벗어났습니다.');
-        setError(true);
-        setTimeout(() => setError(false), 2000);
-        return;
+        if (language === 'ENG') {
+          setErrorValue('Out of range.');
+          setError(true);
+          setTimeout(() => setError(false), 2000);
+        } else {
+          setErrorValue('범위 밖으로 벗어났습니다.');
+          setError(true);
+          setTimeout(() => setError(false), 2000);
+          return;
+        }
       }
 
       let result;
@@ -326,9 +421,15 @@ const TopMenuBar = () => {
       setSelectedCoords(result);
       setDisplayCoords(result);
     } else {
-      setErrorValue('입력한 좌표를 확인해 주십시오.');
-      setError(true);
-      setTimeout(() => setError(false), 2000);
+      if (language === 'ENG') {
+        setErrorValue('Invalid coordinates.');
+        setError(true);
+        setTimeout(() => setError(false), 2000);
+      } else {
+        setErrorValue('잘못된 좌표입니다.');
+        setError(true);
+        setTimeout(() => setError(false), 2000);
+      }
     }
   };
 
@@ -393,17 +494,14 @@ const TopMenuBar = () => {
                   <div className="hidden lg:ml-6 lg:block">
                     <div className="flex">
                       <label className="px-3 py-2 text-sm font-bold text-white">
-                        지도 선택
+                        {labels.mapSelection}
                       </label>
                       <MapAPIsLists setSelectedAPI={setSelectedAPI} />
                       <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3 ">
-                        지점 검색
+                        {labels.storeSearch}
                       </label>
                       <div className="flex flex-1 justify-center lg:justify-end">
                         <div className="w-full max-w-lg lg:max-w-xs">
-                          <label htmlFor="search" className="sr-only">
-                            Search
-                          </label>
                           <div className="inset-y-0 flex items-center px-2">
                             <input
                               type="text"
@@ -412,7 +510,7 @@ const TopMenuBar = () => {
                               value={inputValue}
                               style={{ width: '200px' }}
                               className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
-                              placeholder="지점을 입력해 주세요"
+                              placeholder={labels.searchPlaceholder}
                             />
                             <button
                               type="button"
@@ -436,7 +534,7 @@ const TopMenuBar = () => {
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
-                          로그 검색
+                          {labels.logSearch}
                         </label>
                         <button
                           type="button"
@@ -451,8 +549,11 @@ const TopMenuBar = () => {
                       </div>
                       <LogModal ref={logModalRef} />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
-                          공간 검색
+                        <label
+                          className="rounded-md px-3 py-2 text-sm font-bold text-white"
+                          style={{ width: '120px' }}
+                        >
+                          {labels.spaceSearch}
                         </label>
                         <button
                           type="button"
@@ -466,7 +567,7 @@ const TopMenuBar = () => {
                         </button>
                       </div>
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
-                        입력 좌표 출력
+                        {labels.coordsOutput}
                       </label>
                       <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
                       <div className="flex flex-0 justify-center lg:ml-3 lg:justify-center">
@@ -485,7 +586,7 @@ const TopMenuBar = () => {
                               id="search"
                               name="lat"
                               className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                              placeholder="Latitude"
+                              placeholder={labels.latitude}
                               value={convertedCoords.lat}
                               onChange={handleCoordsChange}
                               onClick={handleCoordsClick}
@@ -507,7 +608,7 @@ const TopMenuBar = () => {
                             </button>
                             <input
                               className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                              placeholder="Longitude"
+                              placeholder={labels.longitude}
                               name="lng"
                               value={convertedCoords.lng}
                               onChange={handleCoordsChange}
@@ -522,7 +623,7 @@ const TopMenuBar = () => {
                           className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                           onClick={handleSearch}
                         >
-                          조회
+                          {labels.searchButton}
                         </button>
                       </div>
                       <div className="flex flex-0 justify-center lg:ml-3">
@@ -531,7 +632,7 @@ const TopMenuBar = () => {
                           className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                           onClick={handleCopy}
                         >
-                          복사
+                          {labels.copyButton}
                         </button>
                       </div>
                     </div>
@@ -552,25 +653,24 @@ const TopMenuBar = () => {
             </div>
             <DisclosurePanel className="lg:hidden">
               <div className="space-y-1 px-2 pb-3 pt-2">
-                <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
-                  지도 선택
-                </label>
-                <MapAPIsLists setSelectedAPI={setSelectedAPI} />
-                <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
-                  지점 검색
-                </label>
                 <div className="flex flex-1 justify-center lg:justify-end">
+                  <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
+                    {labels.mapSelection}
+                  </label>
+                  <MapAPIsLists setSelectedAPI={setSelectedAPI} />
+                </div>
+                <div className="flex flex-1 justify-center lg:justify-end">
+                  <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
+                    {labels.storeSearch}
+                  </label>
                   <div className="w-full max-w-lg lg:max-w-xs">
-                    <label htmlFor="search" className="sr-only">
-                      Search
-                    </label>
                     <div className="inset-y-0 flex items-center px-2">
                       <input
                         type="text"
                         onChange={handleChange}
                         onKeyDown={handleKeyDown}
                         className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
-                        placeholder="Search"
+                        placeholder={labels.searchPlaceholder}
                       />
                       <button
                         type="button"
@@ -585,83 +685,102 @@ const TopMenuBar = () => {
                     </div>
                   </div>
                 </div>
-                <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
-                  로그 검색
-                </label>
-                <button
-                  type="button"
-                  onClick={() => logModalRef.current.show()}
-                  className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                >
-                  <HiOutlineDocumentSearch
-                    className="h-5 w-5 text-white"
-                    aria-hidden="true"
-                  />
-                </button>
-                <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
-                  입력 좌표 출력
-                </label>
-                <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
-                <div className="flex flex-0 justify-center lg:ml-3">
-                  <div className=" max-w-lg lg:max-w-xs">
-                    <div className="relative py-1">
-                      <button
-                        type="button"
-                        className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
-                      >
-                        <TbWorldLatitude
-                          className="h-5 w-5 text-gray-400"
-                          aria-hidden="true"
+                <div className="flex flex-1 justify-center lg:justify-end">
+                  <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
+                    {labels.logSearch}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => logModalRef.current.show()}
+                    className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                  >
+                    <HiOutlineDocumentSearch
+                      className="h-5 w-5 text-white"
+                      aria-hidden="true"
+                    />
+                  </button>
+                </div>
+                <div className="flex flex-1 justify-center lg:justify-end">
+                  <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
+                    {labels.spaceSearch}
+                  </label>
+                  <button
+                    type="button"
+                    // onClick={() => logModalRef.current.show()}
+                    className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                  >
+                    <HiOutlineDocumentSearch
+                      className="h-5 w-5 text-white"
+                      aria-hidden="true"
+                    />
+                  </button>
+                </div>
+                <div className="flex flex-1 justify-center lg:justify-end">
+                  <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
+                    {labels.coordsOutput}
+                  </label>
+                  <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
+                  <div className="flex flex-0 justify-center lg:ml-3">
+                    <div className=" max-w-lg lg:max-w-xs">
+                      <div className="relative py-1">
+                        <button
+                          type="button"
+                          className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+                        >
+                          <TbWorldLatitude
+                            className="h-5 w-5 text-gray-400"
+                            aria-hidden="true"
+                          />
+                        </button>
+                        <input
+                          id="search"
+                          name="lat"
+                          className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                          placeholder={labels.latitude}
+                          value={convertedCoords.lat}
+                          onChange={handleCoordsChange}
+                          onClick={handleCoordsClick}
                         />
-                      </button>
-                      <input
-                        id="search"
-                        name="lat"
-                        className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                        placeholder="Latitude"
-                        value={convertedCoords.lat}
-                        onChange={handleCoordsChange}
-                        onClick={handleCoordsClick}
-                      />
-                    </div>
-                    <div className="relative">
-                      <button
-                        type="button"
-                        className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
-                      >
-                        <TbWorldLongitude
-                          className="h-5 w-5 text-gray-400"
-                          aria-hidden="true"
+                      </div>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+                        >
+                          <TbWorldLongitude
+                            className="h-5 w-5 text-gray-400"
+                            aria-hidden="true"
+                          />
+                        </button>
+                        <input
+                          className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                          placeholder={labels.longitude}
+                          name="lng"
+                          value={convertedCoords.lng}
+                          onChange={handleCoordsChange}
+                          onClick={handleCoordsClick}
                         />
-                      </button>
-                      <input
-                        className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                        placeholder="Longitude"
-                        name="lng"
-                        value={convertedCoords.lng}
-                        onChange={handleCoordsChange}
-                        onClick={handleCoordsClick}
-                      />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex flex-0 justify-center lg:ml-3">
-                  <button
-                    type="button"
-                    className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
-                    onClick={handleSearch}
-                  >
-                    조회
-                  </button>
-                </div>
-                <div className="flex flex-0 justify-center lg:ml-3">
-                  <button
-                    type="button"
-                    className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
-                    onClick={handleCopy}
-                  >
-                    복사
-                  </button>
+                  <div className="flex flex-0 justify-center lg:ml-3">
+                    <button
+                      type="button"
+                      className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+                      onClick={handleSearch}
+                    >
+                      {labels.searchButton}
+                    </button>
+                  </div>
+                  <div className="flex flex-0 justify-center lg:ml-3">
+                    <button
+                      type="button"
+                      className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+                      onClick={handleCopy}
+                    >
+                      {labels.copyButton}
+                    </button>
+                  </div>
                 </div>
               </div>
             </DisclosurePanel>

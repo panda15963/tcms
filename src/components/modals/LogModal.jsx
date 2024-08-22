@@ -16,6 +16,7 @@ import MainGrid from '../tables/MainGrid';
 import { nonAuthInstance } from '../../server/AxiosConfig';
 import logService from '../../service/logService';
 import MultipleSelectDropDown from '../dropdowns/MultipleSelectDropDown';
+import { useLanguage } from '../../context/LanguageProvider';
 
 /**
  * 로그 검색
@@ -28,43 +29,46 @@ const LogModal = forwardRef((_props, ref) => {
     list: [],
   };
 
+  // 검색 필드 옵션 정의
   const fields = [
-    { id: 'description', name: 'Find description' },
-    { id: 'continent', name: 'Continent' },
-    { id: 'country', name: 'Country' },
-    { id: 'priority', name: 'Priority' },
-    { id: 'feature', name: 'Feature' },
-    { id: 'target', name: 'Target' },
-    { id: 'virtual', name: 'Virtual ' },
-    { id: 'format', name: 'Format' },
-    { id: 'tag', name: 'Tag' },
+    { id: 'description', name: { eng: 'Find Description', kor: '설명 찾기' } },
+    { id: 'continent', name: { eng: 'Continent', kor: '대륙' } },
+    { id: 'country', name: { eng: 'Country', kor: '국가' } },
+    { id: 'priority', name: { eng: 'Priority', kor: '우선순위' } },
+    { id: 'feature', name: { eng: 'Feature', kor: '기능' } },
+    { id: 'target', name: { eng: 'Target', kor: '대상' } },
+    { id: 'virtual', name: { eng: 'Virtual', kor: '가상' } },
+    { id: 'format', name: { eng: 'Format', kor: '형식' } },
+    { id: 'tag', name: { eng: 'Tag', kor: '태그' } },
   ];
 
   const priority = [
-    { id: 'all', name: 'ALL' },
-    { id: 'top', name: 'TOP' },
-    { id: 'a', name: 'A' },
-    { id: 'b', name: 'B' },
-    { id: 'c', name: 'C' },
+    { id: 'all', name: { eng: 'ALL', kor: '전체' } },
+    { id: 'top', name: { eng: 'Top', kor: '상위' } },
+    { id: 'a', name: { eng: 'A', kor: 'A' } },
+    { id: 'b', name: { eng: 'B', kor: 'B' } },
+    { id: 'c', name: { eng: 'C', kor: 'C' } },
   ];
 
   const format = [
-    { id: 'all', name: 'ALL (*.*)' },
-    { id: 'hippo', name: 'HIPPO (*.hip)' },
-    { id: 'kml', name: 'KML (*.kml)' },
-    { id: 'nmea', name: 'NMEA (*.nmea)' },
+    { id: 'all', name: { eng: 'ALL', kor: '전체' } },
+    { id: 'hippo', name: { eng: 'HIPPO (*.hippo)', kor: 'HIPPO (*.hippo)' } },
+    { id: 'kml', name: { eng: 'KML (*.kml)', kor: 'KML (*.kml)' } },
+    { id: 'nmea', name: { eng: 'NMEA (*.nmea)', kor: 'NMEA (*.nmea)' } },
   ];
 
   const virtual = [
-    { id: 'all', name: 'ALL' },
-    { id: 'virtualLog', name: 'Virtual Log' },
-    { id: 'reallog', name: 'Real Log' },
+    { id: 'all', name: { eng: 'ALL', kor: '전체' } },
+    { id: 'virtualLog', name: { eng: 'Virtual Log', kor: '가상 로그' } },
+    { id: 'reallog', name: { eng: 'Real Log', kor: '실제 로그' } },
   ];
 
+  // 클래스 이름을 결합하는 유틸리티 함수
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ');
   }
 
+  const { language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
   const [data, setData] = useState(null);
@@ -76,8 +80,32 @@ const LogModal = forwardRef((_props, ref) => {
   const [tagList, setTagList] = useState(initialList);
   const [list, setList] = useState(initialList);
 
+  // 언어에 따른 라벨 설정
+  const labels =
+    language === 'ENG'
+      ? {
+          modalName: 'Log Search',
+          searchFields: 'Search Fields',
+          find: 'Find',
+          downloadDir: 'Download directory',
+          download: 'Download',
+          ok: 'OK',
+        }
+      : {
+          modalName: '로그 검색',
+          searchFields: '검색 필드',
+          find: '찾기',
+          downloadDir: '다운로드 경로',
+          download: '다운로드',
+          ok: '확인',
+        };
+
   console.log('countryList', countryList);
 
+  /**
+   * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
+   * useImperativeHandle을 사용하여 ref를 설정
+   */
   useImperativeHandle(ref, () => ({
     show() {
       setOpen(true);
@@ -86,10 +114,10 @@ const LogModal = forwardRef((_props, ref) => {
 
   useEffect(() => {
     console.log('유즈이팩 실행 체크 ==>');
-    MAIN_COUNTRY();
-    MAIN_FEATURE();
-    MAIN_TARGET();
-    MAIN_TAG();
+    // MAIN_COUNTRY();
+    // MAIN_FEATURE();
+    // MAIN_TARGET();
+    // MAIN_TAG();
   }, []);
 
   useEffect(() => {
@@ -412,7 +440,9 @@ const LogModal = forwardRef((_props, ref) => {
             >
               <DialogPanel className="relative rounded-lg transform overflow-hidden shadow-xl bg-white text-left transition-all sm:w-full sm:my-8 sm:max-w-screen-xl sm:p-0">
                 <div className="flex justify-between py-3 px-5 bg-blue_ncs">
-                  <h1 className="font-semibold text-white">로그 검색</h1>
+                  <h1 className="font-semibold text-white">
+                    {labels.modalName}
+                  </h1>
                   <button
                     className="font-semibold"
                     onClick={() => setOpen(false)}
@@ -426,7 +456,7 @@ const LogModal = forwardRef((_props, ref) => {
                     className="flex items-center justify-start z-20"
                   >
                     <span className="w-1/5 text-md font-semibold text-slate-700 text-center">
-                      Search Fields
+                      {labels.searchFields}
                     </span>
                     <MultipleSelectDropDown
                       formFieldName={'Search fields'}
@@ -548,7 +578,7 @@ const LogModal = forwardRef((_props, ref) => {
                         aria-hidden="true"
                       />
                       <label className="text-base text-sky-500 font-bold cursor-pointer">
-                        Find
+                        {labels.find}
                       </label>
                     </button>
                   </div>
@@ -570,7 +600,7 @@ const LogModal = forwardRef((_props, ref) => {
                     className="grid grid-cols-[20%_1fr_15%] items-center"
                   >
                     <span className="text-md font-semibold text-slate-700 text-center">
-                      Download directory
+                      {labels.downloadDir}
                     </span>
                     <input
                       type="text"
@@ -589,7 +619,7 @@ const LogModal = forwardRef((_props, ref) => {
                           className="-ml-0.5 h-5 w-5 text-slate-700"
                           aria-hidden="true"
                         />
-                        Download
+                        {labels.download}
                       </button>
                     </div>
                   </div>
@@ -599,7 +629,7 @@ const LogModal = forwardRef((_props, ref) => {
                         className="-ml-0.5 h-5 w-5 text-slate-700"
                         aria-hidden="true"
                       />
-                      OK
+                      {labels.ok}
                     </button>
                   </div>
                 </div>
