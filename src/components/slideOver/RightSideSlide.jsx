@@ -158,7 +158,7 @@ export default function RightSideSlide() {
       {!open && (
         <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className=" text-white px-3 py-5 rounded-l-full bg-blue_ncs hover:bg-blue_lapis"
+            className=" text-white px-2 py-4 rounded-l-full bg-blue_ncs hover:bg-blue_lapis"
             onClick={() => setOpen(true)}
           >
             <FaArrowCircleLeft size={22} />
