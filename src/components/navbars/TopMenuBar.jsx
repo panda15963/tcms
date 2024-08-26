@@ -494,10 +494,12 @@ const TopMenuBar = () => {
                   <div className="hidden lg:ml-6 lg:block">
                     <div className="flex">
                       <label className="px-3 py-2 text-sm font-bold text-white">
+                        {/* 지도 선택 */}
                         {labels.mapSelection}
                       </label>
                       <MapAPIsLists setSelectedAPI={setSelectedAPI} />
                       <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3 ">
+                        {/* 지점 검색 */}
                         {labels.storeSearch}
                       </label>
                       <div className="flex flex-1 justify-center lg:justify-end">
@@ -566,6 +568,7 @@ const TopMenuBar = () => {
                         </button>
                       </div>
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
+                        {/* 입력 좌표 출력 */}
                         {labels.coordsOutput}
                       </label>
                       <MapCoordLists chosenDisplayCoords={setSelectedMapList} />

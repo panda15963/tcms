@@ -18,11 +18,26 @@ import logService from '../../service/logService';
 import MultipleSelectDropDown from '../dropdowns/MultipleSelectDropDown';
 import { useLanguage } from '../../context/LanguageProvider';
 import { isArray, isEmpty } from 'lodash';
+import SingleSelectDropDown from '../dropdowns/SingleSelectDropDown';
 
 /**
  * 로그 검색
  */
 const LogModal = forwardRef((_props, ref) => {
+  const initialCond = {
+    searchWord: '',
+    continent: '',
+    region: '',
+    priority: '',
+    target: '',
+    format: '',
+    feature: '',
+    virtual: -1, // all : -1, virtual : 0, real : 1
+    tag: '',
+    group_id: -1,
+    operation: 0, // and : 0, or : 1
+  };
+
   const initialList = {
     status: 'idle',
     currentRequestId: undefined,
@@ -34,7 +49,7 @@ const LogModal = forwardRef((_props, ref) => {
   const fields = [
     { id: 'description', name: { eng: 'Find Description', kor: '설명 찾기' } },
     { id: 'continent', name: { eng: 'Continent', kor: '대륙' } },
-    { id: 'country', name: { eng: 'Country', kor: '국가' } },
+    { id: 'region', name: { eng: 'Region', kor: '국가' } },
     { id: 'priority', name: { eng: 'Priority', kor: '우선순위' } },
     { id: 'feature', name: { eng: 'Feature', kor: '기능' } },
     { id: 'target', name: { eng: 'Target', kor: '대상' } },
@@ -59,10 +74,20 @@ const LogModal = forwardRef((_props, ref) => {
   ];
 
   const virtual = [
-    { id: 'all', name: { eng: 'ALL', kor: '전체' } },
-    { id: 'virtualLog', name: { eng: 'Virtual Log', kor: '가상 로그' } },
-    { id: 'reallog', name: { eng: 'Real Log', kor: '실제 로그' } },
+    { id: -1, name: { eng: 'ALL', kor: '전체' } },
+    { id: 0, name: { eng: 'Virtual Log', kor: '가상 로그' } },
+    { id: 1, name: { eng: 'Real Log', kor: '실제 로그' } },
   ];
+
+  // 대륙 코드와 이름 매핑
+  const continentNameMap = {
+    AF: 'Africa',
+    AS: 'Asia',
+    EU: 'Europe',
+    NA: 'North America',
+    OC: 'Oceania',
+    SA: 'South America',
+  };
 
   // 클래스 이름을 결합하는 유틸리티 함수
   function classNames(...classes) {
@@ -70,6 +95,7 @@ const LogModal = forwardRef((_props, ref) => {
   }
 
   const { language } = useLanguage();
+  const [cond, setCond] = useState(initialCond);
   const [open, setOpen] = useState(false);
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
   const [data, setData] = useState(null);
@@ -134,14 +160,14 @@ const LogModal = forwardRef((_props, ref) => {
     setError(null);
 
     const condTmp = {
-      searchWord: '',
-      continent: 'NA,EU,AS',
-      region: '',
-      priority: '',
-      target: '',
-      format: '',
+      searchWord: cond.searchWord,
+      continent: cond.continent,
+      region: cond.region,
+      priority: cond.priority,
+      target: cond.target,
+      format: cond.format,
       feature: '',
-      virtual: -1,
+      virtual: cond.virtual,
       tag: '',
       group_id: -1,
       operation: 0,
@@ -171,11 +197,11 @@ const LogModal = forwardRef((_props, ref) => {
   const FIND_META = async (inputCond) => {
     try {
       await logService
-        .FIND_META2({
+        .FIND_META_10100({
           cond: inputCond,
         })
         .then((res) => {
-          console.log('FIND_META of res ==>', res.findMeta);
+          console.log('FIND_META_10100 of res ==>', res.findMeta);
           setList((prevState) => {
             return {
               ...prevState,
@@ -223,7 +249,7 @@ const LogModal = forwardRef((_props, ref) => {
     switch (fieldId) {
       case 'continent':
         return mapOptions(countryList.continent);
-      case 'country':
+      case 'region':
         return mapOptions(countryList.country);
       case 'priority':
         return mapOptions(priority);
@@ -263,7 +289,7 @@ const LogModal = forwardRef((_props, ref) => {
         // [Continent] 분류
         const continentsList = uniqueContinents.map((continent) => ({
           id: continent.toLowerCase(),
-          name: continent,
+          name: continentNameMap[continent] || continent, // 매핑된 이름 사용
         }));
 
         // [Continent] ALL 항목 추가
@@ -271,8 +297,9 @@ const LogModal = forwardRef((_props, ref) => {
 
         // [Country] 주어진 데이터에서 country_Iso3를 name으로, id는 그대로 유지하는 새로운 리스트 생성
         const processedList = res.country.map((country) => ({
-          id: country.id,
-          name: country.country_Iso3,
+          id: country.country_Iso3,
+          // name: country.country_Iso3,
+          name: country.country_name,
         }));
 
         // [Country] ALL 항목 추가
@@ -284,6 +311,8 @@ const LogModal = forwardRef((_props, ref) => {
           if (a.name > b.name) return 1;
           return 0;
         });
+
+        console.log('continentsList ==>', continentsList);
 
         setCountryList((prevState) => {
           return {
@@ -365,7 +394,7 @@ const LogModal = forwardRef((_props, ref) => {
 
         // [Target] 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
         const targetList = res.target.map((target) => ({
-          id: target.id,
+          id: target.str,
           name: target.str,
         }));
 
@@ -427,6 +456,27 @@ const LogModal = forwardRef((_props, ref) => {
     } catch (e) {
       console.log('MAIN_TAG of error ==>', e);
     }
+  };
+
+  const selectedValues = (value) => {
+    console.log('selectedValues of value ==>', value);
+
+    return value
+      .map((item) => {
+        // 아이템의 id가 숫자인 경우 '0'을 반환하고, 문자열인 경우 대문자로 변환하여 반환
+        if (typeof item.id === 'number') {
+          return item.id;
+        } else if (
+          item.id === 'kml' ||
+          item.id === 'hippo' ||
+          item.id === 'nmea'
+        ) {
+          return item.id;
+        } else {
+          return item.id.toUpperCase();
+        }
+      })
+      .join(',');
   };
 
   return (
@@ -493,6 +543,7 @@ const LogModal = forwardRef((_props, ref) => {
                           className="flex w-full sm:w-1/2 items-center mt-2"
                         >
                           <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
+                            {/* searchWord (설명 찾기) */}
                             {field.name}
                           </label>
                           {field.id === 'description' ? (
@@ -500,6 +551,14 @@ const LogModal = forwardRef((_props, ref) => {
                               type="text"
                               id={field.id}
                               className="w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6"
+                              onChange={(e) => {
+                                setCond((prevState) => {
+                                  return {
+                                    ...prevState,
+                                    searchWord: e.target.value,
+                                  };
+                                });
+                              }}
                               // onChange={(e) => {
                               //   const newFields = selectedSearchFields.map((f) =>
                               //     f.id === field.id ? { ...f, value: e.target.value } : f
@@ -563,16 +622,34 @@ const LogModal = forwardRef((_props, ref) => {
                                 </label>
                               </div>
                             </div>
+                          ) : field.id === 'virtual' ? (
+                            <div className="w-3/4 flex flex-row space-x-2">
+                              <SingleSelectDropDown
+                                options={getOptionsByFieldId(field.id)}
+                                onChange={(value) => {
+                                  console.log('value', value);
+
+                                  setCond((prevState) => {
+                                    return {
+                                      ...prevState,
+                                      virtual: value.id,
+                                    };
+                                  });
+                                }}
+                              />
+                            </div>
                           ) : (
                             <div className="w-3/4 flex flex-row space-x-2">
                               <MultipleSelectDropDown
                                 options={getOptionsByFieldId(field.id)}
-                                // onChange={(options) => {
-                                //   const newFields = selectedSearchFields.map((f) =>
-                                //     f.id === field.id ? { ...f, selectedOptions: options } : f
-                                //   );
-                                //   setSelectedSearchFields(newFields);
-                                // }}
+                                onChange={(value) => {
+                                  setCond((prevState) => {
+                                    return {
+                                      ...prevState,
+                                      [field.id]: selectedValues(value),
+                                    };
+                                  });
+                                }}
                               />
                             </div>
                           )}
