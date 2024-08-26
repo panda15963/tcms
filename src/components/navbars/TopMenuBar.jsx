@@ -534,6 +534,7 @@ const TopMenuBar = () => {
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
+                          {/* 로그 검색 */}
                           {labels.logSearch}
                         </label>
                         <button
@@ -549,10 +550,8 @@ const TopMenuBar = () => {
                       </div>
                       <LogModal ref={logModalRef} />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label
-                          className="rounded-md px-3 py-2 text-sm font-bold text-white"
-                          style={{ width: '120px' }}
-                        >
+                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
+                          {/* 공간 검색 */}
                           {labels.spaceSearch}
                         </label>
                         <button
