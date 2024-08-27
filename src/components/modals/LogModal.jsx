@@ -106,6 +106,9 @@ const LogModal = forwardRef((_props, ref) => {
   const [targetList, setTargetList] = useState(initialList);
   const [tagList, setTagList] = useState(initialList);
   const [list, setList] = useState(initialList);
+  const [selectedTopFeature, setSelectedTopFeature] = useState(null);
+  const [filteredBottomOptions, setFilteredBottomOptions] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   // 언어에 따른 라벨 설정
   const labels =
@@ -145,12 +148,23 @@ const LogModal = forwardRef((_props, ref) => {
     MAIN_FEATURE();
     MAIN_TARGET();
     MAIN_TAG();
+
+    console.log('유즈이팩 featureList', featureList);
+
+    if (featureList.length > 0) {
+      handleTopFeatureChange(featureList.featureTop[0]);
+    }
   }, []);
 
   useEffect(() => {
     console.log('[LIST]유즈이팩 실행 체크 ==>');
-    console.log('useEffect of list ==>', list);
-  }, [list]);
+    console.log('useEffect of selectedSearchFields ==>', selectedSearchFields);
+    // selectedOptions는 선택된 필드의 객체 리스트로 가정합니다.
+    const ids = selectedSearchFields.map((option) => option.id);
+
+    console.log('ids ==>', ids);
+    setSelectedIds(ids); // 선택된 ID 리스트를 업데이트
+  }, [selectedSearchFields]);
 
   /**
    * Find 클릭 이벤트
@@ -161,13 +175,13 @@ const LogModal = forwardRef((_props, ref) => {
 
     const condTmp = {
       searchWord: cond.searchWord,
-      continent: cond.continent,
-      region: cond.region,
-      priority: cond.priority,
-      target: cond.target,
-      format: cond.format,
-      feature: '',
-      virtual: cond.virtual,
+      continent: selectedIds.includes('continent') ? cond.continent : '',
+      region: selectedIds.includes('region') ? condTmp.region : '',
+      priority: selectedIds.includes('priority') ? condTmp.priority : '',
+      target: selectedIds.includes('target') ? condTmp.target : '',
+      format: selectedIds.includes('format') ? condTmp.format : '',
+      feature: selectedIds.includes('feature') ? condTmp.feature : '',
+      virtual: selectedIds.includes('virtual') ? condTmp.virtual : '',
       tag: '',
       group_id: -1,
       operation: 0,
@@ -385,6 +399,38 @@ const LogModal = forwardRef((_props, ref) => {
   };
 
   /**
+   * handleTopFeatureChange
+   */
+  const handleTopFeatureChange = (selectedOption) => {
+    console.log('handleTopFeatureChange of selectedOption ==>', selectedOption);
+
+    setSelectedTopFeature(selectedOption);
+
+    console.log('featureList.featureBottom', featureList.featureBottom);
+
+    if (!Array.isArray(selectedOption) || selectedOption.length === 0) {
+      setFilteredBottomOptions([]);
+      return;
+    }
+
+    const filteredOptions = featureList.featureBottom.filter((option) => {
+      // selectedOption 리스트에 있는 항목들 중 하나라도 해당 범위에 포함되면 true
+      return selectedOption.some((selected) => {
+        if (selected.id === 'all') {
+          return true; // 'all'을 선택한 경우 모든 항목을 포함
+        }
+        const selectedIdBase = Math.floor(selected.id / 1000) * 1000;
+        return (
+          option.id >= selectedIdBase + 1 && option.id < selectedIdBase + 1000
+        );
+      });
+    });
+
+    console.log('filteredOptions ==>', filteredOptions);
+    setFilteredBottomOptions(filteredOptions);
+  };
+
+  /**
    * MAIN TARGET API
    */
   const MAIN_TARGET = async () => {
@@ -458,6 +504,9 @@ const LogModal = forwardRef((_props, ref) => {
     }
   };
 
+  /**
+   * SelectedValues
+   */
   const selectedValues = (value) => {
     console.log('selectedValues of value ==>', value);
 
@@ -475,6 +524,19 @@ const LogModal = forwardRef((_props, ref) => {
         } else {
           return item.id.toUpperCase();
         }
+      })
+      .join(',');
+  };
+
+  /**
+   * SelectedValuesFeature
+   */
+  const selectedValuesFeature = (value) => {
+    console.log('selectedValuesFeature of value ==>', value);
+
+    return value
+      .map((item) => {
+        return item.name;
       })
       .join(',');
   };
@@ -521,6 +583,7 @@ const LogModal = forwardRef((_props, ref) => {
                     className="flex items-center justify-start z-20"
                   >
                     <span className="w-1/5 text-md font-semibold text-slate-700 text-center">
+                      {/* 검색 필드 */}
                       {labels.searchFields}
                     </span>
                     <MultipleSelectDropDown
@@ -567,26 +630,26 @@ const LogModal = forwardRef((_props, ref) => {
                               // }}
                             />
                           ) : field.id === 'feature' ? (
+                            // feature 기능
                             <div className="w-3/4 flex flex-row space-x-2">
                               <MultipleSelectDropDown
-                                options={getOptionsByFieldId(`${field.id}-1`)}
+                                // options={getOptionsByFieldId(`${field.id}-1`)}
+                                options={featureList.featureTop}
                                 className="flex-1"
-                                // onChange={(options) => {
-                                //   const newFields = selectedSearchFields.map((f) =>
-                                //     f.id === field.id ? { ...f, selectedOptions1: options } : f
-                                //   );
-                                //   setSelectedSearchFields(newFields);
-                                // }}
+                                onChange={handleTopFeatureChange}
                               />
                               <MultipleSelectDropDown
-                                options={getOptionsByFieldId(`${field.id}-2`)}
+                                // options={getOptionsByFieldId(`${field.id}-2`)}
+                                options={filteredBottomOptions}
                                 className="flex-1"
-                                // onChange={(options) => {
-                                //   const newFields = selectedSearchFields.map((f) =>
-                                //     f.id === field.id ? { ...f, selectedOptions2: options } : f
-                                //   );
-                                //   setSelectedSearchFields(newFields);
-                                // }}
+                                onChange={(value) => {
+                                  setCond((prevState) => {
+                                    return {
+                                      ...prevState,
+                                      feature: selectedValuesFeature(value),
+                                    };
+                                  });
+                                }}
                               />
                             </div>
                           ) : field.id === 'tag' ? (
