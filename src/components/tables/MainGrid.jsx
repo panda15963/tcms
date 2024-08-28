@@ -39,6 +39,22 @@ const defaultColumns = [
   {
     accessorKey: 'map',
     header: 'Map',
+    cell: ({ row }) => {
+      const imagePath = row.original.imagePath;
+      console.log('imagePath', imagePath);
+
+      return imagePath ? (
+        <img
+          src={`http://192.168.0.88/images${imagePath.replace('/testcourse/image', '')}`}
+          // src={`http://192.168.0.88${imagePath}`}
+          // src={imagePath}
+          alt="Map"
+          style={{ width: '100px', height: 'auto' }}
+        />
+      ) : (
+        'No Map Available'
+      );
+    },
   },
 ];
 
@@ -93,7 +109,7 @@ const MainGrid = ({ list }) => {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-6 py-3 border-2 text-center text-sm font-bold text-black uppercase tracking-wider"
+                  className="px-3 py-2 border-2 text-center text-sm font-bold text-black uppercase tracking-wider"
                 >
                   {/* 헤더 렌더링 */}
                   {header.isPlaceholder

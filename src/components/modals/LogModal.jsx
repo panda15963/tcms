@@ -173,18 +173,21 @@ const LogModal = forwardRef((_props, ref) => {
     setLoading(true);
     setError(null);
 
+    console.log('cond.operation', cond.operation);
+    console.log('selectedIds', selectedIds);
+
     const condTmp = {
       searchWord: cond.searchWord,
       continent: selectedIds.includes('continent') ? cond.continent : '',
-      region: selectedIds.includes('region') ? condTmp.region : '',
-      priority: selectedIds.includes('priority') ? condTmp.priority : '',
-      target: selectedIds.includes('target') ? condTmp.target : '',
-      format: selectedIds.includes('format') ? condTmp.format : '',
-      feature: selectedIds.includes('feature') ? condTmp.feature : '',
-      virtual: selectedIds.includes('virtual') ? condTmp.virtual : '',
-      tag: '',
+      region: selectedIds.includes('region') ? cond.region : '',
+      priority: selectedIds.includes('priority') ? cond.priority : '',
+      target: selectedIds.includes('target') ? cond.target : '',
+      format: selectedIds.includes('format') ? cond.format : '',
+      feature: selectedIds.includes('feature') ? cond.feature : '',
+      virtual: selectedIds.includes('virtual') ? cond.virtual : '',
+      tag: selectedIds.includes('tag') ? cond.tag : '',
       group_id: -1,
-      operation: 0,
+      operation: selectedIds.includes('tag') ? cond.operation : 0,
     };
 
     // const condTmp = {
@@ -541,6 +544,28 @@ const LogModal = forwardRef((_props, ref) => {
       .join(',');
   };
 
+  /**
+   * SelectedValuesTag
+   */
+  const selectedValuesTag = (value) => {
+    console.log('selectedValuesTag of value ==>', value);
+
+    return value
+      .map((item) => {
+        return item.name;
+      })
+      .join(',');
+  };
+
+  // 라디오 버튼 클릭 시 호출되는 핸들러
+  const handleRadioChange = (event) => {
+    console.log('event.target.value', event.target.value);
+
+    const value = event.target.value === 'AND' ? 0 : 1;
+    console.log('handleRadioChange of value ==>', value);
+    return value;
+  };
+
   return (
     <Transition show={open}>
       <Dialog className="relative z-50" onClose={() => setOpen(false)}>
@@ -657,12 +682,14 @@ const LogModal = forwardRef((_props, ref) => {
                               <MultipleSelectDropDown
                                 options={getOptionsByFieldId(`${field.id}`)}
                                 className="flex-1"
-                                // onChange={(options) => {
-                                //   const newFields = selectedSearchFields.map((f) =>
-                                //     f.id === field.id ? { ...f, selectedOptions1: options } : f
-                                //   );
-                                //   setSelectedSearchFields(newFields);
-                                // }}
+                                onChange={(value) => {
+                                  setCond((prevState) => {
+                                    return {
+                                      ...prevState,
+                                      tag: selectedValuesTag(value),
+                                    };
+                                  });
+                                }}
                               />
                               <div className="flex items-center space-x-2">
                                 <label className="flex items-center">
@@ -671,6 +698,15 @@ const LogModal = forwardRef((_props, ref) => {
                                     name={`${field.id}-option`}
                                     value="AND"
                                     className="form-radio"
+                                    checked={cond.operation === 0} // AND가 기본으로 선택됨
+                                    onChange={(value) => {
+                                      setCond((prevState) => {
+                                        return {
+                                          ...prevState,
+                                          operation: handleRadioChange(value),
+                                        };
+                                      });
+                                    }}
                                   />
                                   <span className="ml-1">AND</span>
                                 </label>
@@ -680,6 +716,15 @@ const LogModal = forwardRef((_props, ref) => {
                                     name={`${field.id}-option`}
                                     value="OR"
                                     className="form-radio"
+                                    checked={cond.operation === 1}
+                                    onChange={(value) => {
+                                      setCond((prevState) => {
+                                        return {
+                                          ...prevState,
+                                          operation: handleRadioChange(value),
+                                        };
+                                      });
+                                    }}
                                   />
                                   <span className="ml-1">OR</span>
                                 </label>
