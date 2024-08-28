@@ -9,6 +9,23 @@ import { useEffect, useMemo, useState } from 'react';
 // 테이블의 기본 컬럼 정의
 const defaultColumns = [
   {
+    accessorKey: 'select',
+    header: ({ table }) => (
+      <input
+        type="checkbox"
+        checked={table.getIsAllRowsSelected()}
+        onChange={table.getToggleAllRowsSelectedHandler()}
+      />
+    ),
+    cell: ({ row }) => (
+      <input
+        type="checkbox"
+        checked={row.getIsSelected()}
+        onChange={row.getToggleSelectedHandler()}
+      />
+    ),
+  },
+  {
     accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
     header: 'Uploaded date', // 컬럼 헤더에 표시될 텍스트
   },
@@ -41,16 +58,36 @@ const defaultColumns = [
     header: 'Map',
     cell: ({ row }) => {
       const imagePath = row.original.imagePath;
-      console.log('imagePath', imagePath);
+      // console.log('imagePath', imagePath);
+
+      const [showModal, setShowModal] = useState(false);
 
       return imagePath ? (
-        <img
-          src={`http://192.168.0.88/images${imagePath.replace('/testcourse/image', '')}`}
-          // src={`http://192.168.0.88${imagePath}`}
-          // src={imagePath}
-          alt="Map"
-          style={{ width: '100px', height: 'auto' }}
-        />
+        <>
+          <img
+            src={`http://192.168.0.88/images${imagePath.replace('/testcourse/image', '')}`}
+            // alt="Map"
+            style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
+            onClick={() => setShowModal(true)} // 이미지 클릭 시 모달 표시
+          />
+          {showModal && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white p-4">
+                <img
+                  src={`http://192.168.0.88/images${imagePath.replace('/testcourse/image', '')}`}
+                  // alt="Map Large"
+                  style={{ width: '900px', height: 'auto' }}
+                />
+                <button
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white"
+                  onClick={() => setShowModal(false)} // 닫기 버튼
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       ) : (
         'No Map Available'
       );
@@ -129,7 +166,7 @@ const MainGrid = ({ list }) => {
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
-                  className="px-6 py-4 whitespace-nowrap text-center border-2 text-sm text-black"
+                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-sm text-black"
                 >
                   {/* 셀 렌더링 */}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
