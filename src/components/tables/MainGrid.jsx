@@ -118,9 +118,10 @@ const defaultData = [
 ];
 
 // MainGrid 컴포넌트 정의
-const MainGrid = ({ list }) => {
+const MainGrid = ({ list, onSelectionChange }) => {
   const columns = useMemo(() => defaultColumns, []);
   const [data, setData] = useState(list ?? initialData);
+  const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
     console.log('useEffect LIST ==>', list);
@@ -136,6 +137,26 @@ const MainGrid = ({ list }) => {
     getCoreRowModel: getCoreRowModel(), // 기본 행 모델을 가져오는 함수 사용
     state: {}, // 테이블의 상태
   });
+
+  // 선택된 행의 데이터 추출
+  // useEffect(() => {
+  //   const selectedRows = table
+  //     .getSelectedRowModel()
+  //     .rows.map((row) => row.original);
+  //   onSelectionChange(selectedRows);
+  // }, [table.getSelectedRowModel().rows, onSelectionChange]);
+
+  useEffect(() => {
+    const currentSelectedRows = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original);
+
+    // 선택된 행이 변경될 때만 상태 업데이트
+    if (JSON.stringify(currentSelectedRows) !== JSON.stringify(selectedRows)) {
+      setSelectedRows(currentSelectedRows);
+      onSelectionChange(currentSelectedRows); // 부모 컴포넌트로 업데이트된 선택된 행 전달
+    }
+  }, [table.getSelectedRowModel().rows]);
 
   return (
     <div className="my-2 h-96 block overflow-x-auto">

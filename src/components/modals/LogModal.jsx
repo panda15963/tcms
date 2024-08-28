@@ -109,6 +109,7 @@ const LogModal = forwardRef((_props, ref) => {
   const [selectedTopFeature, setSelectedTopFeature] = useState(null);
   const [filteredBottomOptions, setFilteredBottomOptions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedData, setSelectedData] = useState([]);
 
   // 언어에 따른 라벨 설정
   const labels =
@@ -119,7 +120,7 @@ const LogModal = forwardRef((_props, ref) => {
           find: 'Find',
           downloadDir: 'Download directory',
           download: 'Download',
-          ok: 'OK',
+          select: 'SELECT',
         }
       : {
           modalName: '로그 검색',
@@ -127,10 +128,10 @@ const LogModal = forwardRef((_props, ref) => {
           find: '찾기',
           downloadDir: '다운로드 경로',
           download: '다운로드',
-          ok: '확인',
+          select: '선택',
         };
 
-  console.log('countryList', countryList);
+  // console.log('countryList', countryList);
 
   /**
    * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
@@ -566,6 +567,20 @@ const LogModal = forwardRef((_props, ref) => {
     return value;
   };
 
+  const handleSelectionChange = (selectedRows) => {
+    setSelectedData(selectedRows);
+  };
+
+  const handleButtonClick = () => {
+    // 선택된 데이터를 RightSideSlide, LeftSideSlide, GoogleMap에 전달
+    console.log('Selected data to pass:', selectedData);
+    // 예: setRightSideData(selectedData);
+    // 예: setLeftSideData(selectedData);
+    // 예: setGoogleMapData(selectedData);
+
+    setOpen(false);
+  };
+
   return (
     <Transition show={open}>
       <Dialog className="relative z-50" onClose={() => setOpen(false)}>
@@ -797,8 +812,11 @@ const LogModal = forwardRef((_props, ref) => {
                       </pre>
                     </div>
                   )}
-                  <MainGrid list={list} />
-                  <div
+                  <MainGrid
+                    list={list}
+                    onSelectionChange={handleSelectionChange}
+                  />
+                  {/* <div
                     id="download_container"
                     className="grid grid-cols-[20%_1fr_15%] items-center"
                   >
@@ -825,14 +843,17 @@ const LogModal = forwardRef((_props, ref) => {
                         {labels.download}
                       </button>
                     </div>
-                  </div>
+                  </div> */}
                   <div className="flex justify-end mt-3">
-                    <button className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500">
+                    <button
+                      onClick={handleButtonClick}
+                      className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
+                    >
                       <FaCheck
                         className="-ml-0.5 h-5 w-5 text-slate-700"
                         aria-hidden="true"
                       />
-                      {labels.ok}
+                      {labels.select}
                     </button>
                   </div>
                 </div>
