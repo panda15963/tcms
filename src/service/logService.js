@@ -3,7 +3,7 @@ import { axiosInstance } from '../server/AxiosConfig';
 const logService = {
   MAIN_COUNTRY: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await axiosInstance
+    const result = await nonAuthInstance
       .get('/main/country', cond, {
         cancelToken,
       })
@@ -29,7 +29,7 @@ const logService = {
   },
   MAIN_FEATURE: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await axiosInstance
+    const result = await nonAuthInstance
       .get('/main/feature', cond, {
         cancelToken,
       })
@@ -55,7 +55,7 @@ const logService = {
   },
   MAIN_TARGET: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await axiosInstance
+    const result = await nonAuthInstance
       .get('/main/target', cond, {
         cancelToken,
       })
@@ -81,7 +81,7 @@ const logService = {
   },
   MAIN_TAG: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await axiosInstance
+    const result = await nonAuthInstance
       .get('/main/tag', cond, {
         cancelToken,
       })
@@ -107,7 +107,7 @@ const logService = {
   },
   FIND_META: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await axiosInstance
+    const result = await nonAuthInstance
       .post('/find/findMeta/10003', cond, {
         cancelToken,
       })
@@ -133,7 +133,7 @@ const logService = {
   },
   FIND_META_10009: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await axiosInstance
+    const result = await nonAuthInstance
       .post('/find/findMeta/10009', cond, {
         cancelToken,
       })
@@ -159,7 +159,7 @@ const logService = {
   },
   FIND_META_10100: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await axiosInstance
+    const result = await nonAuthInstance
       .post('/find/findMeta/10100', cond, {
         cancelToken,
       })
