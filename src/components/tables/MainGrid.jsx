@@ -62,10 +62,14 @@ const defaultColumns = [
 
       const [showModal, setShowModal] = useState(false);
 
+      // 포트 번호(:8080)와 '/api' 제거
+      const baseURL = process.env.REACT_APP_BASEURL.replace(':8080/api', '');
+      // console.log('baseURL', baseURL);
+
       return imagePath ? (
         <>
           <img
-            src={`http://192.168.0.88/images${imagePath.replace('/testcourse/image', '')}`}
+            src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
             // alt="Map"
             style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
             onClick={() => setShowModal(true)} // 이미지 클릭 시 모달 표시
@@ -74,7 +78,7 @@ const defaultColumns = [
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
               <div className="bg-white p-4">
                 <img
-                  src={`http://192.168.0.88/images${imagePath.replace('/testcourse/image', '')}`}
+                  src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
                   // alt="Map Large"
                   style={{ width: '900px', height: 'auto' }}
                 />
