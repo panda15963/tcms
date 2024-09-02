@@ -1,4 +1,4 @@
-import { axiosInstance } from '../server/AxiosConfig';
+import { axiosInstance, nonAuthInstance } from '../server/AxiosConfig';
 
 const logService = {
   MAIN_COUNTRY: async (obj) => {

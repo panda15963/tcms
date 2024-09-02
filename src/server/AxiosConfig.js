@@ -30,7 +30,6 @@ export const nonAuthInstance = axios.create({
    */
   baseURL: baseURL, // API 서버의 기본 URL
   timeout: timeout, // 요청 타임아웃 설정
-  withCredentials: true, // 자격 증명(쿠키 등) 포함 여부 설정
   headers: {
     'Content-Type': 'application/json', // JSON 요청을 위한 Content-Type 헤더
     'Access-Control-Allow-Origin': '*', // 모든 도메인에서의 요청 허용
