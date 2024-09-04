@@ -27,7 +27,7 @@ export default function MultipleSelectDropDown({ options, onChange }) {
    * 모든 항목이 선택되었는지 확인하는 상태
    * 선택된 항목의 수가 옵션의 수보다 적으면 'Select all'이 활성화됩니다.
    */
-  const isSelectAllEnabled = selectedFields.length < options.length;
+  const isSelectAllEnabled = selectedFields.length < (options || []).length;
 
   /**
    * 선택된 항목이 존재하는지 확인하는 상태
@@ -74,7 +74,7 @@ export default function MultipleSelectDropDown({ options, onChange }) {
    * 옵션을 필터링하는 함수
    * 사용자가 입력한 검색어(query)에 따라 옵션 목록을 필터링합니다.
    */
-  const filteredOptions = options.filter(
+  const filteredOptions = (options || []).filter(
     (option) =>
       option.name && option.name.toLowerCase().includes(query.toLowerCase()),
   );

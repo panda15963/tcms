@@ -1,60 +1,25 @@
 import { useState } from 'react';
 import { FaLongArrowAltLeft, FaLongArrowAltRight } from 'react-icons/fa';
-import { useLanguage } from '../../context/LanguageProvider';
+import { useTranslation } from 'react-i18next';
 
 // 컴포넌트 정의
 export default function StoreTable({ stores, onDataReceive }) {
-  const { language } = useLanguage(); // 언어 설정을 가져옴 (영어/한국어)
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 관리
   const [storesPerPage] = useState(5); // 페이지당 표시할 지점 수 설정
+  const { t } = useTranslation(); // 다국어 처리를 위한 useTranslation 훅 사용
 
-  /**
-   * 테이블 헤더를 정의하는 부분
-   * 언어에 따라 헤더의 제목이 다르게 설정됩니다.
-   */
-  const tableHeader =
-    language === 'ENG'
-      ? [
-          { title: 'Store Names', key: 'name' }, // 영어 버전의 첫 번째 컬럼 제목
-          { title: 'Latitudes', key: 'latitude' }, // 영어 버전의 두 번째 컬럼 제목
-          { title: 'Longitudes', key: 'longitude' }, // 영어 버전의 세 번째 컬럼 제목
-        ]
-      : [
-          { title: '지점 이름', key: 'name' }, // 한국어 버전의 첫 번째 컬럼 제목
-          { title: '위도', key: 'latitude' }, // 한국어 버전의 두 번째 컬럼 제목
-          { title: '경도', key: 'longitude' }, // 한국어 버전의 세 번째 컬럼 제목
-        ];
-
-  /**
-   * 라벨 설정
-   * 현재 언어에 따라 표시되는 버튼 및 메시지 내용이 다릅니다.
-   */
-  const labels =
-    language === 'ENG'
-      ? {
-          noResult: 'No search results',
-          noStore: 'No stores found',
-          oneStore: '1 store(area) found',
-          previousButton: 'Previous',
-          nextButton: 'Next',
-          paginationText: (totalStores, firstStore, lastStore) =>
-            `Showing ${firstStore} to ${lastStore} of ${totalStores} stores.`,
-        }
-      : {
-          noResult: '검색 결과가 없습니다.',
-          noStore: '검색된 지점(지역)이 없습니다.',
-          oneStore: '1개의 지점(지역)이 검색 되었습니다.',
-          previousButton: '이전',
-          nextButton: '다음',
-          paginationText: (totalStores, firstStore, lastStore) =>
-            `검색된 ${totalStores}개 중 ${firstStore} ~ ${lastStore}번째를 보여주고 있습니다.`,
-        };
+  // 테이블 헤더를 t 함수로 렌더링
+  const TableHeader = [
+    { id: 1, name: t('StoreTable.StoreNames') },
+    { id: 2, name: t('Common.Latitude') },
+    { id: 3, name: t('Common.Longitude') },
+  ];
 
   // 현재 페이지에 표시할 지점 범위를 계산하는 부분
   const indexOfLastStore = currentPage * storesPerPage; // 현재 페이지의 마지막 지점 인덱스 계산
   const indexOfFirstStore = indexOfLastStore - storesPerPage; // 현재 페이지의 첫 번째 지점 인덱스 계산
   const currentStores = stores.slice(indexOfFirstStore, indexOfLastStore); // 현재 페이지에 표시할 지점 목록 슬라이싱
-
+  
   /**
    * 페이지 변경을 처리하는 함수
    * @param {number} pageNumber - 변경할 페이지 번호
@@ -91,62 +56,71 @@ export default function StoreTable({ stores, onDataReceive }) {
         <thead className="bg-gray-100 border-2">
           <tr>
             {/* 테이블 헤더 렌더링 */}
-            {tableHeader.map((header) => (
+            {TableHeader.map((header) => (
               <th
-                key={header.key}
-                className={`px-6 py-3 border-2 text-center text-sm font-bold text-black tracking-wider`}
+                key={header.id}
+                className="px-6 py-3 text-center text-sm font-bold text-black uppercase tracking-wider"
               >
-                {header.title}
+                {header.name}
               </th>
             ))}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
           {/* 검색 결과가 없을 경우 메시지 표시 */}
-          {currentStores.length === 0 ? (
+          {stores.length === 0 && (
             <tr>
-              <td
-                colSpan={tableHeader.length}
-                className="text-center border-2 border-gray-300 px-6 py-4 text-sm text-black"
-              >
-                {stores.length === 0 ? labels.noStore : labels.noResult}
+              <td colSpan="3" className="text-center py-4">
+                {t('StoreTable.NoStores')}
               </td>
             </tr>
-          ) : (
-            // 검색된 지점 데이터 렌더링
-            currentStores.map((store) => (
+          )}
+
+          {/* 테이블 데이터 렌더링 */}
+          {currentStores.map((store) => {
+            const storeData = [
+              store.name,
+              store.latitude.toFixed(6),
+              store.longitude.toFixed(6),
+            ];
+            return (
               <tr
                 key={store.id}
-                onClick={() => getCoord(store)} // 클릭 시 해당 지점의 좌표를 부모 컴포넌트에 전달
                 className="cursor-pointer hover:bg-gray-100"
+                onClick={() => getCoord(store)}
               >
-                {tableHeader.map((header) => (
+                {storeData.map((data, index) => (
                   <td
-                    key={header.key}
-                    className="px-6 py-4 whitespace-nowrap text-center border-2 text-sm text-black"
+                    key={index}
+                    className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900"
                   >
-                    {store[header.key]} {/* 데이터 출력 */}
+                    {data}
                   </td>
                 ))}
               </tr>
-            ))
-          )}
+            );
+          })}
         </tbody>
       </table>
 
       <div className="flex items-center justify-between border-gray-200 bg-white py-3 sm:px-6">
         {/* 검색된 지점 수 및 현재 페이지 정보 표시 */}
         {stores.length === 1 ? (
-          <span className="text-sm px-5 text-gray-700">{labels.oneStore}</span>
+          <span className="text-sm px-5 text-gray-700">
+            {t('StoreTable.OneStore')}
+          </span>
         ) : stores.length === 0 ? (
-          <span className="text-sm px-5 text-gray-700">{labels.noStore}</span>
+          <span className="text-sm px-5 text-gray-700">
+            {t('StoreTable.NoStores')}
+          </span>
         ) : (
           <span className="text-sm px-5 text-gray-700">
-            {labels.paginationText(
-              stores.length,
-              indexOfFirstStore + 1,
-              Math.min(indexOfLastStore, stores.length),
-            )}
+            {t('StoreTable.PaginationText', {
+              first: indexOfFirstStore + 1,
+              last: Math.min(indexOfLastStore, stores.length),
+              total: stores.length,
+            }) ||
+              `Showing ${indexOfFirstStore + 1} to ${Math.min(indexOfLastStore, stores.length)} of ${stores.length} stores`}
           </span>
         )}
 
@@ -167,7 +141,7 @@ export default function StoreTable({ stores, onDataReceive }) {
               disabled={indexOfFirstStore === 0}
             >
               <FaLongArrowAltLeft className="w-5 h-5 mr-2" />
-              {labels.previousButton}
+              {t('StoreTable.PreviousButton')}
             </button>
 
             {/* 페이지 번호 버튼 */}
@@ -197,7 +171,7 @@ export default function StoreTable({ stores, onDataReceive }) {
               onClick={handleNext}
               disabled={indexOfLastStore >= stores.length}
             >
-              {labels.nextButton}
+              {t('StoreTable.NextButton')}
               <FaLongArrowAltRight className="w-5 h-5 ml-2" />
             </button>
           </div>

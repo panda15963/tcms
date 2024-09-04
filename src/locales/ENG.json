@@ -1,0 +1,109 @@
+{
+  "Common": {
+    "Latitude": "Latitude",
+    "Longitude": "Longitude",
+    "SearchPlaceholder": "Please enter a store",
+    "Map": "Map",
+    "Search": "Search",
+    "All": "ALL"
+  },
+  "NavBar": {
+    "Dashboard": "Dashboard",
+    "UsageRate": "Usage Rate",
+    "Management": "Management",
+    "AdminManagement": "Admin Management",
+    "UserManagement": "User Management",
+    "MyPage": "My Page",
+    "SignOut": "Sign Out"
+  },
+  "TopMenuBar": {
+    "MapSelection": "Map Selection",
+    "StoreSearch": "Store Search",
+    "LogSearch": "Log Search",
+    "SpaceSearch": "Space Search",
+    "CoordsOutput": "Input Coordinates Output",
+    "CopyButton": "Copy",
+    "Copy": {
+      "Success": "Copied to clipboard",
+      "Fail": "Failed to copy to clipboard"
+    },
+    "CoordsNotExistence": "Coordinates do not exist.",
+    "FormatError": "Incorrect DEG format. Please enter the correct format.",
+    "DECError": "must have a decimal point.",
+    "MMSError": "must be an integer.",
+    "DEGError": "must be divided into three parts.",
+    "LatError": "is empty.",
+    "LonError": "is empty.",
+    "CombinedError": "Error occurred in latitude and longitude:",
+    "ErrorInLat": "Error in Latitude",
+    "ErrorInLon": "Error in Longitude",
+    "RangeError": "Out of range.",
+    "WrongCoords": "Incorrect coordinates."
+  },
+  "LogModal": {
+    "ModalName": "Log Search",
+    "SearchFields": "Search Fields",
+    "Find": "Find",
+    "DownloadDir": "Download Directory",
+    "Download": "Download",
+    "Select": "Select",
+    "Loading": "Loading...",
+    "FetchedData": "Fetched Data"
+  },
+  "Fields": {
+    "FindDescription": "Find Description",
+    "Continent": "Continent",
+    "Region": "Region",
+    "Priority": "Priority",
+    "Feature": "Feature",
+    "Target": "Target",
+    "Virtual": "Virtual",
+    "Format": "Format",
+    "Tag": "Tag"
+  },
+  "Priority": {
+    "Top": "Top",
+    "A": "A",
+    "B": "B",
+    "C": "C"
+  },
+  "Format": {
+    "Hippo": "HIPPO (*.hippo)",
+    "Kml": "KML (*.kml)",
+    "Nmea": "NMEA (*.nmea)"
+  },
+  "Virtual": {
+    "VirtualLog": "Virtual Log",
+    "RealLog": "Real Log"
+  },
+  "Continents": {
+    "Africa": "Africa",
+    "Antarctica": "Antarctica",
+    "Asia": "Asia",
+    "Europe": "Europe",
+    "NorthAmerica": "North America",
+    "Oceania": "Oceania",
+    "SouthAmerica": "South America"
+  },
+  "MainGrid": {
+    "UploadedDate": "Uploaded Date",
+    "Name": "Name",
+    "Version": "Version",
+    "Country": "Country",
+    "LogType": "Log Type",
+    "Summary": "Summary"
+  },
+  "StoreModal": {
+    "ModalName": "Store Selection",
+    "SearchName": "Search Name"
+  },
+  "StoreTable": {
+    "StoreNames": "Store Names",
+    "NoResults": "No Results found",
+    "NoStores": "No Stores found",
+    "OneStore": "One Store found",
+    "PreviousButton": "Previous",
+    "NextButton": "Next",
+    "PaginationText": "Showing {{first}} to {{last}} of {{total}} stores"
+  }
+}

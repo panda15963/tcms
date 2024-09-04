@@ -1,98 +1,76 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
   Menu,
   MenuButton,
   MenuItem,
   MenuItems,
   Transition,
   Dialog,
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+  DialogPanel,
 } from '@headlessui/react';
 import { FaXmark, FaBars, FaAngleDown } from 'react-icons/fa6';
 import { Link, useNavigate } from 'react-router-dom';
-import { useLanguage } from '../../context/LanguageProvider'; // Import language context
+import { useTranslation } from 'react-i18next';
 import SwitchLanguages from '../toggles/SwitchLanguages';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
+const NavBar = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
-const Navbar = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // Mobile menu state
-  const navigate = useNavigate(); // For navigation
+  // Define the AuthPage and AccountPage arrays after t is initialized
+  const AuthPage = [
+    { id: 1, name: t('NavBar.AdminManagement'), link: '/main/admins' },
+    { id: 2, name: t('NavBar.UserManagement'), link: '/main/users' },
+  ];
 
-  // Access language context
-  const { language } = useLanguage();
+  const AccountPage = [
+    { id: 1, name: t('NavBar.MyPage'), link: '#' },
+    { id: 2, name: t('NavBar.SignOut') },
+  ];
 
-  // Define menus based on the current language
-  const [navBarMenus, setNavBarMenus] = useState([]);
-  const [profileMenus, setProfileMenus] = useState([]);
-
-  // Update menu items when language changes
   useEffect(() => {
-    if (language === 'ENG') {
-      setNavBarMenus([
-        { title: 'Map', link: '/main/map' },
-        {
-          title: 'Statistics',
-          subMenu: [{ title: 'Usage', link: '/main/dashboard' }],
-        },
-        {
-          title: 'Management',
-          subMenu: [
-            { title: 'Admins', link: '/main/admins' },
-            { title: 'Users', link: '/main/users' },
-          ],
-        },
-      ]);
-      setProfileMenus([{ title: 'My Page', link: '#' }, { title: 'Sign Out' }]);
-    } else {
-      setNavBarMenus([
-        { title: '지도', link: '/main/map' },
-        {
-          title: '통계',
-          subMenu: [{ title: '사용률', link: '/main/dashboard' }],
-        },
-        {
-          title: '관리',
-          subMenu: [
-            { title: '관리자 관리', link: '/main/admins' },
-            { title: '회원 관리', link: '/main/users' },
-          ],
-        },
-      ]);
-      setProfileMenus([
-        { title: '마이페이지', link: '#' },
-        { title: '로그아웃' },
-      ]);
+    const savedLanguage = localStorage.getItem('language') || 'kor';
+    console.log('Saved Language:', savedLanguage);
+    console.log('Current i18n Language:', i18n.language);
+    if (i18n.language === savedLanguage.toLowerCase()) {
+      i18n.changeLanguage(savedLanguage.toLowerCase())
     }
-  }, [language]); // This effect runs whenever the language changes
+  }, [i18n]);
 
-  // Handle link click and close mobile menu
+  const changeLanguage = useCallback(
+    (lng) => {
+      const newLanguage = lng.toLowerCase();
+      if (i18n.language !== newLanguage) {
+        i18n.changeLanguage(newLanguage)
+      }
+    },
+    [i18n.language, i18n]
+  );
+
   const handleLinkClick = (link) => {
     navigate(link);
-    setMobileMenuOpen(false); // Close mobile menu
+    setMobileMenuOpen(false);
   };
 
   return (
-    <header className="bg-white z-30 relative">
+    <header className="bg-white py-2 z-30 relative">
       <nav
-        className="mx-auto max-w-full p-2 lg:px-8 flex justify-between items-center"
+        className="mx-auto max-w-full lg:px-8 flex justify-between items-center"
         aria-label="Global"
       >
         <div className="flex lg:flex-1">
-          {/* Click logo to navigate to map */}
           <Link to="/main/map" className="-m-1.5 p-1.5">
-            <h1 className="text-5xl font-bold font-serif">TCMS</h1>
+            <h1 className="text-5xl px-4 font-bold font-serif">TCMS</h1>
           </Link>
         </div>
         <div className="flex lg:hidden">
-          {/* Mobile menu toggle button */}
           <button
             type="button"
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+            className="inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
@@ -103,48 +81,79 @@ const Navbar = () => {
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-12 text-center">
-          {/* Desktop navigation menu */}
-          {navBarMenus.map((menu, index) => (
-            <Menu key={index} as="div" className="relative">
-              <MenuButton
-                onClick={menu.link ? () => navigate(menu.link) : undefined}
-                className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
-              >
-                {menu.title}
-                {menu.subMenu && (
-                  <FaAngleDown
-                    className="h-5 w-5 flex-none text-gray-400"
-                    aria-hidden="true"
-                  />
-                )}
-              </MenuButton>
-              {menu.subMenu && (
-                <Transition>
-                  <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40">
-                    {menu.subMenu.map((subMenu, subIndex) => (
-                      <MenuItem key={subIndex}>
-                        {({ active }) => (
-                          <Link
-                            to={subMenu.link}
-                            className={classNames(
-                              active ? 'bg-gray-100' : '',
-                              'block px-4 py-2 text-sm text-gray-700 font-bold',
-                            )}
-                          >
-                            {subMenu.title}
-                          </Link>
-                        )}
-                      </MenuItem>
-                    ))}
-                  </MenuItems>
-                </Transition>
-              )}
-            </Menu>
-          ))}
+          <Link to="/main/map" className="text-lg font-semibold">
+            {t('Common.Map')}
+          </Link>
+          <Menu
+            as="div"
+            className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
+          >
+            <MenuButton className="text-lg font-semibold">
+              {t('NavBar.Dashboard')} <FaAngleDown className="inline" />
+            </MenuButton>
+            <Transition
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40">
+                <MenuItem className="font-bold text-center text-lg">
+                  {({ active }) => (
+                    <button
+                      type="button"
+                      className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${
+                        active ? 'bg-gray-100' : ''
+                      }`}
+                      onClick={() => handleLinkClick('/main/dashboard')}
+                    >
+                      {t('NavBar.UsageRate')}
+                    </button>
+                  )}
+                </MenuItem>
+              </MenuItems>
+            </Transition>
+          </Menu>
+          <Menu
+            as="div"
+            className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
+          >
+            <MenuButton className="text-lg font-semibold">
+              {t('NavBar.Management')} <FaAngleDown className="inline" />
+            </MenuButton>
+            <Transition
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40">
+                <MenuItem>
+                  {({ active }) => (
+                    <>
+                      {AuthPage.map((page) => (
+                        <Link
+                          key={page.id}
+                          to={page.link}
+                          className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
+                          onClick={() => handleLinkClick(page.link)}
+                        >
+                          {page.name}
+                        </Link>
+                      ))}
+                    </>
+                  )}
+                </MenuItem>
+              </MenuItems>
+            </Transition>
+          </Menu>
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end py">
-          {/* Language switcher */}
-          <SwitchLanguages />
+          <SwitchLanguages onClick={changeLanguage} />
           <Menu as="div" className="relative ml-3">
             <MenuButton className="flex items-center">
               <img
@@ -153,23 +162,31 @@ const Navbar = () => {
                 alt="Profile Picture"
               />
             </MenuButton>
-            <Transition>
-              <MenuItems className="absolute right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40">
-                {profileMenus.map((item, index) => (
-                  <MenuItem key={index}>
-                    {({ active }) => (
-                      <Link
-                        to={item.link}
-                        className={classNames(
-                          active ? 'bg-gray-100' : '',
-                          'block px-4 py-2 text-sm text-gray-700 font-bold text-center',
-                        )}
-                      >
-                        {item.title}
-                      </Link>
-                    )}
-                  </MenuItem>
-                ))}
+            <Transition
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <MenuItems className="absolute font-bold right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40">
+                <MenuItem>
+                  {({ active }) => (
+                    <>
+                      {AccountPage.map((page) => (
+                        <Link
+                          key={page.id}
+                          to={page.link}
+                          className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 text-center hover:bg-gray-50"
+                          onClick={() => handleLinkClick(page.link)}
+                        >
+                          {page.name}
+                        </Link>
+                      ))}
+                    </>
+                  )}
+                </MenuItem>
               </MenuItems>
             </Transition>
           </Menu>
@@ -181,63 +198,59 @@ const Navbar = () => {
         onClose={setMobileMenuOpen}
         className="lg:hidden"
       >
-        <Dialog.Panel
+        <DialogPanel
           focus="true"
           className="fixed inset-0 z-10 overflow-y-auto bg-white"
         >
-          <div className="flex justify-between items-center p-6">
-            <div>
-              <h1 className="text-5xl font-bold font-serif">TCMS</h1>
-            </div>
-            <div>
-              <button
-                type="button"
-                className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span className="sr-only">Close main menu</span>
-                <FaXmark className="h-6 w-6" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
+          <div className="flex justify-between items-center p-6"></div>
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {navBarMenus.map((menu, index) => (
-              <div key={index}>
-                {menu.title === '지도' ? (
-                  <button
-                    onClick={() => handleLinkClick(menu.link)}
-                    className="block w-full text-left px-4 py-2 text-sm font-semibold leading-6 text-gray-900"
+            {/* Map link should be clearly visible and separate from Disclosure */}
+            <Link
+              to="/main/map"
+              className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
+              onClick={() => handleLinkClick('/main/map')}
+            >
+              {t('Common.Map')}
+            </Link>
+
+            <Disclosure as="div">
+              <DisclosureButton className="flex justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
+                {t('NavBar.Dashboard')}
+                <FaAngleDown className="h-6 w-6" aria-hidden="true" />
+              </DisclosureButton>
+              <DisclosurePanel className="px-3 py-1 text-sm text-gray-700">
+                <Link
+                  to="/main/dashboard"
+                  className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
+                  onClick={() => handleLinkClick('/main/dashboard')}
+                >
+                  {t('NavBar.UsageRate')}
+                </Link>
+              </DisclosurePanel>
+            </Disclosure>
+
+            <Disclosure as="div">
+              <DisclosureButton className="flex justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
+                {t('NavBar.Management')}
+                <FaAngleDown className="h-6 w-6" aria-hidden="true" />
+              </DisclosureButton>
+              <DisclosurePanel className="px-3 py-1 text-sm text-gray-700">
+                {AuthPage.map((page) => (
+                  <Link
+                    key={page.id}
+                    to={page.link}
+                    className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
+                    onClick={() => handleLinkClick(page.link)}
                   >
-                    {menu.title}
-                  </button>
-                ) : (
-                  <Disclosure>
-                    <DisclosureButton className="flex justify-between w-full px-4 py-2 text-sm font-semibold leading-6 text-gray-900">
-                      {menu.title}
-                      {menu.subMenu && (
-                        <FaAngleDown
-                          className="h-5 w-5 flex-none text-gray-400"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </DisclosureButton>
-                    <DisclosurePanel className="px-2 py-1">
-                      {menu.subMenu &&
-                        menu.subMenu.map((subMenu, subIndex) => (
-                          <button
-                            key={subIndex}
-                            onClick={() => handleLinkClick(subMenu.link)}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 font-bold"
-                          >
-                            {subMenu.title}
-                          </button>
-                        ))}
-                    </DisclosurePanel>
-                  </Disclosure>
-                )}
-              </div>
-            ))}
-            <SwitchLanguages />
+                    {page.name}
+                  </Link>
+                ))}
+              </DisclosurePanel>
+            </Disclosure>
+          </div>
+
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            <SwitchLanguages onClick={changeLanguage} />
           </div>
 
           <div className="px-2 pb-3 border-t border-gray-200">
@@ -246,20 +259,21 @@ const Navbar = () => {
               src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
               alt="Profile Picture"
             />
-            {profileMenus.map((item, index) => (
+            {AccountPage.map((page) => (
               <Link
-                key={index}
-                to={item.link}
-                className="block px-4 py-2 text-sm text-gray-700 font-bold"
+                key={page.id}
+                to={page.link}
+                className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
+                onClick={() => handleLinkClick(page.link)}
               >
-                {item.title}
+                {page.name}
               </Link>
             ))}
           </div>
-        </Dialog.Panel>
+        </DialogPanel>
       </Dialog>
     </header>
   );
 };
 
-export default Navbar;
+export default NavBar;

@@ -13,7 +13,7 @@ import { TMapSearch } from '../searchResults/TMapSearch';
 import { RoutoSearch } from '../searchResults/RoutoSearch';
 import { TomTomSearch } from '../searchResults/TomTomSearch';
 import { BaiduSearch } from '../searchResults/BaiduSearch';
-import { useLanguage } from '../../context/LanguageProvider';
+import { useTranslation } from 'react-i18next';
 
 const StoreModal = forwardRef(
   (
@@ -25,26 +25,10 @@ const StoreModal = forwardRef(
     },
     ref,
   ) => {
-    const { language } = useLanguage(); // 언어 설정을 가져옴 (영어/한국어)
     const [open, setOpen] = useState(false); // 모달의 열림 상태를 관리
     const [searches, setSearches] = useState([]); // 검색 결과를 저장하는 상태
     const [searchQuery, setSearchQuery] = useState(''); // 검색어를 저장하는 상태
-
-    // 언어에 따른 라벨 설정 (영어/한국어)
-    const labels =
-      language === 'ENG'
-        ? {
-            modalName: 'Search Point',
-            searchPlaceholder: 'Type here',
-            searchName: 'Search Name',
-            search: 'Search',
-          }
-        : {
-            modalName: '지점 선택',
-            searchPlaceholder: '입력하세요.',
-            searchName: '검색어',
-            search: '검색',
-          };
+    const { t } = useTranslation(); // i18n 훅을 사용하여 번역 함수를 가져옴
 
     /**
      * Enter 키가 눌렸을 때 검색을 실행하는 useEffect 훅
@@ -171,7 +155,7 @@ const StoreModal = forwardRef(
                   {/* 모달 헤더 */}
                   <div className="flex justify-between py-3 px-5 bg-blue_ncs rounded-t-lg">
                     <h1 className="font-semibold pl-3 text-white">
-                      {labels.modalName}
+                      {t('StoreModal.ModalName')}
                     </h1>
                     <MdClose
                       className="text-white font-semibold size-6"
@@ -188,13 +172,13 @@ const StoreModal = forwardRef(
                             as="h3"
                             className="text-base font-semibold leading-6"
                           >
-                            {labels.searchName}
+                            {t('StoreModal.SearchName')}
                           </DialogTitle>
                           {/* 검색 입력 필드 */}
                           <input
                             type="text"
                             className="pl-4 border border-black text-black p-1 rounded-md"
-                            placeholder={labels.searchPlaceholder}
+                            placeholder={t('Common.SearchPlaceholder')}
                             defaultValue={bringValue}
                             onKeyPress={handleEnter} // Enter 키 눌림 감지
                             onChange={(e) => setSearchQuery(e.target.value)} // 입력 값 업데이트
@@ -204,7 +188,7 @@ const StoreModal = forwardRef(
                             className="font-bold rounded w-24 justify-self-center p-1 border border-black ring-gray-400 hover:border-blue_ncs hover:text-blue_ncs hover:ring-blue_ncs"
                             onClick={handleEvent} // 검색 버튼 클릭 시 검색 실행
                           >
-                            {labels.search}
+                            {t('Common.Search')}
                           </button>
                         </div>
                       </div>

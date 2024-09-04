@@ -1,20 +1,32 @@
-import { useLanguage } from '../../context/LanguageProvider';
-import KOR_Flags from '../../img/KOR_Flags.png';
-import ENG_Flags from '../../img/ENG_Flags.png';
+import { useState, useEffect } from 'react';
+import KOR_Flags from '../../img/KOR_Flags.svg';
+import ENG_Flags from '../../img/ENG_Flags.svg';
 
-export default function LanguageToggle() {
-  // useLanguage 훅을 사용해 현재 언어와 언어 변경 함수를 가져옴
-  const { language, changeLanguage } = useLanguage();
-
-  // 현재 언어가 영어인지 여부를 판단
+export default function SwitchLanguages({ onClick }) {
+  // Always default to Korean ('KOR') on page load, regardless of localStorage
+  const [language, changeLanguage] = useState('KOR');
   const isEnglish = language === 'ENG';
 
-  /**
-   * 토글 스위치가 변경될 때 호출되는 함수
-   * 현재 언어에 따라 한국어(KOR)와 영어(ENG)를 전환
-   */
+  useEffect(() => {
+    // Check if a user had previously selected a language and load it only if it's stored
+    const savedLanguage = localStorage.getItem('language');
+    if (savedLanguage) {
+      changeLanguage(savedLanguage);
+    } else {
+      // If no language is stored, default to 'KOR'
+      changeLanguage('KOR');
+    }
+  }, []); // Empty dependency array means this runs once on component mount
+
+  useEffect(() => {
+    // When language changes, store it in localStorage
+    localStorage.setItem('language', language);
+    onClick(language); // Pass the selected language to parent component if needed
+  }, [language, onClick]);
+
   const handleLanguageChange = () => {
-    changeLanguage(isEnglish ? 'KOR' : 'ENG'); // 언어 변경
+    const newLanguage = isEnglish ? 'KOR' : 'ENG';
+    changeLanguage(newLanguage);
   };
 
   return (
@@ -24,7 +36,6 @@ export default function LanguageToggle() {
         onClick={handleLanguageChange}
         className="focus:outline-none"
       >
-        {/* 현재 선택된 언어에 맞는 국기 이미지 표시 */}
         <img
           src={isEnglish ? ENG_Flags : KOR_Flags}
           alt={isEnglish ? 'English Flag' : 'Korean Flag'}

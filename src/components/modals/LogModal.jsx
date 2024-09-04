@@ -16,14 +16,15 @@ import MainGrid from '../tables/MainGrid';
 import { nonAuthInstance } from '../../server/AxiosConfig';
 import logService from '../../service/logService';
 import MultipleSelectDropDown from '../dropdowns/MultipleSelectDropDown';
-import { useLanguage } from '../../context/LanguageProvider';
 import { isArray, isEmpty } from 'lodash';
 import SingleSelectDropDown from '../dropdowns/SingleSelectDropDown';
+import { useTranslation } from 'react-i18next';
 
 /**
  * 로그 검색
  */
 const LogModal = forwardRef((_props, ref) => {
+  const { t } = useTranslation();
   const initialCond = {
     searchWord: '',
     continent: '',
@@ -47,54 +48,48 @@ const LogModal = forwardRef((_props, ref) => {
 
   // 검색 필드 옵션 정의
   const fields = [
-    { id: 'description', name: { eng: 'Find Description', kor: '설명 찾기' } },
-    { id: 'continent', name: { eng: 'Continent', kor: '대륙' } },
-    { id: 'region', name: { eng: 'Region', kor: '국가' } },
-    { id: 'priority', name: { eng: 'Priority', kor: '우선순위' } },
-    { id: 'feature', name: { eng: 'Feature', kor: '기능' } },
-    { id: 'target', name: { eng: 'Target', kor: '대상' } },
-    { id: 'virtual', name: { eng: 'Virtual', kor: '가상' } },
-    { id: 'format', name: { eng: 'Format', kor: '형식' } },
-    { id: 'tag', name: { eng: 'Tag', kor: '태그' } },
+    { id: 'description', name: t('Fields.FindDescription')},
+    { id: 'continent', name: t('Fields.Continent')},
+    { id: 'region', name: t('Fields.Region')},
+    { id: 'priority', name: t('Fields.Priority')},
+    { id: 'feature', name: t('Fields.Feature')},
+    { id: 'target', name: t('Fields.Target')},
+    { id: 'virtual', name: t('Fields.Virtual')},
+    { id: 'format', name: t('Fields.Format')},
+    { id: 'tag', name: t('Fields.Tag')},
   ];
 
   const priority = [
-    { id: 'all', name: { eng: 'ALL', kor: '전체' } },
-    { id: 'top', name: { eng: 'Top', kor: '상위' } },
-    { id: 'a', name: { eng: 'A', kor: 'A' } },
-    { id: 'b', name: { eng: 'B', kor: 'B' } },
-    { id: 'c', name: { eng: 'C', kor: 'C' } },
+    { id: 'all', name: t('Common.All')},
+    { id: 'top', name: t('Priority.Top')},
+    { id: 'a', name: t('Priority.A')},
+    { id: 'b', name: t('Priority.B')},
+    { id: 'c', name: t('Priority.C')},
   ];
 
   const format = [
-    { id: 'all', name: { eng: 'ALL', kor: '전체' } },
-    { id: 'hippo', name: { eng: 'HIPPO (*.hippo)', kor: 'HIPPO (*.hippo)' } },
-    { id: 'kml', name: { eng: 'KML (*.kml)', kor: 'KML (*.kml)' } },
-    { id: 'nmea', name: { eng: 'NMEA (*.nmea)', kor: 'NMEA (*.nmea)' } },
+    { id: 'all', name: t('Common.All')},
+    { id: 'hippo', name: t('Format.Hippo')},
+    { id: 'kml', name: t('Format.Kml')},
+    { id: 'nmea', name: t('Format.Nmea')},
   ];
 
   const virtual = [
-    { id: -1, name: { eng: 'ALL', kor: '전체' } },
-    { id: 0, name: { eng: 'Virtual Log', kor: '가상 로그' } },
-    { id: 1, name: { eng: 'Real Log', kor: '실제 로그' } },
+    { id: -1, name: t('Common.All')},
+    { id: 0, name: t('Virtual.VirtualLog')},
+    { id: 1, name: t('Virtual.RealLog')},
   ];
 
   // 대륙 코드와 이름 매핑
   const continentNameMap = {
-    AF: 'Africa',
-    AS: 'Asia',
-    EU: 'Europe',
-    NA: 'North America',
-    OC: 'Oceania',
-    SA: 'South America',
+    AF: t('Continents.Africa'),
+    AS: t('Continents.Asia'),
+    EU: t('Continents.Europe'),
+    NA: t('Continents.NorthAmerica'),
+    OC: t('Continents.Oceania'),
+    SA: t('Continents.SouthAmerica'),
   };
-
-  // 클래스 이름을 결합하는 유틸리티 함수
-  function classNames(...classes) {
-    return classes.filter(Boolean).join(' ');
-  }
-
-  const { language } = useLanguage();
+  
   const [cond, setCond] = useState(initialCond);
   const [open, setOpen] = useState(false);
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
@@ -111,26 +106,6 @@ const LogModal = forwardRef((_props, ref) => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedData, setSelectedData] = useState([]);
 
-  // 언어에 따른 라벨 설정
-  const labels =
-    language === 'ENG'
-      ? {
-          modalName: 'Log Search',
-          searchFields: 'Search Fields',
-          find: 'Find',
-          downloadDir: 'Download directory',
-          download: 'Download',
-          select: 'SELECT',
-        }
-      : {
-          modalName: '로그 검색',
-          searchFields: '검색 필드',
-          find: '찾기',
-          downloadDir: '다운로드 경로',
-          download: '다운로드',
-          select: '선택',
-        };
-
   // console.log('countryList', countryList);
 
   /**
@@ -145,18 +120,20 @@ const LogModal = forwardRef((_props, ref) => {
 
   useEffect(() => {
     console.log('유즈이팩 실행 체크 ==>');
-    MAIN_COUNTRY();
-    MAIN_FEATURE();
-    MAIN_TARGET();
-    MAIN_TAG();
-
+    // MAIN_COUNTRY();
+    // MAIN_FEATURE();
+    // MAIN_TARGET();
+    // MAIN_TAG();
+  
     console.log('유즈이팩 featureList', featureList);
-
-    if (featureList.length > 0) {
+  
+    // Ensure featureTop is defined and has items
+    if (featureList.featureTop && featureList.featureTop.length > 0) {
       handleTopFeatureChange(featureList.featureTop[0]);
     }
-  }, []);
-
+  }, [featureList]); // Include featureList in the dependency array
+  
+  
   useEffect(() => {
     console.log('[LIST]유즈이팩 실행 체크 ==>');
     console.log('useEffect of selectedSearchFields ==>', selectedSearchFields);
@@ -251,9 +228,6 @@ const LogModal = forwardRef((_props, ref) => {
     console.log('getOptionsByFieldId of fieldId ==>', fieldId);
 
     const extractName = (item) => {
-      if (typeof item.name === 'object') {
-        return language === 'ENG' ? item.name.eng : item.name.kor;
-      }
       return item.name;
     };
 
@@ -263,29 +237,29 @@ const LogModal = forwardRef((_props, ref) => {
         name: extractName(option),
       }));
     };
-
+    
     switch (fieldId) {
       case 'continent':
-        return mapOptions(countryList.continent);
+        return countryList.continent ? mapOptions(countryList.continent) : [];
       case 'region':
-        return mapOptions(countryList.country);
+        return countryList.country ? mapOptions(countryList.country) : [];
       case 'priority':
         return mapOptions(priority);
       case 'feature-1':
-        return mapOptions(featureList.featureTop);
+        return featureList.featureTop ? mapOptions(featureList.featureTop) : [];
       case 'feature-2':
-        return mapOptions(featureList.featureBottom);
+        return featureList.featureBottom ? mapOptions(featureList.featureBottom) : [];
       case 'target':
-        return mapOptions(targetList.target);
+        return targetList.target ? mapOptions(targetList.target) : [];
       case 'virtual':
         return mapOptions(virtual);
       case 'format':
         return mapOptions(format);
       case 'tag':
-        return mapOptions(tagList.tag);
+        return tagList.tag ? mapOptions(tagList.tag) : [];
       default:
         return [];
-    }
+    }    
   };
 
   /**
@@ -311,7 +285,7 @@ const LogModal = forwardRef((_props, ref) => {
         }));
 
         // [Continent] ALL 항목 추가
-        continentsList.unshift({ id: 'all', name: 'ALL' });
+        continentsList.unshift({ id: 'all', name: t('Common.All') });
 
         // [Country] 주어진 데이터에서 country_Iso3를 name으로, id는 그대로 유지하는 새로운 리스트 생성
         const processedList = res.country.map((country) => ({
@@ -321,7 +295,7 @@ const LogModal = forwardRef((_props, ref) => {
         }));
 
         // [Country] ALL 항목 추가
-        processedList.unshift({ id: 'all', name: 'ALL' });
+        processedList.unshift({ id: 'all', name: t('Common.All') });
 
         // [Country] 정렬
         processedList.sort((a, b) => {
@@ -336,10 +310,36 @@ const LogModal = forwardRef((_props, ref) => {
           return {
             ...prevState,
             list: res.country,
-            continent: continentsList, // continent 리스트 추가
-            country: processedList,
+            continent: continentsList || [], // default to empty array
+            country: processedList || [],    // default to empty array
           };
         });
+        
+        setFeatureList((prevState) => {
+          return {
+            ...prevState,
+            list: res,
+            featureTop: featureList || [],
+            featureBottom: bottomFeatureList || [],
+          };
+        });
+        
+        setTargetList((prevState) => {
+          return {
+            ...prevState,
+            list: res,
+            target: targetList || [],
+          };
+        });
+        
+        setTagList((prevState) => {
+          return {
+            ...prevState,
+            list: res,
+            tag: tagList || [],
+          };
+        });
+        
       });
     } catch (e) {
       console.log('MAIN_COUNTRY of error ==>', e);
@@ -385,8 +385,8 @@ const LogModal = forwardRef((_props, ref) => {
         // });
 
         // [Feature] ALL 항목 추가
-        topFeatureList.unshift({ id: 'all', name: 'ALL' });
-        bottomFeatureList.unshift({ id: 'all', name: 'ALL' });
+        topFeatureList.unshift({ id: 'all', name: t('Common.All') });
+        bottomFeatureList.unshift({ id: 'all', name: t('Common.All') });
 
         setFeatureList((prevState) => {
           return {
@@ -407,21 +407,25 @@ const LogModal = forwardRef((_props, ref) => {
    */
   const handleTopFeatureChange = (selectedOption) => {
     console.log('handleTopFeatureChange of selectedOption ==>', selectedOption);
-
+  
     setSelectedTopFeature(selectedOption);
-
-    console.log('featureList.featureBottom', featureList.featureBottom);
-
+  
+    // Ensure featureBottom is defined and is an array
+    if (!Array.isArray(featureList.featureBottom)) {
+      console.log('featureBottom is not defined or not an array.');
+      setFilteredBottomOptions([]);
+      return;
+    }
+  
     if (!Array.isArray(selectedOption) || selectedOption.length === 0) {
       setFilteredBottomOptions([]);
       return;
     }
-
+  
     const filteredOptions = featureList.featureBottom.filter((option) => {
-      // selectedOption 리스트에 있는 항목들 중 하나라도 해당 범위에 포함되면 true
       return selectedOption.some((selected) => {
         if (selected.id === 'all') {
-          return true; // 'all'을 선택한 경우 모든 항목을 포함
+          return true;
         }
         const selectedIdBase = Math.floor(selected.id / 1000) * 1000;
         return (
@@ -429,10 +433,11 @@ const LogModal = forwardRef((_props, ref) => {
         );
       });
     });
-
+  
     console.log('filteredOptions ==>', filteredOptions);
     setFilteredBottomOptions(filteredOptions);
   };
+  
 
   /**
    * MAIN TARGET API
@@ -449,7 +454,7 @@ const LogModal = forwardRef((_props, ref) => {
         }));
 
         // [Country] ALL 항목 추가
-        targetList.unshift({ id: 'all', name: 'ALL' });
+        targetList.unshift({ id: 'all', name: t('Common.All') });
 
         // [Country] 정렬
         // targetList.sort((a, b) => {
@@ -486,7 +491,7 @@ const LogModal = forwardRef((_props, ref) => {
         }));
 
         // [Tag] ALL 항목 추가
-        tagList.unshift({ id: 'all', name: 'ALL' });
+        tagList.unshift({ id: 'all', name: t('Common.All') });
 
         // [] 정렬
         // targetList.sort((a, b) => {
@@ -608,7 +613,7 @@ const LogModal = forwardRef((_props, ref) => {
               <DialogPanel className="relative rounded-lg transform overflow-hidden shadow-xl bg-white text-left transition-all sm:w-full sm:my-8 sm:max-w-screen-xl sm:p-0">
                 <div className="flex justify-between py-3 px-5 bg-blue_ncs">
                   <h1 className="font-semibold text-white">
-                    {labels.modalName}
+                    {t('LogModal.LogSearch')}
                   </h1>
                   <button
                     className="font-semibold"
@@ -624,12 +629,12 @@ const LogModal = forwardRef((_props, ref) => {
                   >
                     <span className="w-1/5 text-md font-semibold text-slate-700 text-center">
                       {/* 검색 필드 */}
-                      {labels.searchFields}
+                      {t('LogModal.SearchFields')}
                     </span>
                     <MultipleSelectDropDown
                       options={fields.map((field) => ({
                         ...field,
-                        name: field.name[language.toLowerCase()], // Ensure you're getting the string for the active language
+                        value: field.id,
                       }))}
                       onChange={(val) => {
                         console.log('SELECTED SEARCH FIELDS', val);
@@ -796,16 +801,16 @@ const LogModal = forwardRef((_props, ref) => {
                         aria-hidden="true"
                       />
                       <label className="text-base text-sky-500 font-bold cursor-pointer">
-                        {labels.find}
+                        {t('LogModal.Find')}
                       </label>
                     </button>
                   </div>
-                  {loading && <p>Loading...</p>}
+                  {loading && <p>{t('LogModal.Loading')}</p>}
                   {error && <p className="text-red-500">{error}</p>}
                   {data && (
                     <div>
                       <h2 className="text-xl font-semibold mt-4">
-                        Fetched Data:
+                      {t('LogModal.Loading')}:
                       </h2>
                       <pre className="bg-gray-100 p-4 rounded-md">
                         {JSON.stringify(data, null, 2)}
@@ -821,7 +826,7 @@ const LogModal = forwardRef((_props, ref) => {
                     className="grid grid-cols-[20%_1fr_15%] items-center"
                   >
                     <span className="text-md font-semibold text-slate-700 text-center">
-                      {labels.downloadDir}
+                      {t('LogModal.DownloadDirectory')}
                     </span>
                     <input
                       type="text"
@@ -840,7 +845,7 @@ const LogModal = forwardRef((_props, ref) => {
                           className="-ml-0.5 h-5 w-5 text-slate-700"
                           aria-hidden="true"
                         />
-                        {labels.download}
+                        {t('LogModal.Download')}
                       </button>
                     </div>
                   </div> */}
@@ -853,7 +858,7 @@ const LogModal = forwardRef((_props, ref) => {
                         className="-ml-0.5 h-5 w-5 text-slate-700"
                         aria-hidden="true"
                       />
-                      {labels.select}
+                      {t('LogModal.Select')}
                     </button>
                   </div>
                 </div>

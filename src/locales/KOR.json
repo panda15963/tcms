@@ -1,0 +1,109 @@
+{
+  "Common": {
+    "Latitude": "위도",
+    "Longitude": "경도",
+    "SearchPlaceholder": "지점을 입력해 주세요",
+    "Map": "지도",
+    "Search": "조회",
+    "All": "전체"
+  },
+  "NavBar": {
+    "Dashboard": "통계",
+    "UsageRate": "사용률",
+    "Management": "관리",
+    "AdminManagement": "관리자 관리",
+    "UserManagement": "회원 관리",
+    "MyPage": "마이페이지",
+    "SignOut": "로그아웃"
+  },
+  "TopMenuBar": {
+    "MapSelection": "지도 선택",
+    "StoreSearch": "지점 검색",
+    "LogSearch": "로그 검색",
+    "SpaceSearch": "공간 검색",
+    "CoordsOutput": "입력 좌표 출력",
+    "CopyButton": "복사",
+    "Copy": {
+      "Success": "클립보드에 복사되었습니다.",
+      "Fail": "클립보드 복사에 실패하였습니다."
+    },
+    "CoordsNotExistence": "좌표가 존재하지 않습니다.",
+    "FormatError": "DEG 형식이 잘못되었습니다. 올바른 형식을 입력해 주세요.",
+    "DECError": "에서는 무조건 소수점이 있어야 합니다.",
+    "MMSError": "에서는 무조건 정수여야 합니다.",
+    "DEGError": "는 3개의 부분으로 나누어져야 합니다.",
+    "LatError": "이 비어있습니다.",
+    "LonError": "이 비어있습니다.",
+    "CombinedError": "위도와 경도에서 발생한 에러:",
+    "ErrorInLat": "위도에서 일어난 오류:",
+    "ErrorInLon": "경도에서 일어난 오류:",
+    "RangeError": "범위 밖으로 벗어났습니다.",
+    "WrongCoords": "잘못된 좌표입니다."
+  },
+  "LogModal": {
+    "ModalName": "로그 검색",
+    "SearchFields": "검색 필드",
+    "Find": "찾기",
+    "DownloadDir": "다운로드 경로",
+    "Download": "다운로드",
+    "Select": "선택",
+    "Loading": "로딩 중...",
+    "FetchedData": "불러온 데이터"
+  },
+  "Fields": {
+    "FindDescription": "검색 설명",
+    "Continent": "대륙",
+    "Region": "지역",
+    "Priority": "우선순위",
+    "Feature": "특징",
+    "Target": "대상",
+    "Virtual": "가상",
+    "Format": "형식",
+    "Tag": "태그"
+  },
+  "Priority": {
+    "Top": "상위",
+    "A": "A",
+    "B": "B",
+    "C": "C"
+  },
+  "Format": {
+    "Hippo": "HIPPO (*.hippo)",
+    "Kml": "KML (*.kml)",
+    "Nmea": "NMEA (*.nmea)"
+  },
+  "Virtual": {
+    "VirtualLog": "가상 로그",
+    "RealLog": "실제 로그"
+  },
+  "Continents": {
+    "Africa": "아프리카",
+    "Antarctica": "남극",
+    "Asia": "아시아",
+    "Europe": "유럽",
+    "NorthAmerica": "북아메리카",
+    "Oceania": "오세아니아",
+    "SouthAmerica": "남아메리카"
+  },
+  "MainGrid": {
+    "UploadedDate": "업로드 된 날짜",
+    "Name": "이름",
+    "Version": "버전",
+    "Country": "국가",
+    "LogType": "로그 종류",
+    "Summary": "요약"
+  },
+  "StoreModal": {
+    "ModalName": "지점 선택",
+    "SearchName": "검색어"
+  },
+  "StoreTable": {
+    "StoreNames": "지점명",
+    "NoResults": "검색된 결과가 없습니다.",
+    "NoStores": "검색된 지점이 없습니다.",
+    "OneStore": "1개의 지점이 검색 되었습니다.",
+    "PreviousButton": "이전",
+    "NextButton": "다음",
+    "PaginationText": "{{first}}부터 {{last}}까지의 {{total}}개의 항목 표시"
+  }
+}

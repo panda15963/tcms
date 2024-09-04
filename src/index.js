@@ -5,14 +5,15 @@ import ManagementAdmins from './pages/ManagementAdmins';
 import Dashboard from './pages/Dashboard';
 import ManagementUsers from './pages/ManagementUsers';
 import MapLayout from './layout/MapLayout';
-import { LanguageProvider } from './context/LanguageProvider'
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n';
 
 const root = createRoot(document.getElementById('root'));
 root.render(
-    <LanguageProvider>
+  <I18nextProvider i18n={i18n}>
     <StrictMode>
       <BrowserRouter>
         <Routes>
@@ -26,5 +27,5 @@ root.render(
         </Routes>
       </BrowserRouter>
     </StrictMode>
-  </LanguageProvider>
+  </I18nextProvider>
 );

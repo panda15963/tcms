@@ -19,12 +19,11 @@ import BaiduCoords from '../displayCoords/BaiduCoords';
 import { DECToMMS, DECToDEC, DECToDEG } from '../calculateCoords/ConvertsDEC';
 import { MMSToDEC } from '../calculateCoords/ConvertsMMS';
 import { DEGToDEC } from '../calculateCoords/ConvertsDEG';
-import { useLanguage } from '../../context/LanguageProvider';
+import { useTranslation } from 'react-i18next';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
 
 const TopMenuBar = () => {
-  const { language } = useLanguage();
   const [inputValue, setInputValue] = useState('');
   const [keyPressed, setKeyPressed] = useState('');
   const [selectedCoords, setSelectedCoords] = useState(null);
@@ -41,32 +40,7 @@ const TopMenuBar = () => {
   const storeModalRef = useRef();
   const logModalRef = useRef();
 
-  const labels =
-    language === 'ENG'
-      ? {
-          mapSelection: 'Map Selection',
-          storeSearch: 'Place Search',
-          searchPlaceholder: 'Type the name of a store',
-          logSearch: 'Log Search',
-          coordsOutput: 'Display Input Coordinates',
-          spaceSearch: 'Space Search',
-          searchButton: 'Search',
-          copyButton: 'Copy',
-          latitude: 'Latitude',
-          longitude: 'Longitude',
-        }
-      : {
-          mapSelection: '지도 선택',
-          storeSearch: '지점 검색',
-          searchPlaceholder: '지점을 입력해 주세요',
-          logSearch: '로그 검색',
-          spaceSearch: '공간 검색',
-          coordsOutput: '입력 좌표 출력',
-          searchButton: '조회',
-          copyButton: '복사',
-          latitude: '위도',
-          longitude: '경도',
-        };
+  const { t } = useTranslation();
 
   const handleChange = (event) => {
     setInputValue(event.target.value);
@@ -95,12 +69,6 @@ const TopMenuBar = () => {
         lng: store.longitude,
       });
       storeModalRef.current.close();
-    } else {
-      if (language === 'ENG') {
-        alert('Please select a store');
-      } else {
-        alert('지점을 선택해 주세요');
-      }
     }
   };
 
@@ -109,6 +77,7 @@ const TopMenuBar = () => {
       case 'GOOGLE':
         return (
           <GoogleCoords
+            key="google"
             selectedCoords={selectedCoords}
             googleLocation={setClickedCoords}
           />
@@ -116,6 +85,7 @@ const TopMenuBar = () => {
       case 'ROUTO':
         return (
           <RoutoCoords
+            key="routo"
             selectedCoords={selectedCoords}
             routoLocation={setClickedCoords}
           />
@@ -123,6 +93,7 @@ const TopMenuBar = () => {
       case 'TMAP':
         return (
           <TMapCoords
+            key="tmap"
             selectedCoords={selectedCoords}
             tmapLocation={setClickedCoords}
           />
@@ -130,6 +101,7 @@ const TopMenuBar = () => {
       case 'TOMTOM':
         return (
           <TomTomCoords
+            key="tomtom"
             selectedCoords={selectedCoords}
             tomtomLocation={setClickedCoords}
           />
@@ -137,6 +109,7 @@ const TopMenuBar = () => {
       case 'BAIDU':
         return (
           <BaiduCoords
+            key="baidu"
             selectedCoords={selectedCoords}
             baiduLocation={setClickedCoords}
           />
@@ -145,6 +118,14 @@ const TopMenuBar = () => {
         return null;
     }
   };
+
+  useEffect(() => {
+    if (selectedAPI) {
+      // Perform any side effects, such as fetching new data
+      // or resetting state related to the selected API
+      console.log('Map API changed:', selectedAPI.name);
+    }
+  }, [selectedAPI]);
 
   const handleCoordsChange = (e) => {
     const { name, value } = e.target;
@@ -164,57 +145,30 @@ const TopMenuBar = () => {
 
   const handleCopy = () => {
     if (convertedCoords.lat && convertedCoords.lng) {
-      const coordsText =
-        language === 'ENG'
-          ? `Latitude: ${convertedCoords.lat}, Longitude: ${convertedCoords.lng}`
-          : `위도: ${convertedCoords.lat}, 경도: ${convertedCoords.lng}`;
+      const coordsText = `${t('Common.Latitude')}: ${convertedCoords.lat}, ${t('Common.Longitude')}: ${convertedCoords.lng}`;
       navigator.clipboard
         .writeText(coordsText)
         .then(() => {
-          if (language === 'ENG') {
-            setSuccessValue('Copied to clipboard!');
-            setSuccess(true);
-            setTimeout(() => setSuccess(false), 5000);
-          } else {
-            setSuccessValue('클립보드에 복사되었습니다!');
-            setSuccess(true);
-            setTimeout(() => setSuccess(false), 5000);
-          }
+          setSuccessValue(`${t('TopMenuBar.Copy.Success')}`);
+          setSuccess(true);
+          setTimeout(() => setSuccess(false), 5000);
         })
         .catch((err) => {
-          if (language === 'ENG') {
-            console.error('Failed to copy text: ', err, '!');
-            setErrorValue(err.message || 'Could not copy text!');
-            setError(true);
-            setTimeout(() => setError(false), 5000);
-          } else {
-            console.error('복사하지 못한 텍스트: ', err, '!');
-            setErrorValue(err.message || '텍스트를 복사하지 못 하였습니다!');
-            setError(true);
-            setTimeout(() => setError(false), 5000);
-          }
+          setErrorValue(err.message || `${t('TopMenuBar.Copy.Fail')}`);
+          setError(true);
+          setTimeout(() => setError(false), 5000);
         });
     } else {
-      if (language === 'ENG') {
-        setErrorValue('No coordinates to copy!');
-        setError(true);
-        setTimeout(() => setError(false), 5000);
-      } else {
-        setErrorValue('복사 할 좌표가 없습니다!');
-        setError(true);
-        setTimeout(() => setError(false), 5000);
-      }
+      setErrorValue(`${t('TopMenuBar.CoordsNotExistence')}`);
+      setError(true);
+      setTimeout(() => setError(false), 5000);
     }
   };
 
   const parseDEGToDecimal = (degString) => {
     const parts = degString.split(' ');
     if (parts.length !== 3) {
-      if (language === 'ENG') {
-        throw new Error('The format is not correct.');
-      } else {
-        throw new Error('DEG 형식이 틀립니다. 제대로 된 형식을 입력하세요');
-      }
+      throw new Error(`${t('TopMenuBar.FormatError')}`);
     }
 
     const degrees = parseFloat(parts[0]);
@@ -222,11 +176,7 @@ const TopMenuBar = () => {
     const seconds = parseFloat(parts[2]);
 
     if (isNaN(degrees) || isNaN(minutes) || isNaN(seconds)) {
-      if (language === 'ENG') {
-        throw new Error('The format is not correct.');
-      } else {
-        throw new Error('DEG 형식이 틀립니다. 제대로 된 형식을 입력하세요');
-      }
+      throw new Error(`${t('TopMenuBar.FormatError')}`);
     }
 
     return degrees + minutes / 60 + seconds / 3600;
@@ -236,50 +186,32 @@ const TopMenuBar = () => {
     const lat = convertedCoords.lat;
     const lng = convertedCoords.lng;
     console.log(lat, lng, typeof lat);
-    let latitude = language === 'ENG' ? 'Latitude' : '위도(Latitude)';
-    let longitude = language === 'ENG' ? 'Longitude' : '경도(Longitude)';
+    let latitude = `${t('Common.Latitude')}`;
+    let longitude = `${t('Common.Longitude')}`;
 
-    let decError =
-      language === 'ENG' ? 'Longitude' : '에서는 무조건 소수점이 있어야 합니다';
+    let decError = `${t('TopMenuBar.DECError')}`;
 
-    let mmsError =
-      language === 'ENG'
-        ? '에서는 무조건 정수여야 합니다'
-        : '에서는 무조건 정수여야 합니다';
-    let degError =
-      language === 'ENG'
-        ? 'should have 3 parts separated by spaces'
-        : '는 3개의 부분으로 나누어져야 합니다';
+    let mmsError = `${t('TopMenuBar.MMSError')}`;
+
+    let degError = `${t('TopMenuBar.DEGError')}`;
 
     let latError = '';
     let lngError = '';
 
     if (!lat) {
-      latError =
-        language === 'ENG'
-          ? `${latitude} is empty.`
-          : `${latitude}이 비어있습니다.`;
+      latError = `${latitude} ${t('TopMenuBar.LatError')}`;
     }
     if (!lng) {
-      lngError =
-        language === 'ENG'
-          ? `${longitude} is empty.`
-          : `${longitude}이 비어있습니다.`;
+      lngError = `${longitude} ${t('TopMenuBar.LonError')}`;
     }
 
     if (latError || lngError) {
       let combinedError =
-        language === 'ENG'
-          ? latError && lngError
-            ? `Errors in Latitude and Longitude: ${latitude} and ${lngError}.`
-            : latError
-              ? `Error in Latitude: ${latError}.`
-              : `Error in Longitude: ${lngError}.`
-          : latError && lngError
-            ? `위도와 경도에서 발생한 에러: ${latitude}와 ${lngError}.`
-            : latError
-              ? `위도에서 발생한 에러: ${latError}.`
-              : `경도에서 발생한 에러: ${lngError}.`;
+        latError && lngError
+          ? `${t('TopMenuBar.ErrorsInLatLon')}: ${latError} & ${lngError}.`
+          : latError
+            ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
+            : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -317,7 +249,8 @@ const TopMenuBar = () => {
         lngSpaceError = true;
       }
       if (latSpaceError && lngSpaceError) {
-        latError = lngError = language === 'ENG' ? degError : degError;
+        latError = `${latitude} ${degError}`;
+        lngError = `${longitude} ${degError}`;
       } else if (latSpaceError) {
         latError = `${latitude} ${degError}`;
       } else if (lngSpaceError) {
@@ -327,17 +260,11 @@ const TopMenuBar = () => {
 
     if (latError || lngError) {
       let combinedError =
-        language === 'ENG'
-          ? latError && lngError
-            ? `Errors in Latitude and Longitude: ${latError} and ${lngError}.`
-            : latError
-              ? `Error in Latitude: ${latError}.`
-              : `Error in Longitude: ${lngError}.`
-          : latError && lngError
-            ? `위도와 경도에서 발생한 에러: ${latError}와 ${lngError}.`
-            : latError
-              ? `위도에서 발생한 에러: ${latError}.`
-              : `경도에서 발생한 에러: ${lngError}.`;
+        latError && lngError
+          ? `${t('TopMenuBar.ErrorsInLatLon')}: ${latError} & ${lngError}.`
+          : latError
+            ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
+            : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -397,16 +324,9 @@ const TopMenuBar = () => {
           lngValue < currentRanges.minLng ||
           lngValue > currentRanges.maxLng)
       ) {
-        if (language === 'ENG') {
-          setErrorValue('Out of range.');
-          setError(true);
-          setTimeout(() => setError(false), 2000);
-        } else {
-          setErrorValue('범위 밖으로 벗어났습니다.');
-          setError(true);
-          setTimeout(() => setError(false), 2000);
-          return;
-        }
+        setErrorValue(`${t('TopMenuBar.RangeError')}`);
+        setError(true);
+        setTimeout(() => setError(false), 2000);
       }
 
       let result;
@@ -421,15 +341,9 @@ const TopMenuBar = () => {
       setSelectedCoords(result);
       setDisplayCoords(result);
     } else {
-      if (language === 'ENG') {
-        setErrorValue('Invalid coordinates.');
-        setError(true);
-        setTimeout(() => setError(false), 2000);
-      } else {
-        setErrorValue('잘못된 좌표입니다.');
-        setError(true);
-        setTimeout(() => setError(false), 2000);
-      }
+      setErrorValue(`${t('TopMenuBar.WrongCoords')}`);
+      setError(true);
+      setTimeout(() => setError(false), 2000);
     }
   };
 
@@ -495,12 +409,12 @@ const TopMenuBar = () => {
                     <div className="flex">
                       <label className="px-3 py-2 text-sm font-bold text-white">
                         {/* 지도 선택 */}
-                        {labels.mapSelection}
+                        {t('TopMenuBar.MapSelection')}
                       </label>
                       <MapAPIsLists setSelectedAPI={setSelectedAPI} />
                       <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3 ">
                         {/* 지점 검색 */}
-                        {labels.storeSearch}
+                        {t('TopMenuBar.StoreSearch')}
                       </label>
                       <div className="flex flex-1 justify-center lg:justify-end">
                         <div className="w-full max-w-lg lg:max-w-xs">
@@ -512,7 +426,7 @@ const TopMenuBar = () => {
                               value={inputValue}
                               style={{ width: '200px' }}
                               className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
-                              placeholder={labels.searchPlaceholder}
+                              placeholder={t('Common.SearchPlaceholder')}
                             />
                             <button
                               type="button"
@@ -537,7 +451,7 @@ const TopMenuBar = () => {
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
                           {/* 로그 검색 */}
-                          {labels.logSearch}
+                          {t('TopMenuBar.LogSearch')}
                         </label>
                         <button
                           type="button"
@@ -552,9 +466,12 @@ const TopMenuBar = () => {
                       </div>
                       <LogModal ref={logModalRef} />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
+                        <label
+                          className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap"
+                          style={{ width: '110px' }}
+                        >
                           {/* 공간 검색 */}
-                          {labels.spaceSearch}
+                          {t('TopMenuBar.SpaceSearch')}
                         </label>
                         <button
                           type="button"
@@ -569,7 +486,7 @@ const TopMenuBar = () => {
                       </div>
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
                         {/* 입력 좌표 출력 */}
-                        {labels.coordsOutput}
+                        {t('TopMenuBar.CoordsOutput')}
                       </label>
                       <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
                       <div className="flex flex-0 justify-center lg:ml-3 lg:justify-center">
@@ -588,7 +505,7 @@ const TopMenuBar = () => {
                               id="search"
                               name="lat"
                               className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                              placeholder={labels.latitude}
+                              placeholder={t('Common.Latitude')}
                               value={convertedCoords.lat}
                               onChange={handleCoordsChange}
                               onClick={handleCoordsClick}
@@ -610,7 +527,7 @@ const TopMenuBar = () => {
                             </button>
                             <input
                               className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                              placeholder={labels.longitude}
+                              placeholder={t('Common.Longitude')}
                               name="lng"
                               value={convertedCoords.lng}
                               onChange={handleCoordsChange}
@@ -625,7 +542,7 @@ const TopMenuBar = () => {
                           className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                           onClick={handleSearch}
                         >
-                          {labels.searchButton}
+                          {t('Common.Search')}
                         </button>
                       </div>
                       <div className="flex flex-0 justify-center lg:ml-3">
@@ -634,7 +551,7 @@ const TopMenuBar = () => {
                           className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                           onClick={handleCopy}
                         >
-                          {labels.copyButton}
+                          {t('TopMenuBar.CopyButton')}
                         </button>
                       </div>
                     </div>
@@ -657,13 +574,13 @@ const TopMenuBar = () => {
               <div className="space-y-1 px-2 pb-3 pt-2">
                 <div className="flex flex-1 justify-center lg:justify-end">
                   <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
-                    {labels.mapSelection}
+                    {t('TopMenuBar.MapSelection')}
                   </label>
                   <MapAPIsLists setSelectedAPI={setSelectedAPI} />
                 </div>
                 <div className="flex flex-1 justify-center lg:justify-end">
                   <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
-                    {labels.storeSearch}
+                    {t('TopMenuBar.StoreSearch')}
                   </label>
                   <div className="w-full max-w-lg lg:max-w-xs">
                     <div className="inset-y-0 flex items-center px-2">
@@ -672,7 +589,7 @@ const TopMenuBar = () => {
                         onChange={handleChange}
                         onKeyDown={handleKeyDown}
                         className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
-                        placeholder={labels.searchPlaceholder}
+                        placeholder={t('Common.SearchPlaceholder')}
                       />
                       <button
                         type="button"
@@ -689,7 +606,7 @@ const TopMenuBar = () => {
                 </div>
                 <div className="flex flex-1 justify-center lg:justify-end">
                   <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
-                    {labels.logSearch}
+                    {t('TopMenuBar.LogSearch')}
                   </label>
                   <button
                     type="button"
@@ -704,7 +621,7 @@ const TopMenuBar = () => {
                 </div>
                 <div className="flex flex-1 justify-center lg:justify-end">
                   <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
-                    {labels.spaceSearch}
+                    {t('TopMenuBar.SpaceSearch')}
                   </label>
                   <button
                     type="button"
@@ -719,7 +636,7 @@ const TopMenuBar = () => {
                 </div>
                 <div className="flex flex-1 justify-center lg:justify-end">
                   <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
-                    {labels.coordsOutput}
+                    {t('TopMenuBar.CoordsOutput')}
                   </label>
                   <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
                   <div className="flex flex-0 justify-center lg:ml-3">
@@ -738,7 +655,7 @@ const TopMenuBar = () => {
                           id="search"
                           name="lat"
                           className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                          placeholder={labels.latitude}
+                          placeholder={t('Common.Latitude')}
                           value={convertedCoords.lat}
                           onChange={handleCoordsChange}
                           onClick={handleCoordsClick}
@@ -756,7 +673,7 @@ const TopMenuBar = () => {
                         </button>
                         <input
                           className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-                          placeholder={labels.longitude}
+                          placeholder={t('Common.Longitude')}
                           name="lng"
                           value={convertedCoords.lng}
                           onChange={handleCoordsChange}
@@ -771,7 +688,7 @@ const TopMenuBar = () => {
                       className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                       onClick={handleSearch}
                     >
-                      {labels.searchButton}
+                      {t('Common.Search')}
                     </button>
                   </div>
                   <div className="flex flex-0 justify-center lg:ml-3">
@@ -780,7 +697,7 @@ const TopMenuBar = () => {
                       className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                       onClick={handleCopy}
                     >
-                      {labels.copyButton}
+                      {t('TopMenuBar.Copy')}
                     </button>
                   </div>
                 </div>

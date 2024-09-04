@@ -5,9 +5,10 @@ import {
 } from '@tanstack/react-table';
 import { isEmpty } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // 테이블의 기본 컬럼 정의
-const defaultColumns = [
+const defaultColumns = (t) => [
   {
     accessorKey: 'select',
     header: ({ table }) => (
@@ -27,23 +28,23 @@ const defaultColumns = [
   },
   {
     accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
-    header: 'Uploaded date', // 컬럼 헤더에 표시될 텍스트
+    header: t('MainGrid.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
   },
   {
     accessorKey: 'log_name',
-    header: 'Name',
+    header: t('MainGrid.Name'),
   },
   {
     accessorKey: 'version_id',
-    header: 'Version',
+    header: t('MainGrid.Version'),
   },
   {
     accessorKey: 'country_str',
-    header: 'Country',
+    header: t('MainGrid.Country'),
   },
   {
     accessorKey: 'b_virtual',
-    header: 'Log Type',
+    header: t('MainGrid.LogType'),
     cell: ({ getValue }) => {
       const value = getValue();
       return value === 0 ? 'Virtual Log' : 'Real Log';
@@ -51,11 +52,11 @@ const defaultColumns = [
   },
   {
     accessorKey: 'summary_str',
-    header: 'Summary',
+    header: t('MainGrid.Summary'),
   },
   {
     accessorKey: 'map',
-    header: 'Map',
+    header: t('Common.Map'),
     cell: ({ row }) => {
       const imagePath = row.original.imagePath;
       // console.log('imagePath', imagePath);
@@ -70,7 +71,6 @@ const defaultColumns = [
         <>
           <img
             src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
-            // alt="Map"
             style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
             onClick={() => setShowModal(true)} // 이미지 클릭 시 모달 표시
           />
@@ -79,7 +79,6 @@ const defaultColumns = [
               <div className="bg-white p-4">
                 <img
                   src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
-                  // alt="Map Large"
                   style={{ width: '900px', height: 'auto' }}
                 />
                 <button
@@ -123,14 +122,15 @@ const defaultData = [
 
 // MainGrid 컴포넌트 정의
 const MainGrid = ({ list, onSelectionChange }) => {
-  const columns = useMemo(() => defaultColumns, []);
-  const [data, setData] = useState(list ?? initialData);
+  const { t } = useTranslation(); // Get the translation function
+  const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
+
+  const [data, setData] = useState(list ?? defaultData);
   const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
     console.log('useEffect LIST ==>', list);
     if (list && !isEmpty(list.list)) {
-      // console.log('SETTING LIST ==>', list);
       setData(list.list);
     }
   }, [list]);
@@ -160,7 +160,7 @@ const MainGrid = ({ list, onSelectionChange }) => {
       setSelectedRows(currentSelectedRows);
       onSelectionChange(currentSelectedRows); // 부모 컴포넌트로 업데이트된 선택된 행 전달
     }
-  }, [table.getSelectedRowModel().rows]);
+  }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
   return (
     <div className="my-2 h-96 block overflow-x-auto">
