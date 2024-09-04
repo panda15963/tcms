@@ -33,6 +33,11 @@ const logService = {
       .get('/main/feature', cond, {
         cancelToken,
       })
+      // .get('/main/feature', {
+      //   withCredentials: true,
+      //   cancelToken: cancelToken,
+      //   data: cond,
+      // })
       .catch((error) => {
         console.log('error', error);
         if (error.response) {
