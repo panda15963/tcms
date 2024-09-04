@@ -120,10 +120,10 @@ const LogModal = forwardRef((_props, ref) => {
 
   useEffect(() => {
     console.log('유즈이팩 실행 체크 ==>');
-    // MAIN_COUNTRY();
-    // MAIN_FEATURE();
-    // MAIN_TARGET();
-    // MAIN_TAG();
+    MAIN_COUNTRY();
+    MAIN_FEATURE();
+    MAIN_TARGET();
+    MAIN_TAG();
   
     console.log('유즈이팩 featureList', featureList);
   
