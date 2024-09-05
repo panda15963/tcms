@@ -48,36 +48,36 @@ const LogModal = forwardRef((_props, ref) => {
 
   // 검색 필드 옵션 정의
   const fields = [
-    { id: 'description', name: t('Fields.FindDescription')},
-    { id: 'continent', name: t('Fields.Continent')},
-    { id: 'region', name: t('Fields.Region')},
-    { id: 'priority', name: t('Fields.Priority')},
-    { id: 'feature', name: t('Fields.Feature')},
-    { id: 'target', name: t('Fields.Target')},
-    { id: 'virtual', name: t('Fields.Virtual')},
-    { id: 'format', name: t('Fields.Format')},
-    { id: 'tag', name: t('Fields.Tag')},
+    { id: 'description', name: t('Fields.FindDescription') },
+    { id: 'continent', name: t('Fields.Continent') },
+    { id: 'region', name: t('Fields.Region') },
+    { id: 'priority', name: t('Fields.Priority') },
+    { id: 'feature', name: t('Fields.Feature') },
+    { id: 'target', name: t('Fields.Target') },
+    { id: 'virtual', name: t('Fields.Virtual') },
+    { id: 'format', name: t('Fields.Format') },
+    { id: 'tag', name: t('Fields.Tag') },
   ];
 
   const priority = [
-    { id: 'all', name: t('Common.All')},
-    { id: 'top', name: t('Priority.Top')},
-    { id: 'a', name: t('Priority.A')},
-    { id: 'b', name: t('Priority.B')},
-    { id: 'c', name: t('Priority.C')},
+    { id: 'all', name: t('Common.All') },
+    { id: 'top', name: t('Priority.Top') },
+    { id: 'a', name: t('Priority.A') },
+    { id: 'b', name: t('Priority.B') },
+    { id: 'c', name: t('Priority.C') },
   ];
 
   const format = [
-    { id: 'all', name: t('Common.All')},
-    { id: 'hippo', name: t('Format.Hippo')},
-    { id: 'kml', name: t('Format.Kml')},
-    { id: 'nmea', name: t('Format.Nmea')},
+    { id: 'all', name: t('Common.All') },
+    { id: 'hippo', name: t('Format.Hippo') },
+    { id: 'kml', name: t('Format.Kml') },
+    { id: 'nmea', name: t('Format.Nmea') },
   ];
 
   const virtual = [
-    { id: -1, name: t('Common.All')},
-    { id: 0, name: t('Virtual.VirtualLog')},
-    { id: 1, name: t('Virtual.RealLog')},
+    { id: -1, name: t('Common.All') },
+    { id: 0, name: t('Virtual.VirtualLog') },
+    { id: 1, name: t('Virtual.RealLog') },
   ];
 
   // 대륙 코드와 이름 매핑
@@ -89,7 +89,7 @@ const LogModal = forwardRef((_props, ref) => {
     OC: t('Continents.Oceania'),
     SA: t('Continents.SouthAmerica'),
   };
-  
+
   const [cond, setCond] = useState(initialCond);
   const [open, setOpen] = useState(false);
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
@@ -124,16 +124,15 @@ const LogModal = forwardRef((_props, ref) => {
     MAIN_FEATURE();
     MAIN_TARGET();
     MAIN_TAG();
-  
+
     console.log('유즈이팩 featureList', featureList);
-  
+
     // Ensure featureTop is defined and has items
     if (featureList.featureTop && featureList.featureTop.length > 0) {
       handleTopFeatureChange(featureList.featureTop[0]);
     }
-  }, [featureList]); // Include featureList in the dependency array
-  
-  
+  }, []); // Include featureList in the dependency array
+
   useEffect(() => {
     console.log('[LIST]유즈이팩 실행 체크 ==>');
     console.log('useEffect of selectedSearchFields ==>', selectedSearchFields);
@@ -237,7 +236,7 @@ const LogModal = forwardRef((_props, ref) => {
         name: extractName(option),
       }));
     };
-    
+
     switch (fieldId) {
       case 'continent':
         return countryList.continent ? mapOptions(countryList.continent) : [];
@@ -248,7 +247,9 @@ const LogModal = forwardRef((_props, ref) => {
       case 'feature-1':
         return featureList.featureTop ? mapOptions(featureList.featureTop) : [];
       case 'feature-2':
-        return featureList.featureBottom ? mapOptions(featureList.featureBottom) : [];
+        return featureList.featureBottom
+          ? mapOptions(featureList.featureBottom)
+          : [];
       case 'target':
         return targetList.target ? mapOptions(targetList.target) : [];
       case 'virtual':
@@ -259,7 +260,7 @@ const LogModal = forwardRef((_props, ref) => {
         return tagList.tag ? mapOptions(tagList.tag) : [];
       default:
         return [];
-    }    
+    }
   };
 
   /**
@@ -311,35 +312,36 @@ const LogModal = forwardRef((_props, ref) => {
             ...prevState,
             list: res.country,
             continent: continentsList || [], // default to empty array
-            country: processedList || [],    // default to empty array
+            country: processedList || [], // default to empty array
           };
         });
-        
-        setFeatureList((prevState) => {
-          return {
-            ...prevState,
-            list: res,
-            featureTop: featureList || [],
-            featureBottom: bottomFeatureList || [],
-          };
-        });
-        
-        setTargetList((prevState) => {
-          return {
-            ...prevState,
-            list: res,
-            target: targetList || [],
-          };
-        });
-        
-        setTagList((prevState) => {
-          return {
-            ...prevState,
-            list: res,
-            tag: tagList || [],
-          };
-        });
-        
+
+        console.log('featureList', featureList);
+
+        //   setFeatureList((prevState) => {
+        //     return {
+        //       ...prevState,
+        //       list: res,
+        //       featureTop: featureList || [],
+        //       featureBottom: bottomFeatureList || [],
+        //     };
+        //   });
+
+        //   setTargetList((prevState) => {
+        //     return {
+        //       ...prevState,
+        //       list: res,
+        //       target: targetList || [],
+        //     };
+        //   });
+
+        //   setTagList((prevState) => {
+        //     return {
+        //       ...prevState,
+        //       list: res,
+        //       tag: tagList || [],
+        //     };
+        //   });
       });
     } catch (e) {
       console.log('MAIN_COUNTRY of error ==>', e);
@@ -407,21 +409,21 @@ const LogModal = forwardRef((_props, ref) => {
    */
   const handleTopFeatureChange = (selectedOption) => {
     console.log('handleTopFeatureChange of selectedOption ==>', selectedOption);
-  
+
     setSelectedTopFeature(selectedOption);
-  
+
     // Ensure featureBottom is defined and is an array
     if (!Array.isArray(featureList.featureBottom)) {
       console.log('featureBottom is not defined or not an array.');
       setFilteredBottomOptions([]);
       return;
     }
-  
+
     if (!Array.isArray(selectedOption) || selectedOption.length === 0) {
       setFilteredBottomOptions([]);
       return;
     }
-  
+
     const filteredOptions = featureList.featureBottom.filter((option) => {
       return selectedOption.some((selected) => {
         if (selected.id === 'all') {
@@ -433,11 +435,10 @@ const LogModal = forwardRef((_props, ref) => {
         );
       });
     });
-  
+
     console.log('filteredOptions ==>', filteredOptions);
     setFilteredBottomOptions(filteredOptions);
   };
-  
 
   /**
    * MAIN TARGET API
@@ -810,7 +811,7 @@ const LogModal = forwardRef((_props, ref) => {
                   {data && (
                     <div>
                       <h2 className="text-xl font-semibold mt-4">
-                      {t('LogModal.Loading')}:
+                        {t('LogModal.Loading')}:
                       </h2>
                       <pre className="bg-gray-100 p-4 rounded-md">
                         {JSON.stringify(data, null, 2)}
