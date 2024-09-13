@@ -5,7 +5,7 @@
     "SearchPlaceholder": "Please enter a store",
     "Map": "Map",
     "Search": "Search",
-    "All": "ALL"
+    "All": "All"
   },
   "NavBar": {
     "Dashboard": "Dashboard",
@@ -38,7 +38,9 @@
     "ErrorInLat": "Error in Latitude",
     "ErrorInLon": "Error in Longitude",
     "RangeError": "Out of range.",
-    "WrongCoords": "Incorrect coordinates."
+    "WrongCoords": "Incorrect coordinates.",
+    "EmptyCoords": "No coordinates found.",
+    "SelectedAPI": "Selected Map"
   },
   "LogModal": {
     "ModalName": "Log Search",

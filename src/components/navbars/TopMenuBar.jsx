@@ -11,11 +11,11 @@ import LogModal from '../modals/LogModal';
 import StoreModal from '../modals/StoreModal';
 import MapAPIsLists from '../dropdowns/MapAPIsLists';
 import MapCoordLists from '../dropdowns/MapCoordLists';
-import GoogleCoords from '../displayCoords/GoogleCoords';
-import TMapCoords from '../displayCoords/TMapCoords';
-import RoutoCoords from '../displayCoords/RoutoCoords';
-import TomTomCoords from '../displayCoords/TomTomCoords';
-import BaiduCoords from '../displayCoords/BaiduCoords';
+import GoogleMapHandler from '../mapHandler/GoogleMapHandler';
+import TMapHandler from '../mapHandler/TMapHandler';
+import RoutoMapHandler from '../mapHandler/RoutoMapHandler';
+import TomTomMapHandler from '../mapHandler/TomTomMapHandler';
+import BaiduMapHandler from '../mapHandler/BaiduMapHandler';
 import { DECToMMS, DECToDEC, DECToDEG } from '../calculateCoords/ConvertsDEC';
 import { MMSToDEC } from '../calculateCoords/ConvertsMMS';
 import { DEGToDEC } from '../calculateCoords/ConvertsDEG';
@@ -36,6 +36,8 @@ const TopMenuBar = () => {
   const [error, setError] = useState(false);
   const [errorValue, setErrorValue] = useState('');
   const [displayCoords, setDisplayCoords] = useState(null);
+  const [origins, setOrigins] = useState([]);
+  const [destinations, setDestinations] = useState([]);
 
   const storeModalRef = useRef();
   const logModalRef = useRef();
@@ -72,50 +74,83 @@ const TopMenuBar = () => {
     }
   };
 
+  const handleRouteData = (data) => {
+    // Extract coordinate data
+    const coordinates = data
+      .map((item) => {
+        const startCoord = item.start_coord;
+        const goalCoord = item.goal_coord;
+
+        if (startCoord && goalCoord) {
+          return {
+            startCoord,
+            goalCoord,
+          };
+        }
+        return null; // Return null for invalid items
+      })
+      .filter((item) => item !== null); // Remove null items
+
+    if (coordinates.length === 0) {
+      setErrorValue(`${t('TopMenuBar.EmptyCoords')}`);
+    } else if (coordinates.length === 1) {
+      // Handle single route
+      setOrigins([coordinates[0].startCoord]); // Set in array format
+      setDestinations([coordinates[0].goalCoord]);
+    } else {
+      // Handle multiple routes
+      const startCoords = coordinates.map((route) => route.startCoord);
+      const goalCoords = coordinates.map((route) => route.goalCoord);
+
+      setOrigins(startCoords); // Set arrays of coordinates
+      setDestinations(goalCoords);
+    }
+  };
+
   const handleChoosingMapAPIs = () => {
-    switch (selectedAPI?.name) {
-      case 'GOOGLE':
-        return (
-          <GoogleCoords
-            key="google"
-            selectedCoords={selectedCoords}
-            googleLocation={setClickedCoords}
-          />
-        );
-      case 'ROUTO':
-        return (
-          <RoutoCoords
-            key="routo"
-            selectedCoords={selectedCoords}
-            routoLocation={setClickedCoords}
-          />
-        );
-      case 'TMAP':
-        return (
-          <TMapCoords
-            key="tmap"
-            selectedCoords={selectedCoords}
-            tmapLocation={setClickedCoords}
-          />
-        );
-      case 'TOMTOM':
-        return (
-          <TomTomCoords
-            key="tomtom"
-            selectedCoords={selectedCoords}
-            tomtomLocation={setClickedCoords}
-          />
-        );
-      case 'BAIDU':
-        return (
-          <BaiduCoords
-            key="baidu"
-            selectedCoords={selectedCoords}
-            baiduLocation={setClickedCoords}
-          />
-        );
-      default:
-        return null;
+    // Combine logic for both routes and coordinates in one component rendering
+    if (selectedAPI?.name === 'GOOGLE') {
+      return (
+        <GoogleMapHandler
+          key="google"
+          selectedCoords={selectedCoords}
+          googleLocation={setClickedCoords}
+          origins={origins}
+          destinations={destinations}
+        />
+      );
+    } else if (selectedAPI?.name === 'ROUTO') {
+      return (
+        <RoutoMapHandler
+          key="routo"
+          selectedCoords={selectedCoords}
+          routoLocation={setClickedCoords}
+        />
+      );
+    } else if (selectedAPI?.name === 'TMAP') {
+      return (
+        <TMapHandler
+          key="tmap"
+          selectedCoords={selectedCoords}
+          tmapLocation={setClickedCoords}
+        />
+      );
+    } else if (selectedAPI?.name === 'TOMTOM') {
+      return (
+        <TomTomMapHandler
+          key="tomtom"
+          selectedCoords={selectedCoords}
+          tomtomLocation={setClickedCoords}
+        />
+      );
+    } else if (selectedAPI?.name === 'BAIDU') {
+      return (
+        <BaiduMapHandler
+          key="baidu"
+          selectedCoords={selectedCoords}
+          baiduLocation={setClickedCoords}
+        />
+      );
     }
   };
 
@@ -123,7 +158,7 @@ const TopMenuBar = () => {
     if (selectedAPI) {
       // Perform any side effects, such as fetching new data
       // or resetting state related to the selected API
-      console.log('Map API changed:', selectedAPI.name);
+      setSuccessValue(`${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`)
     }
   }, [selectedAPI]);
 
@@ -185,7 +220,6 @@ const TopMenuBar = () => {
   const handleSearch = () => {
     const lat = convertedCoords.lat;
     const lng = convertedCoords.lng;
-    console.log(lat, lng, typeof lat);
     let latitude = `${t('Common.Latitude')}`;
     let longitude = `${t('Common.Longitude')}`;
 
@@ -464,13 +498,13 @@ const TopMenuBar = () => {
                           />
                         </button>
                       </div>
-                      <LogModal ref={logModalRef} />
+                      <LogModal routeData={handleRouteData} ref={logModalRef} />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        {/* 공간 검색 */}
                         <label
                           className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap"
-                          // style={{ width: '110px' }}
+                          style={{ width: '110px' }}
                         >
+                          {/* 공간 검색 */}
                           {t('TopMenuBar.SpaceSearch')}
                         </label>
                         <button
@@ -707,6 +741,7 @@ const TopMenuBar = () => {
         )}
       </Disclosure>
       <div className="map-container">
+        {/* Show either the map for coordinates or the map for routes */}
         {selectedAPI && handleChoosingMapAPIs()}
       </div>
     </>

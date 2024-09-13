@@ -38,7 +38,9 @@
     "ErrorInLat": "위도에서 일어난 오류:",
     "ErrorInLon": "경도에서 일어난 오류:",
     "RangeError": "범위 밖으로 벗어났습니다.",
-    "WrongCoords": "잘못된 좌표입니다."
+    "WrongCoords": "잘못된 좌표입니다.",
+    "EmptyCoords": "좌표가 없습니다.",
+    "SelectedAPI": "선택된 지도"
   },
   "LogModal": {
     "ModalName": "로그 검색",

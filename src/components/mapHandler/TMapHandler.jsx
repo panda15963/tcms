@@ -1,6 +1,6 @@
 import TMap from '../../pages/mapPages/TMap';
 
-export default function TMapCoords({ selectedCoords, tmapLocation }) {
+export default function TMapHandler({ selectedCoords, tmapLocation }) {
   /**
    *  TMap 지도 표출 컴포넌트
    * 

@@ -1,6 +1,6 @@
 import RoutoMap from '../../pages/mapPages/RoutoMap';
 
-export default function RoutoCoords({ selectedCoords, routoLocation }) {
+export default function RoutoMapHandler({ selectedCoords, routoLocation }) {
   /**
    * ROUTO 지도 표출 컴포넌트
    * 

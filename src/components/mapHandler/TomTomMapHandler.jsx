@@ -1,6 +1,6 @@
 import TomTomMap from '../../pages/mapPages/TomTomMap';
 
-export default function TomTomCoords({ selectedCoords, tomtomLocation }) {
+export default function TomTomMapHandler({ selectedCoords, tomtomLocation }) {
   /**
    * TomTom 지도 표출 컴포넌트
    *

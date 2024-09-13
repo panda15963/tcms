@@ -1,6 +1,6 @@
 import BaiduMap from '../../pages/mapPages/BaiduMap';
 
-export default function BaiduCoords({ selectedCoords, baiduLocation }) {
+export default function BaiduMapHandler({ selectedCoords, baiduLocation }) {
   /**
    * BaiduMap 지도 표출 컴포넌트
    * 

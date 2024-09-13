@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 /**
  * 로그 검색
  */
-const LogModal = forwardRef((_props, ref) => {
+const LogModal = forwardRef(({ routeData }, ref) => {
   const { t } = useTranslation();
   const initialCond = {
     searchWord: '',
@@ -107,7 +107,6 @@ const LogModal = forwardRef((_props, ref) => {
   const [selectedData, setSelectedData] = useState([]);
 
   // console.log('countryList', countryList);
-
   /**
    * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
    * useImperativeHandle을 사용하여 ref를 설정
@@ -317,31 +316,6 @@ const LogModal = forwardRef((_props, ref) => {
         });
 
         console.log('featureList', featureList);
-
-        //   setFeatureList((prevState) => {
-        //     return {
-        //       ...prevState,
-        //       list: res,
-        //       featureTop: featureList || [],
-        //       featureBottom: bottomFeatureList || [],
-        //     };
-        //   });
-
-        //   setTargetList((prevState) => {
-        //     return {
-        //       ...prevState,
-        //       list: res,
-        //       target: targetList || [],
-        //     };
-        //   });
-
-        //   setTagList((prevState) => {
-        //     return {
-        //       ...prevState,
-        //       list: res,
-        //       tag: tagList || [],
-        //     };
-        //   });
       });
     } catch (e) {
       console.log('MAIN_COUNTRY of error ==>', e);
@@ -579,11 +553,11 @@ const LogModal = forwardRef((_props, ref) => {
 
   const handleButtonClick = () => {
     // 선택된 데이터를 RightSideSlide, LeftSideSlide, GoogleMap에 전달
-    console.log('Selected data to pass:', selectedData);
+    // console.log('Selected data to pass:', selectedData);
     // 예: setRightSideData(selectedData);
     // 예: setLeftSideData(selectedData);
     // 예: setGoogleMapData(selectedData);
-
+    routeData(selectedData);
     setOpen(false);
   };
 
