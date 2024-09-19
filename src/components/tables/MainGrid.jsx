@@ -163,7 +163,8 @@ const MainGrid = ({ list, onSelectionChange }) => {
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
   return (
-    <div className="my-2 h-96 block overflow-x-auto">
+    // <div className="my-2 h-96 block overflow-x-auto">
+    <div className="my-2 h-[400px] w-[1200px] block overflow-x-auto">
       <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
         <thead className="bg-gray-50 border-2 sticky top-0 ">
           {table.getHeaderGroups().map((headerGroup) => (

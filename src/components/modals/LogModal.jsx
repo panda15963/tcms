@@ -92,6 +92,7 @@ const LogModal = forwardRef(({ routeData }, ref) => {
 
   const [cond, setCond] = useState(initialCond);
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('route'); // "route" 탭을 기본값으로 설정
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -116,6 +117,13 @@ const LogModal = forwardRef(({ routeData }, ref) => {
       setOpen(true);
     },
   }));
+
+  /**
+   * 로그모달 탭핸들러
+   */
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
 
   useEffect(() => {
     console.log('유즈이팩 실행 체크 ==>');
@@ -563,8 +571,8 @@ const LogModal = forwardRef(({ routeData }, ref) => {
 
   return (
     <Transition show={open}>
-      <Dialog className="relative z-50" onClose={() => setOpen(false)}>
-        <TransitionChild
+      <Dialog onClose={() => setOpen(false)} className="relative z-50">
+        <Transition.Child
           enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
@@ -573,11 +581,11 @@ const LogModal = forwardRef(({ routeData }, ref) => {
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75" />
-        </TransitionChild>
+        </Transition.Child>
 
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 transition-opacity text-center sm:items-center sm:p-0">
-            <TransitionChild
+          <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
+            <Transition.Child
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               enterTo="opacity-100 translate-y-0 sm:scale-100"
@@ -585,11 +593,9 @@ const LogModal = forwardRef(({ routeData }, ref) => {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <DialogPanel className="relative rounded-lg transform overflow-hidden shadow-xl bg-white text-left transition-all sm:w-full sm:my-8 sm:max-w-screen-xl sm:p-0">
+              <DialogPanel className="relative rounded-lg bg-white p-5 shadow-xl text-left transition-all sm:max-w-screen-xl">
                 <div className="flex justify-between py-3 px-5 bg-blue_ncs">
-                  <h1 className="font-semibold text-white">
-                    {t('LogModal.LogSearch')}
-                  </h1>
+                  <h1 className="font-semibold text-white">로그 검색</h1>
                   <button
                     className="font-semibold"
                     onClick={() => setOpen(false)}
@@ -597,248 +603,240 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                     <MdClose className="text-white" size={16} />
                   </button>
                 </div>
-                <div className="p-5">
-                  <div
-                    id="search_fieds"
-                    className="flex items-center justify-start z-20"
-                  >
-                    <span className="w-1/5 text-md font-semibold text-slate-700 text-center">
-                      {/* 검색 필드 */}
-                      {t('LogModal.SearchFields')}
-                    </span>
-                    <MultipleSelectDropDown
-                      options={fields.map((field) => ({
-                        ...field,
-                        value: field.id,
-                      }))}
-                      onChange={(val) => {
-                        console.log('SELECTED SEARCH FIELDS', val);
-                        setSelectedSearchFields(val);
-                      }}
-                    />
-                  </div>
-                  {/* Dyanmic Search fields*/}
-                  <div className="flex flex-wrap mb-4 mt-4">
-                    {!isEmpty(selectedSearchFields) &&
-                      selectedSearchFields.map((field, index) => (
-                        <div
-                          key={field.id}
-                          className="flex w-full sm:w-1/2 items-center mt-2"
-                        >
-                          <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
-                            {/* searchWord (설명 찾기) */}
-                            {field.name}
-                          </label>
-                          {field.id === 'description' ? (
-                            <input
-                              type="text"
-                              id={field.id}
-                              className="w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6"
-                              onChange={(e) => {
-                                setCond((prevState) => {
-                                  return {
-                                    ...prevState,
-                                    searchWord: e.target.value,
-                                  };
-                                });
-                              }}
-                              // onChange={(e) => {
-                              //   const newFields = selectedSearchFields.map((f) =>
-                              //     f.id === field.id ? { ...f, value: e.target.value } : f
-                              //   );
-                              //   setSelectedSearchFields(newFields);
-                              // }}
-                            />
-                          ) : field.id === 'feature' ? (
-                            // feature 기능
-                            <div className="w-3/4 flex flex-row space-x-2">
-                              <MultipleSelectDropDown
-                                // options={getOptionsByFieldId(`${field.id}-1`)}
-                                options={featureList.featureTop}
-                                className="flex-1"
-                                onChange={handleTopFeatureChange}
-                              />
-                              <MultipleSelectDropDown
-                                // options={getOptionsByFieldId(`${field.id}-2`)}
-                                options={filteredBottomOptions}
-                                className="flex-1"
-                                onChange={(value) => {
-                                  setCond((prevState) => {
-                                    return {
-                                      ...prevState,
-                                      feature: selectedValuesFeature(value),
-                                    };
-                                  });
-                                }}
-                              />
-                            </div>
-                          ) : field.id === 'tag' ? (
-                            <div className="w-3/4 flex flex-row space-x-2">
-                              <MultipleSelectDropDown
-                                options={getOptionsByFieldId(`${field.id}`)}
-                                className="flex-1"
-                                onChange={(value) => {
-                                  setCond((prevState) => {
-                                    return {
-                                      ...prevState,
-                                      tag: selectedValuesTag(value),
-                                    };
-                                  });
-                                }}
-                              />
-                              <div className="flex items-center space-x-2">
-                                <label className="flex items-center">
-                                  <input
-                                    type="radio"
-                                    name={`${field.id}-option`}
-                                    value="AND"
-                                    className="form-radio"
-                                    checked={cond.operation === 0} // AND가 기본으로 선택됨
-                                    onChange={(value) => {
-                                      setCond((prevState) => {
-                                        return {
-                                          ...prevState,
-                                          operation: handleRadioChange(value),
-                                        };
-                                      });
-                                    }}
-                                  />
-                                  <span className="ml-1">AND</span>
-                                </label>
-                                <label className="flex items-center">
-                                  <input
-                                    type="radio"
-                                    name={`${field.id}-option`}
-                                    value="OR"
-                                    className="form-radio"
-                                    checked={cond.operation === 1}
-                                    onChange={(value) => {
-                                      setCond((prevState) => {
-                                        return {
-                                          ...prevState,
-                                          operation: handleRadioChange(value),
-                                        };
-                                      });
-                                    }}
-                                  />
-                                  <span className="ml-1">OR</span>
-                                </label>
-                              </div>
-                            </div>
-                          ) : field.id === 'virtual' ? (
-                            <div className="w-3/4 flex flex-row space-x-2">
-                              <SingleSelectDropDown
-                                options={getOptionsByFieldId(field.id)}
-                                onChange={(value) => {
-                                  console.log('value', value);
 
-                                  setCond((prevState) => {
-                                    return {
-                                      ...prevState,
-                                      virtual: value.id,
-                                    };
-                                  });
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-3/4 flex flex-row space-x-2">
-                              <MultipleSelectDropDown
-                                options={getOptionsByFieldId(field.id)}
-                                onChange={(value) => {
-                                  setCond((prevState) => {
-                                    return {
-                                      ...prevState,
-                                      [field.id]: selectedValues(value),
-                                    };
-                                  });
-                                }}
-                              />
-                            </div>
-                          )}
-                          {/* <input
+                {/* 탭 버튼 */}
+                <div className="mt-4 flex space-x-4">
+                  <button
+                    className={`px-4 py-2 font-semibold ${activeTab === 'route' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    onClick={() => handleTabChange('route')}
+                  >
+                    경로
+                  </button>
+                  <button
+                    className={`px-4 py-2 font-semibold ${activeTab === 'batch' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    onClick={() => handleTabChange('batch')}
+                  >
+                    배치
+                  </button>
+                </div>
+
+                {/* 탭 내용 */}
+                <div className="mt-5">
+                  {activeTab === 'route' && (
+                    <div>
+                      {/* 여기에 기존 경로 관련 코드를 넣습니다 */}
+                      <div
+                        id="search_fieds"
+                        className="flex items-center justify-start z-20"
+                      >
+                        <span className="w-1/5 text-md font-semibold text-slate-700 text-center">
+                          {/* 검색 필드 */}
+                          {t('LogModal.SearchFields')}
+                        </span>
+                        <MultipleSelectDropDown
+                          options={fields.map((field) => ({
+                            ...field,
+                            value: field.id,
+                          }))}
+                          onChange={(val) => setSelectedSearchFields(val)}
+                        />
+                      </div>
+                      <div className="flex flex-wrap mb-4 mt-4">
+                        {!isEmpty(selectedSearchFields) &&
+                          selectedSearchFields.map((field) => (
+                            <div
+                              key={field.id}
+                              className="flex w-full sm:w-1/2 items-center mt-2"
+                            >
+                              <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
+                                {/* searchWord (설명 찾기) */}
+                                {field.name}
+                              </label>
+                              {field.id === 'description' ? (
+                                <input
+                                  type="text"
+                                  id={field.id}
+                                  className="w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6"
+                                  onChange={(e) => {
+                                    setCond((prevState) => {
+                                      return {
+                                        ...prevState,
+                                        searchWord: e.target.value,
+                                      };
+                                    });
+                                  }}
+                                  // onChange={(e) => {
+                                  //   const newFields = selectedSearchFields.map((f) =>
+                                  //     f.id === field.id ? { ...f, value: e.target.value } : f
+                                  //   );
+                                  //   setSelectedSearchFields(newFields);
+                                  // }}
+                                />
+                              ) : field.id === 'feature' ? (
+                                // feature 기능
+                                <div className="w-3/4 flex flex-row space-x-2">
+                                  <MultipleSelectDropDown
+                                    // options={getOptionsByFieldId(`${field.id}-1`)}
+                                    options={featureList.featureTop}
+                                    className="flex-1"
+                                    onChange={handleTopFeatureChange}
+                                  />
+                                  <MultipleSelectDropDown
+                                    // options={getOptionsByFieldId(`${field.id}-2`)}
+                                    options={filteredBottomOptions}
+                                    className="flex-1"
+                                    onChange={(value) => {
+                                      setCond((prevState) => {
+                                        return {
+                                          ...prevState,
+                                          feature: selectedValuesFeature(value),
+                                        };
+                                      });
+                                    }}
+                                  />
+                                </div>
+                              ) : field.id === 'tag' ? (
+                                <div className="w-3/4 flex flex-row space-x-2">
+                                  <MultipleSelectDropDown
+                                    options={getOptionsByFieldId(`${field.id}`)}
+                                    className="flex-1"
+                                    onChange={(value) => {
+                                      setCond((prevState) => {
+                                        return {
+                                          ...prevState,
+                                          tag: selectedValuesTag(value),
+                                        };
+                                      });
+                                    }}
+                                  />
+                                  <div className="flex items-center space-x-2">
+                                    <label className="flex items-center">
+                                      <input
+                                        type="radio"
+                                        name={`${field.id}-option`}
+                                        value="AND"
+                                        className="form-radio"
+                                        checked={cond.operation === 0} // AND가 기본으로 선택됨
+                                        onChange={(value) => {
+                                          setCond((prevState) => {
+                                            return {
+                                              ...prevState,
+                                              operation:
+                                                handleRadioChange(value),
+                                            };
+                                          });
+                                        }}
+                                      />
+                                      <span className="ml-1">AND</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="radio"
+                                        name={`${field.id}-option`}
+                                        value="OR"
+                                        className="form-radio"
+                                        checked={cond.operation === 1}
+                                        onChange={(value) => {
+                                          setCond((prevState) => {
+                                            return {
+                                              ...prevState,
+                                              operation:
+                                                handleRadioChange(value),
+                                            };
+                                          });
+                                        }}
+                                      />
+                                      <span className="ml-1">OR</span>
+                                    </label>
+                                  </div>
+                                </div>
+                              ) : field.id === 'virtual' ? (
+                                <div className="w-3/4 flex flex-row space-x-2">
+                                  <SingleSelectDropDown
+                                    options={getOptionsByFieldId(field.id)}
+                                    onChange={(value) => {
+                                      console.log('value', value);
+
+                                      setCond((prevState) => {
+                                        return {
+                                          ...prevState,
+                                          virtual: value.id,
+                                        };
+                                      });
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-3/4 flex flex-row space-x-2">
+                                  <MultipleSelectDropDown
+                                    options={getOptionsByFieldId(field.id)}
+                                    onChange={(value) => {
+                                      setCond((prevState) => {
+                                        return {
+                                          ...prevState,
+                                          [field.id]: selectedValues(value),
+                                        };
+                                      });
+                                    }}
+                                  />
+                                </div>
+                              )}
+                              {/* <input
                           type="text"
                           id={field.id}
                           className={classNames(
                             'w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6',
                           )}
                         /> */}
-                        </div>
-                      ))}
-                  </div>
-                  <div className="flex justify-end">
-                    <button
-                      className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
-                      onClick={onFindMeta}
-                    >
-                      <FaSearch
-                        className="-ml-0.5 h-5 w-5 text-sky-500  cursor-pointer"
-                        aria-hidden="true"
+                            </div>
+                          ))}
+                      </div>
+                      <div className="flex justify-end">
+                        <button
+                          className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          onClick={onFindMeta}
+                        >
+                          <FaSearch
+                            className="h-5 w-5 text-sky-500"
+                            aria-hidden="true"
+                          />
+                          <span className="text-base text-sky-500 font-bold">
+                            검색
+                          </span>
+                        </button>
+                      </div>
+                      {loading && <p>로딩 중...</p>}
+                      {error && <p className="text-red-500">{error}</p>}
+                      <MainGrid
+                        list={list}
+                        onSelectionChange={(selectedRows) =>
+                          setList(selectedRows)
+                        }
                       />
-                      <label className="text-base text-sky-500 font-bold cursor-pointer">
-                        {t('LogModal.Find')}
-                      </label>
-                    </button>
-                  </div>
-                  {loading && <p>{t('LogModal.Loading')}</p>}
-                  {error && <p className="text-red-500">{error}</p>}
-                  {data && (
-                    <div>
-                      <h2 className="text-xl font-semibold mt-4">
-                        {t('LogModal.Loading')}:
-                      </h2>
-                      <pre className="bg-gray-100 p-4 rounded-md">
-                        {JSON.stringify(data, null, 2)}
-                      </pre>
+                      <div className="flex justify-end mt-3">
+                        <button
+                          onClick={handleButtonClick}
+                          className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
+                        >
+                          <FaCheck
+                            className="h-5 w-5 text-slate-700"
+                            aria-hidden="true"
+                          />
+                          선택
+                        </button>
+                      </div>
                     </div>
                   )}
-                  <MainGrid
-                    list={list}
-                    onSelectionChange={handleSelectionChange}
-                  />
-                  {/* <div
-                    id="download_container"
-                    className="grid grid-cols-[20%_1fr_15%] items-center"
-                  >
-                    <span className="text-md font-semibold text-slate-700 text-center">
-                      {t('LogModal.DownloadDirectory')}
-                    </span>
-                    <input
-                      type="text"
-                      name="download_dir"
-                      className="w-full px-3 py-2 bg-white border shadow-sm border-slate-400 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 rounded-md sm:text-sm focus:ring-1"
-                    />
-                    <div className="flex w-full justify-end">
-                      <button className="font-semibold border-slate-300 border rounded-md px-3 py-2 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500">
-                        <FaRegFolderOpen
-                          className="-ml-0.5 h-5 w-5 text-slate-700"
-                          aria-hidden="true"
-                        />
-                      </button>
-                      <button className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500">
-                        <FaCloudDownloadAlt
-                          className="-ml-0.5 h-5 w-5 text-slate-700"
-                          aria-hidden="true"
-                        />
-                        {t('LogModal.Download')}
-                      </button>
+
+                  {activeTab === 'batch' && (
+                    <div>
+                      {/* 배치 관련 내용을 여기에 넣습니다 */}
+                      <p>배치 관련 내용이 여기에 들어갑니다.</p>
                     </div>
-                  </div> */}
-                  <div className="flex justify-end mt-3">
-                    <button
-                      onClick={handleButtonClick}
-                      className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
-                    >
-                      <FaCheck
-                        className="-ml-0.5 h-5 w-5 text-slate-700"
-                        aria-hidden="true"
-                      />
-                      {t('LogModal.Select')}
-                    </button>
-                  </div>
+                  )}
                 </div>
               </DialogPanel>
-            </TransitionChild>
+            </Transition.Child>
           </div>
         </div>
       </Dialog>
