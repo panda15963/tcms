@@ -59,6 +59,18 @@ const LogModal = forwardRef(({ routeData }, ref) => {
     { id: 'tag', name: t('Fields.Tag') },
   ];
 
+  const fieldsCinfiguration = [
+    { id: 'description', name: t('Fields.FindDescription') },
+    // { id: 'continent', name: t('Fields.Continent') },
+    // { id: 'region', name: t('Fields.Region') },
+    // { id: 'priority', name: t('Fields.Priority') },
+    // { id: 'feature', name: t('Fields.Feature') },
+    // { id: 'target', name: t('Fields.Target') },
+    // { id: 'virtual', name: t('Fields.Virtual') },
+    // { id: 'format', name: t('Fields.Format') },
+    { id: 'tag', name: t('Fields.Tag') },
+  ];
+
   const priority = [
     { id: 'all', name: t('Common.All') },
     { id: 'top', name: t('Priority.Top') },
@@ -94,6 +106,9 @@ const LogModal = forwardRef(({ routeData }, ref) => {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('route'); // "route" 탭을 기본값으로 설정
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
+  const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
+    [],
+  );
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -149,6 +164,19 @@ const LogModal = forwardRef(({ routeData }, ref) => {
     console.log('ids ==>', ids);
     setSelectedIds(ids); // 선택된 ID 리스트를 업데이트
   }, [selectedSearchFields]);
+
+  useEffect(() => {
+    console.log('[LIST]유즈이팩 실행 체크 ==>');
+    console.log(
+      'useEffect of selectedSearchFieldsConfig ==>',
+      selectedSearchFieldsConfig,
+    );
+    // selectedOptions는 선택된 필드의 객체 리스트로 가정합니다.
+    const ids = selectedSearchFieldsConfig.map((option) => option.id);
+
+    console.log('ids ==>', ids);
+    setSelectedIds(ids); // 선택된 ID 리스트를 업데이트
+  }, [selectedSearchFieldsConfig]);
 
   /**
    * Find 클릭 이벤트
@@ -624,7 +652,6 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                 <div className="mt-5">
                   {activeTab === 'route' && (
                     <div>
-                      {/* 여기에 기존 경로 관련 코드를 넣습니다 */}
                       <div
                         id="search_fieds"
                         className="flex items-center justify-start z-20"
@@ -830,8 +857,183 @@ const LogModal = forwardRef(({ routeData }, ref) => {
 
                   {activeTab === 'batch' && (
                     <div>
-                      {/* 배치 관련 내용을 여기에 넣습니다 */}
-                      <p>배치 관련 내용이 여기에 들어갑니다.</p>
+                      <div
+                        id="search_fieds"
+                        className="flex items-center justify-start z-20"
+                      >
+                        <span className="w-1/5 text-md font-semibold text-slate-700 text-center">
+                          {/* 검색 필드 */}
+                          {t('LogModal.SearchFields')}
+                        </span>
+                        <MultipleSelectDropDown
+                          options={fieldsCinfiguration.map((field) => ({
+                            ...field,
+                            value: field.id,
+                          }))}
+                          onChange={(val) => setSelectedSearchFieldsConfig(val)}
+                        />
+                      </div>
+                      <div className="flex flex-wrap mb-4 mt-4">
+                        {!isEmpty(selectedSearchFieldsConfig) &&
+                          selectedSearchFieldsConfig.map((field) => (
+                            <div
+                              key={field.id}
+                              className="flex w-full sm:w-1/2 items-center mt-2"
+                            >
+                              <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
+                                {/* searchWord (설명 찾기) */}
+                                {field.name}
+                              </label>
+                              {field.id === 'description' ? (
+                                <input
+                                  type="text"
+                                  id={field.id}
+                                  className="w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6"
+                                  onChange={(e) => {
+                                    setCond((prevState) => {
+                                      return {
+                                        ...prevState,
+                                        searchWord: e.target.value,
+                                      };
+                                    });
+                                  }}
+                                />
+                              ) : field.id === 'tag' ? (
+                                <div className="w-3/4 flex flex-row space-x-2">
+                                  <MultipleSelectDropDown
+                                    options={getOptionsByFieldId(`${field.id}`)}
+                                    className="flex-1"
+                                    onChange={(value) => {
+                                      setCond((prevState) => {
+                                        return {
+                                          ...prevState,
+                                          tag: selectedValuesTag(value),
+                                        };
+                                      });
+                                    }}
+                                  />
+                                  <div className="flex items-center space-x-2">
+                                    <label className="flex items-center">
+                                      <input
+                                        type="radio"
+                                        name={`${field.id}-option`}
+                                        value="AND"
+                                        className="form-radio"
+                                        checked={cond.operation === 0} // AND가 기본으로 선택됨
+                                        onChange={(value) => {
+                                          setCond((prevState) => {
+                                            return {
+                                              ...prevState,
+                                              operation:
+                                                handleRadioChange(value),
+                                            };
+                                          });
+                                        }}
+                                      />
+                                      <span className="ml-1">AND</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                      <input
+                                        type="radio"
+                                        name={`${field.id}-option`}
+                                        value="OR"
+                                        className="form-radio"
+                                        checked={cond.operation === 1}
+                                        onChange={(value) => {
+                                          setCond((prevState) => {
+                                            return {
+                                              ...prevState,
+                                              operation:
+                                                handleRadioChange(value),
+                                            };
+                                          });
+                                        }}
+                                      />
+                                      <span className="ml-1">OR</span>
+                                    </label>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="w-3/4 flex flex-row space-x-2">
+                                  <MultipleSelectDropDown
+                                    options={getOptionsByFieldId(field.id)}
+                                    onChange={(value) => {
+                                      setCond((prevState) => {
+                                        return {
+                                          ...prevState,
+                                          [field.id]: selectedValues(value),
+                                        };
+                                      });
+                                    }}
+                                  />
+                                </div>
+                              )}
+                              {/* <input
+                        type="text"
+                        id={field.id}
+                        className={classNames(
+                          'w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6',
+                        )}
+                      /> */}
+                            </div>
+                          ))}
+                      </div>
+                      <div className="flex justify-end">
+                        <button
+                          className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          onClick={onFindMeta}
+                        >
+                          <FaSearch
+                            className="h-5 w-5 text-sky-500"
+                            aria-hidden="true"
+                          />
+                          <span className="text-base text-sky-500 font-bold">
+                            검색
+                          </span>
+                        </button>
+                      </div>
+                      {loading && <p>로딩 중...</p>}
+                      {error && <p className="text-red-500">{error}</p>}
+                      {/* 그리드를 2개로 나누어 왼쪽과 오른쪽에 표시 */}
+                      <div className="flex flex-row justify-between space-x-4 my-4">
+                        {/* 왼쪽 그리드 */}
+                        <div className="flex-1 border border-gray-300 p-4">
+                          <h2 className="text-center text-xl font-bold mb-2">
+                            왼쪽 그리드
+                          </h2>
+                          <MainGrid
+                            list={list} // 왼쪽 그리드에 대한 데이터 리스트
+                            onSelectionChange={
+                              (selectedRows) => setLeftList(selectedRows) // 왼쪽 그리드에서 선택된 행 업데이트
+                            }
+                          />
+                        </div>
+
+                        {/* 오른쪽 그리드 */}
+                        <div className="flex-1 border border-gray-300 p-4">
+                          <h2 className="text-center text-xl font-bold mb-2">
+                            오른쪽 그리드
+                          </h2>
+                          <MainGrid
+                            list={list} // 오른쪽 그리드에 대한 데이터 리스트
+                            onSelectionChange={
+                              (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
+                            }
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end mt-3">
+                        <button
+                          onClick={handleButtonClick}
+                          className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
+                        >
+                          <FaCheck
+                            className="h-5 w-5 text-slate-700"
+                            aria-hidden="true"
+                          />
+                          선택
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
