@@ -158,7 +158,9 @@ const TopMenuBar = () => {
     if (selectedAPI) {
       // Perform any side effects, such as fetching new data
       // or resetting state related to the selected API
-      setSuccessValue(`${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`)
+      setSuccessValue(
+        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`,
+      );
     }
   }, [selectedAPI]);
 
@@ -500,10 +502,7 @@ const TopMenuBar = () => {
                       </div>
                       <LogModal routeData={handleRouteData} ref={logModalRef} />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label
-                          className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap"
-                          style={{ width: '110px' }}
-                        >
+                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
                           {/* 공간 검색 */}
                           {t('TopMenuBar.SpaceSearch')}
                         </label>
