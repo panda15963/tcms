@@ -19,6 +19,8 @@ import MultipleSelectDropDown from '../dropdowns/MultipleSelectDropDown';
 import { isArray, isEmpty } from 'lodash';
 import SingleSelectDropDown from '../dropdowns/SingleSelectDropDown';
 import { useTranslation } from 'react-i18next';
+import ConfigGridL from '../tables/ConfigGridL';
+import ConfigGridR from '../tables/ConfigGridR';
 
 /**
  * 로그 검색
@@ -37,6 +39,13 @@ const LogModal = forwardRef(({ routeData }, ref) => {
     tag: '',
     group_id: -1,
     operation: 0, // and : 0, or : 1
+  };
+
+  const initialConfigCond = {
+    group_id: -1, // all : -1, virtual : 0, real : 1
+    description: '',
+    tag: '',
+    operation: '1',
   };
 
   const initialList = {
@@ -103,6 +112,7 @@ const LogModal = forwardRef(({ routeData }, ref) => {
   };
 
   const [cond, setCond] = useState(initialCond);
+  const [configCond, setConfigCond] = useState(initialConfigCond);
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('route'); // "route" 탭을 기본값으로 설정
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
@@ -117,10 +127,13 @@ const LogModal = forwardRef(({ routeData }, ref) => {
   const [targetList, setTargetList] = useState(initialList);
   const [tagList, setTagList] = useState(initialList);
   const [list, setList] = useState(initialList);
+  const [configList, setConfigList] = useState(initialList);
   const [selectedTopFeature, setSelectedTopFeature] = useState(null);
   const [filteredBottomOptions, setFilteredBottomOptions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedConfigIds, setSelectedConfigIds] = useState([]);
   const [selectedData, setSelectedData] = useState([]);
+  const [selectedLogList, setSelectedLogList] = useState([]);
 
   // console.log('countryList', countryList);
   /**
@@ -175,7 +188,7 @@ const LogModal = forwardRef(({ routeData }, ref) => {
     const ids = selectedSearchFieldsConfig.map((option) => option.id);
 
     console.log('ids ==>', ids);
-    setSelectedIds(ids); // 선택된 ID 리스트를 업데이트
+    setSelectedConfigIds(ids); // 선택된 ID 리스트를 업데이트
   }, [selectedSearchFieldsConfig]);
 
   /**
@@ -597,6 +610,65 @@ const LogModal = forwardRef(({ routeData }, ref) => {
     setOpen(false);
   };
 
+  /**
+   * Find Tccfg 클릭 이벤트
+   */
+  const onFindTccfg = async () => {
+    setLoading(true);
+    setError(null);
+
+    const condTmp = {
+      group_id: -1,
+      description: selectedConfigIds.includes('description')
+        ? configCond.description
+        : '',
+      tag: selectedConfigIds.includes('tag') ? configCond.tag : '',
+      operation: configCond.operation,
+    };
+
+    console.log('onFindMeta of condTmp ==>', condTmp);
+    FIND_TCCFG(condTmp);
+  };
+
+  /**
+   * FIND TCCFG
+   */
+  const FIND_TCCFG = async (inputCond) => {
+    try {
+      await logService
+        .FIND_TCCFG_10003({
+          cond: inputCond,
+        })
+        .then((res) => {
+          console.log('FIND_TCCFG_10003 of res ==>', res);
+          setConfigList((prevState) => {
+            return {
+              ...prevState,
+              list: res.findTccfg,
+            };
+          });
+          setLoading(false);
+        });
+    } catch (e) {
+      console.log('FIND_TCCFG_10003 of error ==>', e);
+      setLoading(false);
+    }
+  };
+
+  const handleLeftSelectionChange = (selectedRows) => {
+    console.log('handleLeftSelectionChange of selectedRows ==>', selectedRows);
+
+    if (selectedRows && selectedRows.length > 0) {
+      setSelectedLogList(selectedRows[0].loglist);
+    }
+  };
+
+  const handleLeftCellClick = (rowData) => {
+    console.log('롸??');
+
+    setSelectedLogList(rowData.loglist); // 셀 클릭 시 loglist 설정
+  };
+
   return (
     <Transition show={open}>
       <Dialog onClose={() => setOpen(false)} className="relative z-50">
@@ -608,7 +680,7 @@ const LogModal = forwardRef(({ routeData }, ref) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75" />
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -621,7 +693,10 @@ const LogModal = forwardRef(({ routeData }, ref) => {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <DialogPanel className="relative rounded-lg bg-white p-5 shadow-xl text-left transition-all sm:max-w-screen-xl">
+              <DialogPanel
+                className="relative rounded-lg bg-white p-3 shadow-xl text-left transition-all sm:max-w-screen-xl"
+                style={{ width: '1324px' }}
+              >
                 <div className="flex justify-between py-3 px-5 bg-blue_ncs">
                   <h1 className="font-semibold text-white">로그 검색</h1>
                   <button
@@ -656,7 +731,7 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                         id="search_fieds"
                         className="flex items-center justify-start z-20"
                       >
-                        <span className="w-1/5 text-md font-semibold text-slate-700 text-center">
+                        <span className="w-1/4 text-md font-semibold text-slate-700 text-left">
                           {/* 검색 필드 */}
                           {t('LogModal.SearchFields')}
                         </span>
@@ -861,7 +936,7 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                         id="search_fieds"
                         className="flex items-center justify-start z-20"
                       >
-                        <span className="w-1/5 text-md font-semibold text-slate-700 text-center">
+                        <span className="w-1/4 text-md font-semibold text-slate-700 text-left">
                           {/* 검색 필드 */}
                           {t('LogModal.SearchFields')}
                         </span>
@@ -890,10 +965,12 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                                   id={field.id}
                                   className="w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6"
                                   onChange={(e) => {
-                                    setCond((prevState) => {
+                                    console.log('e', e);
+
+                                    setConfigCond((prevState) => {
                                       return {
                                         ...prevState,
-                                        searchWord: e.target.value,
+                                        description: e.target.value,
                                       };
                                     });
                                   }}
@@ -981,7 +1058,7 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                       <div className="flex justify-end">
                         <button
                           className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
-                          onClick={onFindMeta}
+                          onClick={onFindTccfg}
                         >
                           <FaSearch
                             className="h-5 w-5 text-sky-500"
@@ -998,24 +1075,22 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                       <div className="flex flex-row justify-between space-x-4 my-4">
                         {/* 왼쪽 그리드 */}
                         <div className="flex-1 border border-gray-300 p-4">
-                          <h2 className="text-center text-xl font-bold mb-2">
-                            왼쪽 그리드
-                          </h2>
-                          <MainGrid
-                            list={list} // 왼쪽 그리드에 대한 데이터 리스트
+                          <h2 className="text-center text-xl font-bold mb-2"></h2>
+                          <ConfigGridL
+                            list={configList} // 왼쪽 그리드에 대한 데이터 리스트
                             onSelectionChange={
-                              (selectedRows) => setLeftList(selectedRows) // 왼쪽 그리드에서 선택된 행 업데이트
+                              // (selectedRows) => setLeftList(selectedRows) // 왼쪽 그리드에서 선택된 행 업데이트
+                              handleLeftSelectionChange
                             }
+                            onCellClick={handleLeftCellClick} // 셀 클릭 시
                           />
                         </div>
 
                         {/* 오른쪽 그리드 */}
                         <div className="flex-1 border border-gray-300 p-4">
-                          <h2 className="text-center text-xl font-bold mb-2">
-                            오른쪽 그리드
-                          </h2>
-                          <MainGrid
-                            list={list} // 오른쪽 그리드에 대한 데이터 리스트
+                          <h2 className="text-center text-xl font-bold mb-2"></h2>
+                          <ConfigGridR
+                            list={selectedLogList} // 오른쪽 그리드에 대한 데이터 리스트
                             onSelectionChange={
                               (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
                             }

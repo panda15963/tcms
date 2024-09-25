@@ -21,80 +21,39 @@ const defaultColumns = (t) => [
     cell: ({ row }) => (
       <input
         type="checkbox"
-        checked={row.getIsSelected()}
-        onChange={row.getToggleSelectedHandler()}
+        checked={row.getIsSelected()} // 체크박스 상태 유지
+        onChange={row.getToggleSelectedHandler()} // 체크박스 클릭 시 선택 상태 변경
       />
     ),
   },
   {
-    accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
-    header: t('MainGrid.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
+    accessorKey: 'modif_date', // 데이터를 가져올 키 (데이터의 속성 이름)
+    // header: t('ConfigGridL.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
+    header: 'Upload Date', // 컬럼 헤더에 표시될 텍스트
   },
   {
-    accessorKey: 'log_name',
-    header: t('MainGrid.Name'),
+    accessorKey: 'tccfg_name',
+    header: 'CFG_name',
   },
   {
-    accessorKey: 'version_id',
-    header: t('MainGrid.Version'),
+    accessorKey: 'description',
+    header: 'Description',
   },
   {
-    accessorKey: 'country_str',
-    header: t('MainGrid.Country'),
+    accessorKey: 'taglist',
+    header: 'Tag',
   },
   {
-    accessorKey: 'b_virtual',
-    header: t('MainGrid.LogType'),
-    cell: ({ getValue }) => {
-      const value = getValue();
-      return value === 0 ? 'Virtual Log' : 'Real Log';
-    },
+    accessorKey: 'ver_id',
+    header: 'Version',
   },
   {
-    accessorKey: 'summary_str',
-    header: t('MainGrid.Summary'),
+    accessorKey: 'modif_type',
+    header: 'Modification Type',
   },
   {
-    accessorKey: 'map',
-    header: t('Common.Map'),
-    cell: ({ row }) => {
-      const imagePath = row.original.imagePath;
-      // console.log('imagePath', imagePath);
-
-      const [showModal, setShowModal] = useState(false);
-
-      // 포트 번호(:8080)와 '/api' 제거
-      const baseURL = process.env.REACT_APP_BASEURL.replace(':8080/api', '');
-      // console.log('baseURL', baseURL);
-
-      return imagePath ? (
-        <>
-          <img
-            src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
-            style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
-            onClick={() => setShowModal(true)} // 이미지 클릭 시 모달 표시
-          />
-          {showModal && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white p-4">
-                <img
-                  src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
-                  style={{ width: '900px', height: 'auto' }}
-                />
-                <button
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white"
-                  onClick={() => setShowModal(false)} // 닫기 버튼
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
-        </>
-      ) : (
-        'No Map Available'
-      );
-    },
+    accessorKey: 'modif_comment',
+    header: 'Modification Comment',
   },
 ];
 
@@ -120,8 +79,8 @@ const defaultData = [
   },
 ];
 
-// MainGrid 컴포넌트 정의
-const MainGrid = ({ list, onSelectionChange }) => {
+// ConfigGridL 컴포넌트 정의
+const ConfigGridL = ({ list, onSelectionChange }) => {
   const { t } = useTranslation(); // Get the translation function
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
 
@@ -130,6 +89,8 @@ const MainGrid = ({ list, onSelectionChange }) => {
 
   useEffect(() => {
     console.log('useEffect LIST ==>', list);
+    console.log('useEffect LIST ==>', list.list);
+    console.log('useEffect LIST ==>', list.findTccfg);
     if (list && !isEmpty(list.list)) {
       setData(list.list);
     }
@@ -162,9 +123,14 @@ const MainGrid = ({ list, onSelectionChange }) => {
     }
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
+  // 셀 클릭 이벤트 핸들러 (셀 클릭 시 선택 상태는 변경하지 않음)
+  const handleCellClick = (rowData) => {
+    console.log('Row clicked:', rowData); // 클릭된 행의 데이터
+    onSelectionChange([rowData]); // 셀 클릭 시 해당 데이터를 우측에 조회하도록 부모 컴포넌트로 전달
+  };
   return (
     // <div className="my-2 h-96 block overflow-x-auto">
-    <div className="my-2 h-[400px]  block overflow-x-auto">
+    <div className="my-2 h-[400px] w-[590px] block overflow-x-auto">
       <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
         <thead className="bg-gray-50 border-2 sticky top-0 ">
           {table.getHeaderGroups().map((headerGroup) => (
@@ -188,7 +154,11 @@ const MainGrid = ({ list, onSelectionChange }) => {
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+            <tr
+              key={row.id}
+              className={row.getIsSelected() ? 'bg-gray-100' : ''}
+              onClick={() => handleCellClick(row.original)} // 셀 클릭 시 데이터를 처리하고 선택 상태는 변경하지 않음
+            >
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
@@ -206,4 +176,4 @@ const MainGrid = ({ list, onSelectionChange }) => {
   );
 };
 
-export default MainGrid;
+export default ConfigGridL;
