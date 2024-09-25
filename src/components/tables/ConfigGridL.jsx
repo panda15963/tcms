@@ -80,7 +80,7 @@ const defaultData = [
 ];
 
 // ConfigGridL 컴포넌트 정의
-const ConfigGridL = ({ list, onSelectionChange }) => {
+const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const { t } = useTranslation(); // Get the translation function
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
 
@@ -88,9 +88,7 @@ const ConfigGridL = ({ list, onSelectionChange }) => {
   const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
-    console.log('useEffect LIST ==>', list);
-    console.log('useEffect LIST ==>', list.list);
-    console.log('useEffect LIST ==>', list.findTccfg);
+    // console.log('useEffect LIST ==>', list);
     if (list && !isEmpty(list.list)) {
       setData(list.list);
     }
@@ -128,6 +126,15 @@ const ConfigGridL = ({ list, onSelectionChange }) => {
     console.log('Row clicked:', rowData); // 클릭된 행의 데이터
     onSelectionChange([rowData]); // 셀 클릭 시 해당 데이터를 우측에 조회하도록 부모 컴포넌트로 전달
   };
+
+  // 셀 클릭 이벤트 핸들러 (더블클릭 시 모달 열기)
+  const handleCellDoubleClick = (rowData) => {
+    console.log('Row double clicked:', rowData);
+    if (onCellDoubleClick) {
+      onCellDoubleClick(rowData); // 더블클릭 시 부모 컴포넌트로 데이터를 전달해 모달 열기
+    }
+  };
+
   return (
     // <div className="my-2 h-96 block overflow-x-auto">
     <div className="my-2 h-[400px] w-[590px] block overflow-x-auto">
@@ -158,6 +165,7 @@ const ConfigGridL = ({ list, onSelectionChange }) => {
               key={row.id}
               className={row.getIsSelected() ? 'bg-gray-100' : ''}
               onClick={() => handleCellClick(row.original)} // 셀 클릭 시 데이터를 처리하고 선택 상태는 변경하지 않음
+              onDoubleClick={() => handleCellDoubleClick(row.original)} // 셀 더블클릭 이벤트 추가
             >
               {row.getVisibleCells().map((cell) => (
                 <td

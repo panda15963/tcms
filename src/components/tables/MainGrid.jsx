@@ -121,7 +121,7 @@ const defaultData = [
 ];
 
 // MainGrid 컴포넌트 정의
-const MainGrid = ({ list, onSelectionChange }) => {
+const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const { t } = useTranslation(); // Get the translation function
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
 
@@ -162,6 +162,14 @@ const MainGrid = ({ list, onSelectionChange }) => {
     }
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
+  // 셀 클릭 이벤트 핸들러 (더블클릭 시 모달 열기)
+  const handleCellDoubleClick = (rowData) => {
+    console.log('Row double clicked:', rowData);
+    if (onCellDoubleClick) {
+      onCellDoubleClick(rowData); // 더블클릭 시 부모 컴포넌트로 데이터를 전달해 모달 열기
+    }
+  };
+
   return (
     // <div className="my-2 h-96 block overflow-x-auto">
     <div className="my-2 h-[400px]  block overflow-x-auto">
@@ -188,7 +196,11 @@ const MainGrid = ({ list, onSelectionChange }) => {
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+            <tr
+              key={row.id}
+              className={row.getIsSelected() ? 'bg-gray-100' : ''}
+              onDoubleClick={() => handleCellDoubleClick(row.original)} // 셀 더블클릭 이벤트 추가
+            >
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}

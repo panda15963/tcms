@@ -45,8 +45,8 @@ const defaultData = [
   },
 ];
 
-// ConfigGridR 컴포넌트 정의
-const ConfigGridR = ({ list, onSelectionChange }) => {
+// ConfigGridR2 컴포넌트 정의
+const ConfigGridR2 = ({ list, onSelectionChange }) => {
   const { t } = useTranslation(); // Get the translation function
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
 
@@ -131,4 +131,4 @@ const ConfigGridR = ({ list, onSelectionChange }) => {
   );
 };
 
-export default ConfigGridR;
+export default ConfigGridR2;

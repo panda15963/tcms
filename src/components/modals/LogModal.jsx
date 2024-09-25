@@ -21,6 +21,8 @@ import SingleSelectDropDown from '../dropdowns/SingleSelectDropDown';
 import { useTranslation } from 'react-i18next';
 import ConfigGridL from '../tables/ConfigGridL';
 import ConfigGridR from '../tables/ConfigGridR';
+import ConfigGridL2 from '../tables/ConfigGridL2';
+import MainGrid2 from '../tables/MainGrid2';
 
 /**
  * 로그 검색
@@ -127,13 +129,16 @@ const LogModal = forwardRef(({ routeData }, ref) => {
   const [targetList, setTargetList] = useState(initialList);
   const [tagList, setTagList] = useState(initialList);
   const [list, setList] = useState(initialList);
+  const [list2, setList2] = useState(initialList);
   const [configList, setConfigList] = useState(initialList);
+  const [configList2, setConfigList2] = useState(initialList);
   const [selectedTopFeature, setSelectedTopFeature] = useState(null);
   const [filteredBottomOptions, setFilteredBottomOptions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedConfigIds, setSelectedConfigIds] = useState([]);
   const [selectedData, setSelectedData] = useState([]);
   const [selectedLogList, setSelectedLogList] = useState([]);
+  const [selectedLogList2, setSelectedLogList2] = useState([]);
 
   // console.log('countryList', countryList);
   /**
@@ -252,16 +257,6 @@ const LogModal = forwardRef(({ routeData }, ref) => {
           });
           setLoading(false);
         });
-
-      // 기존코드 백업 24.08.12 -JOHN
-      // try {
-      //   const response = await nonAuthInstance.get('/auth/test');
-      //   console.log('Response:', response);
-      //   setData(response.data);
-      // } catch (e) {
-      //   console.error('Error:', e.response ? e.response : e.message);
-      //   setError(e.response ? e.response.data : e.message);
-      // }
     } catch (e) {
       console.log('FIND_META of error ==>', e);
       setLoading(false);
@@ -610,6 +605,16 @@ const LogModal = forwardRef(({ routeData }, ref) => {
     setOpen(false);
   };
 
+  const handleConfigButtonClick = () => {
+    // 선택된 데이터를 RightSideSlide, LeftSideSlide, GoogleMap에 전달
+    // console.log('Selected data to pass:', selectedData);
+    // 예: setRightSideData(selectedData);
+    // 예: setLeftSideData(selectedData);
+    // 예: setGoogleMapData(selectedData);
+    routeData(selectedData);
+    setOpen(false);
+  };
+
   /**
    * Find Tccfg 클릭 이벤트
    */
@@ -657,16 +662,221 @@ const LogModal = forwardRef(({ routeData }, ref) => {
 
   const handleLeftSelectionChange = (selectedRows) => {
     console.log('handleLeftSelectionChange of selectedRows ==>', selectedRows);
-
     if (selectedRows && selectedRows.length > 0) {
       setSelectedLogList(selectedRows[0].loglist);
     }
   };
 
   const handleLeftCellClick = (rowData) => {
-    console.log('롸??');
-
     setSelectedLogList(rowData.loglist); // 셀 클릭 시 loglist 설정
+  };
+
+  const handleLeftSelectionChange2 = (selectedRows) => {
+    console.log('handleLeftSelectionChange of selectedRows2 ==>', selectedRows);
+    if (selectedRows && selectedRows.length > 0) {
+      setSelectedLogList2(selectedRows[0].loglist);
+    }
+  };
+
+  const handleLeftCellClick2 = (rowData) => {
+    setSelectedLogList2(rowData.loglist); // 셀 클릭 시 loglist 설정
+  };
+
+  // 루트 모달 상태 관리
+  const [isRouteModalOpen, setIsRouteModalOpen] = useState(false);
+  const [selectedRouteCellData, setSelectedRouteCellData] = useState(null);
+
+  // 배치 모달 상태 관리
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [selectedConfigCellData, setSelectedConfigCellData] = useState(null);
+
+  const openRouteModal = (cellData) => {
+    console.log('Opening modal with cell data:', cellData); // 디버깅 로그 추가
+    setSelectedRouteCellData(cellData); // 선택된 셀의 데이터 저장
+    setIsRouteModalOpen(true); // 모달 열기
+  };
+
+  const closeRouteModal = () => {
+    setIsRouteModalOpen(false); // 모달 닫기
+  };
+
+  const openConfigModal = (cellData) => {
+    console.log('Opening modal with cell data:', cellData); // 디버깅 로그 추가
+    setSelectedConfigCellData(cellData); // 선택된 셀의 데이터 저장
+    setIsConfigModalOpen(true); // 모달 열기
+  };
+
+  const closeConfigModal = () => {
+    setIsConfigModalOpen(false); // 모달 닫기
+  };
+
+  // 경로 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
+  const RouteModalComponent = ({ data, onClose }) => {
+    console.log('RouteModalComponent of data ==>', data);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          if (data && data.meta_id) {
+            // API 호출 (data.id 또는 적절한 키로 조회)
+            const response = await nonAuthInstance.get(
+              `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`,
+            );
+            console.log('response', response);
+            console.log('response', response.data);
+
+            setList2((prevState) => {
+              const newList = response.data.findMeta;
+              if (JSON.stringify(prevState) !== JSON.stringify(newList)) {
+                return newList;
+              }
+              return prevState;
+            });
+          }
+        } catch (error) {
+          console.error('API Error:', error);
+        }
+      };
+
+      if (data) {
+        fetchData();
+      }
+    }, [data]);
+
+    // 작업중
+    return (
+      <Dialog open={true} onClose={onClose}>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
+          <div className="bg-white p-4 rounded-md shadow-lg">
+            <div className="flex justify-between py-3 px-5 bg-blue_ncs">
+              <h1 className="font-semibold text-white">All Versions</h1>
+              <button
+                className="font-semibold"
+                onClick={() => setIsRouteModalOpen(false)}
+              >
+                <MdClose className="text-white" size={16} />
+              </button>
+            </div>
+            <div className="flex flex-row justify-between space-x-4 my-4">
+              {/* 메인2 그리드 */}
+              <div className="flex-1 border border-gray-300 p-4">
+                <h2 className="text-center text-xl font-bold mb-2"></h2>
+                <MainGrid2
+                  list={list2}
+                  onSelectionChange={handleSelectionChangeRoute}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end mt-3">
+              <button
+                onClick={handleConfigButtonClick}
+                className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
+              >
+                <FaCheck className="h- w-5 text-slate-700" aria-hidden="true" />
+                선택
+              </button>
+            </div>
+            {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
+          <p>API Result: {apiData ? JSON.stringify(apiData) : 'Loading...'}</p>
+          <button onClick={onClose} className="mt-2 p-2 bg-blue-500 text-white rounded">Close</button> */}
+          </div>
+        </div>
+      </Dialog>
+    );
+  };
+
+  const handleSelectionChangeRoute = (selectedRows) => {
+    console.log('handleSelectionChangeRoute of selectedRows ==>', selectedRows);
+    if (selectedRows && selectedRows.length > 0) {
+      // setSelectedLogList2(selectedRows[0].loglist);
+    }
+  };
+
+  // 배치 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
+  const ConfigModalComponent = ({ data, onClose }) => {
+    console.log('ConfigModalComponent of data ==>', data);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          if (data && data.tccfg_id) {
+            // API 호출 (data.id 또는 적절한 키로 조회)
+            const response = await nonAuthInstance.get(
+              // `/find/sameorigin/tccfg?group_id=${-1}&tccfg_id=${data.tccfg_id}`,
+              `/find/sameorigin/tccfg?group_id=${data.group_id}&tccfg_id=${data.origin_tccfg_id}`,
+            );
+            console.log('response', response);
+            console.log('response', response.data);
+
+            setConfigList2((prevState) => {
+              const newList = response.data.findTccfg;
+              if (JSON.stringify(prevState) !== JSON.stringify(newList)) {
+                return newList;
+              }
+              return prevState;
+            });
+          }
+        } catch (error) {
+          console.error('API Error:', error);
+        }
+      };
+
+      if (data) {
+        fetchData();
+      }
+    }, [data]);
+
+    return (
+      <Dialog open={true} onClose={onClose}>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
+          <div className="bg-white p-4 rounded-md shadow-lg">
+            <div className="flex justify-between py-3 px-5 bg-blue_ncs">
+              <h1 className="font-semibold text-white">All Versions</h1>
+              <button
+                className="font-semibold"
+                onClick={() => setIsConfigModalOpen(false)}
+              >
+                <MdClose className="text-white" size={16} />
+              </button>
+            </div>
+            <div className="flex flex-row justify-between space-x-4 my-4">
+              {/* 왼쪽 그리드 */}
+              <div className="flex-1 border border-gray-300 p-4">
+                <h2 className="text-center text-xl font-bold mb-2"></h2>
+                <ConfigGridL2
+                  list={configList2} // 왼쪽 그리드에 대한 데이터 리스트
+                  onSelectionChange={handleLeftSelectionChange2}
+                  onCellClick={handleLeftCellClick2} // 셀 클릭 시
+                />
+              </div>
+
+              {/* 오른쪽 그리드 */}
+              <div className="flex-1 border border-gray-300 p-4">
+                <h2 className="text-center text-xl font-bold mb-2"></h2>
+                <ConfigGridR
+                  list={selectedLogList2} // 오른쪽 그리드에 대한 데이터 리스트
+                  // onSelectionChange={
+                  //   (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
+                  // }
+                />
+              </div>
+            </div>
+            <div className="flex justify-end mt-3">
+              <button
+                onClick={handleConfigButtonClick}
+                className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
+              >
+                <FaCheck className="h- w-5 text-slate-700" aria-hidden="true" />
+                선택
+              </button>
+            </div>
+            {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
+            <p>API Result: {apiData ? JSON.stringify(apiData) : 'Loading...'}</p>
+            <button onClick={onClose} className="mt-2 p-2 bg-blue-500 text-white rounded">Close</button> */}
+          </div>
+        </div>
+      </Dialog>
+    );
   };
 
   return (
@@ -914,7 +1124,17 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                         onSelectionChange={(selectedRows) =>
                           setList(selectedRows)
                         }
+                        onCellDoubleClick={openRouteModal} // 더블클릭 이벤트 추가
                       />
+
+                      {/* 모달 렌더링 */}
+                      {isRouteModalOpen && (
+                        <RouteModalComponent
+                          data={selectedRouteCellData}
+                          onClose={closeRouteModal}
+                        />
+                      )}
+
                       <div className="flex justify-end mt-3">
                         <button
                           onClick={handleButtonClick}
@@ -1083,8 +1303,17 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                               handleLeftSelectionChange
                             }
                             onCellClick={handleLeftCellClick} // 셀 클릭 시
+                            onCellDoubleClick={openConfigModal} // 더블클릭 이벤트 추가
                           />
                         </div>
+
+                        {/* 모달 렌더링 */}
+                        {isConfigModalOpen && (
+                          <ConfigModalComponent
+                            data={selectedConfigCellData}
+                            onClose={closeConfigModal}
+                          />
+                        )}
 
                         {/* 오른쪽 그리드 */}
                         <div className="flex-1 border border-gray-300 p-4">
@@ -1099,7 +1328,7 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                       </div>
                       <div className="flex justify-end mt-3">
                         <button
-                          onClick={handleButtonClick}
+                          onClick={handleConfigButtonClick}
                           className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
                         >
                           <FaCheck
