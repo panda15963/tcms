@@ -28,6 +28,8 @@ import i18next from 'i18next';
 
 /**
  * 로그 검색
+ * http://localhost:3000/log/kr
+ * http://localhost:3000/log/en
  */
 const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
   const { t, i18n } = useTranslation();
