@@ -16,19 +16,22 @@ import MainGrid from '../tables/MainGrid';
 import { nonAuthInstance } from '../../server/AxiosConfig';
 import logService from '../../service/logService';
 import MultipleSelectDropDown from '../dropdowns/MultipleSelectDropDown';
-import { isArray, isEmpty } from 'lodash';
+import { isArray, isEmpty, isFunction } from 'lodash';
 import SingleSelectDropDown from '../dropdowns/SingleSelectDropDown';
 import { useTranslation } from 'react-i18next';
 import ConfigGridL from '../tables/ConfigGridL';
 import ConfigGridR from '../tables/ConfigGridR';
 import ConfigGridL2 from '../tables/ConfigGridL2';
 import MainGrid2 from '../tables/MainGrid2';
+import { useLocation } from 'react-router-dom';
+import i18next from 'i18next';
 
 /**
  * 로그 검색
  */
-const LogModal = forwardRef(({ routeData }, ref) => {
-  const { t } = useTranslation();
+const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
+  const { t, i18n } = useTranslation();
+  const location = useLocation(); // 현재 경로 정보를 얻기 위한 useLocation 훅 사용
   const initialCond = {
     searchWord: '',
     continent: '',
@@ -139,6 +142,23 @@ const LogModal = forwardRef(({ routeData }, ref) => {
   const [selectedData, setSelectedData] = useState([]);
   const [selectedLogList, setSelectedLogList] = useState([]);
   const [selectedLogList2, setSelectedLogList2] = useState([]);
+
+  useEffect(() => {
+    console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
+    console.log('🚀 ~ useEffect ~ location:', location);
+    if (isDirect) {
+      const splittedPath = location.pathname.split('/');
+      const selectedLang = splittedPath[2];
+      console.log('🚀 ~ useEffect ~ selectedLang:', selectedLang);
+      console.log('🚀 ~ useEffect ~ splittedPath:', splittedPath);
+      if (selectedLang === 'kr') {
+        i18next.changeLanguage('kor');
+      } else {
+        i18next.changeLanguage('eng');
+      }
+      setOpen(true);
+    }
+  }, []);
 
   // console.log('countryList', countryList);
   /**
@@ -601,7 +621,10 @@ const LogModal = forwardRef(({ routeData }, ref) => {
     // 예: setRightSideData(selectedData);
     // 예: setLeftSideData(selectedData);
     // 예: setGoogleMapData(selectedData);
-    routeData(selectedData);
+    if (routeData && isFunction(routeData)) {
+      routeData(selectedData);
+    }
+
     setOpen(false);
   };
 
@@ -611,7 +634,10 @@ const LogModal = forwardRef(({ routeData }, ref) => {
     // 예: setRightSideData(selectedData);
     // 예: setLeftSideData(selectedData);
     // 예: setGoogleMapData(selectedData);
-    routeData(selectedData);
+    if (routeData && isFunction(routeData)) {
+      routeData(selectedData);
+    }
+
     setOpen(false);
   };
 
@@ -1117,7 +1143,7 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                           </span>
                         </button>
                       </div>
-                      {loading && <p>로딩 중...</p>}
+                      {/* {loading && <p>로딩 중...</p>} */}
                       {error && <p className="text-red-500">{error}</p>}
                       <MainGrid
                         list={list}
@@ -1289,7 +1315,7 @@ const LogModal = forwardRef(({ routeData }, ref) => {
                           </span>
                         </button>
                       </div>
-                      {loading && <p>로딩 중...</p>}
+                      {/* {loading && <p>로딩 중...</p>} */}
                       {error && <p className="text-red-500">{error}</p>}
                       {/* 그리드를 2개로 나누어 왼쪽과 오른쪽에 표시 */}
                       <div className="flex flex-row justify-between space-x-4 my-4">

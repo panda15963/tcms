@@ -5,11 +5,12 @@ import ManagementAdmins from './pages/ManagementAdmins';
 import Dashboard from './pages/Dashboard';
 import ManagementUsers from './pages/ManagementUsers';
 import MapLayout from './layout/MapLayout';
-import { StrictMode } from 'react';
+import { StrictMode, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
+import LogModal from './components/modals/LogModal';
 
 const root = createRoot(document.getElementById('root'));
 root.render(
@@ -18,6 +19,8 @@ root.render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomeLogin />} />
+          <Route path="/log/kr" element={<LogModal isDirect={true} />} />
+          <Route path="/log/en" element={<LogModal isDirect={true} />} />
           <Route path="/main" element={<Layout />}>
             <Route path="map" element={<MapLayout />} />
             <Route path="admins" element={<ManagementAdmins />} />
@@ -27,5 +30,5 @@ root.render(
         </Routes>
       </BrowserRouter>
     </StrictMode>
-  </I18nextProvider>
+  </I18nextProvider>,
 );

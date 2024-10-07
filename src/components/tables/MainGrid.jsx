@@ -180,7 +180,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-3 py-2 border-2 text-center text-sm font-bold text-black uppercase tracking-wider"
+                  className="px-3 py-2 border-2 text-center text-sm font-bold text-black uppercase tracking-wider text-nowrap"
                 >
                   {/* 헤더 렌더링 */}
                   {header.isPlaceholder
