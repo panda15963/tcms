@@ -2,6 +2,7 @@ import tt from '@tomtom-international/web-sdk-maps';
 import '@tomtom-international/web-sdk-maps/dist/maps.css';
 import { useEffect, useState, useRef } from 'react';
 import '../../style/MapStyle.css';
+import ttServices from '@tomtom-international/web-sdk-services';
 
 /**
  * 중심 좌표와 마커 좌표를 계산하는 함수
@@ -10,12 +11,12 @@ import '../../style/MapStyle.css';
  * @returns {Object} - 위도와 경도를 포함한 객체
  */
 function calculateCenterAndMarker(lat, lng) {
-  const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE); // 환경 변수에서 기본 위도 값 가져오기
-  const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE); // 환경 변수에서 기본 경도 값 가져오기
+  const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
+  const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
   if (lat !== undefined && lng !== undefined) {
-    return { lat: parseFloat(lat), lng: parseFloat(lng) }; // lat와 lng가 정의되어 있으면 해당 값 사용
+    return { lat: parseFloat(lat), lng: parseFloat(lng) };
   }
-  return { lat: defaultLat, lng: defaultLng }; // 그렇지 않으면 기본 좌표 사용
+  return { lat: defaultLat, lng: defaultLng };
 }
 
 /**
@@ -24,73 +25,261 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {number} lng - 경도 값
  * @param {function} locationCoords - 클릭한 좌표를 부모로 전달하기 위한 함수
  */
-export default function TomTomMap({ lat, lng, locationCoords = () => {} }) {
-  const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
-  const [center, setCenter] = useState(initialCoords); // 지도 중심 좌표 상태 관리
-  const mapRef = useRef(null); // 지도 인스턴스를 참조하기 위한 ref
-  const markerRef = useRef(null); // 마커 인스턴스를 참조하기 위한 ref
+const processCoordinates = (coords) => {
+  if (Array.isArray(coords)) {
+    return coords.map((coord) => parseCoordinateString(coord)).filter(Boolean);
+  }
+  if (typeof coords === 'string') {
+    return parseCoordinateString(coords);
+  }
+  if (
+    coords &&
+    typeof coords === 'object' &&
+    'lat' in coords &&
+    'lng' in coords
+  ) {
+    return { lat: coords.lat, lng: coords.lng };
+  }
+  return null;
+};
 
-  // lat와 lng가 변경될 때마다 중심 좌표 업데이트
+/**
+ * Parses a coordinate string into an object with lat and lng properties.
+ * @param {string} coordString - The coordinate string in the format "lng,lat".
+ * @returns {Object|null} - Returns an object {lat, lng} or null if invalid.
+ */
+const parseCoordinateString = (coordString) => {
+  const coordsArray = coordString.split(',').map(parseFloat);
+  if (
+    coordsArray.length === 2 &&
+    !isNaN(coordsArray[0]) &&
+    !isNaN(coordsArray[1])
+  ) {
+    return { lng: coordsArray[0], lat: coordsArray[1] };
+  }
+  return null;
+};
+
+export default function TomTomMap({
+  lat,
+  lng,
+  locationCoords = () => {},
+  origins,
+  destinations,
+  place,
+  checkedNodes,
+  clickedNode, // Use this to center the map on a clicked route
+}) {
+  const initialCoords = calculateCenterAndMarker(lat, lng);
+  const [center, setCenter] = useState(initialCoords);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+  const routeLayerIds = useRef([]); // Store the route layer IDs to manage multiple routes
+
+  // Update center coordinates whenever lat or lng changes
   useEffect(() => {
     setCenter(calculateCenterAndMarker(lat, lng));
   }, [lat, lng]);
 
-  // TomTom API 로드 및 지도 초기화
+  console.log('checkedNodes ==>', checkedNodes);
+
+  // TomTom API load and map initialization
   useEffect(() => {
-    /**
-     * TomTom 지도 SDK 스크립트를 동적으로 로드하는 함수
-     */
     const loadScript = () => {
       const script = document.createElement('script');
-      script.src = 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.14.0/maps/maps-web.min.js'; // TomTom API 스크립트 경로
-      script.async = true; // 비동기 로드 설정
-      script.onload = initializeMap; // 스크립트 로드 완료 후 지도 초기화
-      document.body.appendChild(script); // 스크립트를 body에 추가하여 비동기 로드
+      script.src =
+        'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.14.0/maps/maps-web.min.js';
+      script.async = true;
+      script.onload = initializeMap;
+      document.body.appendChild(script);
     };
 
-    /**
-     * 지도를 초기화하고 클릭 이벤트 및 마커를 설정하는 함수
-     */
     const initializeMap = () => {
       mapRef.current = tt.map({
-        key: process.env.REACT_APP_TOMTOM_MAP_API, // 환경 변수에서 TomTom API 키 가져오기
-        container: 'map-container', // 지도가 렌더링될 HTML 요소 ID
-        center: [center.lng, center.lat], // 초기 중심 좌표 설정
-        zoom: Number(process.env.REACT_APP_ZOOM), // 환경 변수에서 줌 레벨 가져오기
+        key: process.env.REACT_APP_TOMTOM_MAP_API,
+        container: 'map-container',
+        center: [center.lng, center.lat],
+        zoom: Number(process.env.REACT_APP_ZOOM),
       });
 
-      // 지도 클릭 이벤트 리스너 추가
       mapRef.current.on('click', (event) => {
-        const { lat, lng } = event.lngLat; // 클릭한 위치의 위도 및 경도
-        locationCoords({ lat, lng }); // 부모 컴포넌트로 좌표 전달
+        const { lat, lng } = event.lngLat;
+        locationCoords({ lat, lng });
       });
 
-      // 초기 마커 설정
       markerRef.current = new tt.Marker()
-        .setLngLat([center.lng, center.lat]) // 마커 위치 설정
-        .addTo(mapRef.current); // 마커를 지도에 추가
+        .setLngLat([center.lng, center.lat])
+        .addTo(mapRef.current);
+
+      if (!place && origins && destinations) {
+        drawRoutes(mapRef.current, origins, destinations);
+      }
     };
 
-    // TomTom API가 로드되지 않았으면 스크립트 로드
     if (!window.tt) {
       loadScript();
     } else {
-      initializeMap(); // 이미 API가 로드된 경우 지도 초기화
+      initializeMap();
     }
-  }, []);
+  }, [center, origins, destinations, place]);
 
-  // 지도 중심이 변경될 때마다 지도와 마커 위치 업데이트
+  // Clear previous routes function
+  const clearRoutes = (map) => {
+    if (routeLayerIds.current.length > 0) {
+      routeLayerIds.current.forEach((layerId) => {
+        if (map.getLayer(layerId)) {
+          map.removeLayer(layerId);
+          map.removeSource(layerId);
+        }
+      });
+      routeLayerIds.current = [];
+    }
+  };
+
+  // Handle searched place and move map
   useEffect(() => {
-    if (mapRef.current && markerRef.current) {
-      mapRef.current.setCenter([center.lng, center.lat]); // 지도 중심 위치 업데이트
-      markerRef.current.setLngLat([center.lng, center.lat]); // 마커 위치 업데이트
+    if (place && place.lat && place.lng && mapRef.current) {
+      moveToPlace(place);
     }
-  }, [center]);
+  }, [place]);
 
-  // 지도 DOM 요소 렌더링
-  return (
-    <div>
-      <div id="map-container" className="map"></div> {/* 지도 컨테이너 */}
-    </div>
-  );
+  /**
+   * Moves the map to a new place and resets the routes.
+   * @param {Object} place - The coordinates of the new place to move the map to.
+   */
+  const moveToPlace = (place) => {
+    if (place && place.lat && place.lng) {
+      // Clear previous routes
+      clearRoutes(mapRef.current); // Clear routes when moving to a new place
+
+      // Move the map center to the new place
+      mapRef.current.setCenter([place.lng, place.lat]);
+
+      // Move the marker to the new place
+      markerRef.current.setLngLat([place.lng, place.lat]);
+    }
+  };
+
+  /**
+   * Centers the map on the route using the origin and destination coordinates.
+   * @param {Object} map - The TomTom map instance
+   * @param {Object} originCoords - Origin coordinates {lat, lng}
+   * @param {Object} destinationCoords - Destination coordinates {lat, lng}
+   */
+  const centerRoute = (map, originCoords, destinationCoords) => {
+    const bounds = new tt.LngLatBounds();
+
+    // Extend bounds with the origin and destination coordinates
+    bounds.extend([originCoords.lng, originCoords.lat]);
+    bounds.extend([destinationCoords.lng, destinationCoords.lat]);
+
+    // Fit the map to the bounds of the route with padding for better visibility
+    map.fitBounds(bounds, { padding: 50 });
+  };
+
+  /**
+   * Draws multiple routes on the map and adds start (origin) and finish (destination) markers.
+   * @param {Object} map - The TomTom map instance
+   * @param {Array|string|Object} origins - Origin coordinates
+   * @param {Array|string|Object} destinations - Destination coordinates
+   */
+  const drawRoutes = (map, origins, destinations) => {
+    let processedOrigins = processCoordinates(origins);
+    let processedDestinations = processCoordinates(destinations);
+
+    processedOrigins = Array.isArray(processedOrigins)
+      ? processedOrigins
+      : [processedOrigins];
+    processedDestinations = Array.isArray(processedDestinations)
+      ? processedDestinations
+      : [processedDestinations];
+
+    if (
+      !processedOrigins ||
+      !processedDestinations ||
+      processedOrigins.length !== processedDestinations.length
+    ) {
+      console.error('Invalid origin or destination coordinates');
+      return;
+    }
+
+    // Clear any previous routes
+    clearRoutes(map);
+
+    processedOrigins.forEach((originCoords, index) => {
+      const destinationCoords = processedDestinations[index];
+
+      if (
+        !originCoords ||
+        !originCoords.lng ||
+        !originCoords.lat ||
+        !destinationCoords ||
+        !destinationCoords.lng ||
+        !destinationCoords.lat
+      ) {
+        console.error(
+          'Missing or invalid lng/lat in origin or destination coordinates',
+        );
+        return;
+      }
+
+      new tt.Marker({ color: 'green' })
+        .setLngLat([originCoords.lng, originCoords.lat])
+        .addTo(map);
+
+      new tt.Marker({ color: 'red' })
+        .setLngLat([destinationCoords.lng, destinationCoords.lat])
+        .addTo(map);
+
+      // Calculate the route for each origin-destination pair
+      ttServices.services
+        .calculateRoute({
+          key: process.env.REACT_APP_TOMTOM_MAP_API,
+          locations: `${originCoords.lng},${originCoords.lat}:${destinationCoords.lng},${destinationCoords.lat}`,
+        })
+        .then(function (routeData) {
+          const geoJsonRoute = routeData.toGeoJson();
+          const newRouteLayerId = `route-${index}-${Date.now()}`;
+          routeLayerIds.current.push(newRouteLayerId);
+
+          // Add the route to the map
+          map.addLayer({
+            id: newRouteLayerId,
+            type: 'line',
+            source: {
+              type: 'geojson',
+              data: geoJsonRoute,
+            },
+            paint: {
+              'line-color': `hsl(${Math.random() * 360}, 100%, 50%)`,
+              'line-width': 6,
+            },
+          });
+
+          // Call the centerRoute function to fit the map to the route
+          centerRoute(map, originCoords, destinationCoords);
+        })
+        .catch((error) => {
+          console.error('Error calculating route:', error);
+        });
+    });
+  };
+
+  // **New Effect to Handle clickedNode and Center the Route**
+  useEffect(() => {
+    if (clickedNode != null && mapRef.current) {
+      const originCoords = parseCoordinateString(clickedNode.start_coord);
+      const destinationCoords = parseCoordinateString(clickedNode.goal_coord);
+
+      if (originCoords && destinationCoords) {
+        centerRoute(mapRef.current, originCoords, destinationCoords);
+      } else {
+        console.error(
+          'Invalid origin or destination coordinates for clicked node.',
+        );
+      }
+    }
+  }, [clickedNode]);
+
+  return <div id="map-container" className="map" />;
 }

@@ -1,69 +1,69 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Transition } from '@headlessui/react';
 import { FaXmark } from 'react-icons/fa6';
 import { FaArrowCircleRight } from 'react-icons/fa';
-
+import { useTranslation } from 'react-i18next';
 import Tree from '../treeMenu/Tree';
 
-const treeData = [
-  {
-    id: 1,
-    name: 'Parent 1',
-    checked: false,
-    children: [
-      {
-        id: 2,
-        name: 'Child 1-1',
-        checked: false,
-        children: [],
-      },
-      {
-        id: 3,
-        name: 'Child 1-2',
-        checked: false,
-        children: [
-          {
-            id: 4,
-            name: 'Grandchild 1-2-1',
-            checked: false,
-            children: [],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 5,
-    name: 'Parent 2',
-    checked: false,
-    children: [],
-  },
-];
+export default function LeftSideSlide({
+  data,
+  onCheckedNodesChange,
+  onClickedNode,
+  onMapChange,
+}) {
+  const [open, setOpen] = useState(false); // State to manage whether the panel is open
+  const [treeData, setTreeData] = useState([]); // Local state to manage tree data
+  const { t } = useTranslation();
 
-export default function LeftSideSlide() {
-  const [open, setOpen] = useState(false);
-
-  /**
-   * 패널 열기/닫기를 처리하는 함수
-   */
-  const togglePanel = () => {
-    setOpen(!open);
+  // Function to handle checked nodes change
+  const handleCheckedNodes = (nodes) => {
+    onCheckedNodesChange(nodes); // Send the checked nodes back to MapLayout
   };
+
+  // Function to handle clicked node
+  const handleNodeClick = (node) => {
+    onClickedNode(node); // Set the clicked node in state
+  };
+
+  const togglePanel = () => {
+    setOpen(!open); // Toggle the panel manually
+  };
+
+  // useEffect to automatically open the panel when new data is provided and set treeData
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setOpen(true); // Open the panel when new data is provided
+      setTreeData(data); // Set the data for the Tree component
+    }
+  }, [data]);
+  
+  useEffect(() => {
+    if (onMapChange) {
+      setOpen(false)
+    }
+  }, [onMapChange]);
+
+  useEffect(() => {
+    if (!open) {
+      setTreeData([]); // Clear treeData when the panel closes
+    }
+  }, [open]);
 
   return (
     <div className="flex">
-      {/* 패널 열기 버튼 */}
+      {/* Panel open button */}
       {!open && (
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className=" text-white px-2 py-4 rounded-r-full bg-blue_ncs hover:bg-blue_lapis"
+            className="text-white px-2 py-4 rounded-r-full bg-blue_ncs hover:bg-blue_lapis"
             onClick={togglePanel}
           >
             <FaArrowCircleRight size={22} />
           </button>
         </div>
       )}
-      {/* 사이드바 */}
+
+      {/* Sidebar with Transition */}
       <Transition
         show={open}
         enter="transform transition ease-in-out duration-500 sm:duration-700"
@@ -77,12 +77,12 @@ export default function LeftSideSlide() {
           <div className="bg-blue_lapis px-2 py-2 sm:px-3 shadow-xl">
             <div className="flex items-center justify-between">
               <label className="flex text-base font-semibold leading-6 text-white">
-                코스리스트
+                {t('LeftSideSlide.CourseList')}
               </label>
               <div className="ml-3 flex h-7 items-center">
                 <button
                   type="button"
-                  className="relative rounded-md  text-indigo-200 hover:text-white focus:outline-none hover:outline-none "
+                  className="relative rounded-md text-indigo-200 hover:text-white focus:outline-none hover:outline-none"
                   onClick={togglePanel}
                 >
                   <span className="absolute -inset-2.5" />
@@ -93,8 +93,13 @@ export default function LeftSideSlide() {
             </div>
           </div>
           <div className="px-2 overflow-x-auto pb-5 scroll-smooth overflow-auto">
-            {/* 트리 메뉴 컴포넌트 */}
-            <Tree data={treeData} />
+            {/* Tree menu component */}
+            <Tree
+              data={treeData} // Use the local treeData state
+              onCheckedNodesChange={handleCheckedNodes}
+              onNodeClick={handleNodeClick} // Pass the onNodeClick handler to Tree
+              onMapChange={onMapChange}
+            />
           </div>
         </div>
       </Transition>

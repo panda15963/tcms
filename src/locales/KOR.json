@@ -43,9 +43,11 @@
     "SelectedAPI": "선택된 지도"
   },
   "LogModal": {
-    "ModalName": "로그 검색",
+    "ModalName": "로그 검색",    
+    "Route":"경로",
+    "Arrangement": "배치",
     "SearchFields": "검색 필드",
-    "Find": "찾기",
+    "Find": "검색",
     "DownloadDir": "다운로드 경로",
     "Download": "다운로드",
     "Select": "선택",
@@ -107,5 +109,52 @@
     "PreviousButton": "이전",
     "NextButton": "다음",
     "PaginationText": "{{first}}부터 {{last}}까지의 {{total}}개의 항목 표시"
+  },
+  "GoogleMap": {
+    "RouteZeroResults": "경로를 찾을 수 없습니다.",
+    "RouteError": "경로(들)의 요청이 실패했습니다. 이유는"
+  },
+  "RoutoMap": {
+    "KoreaRegionOnlyError": "한국 내 지역만 검색할 수 있습니다."
+  },
+  "TMap": {
+    "KoreaRegionOnlyError": "한국 내 지역만 검색할 수 있습니다."
+  },
+  "RightSideSlide": {
+    "Name": "이름",
+    "Continent": "대륙",
+    "Country": "국가",
+    "Creator": "만든이",
+    "CreatedDate": "만든 날짜",
+    "LastChangeDate": "최근 변경 날짜",
+    "Priority": "우선순위",
+    "FeatureCategory": "기능 카테고리",
+    "Feature": "기능",
+    "Target": "대상",
+    "Summary": "요약",
+    "Departure": "출발지",
+    "Lon": "경도",
+    "Lat": "위도",
+    "Destination": "목적지",
+    "LonLat": "위도 & 경도",
+    "Distance": "거리",
+    "Way": "도로",
+    "TripTotalTime": "여행 전체 시간",
+    "TripStartTime": "여행 시작 시간",
+    "TripEndTime": "여행 마지막 시간",
+    "Description": "설명",
+    "TagList": "태그 목록",
+    "Tag": "태그",
+    "FileName": "파일 이름",
+    "PassingPoint": "지나가는 지점",
+    "Address": "주소",
+    "RoadName": "도로명",
+    "NoDataFound": "로그 데이터 검색 되지 않았습니다.",
+    "MetaList": "메타 목록",
+    "LogMetaDataList": "로그 메타 데이터 목록"
+  },
+  "LeftSideSlide": {
+    "CourseList": "경로 목록",
+    "NoDataFound": "경로 데이터 검색 되지 않았습니다."
   }
 }

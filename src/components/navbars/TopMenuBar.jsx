@@ -23,7 +23,12 @@ import { useTranslation } from 'react-i18next';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
 
-const TopMenuBar = () => {
+const TopMenuBar = ({
+  checkedNodes,
+  handleRouteData, 
+  clickedNode, 
+  setCurrentApi,
+}) => {
   const [inputValue, setInputValue] = useState('');
   const [keyPressed, setKeyPressed] = useState('');
   const [selectedCoords, setSelectedCoords] = useState(null);
@@ -38,6 +43,7 @@ const TopMenuBar = () => {
   const [displayCoords, setDisplayCoords] = useState(null);
   const [origins, setOrigins] = useState([]);
   const [destinations, setDestinations] = useState([]);
+  const [country, setCountry] = useState(null);
 
   const storeModalRef = useRef();
   const logModalRef = useRef();
@@ -74,41 +80,50 @@ const TopMenuBar = () => {
     }
   };
 
-  const handleRouteData = (data) => {
-    // Extract coordinate data
-    const coordinates = data
-      .map((item) => {
-        const startCoord = item.start_coord;
-        const goalCoord = item.goal_coord;
+  console.log(checkedNodes)
 
-        if (startCoord && goalCoord) {
-          return {
-            startCoord,
-            goalCoord,
-          };
-        }
-        return null; // Return null for invalid items
-      })
-      .filter((item) => item !== null); // Remove null items
+  useEffect(() => {
+    // Only run if checkedNodes is defined and has elements
+    if (checkedNodes && checkedNodes.length > 0) {
+      // Extract coordinate data
+      const coordinates = checkedNodes
+        .map((item) => {
+          const startCoord = item.start_coord;
+          const goalCoord = item.goal_coord;
+          if (startCoord && goalCoord) {
+            return {
+              startCoord,
+              goalCoord,
+            };
+          }
+          return null; // Return null for invalid items
+        })
+        .filter((item) => item !== null); // Remove null items
 
-    if (coordinates.length === 0) {
-      setErrorValue(`${t('TopMenuBar.EmptyCoords')}`);
-    } else if (coordinates.length === 1) {
-      // Handle single route
-      setOrigins([coordinates[0].startCoord]); // Set in array format
-      setDestinations([coordinates[0].goalCoord]);
-    } else {
-      // Handle multiple routes
-      const startCoords = coordinates.map((route) => route.startCoord);
-      const goalCoords = coordinates.map((route) => route.goalCoord);
+      const countries = checkedNodes
+        .map((item) => item.country_str)
+        .filter((item) => item !== null);
 
-      setOrigins(startCoords); // Set arrays of coordinates
-      setDestinations(goalCoords);
+      if (coordinates.length === 0) {
+        setErrorValue(`${t('TopMenuBar.EmptyCoords')}`);
+      } else if (coordinates.length === 1) {
+        // Handle single route
+        setOrigins([coordinates[0].startCoord]); // Set in array format
+        setDestinations([coordinates[0].goalCoord]);
+        setCountry(countries);
+      } else {
+        // Handle multiple routes
+        const startCoords = coordinates.map((route) => route.startCoord);
+        const goalCoords = coordinates.map((route) => route.goalCoord);
+
+        setOrigins(startCoords); // Set arrays of coordinates
+        setDestinations(goalCoords);
+        setCountry(countries);
+      }
     }
-  };
+  }, [checkedNodes]); // This effect runs whenever `checkedNodes` changes
 
   const handleChoosingMapAPIs = () => {
-    // Combine logic for both routes and coordinates in one component rendering
     if (selectedAPI?.name === 'GOOGLE') {
       return (
         <GoogleMapHandler
@@ -117,6 +132,8 @@ const TopMenuBar = () => {
           googleLocation={setClickedCoords}
           origins={origins}
           destinations={destinations}
+          checkedNode={checkedNodes}
+          clickedNode={clickedNode}
         />
       );
     } else if (selectedAPI?.name === 'ROUTO') {
@@ -125,6 +142,11 @@ const TopMenuBar = () => {
           key="routo"
           selectedCoords={selectedCoords}
           routoLocation={setClickedCoords}
+          origins={origins}
+          destinations={destinations}
+          country={country}
+          checkedNode={checkedNodes}
+          clickedNode={clickedNode}
         />
       );
     } else if (selectedAPI?.name === 'TMAP') {
@@ -133,6 +155,11 @@ const TopMenuBar = () => {
           key="tmap"
           selectedCoords={selectedCoords}
           tmapLocation={setClickedCoords}
+          origins={origins}
+          destinations={destinations}
+          country={country}
+          checkedNode={checkedNodes}
+          clickedNode={clickedNode}
         />
       );
     } else if (selectedAPI?.name === 'TOMTOM') {
@@ -141,6 +168,10 @@ const TopMenuBar = () => {
           key="tomtom"
           selectedCoords={selectedCoords}
           tomtomLocation={setClickedCoords}
+          origins={origins}
+          destinations={destinations}
+          checkedNode={checkedNodes}
+          clickedNode={clickedNode}
         />
       );
     } else if (selectedAPI?.name === 'BAIDU') {
@@ -149,6 +180,10 @@ const TopMenuBar = () => {
           key="baidu"
           selectedCoords={selectedCoords}
           baiduLocation={setClickedCoords}
+          origins={origins}
+          destinations={destinations}
+          checkedNode={checkedNodes}
+          clickedNode={clickedNode}
         />
       );
     }
@@ -156,13 +191,25 @@ const TopMenuBar = () => {
 
   useEffect(() => {
     if (selectedAPI) {
-      // Perform any side effects, such as fetching new data
-      // or resetting state related to the selected API
+      // Reset all related states when a new map API is selected
+      setOrigins([]);
+      setDestinations([]);
+      setInputValue(''); // Reset store search input
+      setSelectedCoords(null); // Reset selected coordinates
+      setClickedCoords(null); // Reset clicked coordinates
+      setCountry(null); // Reset country data
+      setConvertedCoords({ lat: '', lng: '' }); // Reset converted coordinates
+      setDisplayCoords(null); // Reset display coordinates
+
+      // Set the current API to the selected API
+      setCurrentApi(selectedAPI);
+
+      // Display success message for API selection
       setSuccessValue(
         `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`,
       );
     }
-  }, [selectedAPI]);
+  }, [selectedAPI, setCurrentApi]); // Add setCurrentApi to the dependency array
 
   const handleCoordsChange = (e) => {
     const { name, value } = e.target;
@@ -244,7 +291,7 @@ const TopMenuBar = () => {
     if (latError || lngError) {
       let combinedError =
         latError && lngError
-          ? `${t('TopMenuBar.ErrorsInLatLon')}: ${latError} & ${lngError}.`
+          ? `${t('TopMenuBar.CombinedError')}: ${latError} & ${lngError}.`
           : latError
             ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
             : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
@@ -297,10 +344,10 @@ const TopMenuBar = () => {
     if (latError || lngError) {
       let combinedError =
         latError && lngError
-          ? `${t('TopMenuBar.ErrorsInLatLon')}: ${latError} & ${lngError}.`
+          ? `${t('TopMenuBar.CombinedError')}: ${latError} & ${lngError}`
           : latError
-            ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
-            : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
+            ? `${t('TopMenuBar.ErrorInLat')}: ${latError}`
+            : `${t('TopMenuBar.ErrorInLon')}: ${lngError}`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);

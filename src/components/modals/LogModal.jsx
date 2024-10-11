@@ -618,29 +618,38 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
   };
 
   const handleButtonClick = () => {
-    // 선택된 데이터를 RightSideSlide, LeftSideSlide, GoogleMap에 전달
-    // console.log('Selected data to pass:', selectedData);
-    // 예: setRightSideData(selectedData);
-    // 예: setLeftSideData(selectedData);
-    // 예: setGoogleMapData(selectedData);
-    if (routeData && isFunction(routeData)) {
-      routeData(selectedData);
-    }
+    // Pass the selected data to the parent component (or use it as needed)
+    routeData(list);
 
+    // Close the modal
     setOpen(false);
+
+    // Reset search conditions, selected fields, and lists
+    setCond(initialCond); // Resetting the search conditions
+    setSelectedSearchFields([]); // Reset the selected search fields
+    setSelectedIds([]); // Reset the selected IDs for fields
+    setList(initialList); // Reset the list of search results
+    setSelectedData([]); // Reset the selected data
+
+    // Optionally reset other lists or selections if needed
+    setSelectedLogList([]);
+    setSelectedLogList2([]);
   };
 
   const handleConfigButtonClick = () => {
-    // 선택된 데이터를 RightSideSlide, LeftSideSlide, GoogleMap에 전달
-    // console.log('Selected data to pass:', selectedData);
-    // 예: setRightSideData(selectedData);
-    // 예: setLeftSideData(selectedData);
-    // 예: setGoogleMapData(selectedData);
-    if (routeData && isFunction(routeData)) {
-      routeData(selectedData);
-    }
+    // Pass the selected data to the parent component
+    routeData(configList);
 
+    // Close the modal
     setOpen(false);
+
+    // Reset configuration search conditions and selected data
+    setConfigCond(initialConfigCond); // Reset the configuration conditions
+    setSelectedSearchFieldsConfig([]); // Reset the selected search fields for batch tab
+    setSelectedConfigIds([]); // Reset the selected config IDs
+    setConfigList(initialList); // Reset the configuration list
+    setSelectedLogList([]); // Reset any selected log lists
+    setSelectedLogList2([]); // Reset the secondary selected log list
   };
 
   /**
@@ -801,7 +810,7 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
                 className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
               >
                 <FaCheck className="h- w-5 text-slate-700" aria-hidden="true" />
-                선택
+                {t('LogModal.Select')}
               </button>
             </div>
             {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
@@ -895,7 +904,7 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
                 className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
               >
                 <FaCheck className="h- w-5 text-slate-700" aria-hidden="true" />
-                선택
+                {t('LogModal.Select')}
               </button>
             </div>
             {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
@@ -936,7 +945,9 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
                 style={{ width: '1324px' }}
               >
                 <div className="flex justify-between py-3 px-5 bg-blue_ncs">
-                  <h1 className="font-semibold text-white">로그 검색</h1>
+                  <h1 className="font-semibold text-white">
+                    {t('LogModal.ModalName')}
+                  </h1>
                   <button
                     className="font-semibold"
                     onClick={() => setOpen(false)}
@@ -951,13 +962,13 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
                     className={`px-4 py-2 font-semibold ${activeTab === 'route' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
                     onClick={() => handleTabChange('route')}
                   >
-                    경로
+                    {t('LogModal.Route')}
                   </button>
                   <button
                     className={`px-4 py-2 font-semibold ${activeTab === 'batch' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
                     onClick={() => handleTabChange('batch')}
                   >
-                    배치
+                    {t('LogModal.Arrangement')}
                   </button>
                 </div>
 
@@ -1141,7 +1152,7 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
                             aria-hidden="true"
                           />
                           <span className="text-base text-sky-500 font-bold">
-                            검색
+                            {t('LogModal.Find')}
                           </span>
                         </button>
                       </div>
@@ -1166,13 +1177,15 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
                       <div className="flex justify-end mt-3">
                         <button
                           onClick={handleButtonClick}
-                          className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
+                          className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
                           <FaCheck
-                            className="h-5 w-5 text-slate-700"
+                            className="h-5 w-5 text-sky-500"
                             aria-hidden="true"
                           />
-                          선택
+                          <span className="text-base text-sky-500 font-bold">
+                            {t('LogModal.Select')}
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -1313,7 +1326,7 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
                             aria-hidden="true"
                           />
                           <span className="text-base text-sky-500 font-bold">
-                            검색
+                            {t('LogModal.Find')}
                           </span>
                         </button>
                       </div>
@@ -1363,7 +1376,7 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
                             className="h-5 w-5 text-slate-700"
                             aria-hidden="true"
                           />
-                          선택
+                          {t('LogModal.Select')}
                         </button>
                       </div>
                     </div>

@@ -34,7 +34,7 @@
     "DEGError": "must be divided into three parts.",
     "LatError": "is empty.",
     "LonError": "is empty.",
-    "CombinedError": "Error occurred in latitude and longitude:",
+    "CombinedError": "Error occurred in latitude and longitude",
     "ErrorInLat": "Error in Latitude",
     "ErrorInLon": "Error in Longitude",
     "RangeError": "Out of range.",
@@ -44,6 +44,8 @@
   },
   "LogModal": {
     "ModalName": "Log Search",
+    "Route":"Route",
+    "Arrangement": "Arrangement",
     "SearchFields": "Search Fields",
     "Find": "Find",
     "DownloadDir": "Download Directory",
@@ -107,5 +109,52 @@
     "PreviousButton": "Previous",
     "NextButton": "Next",
     "PaginationText": "Showing {{first}} to {{last}} of {{total}} stores"
+  },
+  "GoogleMap": {
+    "RouteZeroResults": "Can't find the routes",
+    "RouteError": "Directions request failed due to"
+  },
+  "RoutoMap": {
+    "KoreaRegionOnlyError": "Only can possibly search in Korea"
+  },
+  "TMap": {
+    "KoreaRegionOnlyError": "Only can possibly search in Korea"
+  },
+  "RightSideSlide":{
+    "Name": "Name",
+    "Continent": "Continent",
+    "Country": "Country",
+    "Creator": "Creator",
+    "CreatedDate": "Created Date",
+    "LastChangeDate": "Last Change Date",
+    "Priority": "Priority",
+    "FeatureCategory": "Feature Category",
+    "Feature": "Feature",
+    "Target": "Target",
+    "Summary": "Summary",
+    "Departure": "Departure",
+    "Lon" : "Longitude",
+    "Lat" : "Latitude",
+    "Destination": "Destination",
+    "LonLat": "Longitude & Latitude",
+    "Distance": "Distance",
+    "Way" : "Way",
+    "TripTotalTime" : "Trip Total Time",
+    "TripStartTime" : "Trip Start Time",
+    "TripEndTime" : "Trip End Time",
+    "Description": "Description",
+    "TagList": "Tag List",
+    "Tag": "Tag",
+    "FileName": "File Name",
+    "PassingPoint": "Passing Point",
+    "Address": "Address",
+    "RoadName": "Road Name",
+    "NoDataFound": "Log Data aren't Searched",
+    "MetaList": "Meta List",
+    "LogMetaDataList": "Log Meta Data List"
+  },
+  "LeftSideSlide": {
+    "CourseList": "Course Lists",
+    "NoDataFound": "Course Data aren't Searched."
   }
 }

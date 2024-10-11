@@ -1,6 +1,13 @@
 import TomTomMap from '../../pages/mapPages/TomTomMap';
 
-export default function TomTomMapHandler({ selectedCoords, tomtomLocation }) {
+export default function TomTomMapHandler({
+  selectedCoords,
+  tomtomLocation,
+  origins,
+  destinations,
+  checkedNode,
+  clickedNode,
+}) {
   /**
    * TomTom 지도 표출 컴포넌트
    *
@@ -9,16 +16,34 @@ export default function TomTomMapHandler({ selectedCoords, tomtomLocation }) {
    */
   return (
     <>
-      {selectedCoords !== null ? (
-        // 선택된 좌표가 있을 경우 해당 좌표(lat, lng)와 tomtomLocation을 함께 전달
+      {selectedCoords && tomtomLocation && origins && destinations ? (
+        <TomTomMap
+          lat={selectedCoords.lat}
+          lng={selectedCoords.lng}
+          locationCoords={tomtomLocation}
+          origins={origins}
+          destinations={destinations}
+          checkedNodes={checkedNode}
+          clickedNode={clickedNode}
+        />
+      ) : selectedCoords && tomtomLocation ? (
         <TomTomMap
           lat={selectedCoords.lat}
           lng={selectedCoords.lng}
           locationCoords={tomtomLocation}
         />
-      ) : (
-        // 선택된 좌표가 없을 경우 tomtomLocation만 전달
+      ) : !selectedCoords && tomtomLocation && origins && destinations ? (
+        <TomTomMap
+          locationCoords={tomtomLocation}
+          origins={origins}
+          destinations={destinations}
+          checkedNodes={checkedNode}
+          clickedNode={clickedNode}
+        />
+      ) : tomtomLocation ? (
         <TomTomMap locationCoords={tomtomLocation} />
+      ) : (
+        <div>지도를 표시할 수 없습니다. 위치 정보가 없습니다.</div>
       )}
     </>
   );

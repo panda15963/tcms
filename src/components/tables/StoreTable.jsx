@@ -19,7 +19,7 @@ export default function StoreTable({ stores, onDataReceive }) {
   const indexOfLastStore = currentPage * storesPerPage; // 현재 페이지의 마지막 지점 인덱스 계산
   const indexOfFirstStore = indexOfLastStore - storesPerPage; // 현재 페이지의 첫 번째 지점 인덱스 계산
   const currentStores = stores.slice(indexOfFirstStore, indexOfLastStore); // 현재 페이지에 표시할 지점 목록 슬라이싱
-  
+
   /**
    * 페이지 변경을 처리하는 함수
    * @param {number} pageNumber - 변경할 페이지 번호
@@ -80,8 +80,12 @@ export default function StoreTable({ stores, onDataReceive }) {
           {currentStores.map((store) => {
             const storeData = [
               store.name,
-              store.latitude.toFixed(6),
-              store.longitude.toFixed(6),
+              typeof store.latitude === 'number'
+                ? store.latitude.toFixed(6)
+                : Number(store.latitude).toFixed(6),
+              typeof store.longitude === 'number'
+                ? store.longitude.toFixed(6)
+                : Number(store.longitude).toFixed(6),
             ];
             return (
               <tr

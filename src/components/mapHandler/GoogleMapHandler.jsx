@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import GoogleMap from '../../pages/mapPages/GoogleMap';
+import Error from '../alerts/Error';
 
 export default function GoogleMapHandler({
   selectedCoords,
   googleLocation,
   origins,
   destinations,
-}) {
+  checkedNode,
+  clickedNode,
+}) {  
   /**
    * GoogleMap 지도 표시 핸들러
    *
@@ -28,46 +32,52 @@ export default function GoogleMapHandler({
    * 5. googleLocation이 없을 경우:
    *    - 지도를 표시할 수 없으며, 에러 메시지를 표시합니다.
    */
-  const parseCoordinates = (coordArray) => {
-    return coordArray.map((coord) => {
-      const [lng, lat] = coord.split(',').map(Number);
-      return { lat, lng };
-    });
+  const [isError, setIsError] = useState(false); // 에러 발생 여부 상태
+  const [errorText, setErrorText] = useState(null); // 에러 메시지 상태
+
+  // Error handling function
+  const handleError = (message) => {
+    setIsError(true);
+    setErrorText(message);
   };
-  const parsedOrigins = parseCoordinates(origins);
-  const parsedDestinations = parseCoordinates(destinations);
-  console.log(parsedOrigins, parsedDestinations)
+
   return (
     <>
+      {isError && <Error errorMessage={errorText} />}
       {selectedCoords && googleLocation && origins && destinations ? (
-        // 모든 조건이 만족하는 경우, 선택된 좌표와 경로를 표시
         <GoogleMap
           lat={selectedCoords.lat}
           lng={selectedCoords.lng}
           locationCoords={googleLocation}
           origins={origins}
           destinations={destinations}
+          checkedNodes={checkedNode}
+          clickedNode={clickedNode}
+          error={handleError} // Pass the error handling function here
         />
       ) : selectedCoords && googleLocation ? (
-        // 선택된 좌표와 googleLocation만 있는 경우, 선택된 좌표만 표시
         <GoogleMap
           lat={selectedCoords.lat}
           lng={selectedCoords.lng}
           locationCoords={googleLocation}
+          error={handleError} // Pass the error handling function
         />
       ) : !selectedCoords && googleLocation && origins && destinations ? (
-        // 선택된 좌표는 없지만, googleLocation과 경로가 있는 경우, 경로만 표시
         <GoogleMap
           locationCoords={googleLocation}
           origins={origins}
           destinations={destinations}
+          checkedNodes={checkedNode}
+          clickedNode={clickedNode}
+          error={handleError} // Pass the error handling function
         />
       ) : googleLocation ? (
-        // googleLocation만 있는 경우, 기본 위치만 지도에 표시
-        <GoogleMap locationCoords={googleLocation} />
+        <GoogleMap
+          locationCoords={googleLocation}
+          error={handleError} // Pass the error handling function
+        />
       ) : (
-        // googleLocation이 없는 경우, 에러 메시지 출력
-        <div>지도를 표시할 수 없습니다. 위치 정보가 없습니다.</div>
+        <Error message="지도를 표시할 수 없습니다. 위치 정보가 없습니다." />
       )}
     </>
   );
