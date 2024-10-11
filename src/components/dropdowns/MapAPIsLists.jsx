@@ -9,13 +9,13 @@ import {
 import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-// 사용 가능한 지도 API 목록
+// 사용 가능한 지도 API 목록 주석 처리한 부분은 당분간 사용 금지
 const mapAPIs = [
   { id: 1, name: 'GOOGLE' },
   { id: 2, name: 'ROUTO' },
   { id: 3, name: 'TMAP' },
   { id: 4, name: 'TOMTOM' },
-  { id: 5, name: 'BAIDU' },
+  // { id: 5, name: 'BAIDU' },
   // { id: 6, name: 'HERE' },
 ];
 
