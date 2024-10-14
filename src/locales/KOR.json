@@ -45,14 +45,15 @@
   "LogModal": {
     "ModalName": "로그 검색",    
     "Route":"경로",
-    "Arrangement": "배치",
+    "Configuration": "구성",
     "SearchFields": "검색 필드",
     "Find": "검색",
     "DownloadDir": "다운로드 경로",
     "Download": "다운로드",
     "Select": "선택",
     "Loading": "로딩 중...",
-    "FetchedData": "불러온 데이터"
+    "FetchedData": "불러온 데이터",
+    "AllVersions": "모든 버전들"
   },
   "Fields": {
     "FindDescription": "검색 설명",
@@ -90,6 +91,14 @@
     "SouthAmerica": "남아메리카"
   },
   "MainGrid": {
+    "UploadedDate": "업로드 된 날짜",
+    "Name": "이름",
+    "Version": "버전",
+    "Country": "국가",
+    "LogType": "로그 종류",
+    "Summary": "요약"
+  },
+  "MainGrid2": {
     "UploadedDate": "업로드 된 날짜",
     "Name": "이름",
     "Version": "버전",

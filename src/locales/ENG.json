@@ -45,14 +45,15 @@
   "LogModal": {
     "ModalName": "Log Search",
     "Route":"Route",
-    "Arrangement": "Arrangement",
+    "Configuration": "Configuration",
     "SearchFields": "Search Fields",
     "Find": "Find",
     "DownloadDir": "Download Directory",
     "Download": "Download",
     "Select": "Select",
     "Loading": "Loading...",
-    "FetchedData": "Fetched Data"
+    "FetchedData": "Fetched Data",
+    "AllVersions": "All Versions"
   },
   "Fields": {
     "FindDescription": "Find Description",
@@ -90,6 +91,14 @@
     "SouthAmerica": "South America"
   },
   "MainGrid": {
+    "UploadedDate": "Uploaded Date",
+    "Name": "Name",
+    "Version": "Version",
+    "Country": "Country",
+    "LogType": "Log Type",
+    "Summary": "Summary"
+  },
+  "MainGrid2": {
     "UploadedDate": "Uploaded Date",
     "Name": "Name",
     "Version": "Version",

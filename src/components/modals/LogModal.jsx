@@ -1,4 +1,10 @@
-import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+  useRef,
+} from 'react';
 import {
   Dialog,
   DialogPanel,
@@ -126,7 +132,6 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
   const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
     [],
   );
-  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [countryList, setCountryList] = useState(initialList);
@@ -144,6 +149,7 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
   const [selectedData, setSelectedData] = useState([]);
   const [selectedLogList, setSelectedLogList] = useState([]);
   const [selectedLogList2, setSelectedLogList2] = useState([]);
+  const selectedConfigRowsRef = useRef([]); // useRef instead of useState
 
   useEffect(() => {
     console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
@@ -637,19 +643,20 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
   };
 
   const handleConfigButtonClick = () => {
-    // Pass the selected data to the parent component
-    routeData(configList);
+    if (
+      selectedConfigRowsRef.current &&
+      selectedConfigRowsRef.current.length > 0
+    ) {
+      routeData(selectedConfigRowsRef.current);
+    } else {
+      console.log('No rows selected!');
+    }
+
+    console.log('selectedConfigRowsRef ==> ',selectedConfigRowsRef)
+    console.log('selectedRouteCellData ==> ', selectedRouteCellData)
 
     // Close the modal
     setOpen(false);
-
-    // Reset configuration search conditions and selected data
-    setConfigCond(initialConfigCond); // Reset the configuration conditions
-    setSelectedSearchFieldsConfig([]); // Reset the selected search fields for batch tab
-    setSelectedConfigIds([]); // Reset the selected config IDs
-    setConfigList(initialList); // Reset the configuration list
-    setSelectedLogList([]); // Reset any selected log lists
-    setSelectedLogList2([]); // Reset the secondary selected log list
   };
 
   /**
@@ -786,7 +793,7 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
           <div className="bg-white p-4 rounded-md shadow-lg">
             <div className="flex justify-between py-3 px-5 bg-blue_ncs">
-              <h1 className="font-semibold text-white">All Versions</h1>
+              <h1 className="font-semibold text-white">{t('LogModal.AllVersions')}</h1>
               <button
                 className="font-semibold"
                 onClick={() => setIsRouteModalOpen(false)}
@@ -807,10 +814,12 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
             <div className="flex justify-end mt-3">
               <button
                 onClick={handleConfigButtonClick}
-                className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
+                className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
-                <FaCheck className="h- w-5 text-slate-700" aria-hidden="true" />
-                {t('LogModal.Select')}
+                <FaCheck className="h-5 w-5 text-sky-500" aria-hidden="true" />
+                <span className="text-base text-sky-500 font-bold">
+                  {t('LogModal.Select')}
+                </span>
               </button>
             </div>
             {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
@@ -823,9 +832,9 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
   };
 
   const handleSelectionChangeRoute = (selectedRows) => {
-    console.log('handleSelectionChangeRoute of selectedRows ==>', selectedRows);
+    console.log('handleSelectionChangeRoute of selectedRows ==>', selectedRows,selectedConfigRowsRef);
     if (selectedRows && selectedRows.length > 0) {
-      // setSelectedLogList2(selectedRows[0].loglist);
+      selectedConfigRowsRef.current = selectedRows;
     }
   };
 
@@ -868,7 +877,7 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
           <div className="bg-white p-4 rounded-md shadow-lg">
             <div className="flex justify-between py-3 px-5 bg-blue_ncs">
-              <h1 className="font-semibold text-white">All Versions</h1>
+              <h1 className="font-semibold text-white">{t('LogModal.AllVersions')}</h1>
               <button
                 className="font-semibold"
                 onClick={() => setIsConfigModalOpen(false)}
@@ -901,10 +910,12 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
             <div className="flex justify-end mt-3">
               <button
                 onClick={handleConfigButtonClick}
-                className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
+                className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
-                <FaCheck className="h- w-5 text-slate-700" aria-hidden="true" />
-                {t('LogModal.Select')}
+                <FaCheck className="h-5 w-5 text-sky-500" aria-hidden="true" />
+                <span className="text-base text-sky-500 font-bold">
+                  {t('LogModal.Select')}
+                </span>
               </button>
             </div>
             {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
@@ -968,7 +979,7 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
                     className={`px-4 py-2 font-semibold ${activeTab === 'batch' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
                     onClick={() => handleTabChange('batch')}
                   >
-                    {t('LogModal.Arrangement')}
+                    {t('LogModal.Configuration')}
                   </button>
                 </div>
 
@@ -1370,13 +1381,15 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
                       <div className="flex justify-end mt-3">
                         <button
                           onClick={handleConfigButtonClick}
-                          className="inline-flex items-center gap-x-1.5 font-semibold text-sm border-slate-300 border rounded-md py-2 px-3 ms-2 focus:ring-1 focus:border-sky-500 hover:border-sky-500"
+                          className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
                           <FaCheck
-                            className="h-5 w-5 text-slate-700"
+                            className="h-5 w-5 text-sky-500"
                             aria-hidden="true"
                           />
-                          {t('LogModal.Select')}
+                          <span className="text-base text-sky-500 font-bold">
+                            {t('LogModal.Select')}
+                          </span>
                         </button>
                       </div>
                     </div>
