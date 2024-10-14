@@ -28,32 +28,31 @@ const defaultColumns = (t) => [
   },
   {
     accessorKey: 'modif_date', // 데이터를 가져올 키 (데이터의 속성 이름)
-    // header: t('ConfigGridL.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
-    header: 'Upload Date', // 컬럼 헤더에 표시될 텍스트
+    header: t('ConfigGridL.UploadedDate'), // 컬럼 헤더에 표시될 텍스트?
   },
   {
     accessorKey: 'tccfg_name',
-    header: 'CFG_name',
+    header: t('ConfigGridL.CFG_name'),
   },
   {
     accessorKey: 'description',
-    header: 'Description',
+    header: t('ConfigGridL.Description'),
   },
   {
     accessorKey: 'taglist',
-    header: 'Tag',
+    header: t('ConfigGridL.Tag'),
   },
   {
     accessorKey: 'ver_id',
-    header: 'Version',
+    header: t('ConfigGridL.Version'),
   },
   {
     accessorKey: 'modif_type',
-    header: 'Modification Type',
+    header: t('ConfigGridL.ModificationType'),
   },
   {
     accessorKey: 'modif_comment',
-    header: 'Modification Comment',
+    header: t('ConfigGridL.ModificationComment'),
   },
 ];
 

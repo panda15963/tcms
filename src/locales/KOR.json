@@ -98,13 +98,19 @@
     "LogType": "로그 종류",
     "Summary": "요약"
   },
-  "MainGrid2": {
+  "ConfigGridR": {
+    "CFG_name": "CFG 이름",
+    "Category": "범주",
+    "Contents": "내용"
+  },
+  "ConfigGridL": {
     "UploadedDate": "업로드 된 날짜",
-    "Name": "이름",
+    "CFG_name": "CFG 이름",
+    "Description": "설명",
+    "Tag": "태그",
     "Version": "버전",
-    "Country": "국가",
-    "LogType": "로그 종류",
-    "Summary": "요약"
+    "ModificationType": "수정 요형 ",
+    "ModificationComment": "수정 내용"
   },
   "StoreModal": {
     "ModalName": "지점 선택",

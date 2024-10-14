@@ -28,23 +28,23 @@ const defaultColumns = (t) => [
   },
   {
     accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
-    header: t('MainGrid2.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
+    header: t('MainGrid.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
   },
   {
     accessorKey: 'log_name',
-    header: t('MainGrid2.Name'),
+    header: t('MainGrid.Name'),
   },
   {
     accessorKey: 'version_id',
-    header: t('MainGrid2.Version'),
+    header: t('MainGrid.Version'),
   },
   {
     accessorKey: 'country_str',
-    header: t('MainGrid2.Country'),
+    header: t('MainGrid.Country'),
   },
   {
     accessorKey: 'b_virtual',
-    header: t('MainGrid2.LogType'),
+    header: t('MainGrid.LogType'),
     cell: ({ getValue }) => {
       const value = getValue();
       return value === 0 ? 'Virtual Log' : 'Real Log';
@@ -52,7 +52,7 @@ const defaultColumns = (t) => [
   },
   {
     accessorKey: 'summary_str',
-    header: t('MainGrid2.Summary'),
+    header: t('MainGrid.Summary'),
   },
   {
     accessorKey: 'map',

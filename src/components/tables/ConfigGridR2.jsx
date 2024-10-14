@@ -11,15 +11,15 @@ import { useTranslation } from 'react-i18next';
 const defaultColumns = (t) => [
   {
     accessorKey: 'tccfg_name',
-    header: 'CFG_name',
+    header: t('ConfigGridR.CFG_name'),
   },
   {
     accessorKey: 'category',
-    header: 'Category',
+    header: t('ConfigGridR.Category'),
   },
   {
     accessorKey: 'file_name',
-    header: 'Contents',
+    header: t('ConfigGridR.Contents'),
   },
 ];
 

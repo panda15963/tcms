@@ -98,13 +98,19 @@
     "LogType": "Log Type",
     "Summary": "Summary"
   },
-  "MainGrid2": {
+  "ConfigGridR": {
+    "CFG_name": "CFG Name",
+    "Category": "Category",
+    "Contents": "Contents"
+  },
+  "ConfigGridL": {
     "UploadedDate": "Uploaded Date",
-    "Name": "Name",
+    "CFG_name": "CFG Name",
+    "Description": "Description",
+    "Tag": "Tag",
     "Version": "Version",
-    "Country": "Country",
-    "LogType": "Log Type",
-    "Summary": "Summary"
+    "ModificationType": "Modification Type",
+    "ModificationComment": "Modification Comment"
   },
   "StoreModal": {
     "ModalName": "Store Selection",
