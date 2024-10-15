@@ -10,7 +10,7 @@ export default function Login() {
           <div className="sm:mx-auto sm:w-full sm:max-w-sm">
             <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900">
               Test Course <br />
-              Mgmt System
+              Management System
             </h2>
           </div>
 
