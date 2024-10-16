@@ -9,14 +9,25 @@ function parseCoordinates(coordString) {
 
 // Function to handle both single and multiple coordinates
 function handleCoordinateInput(input) {
-  if (typeof input === 'string') {
-    return [parseCoordinates(input)]; // Return as an array with one element
-  } else if (Array.isArray(input)) {
-    return input.map((coordString) => parseCoordinates(coordString));
+  if (Array.isArray(input)) {
+    return input
+      .map((coord) => {
+        if (typeof coord === 'object' && 'lat' in coord && 'lng' in coord) {
+          return coord; // Assume it's a valid object with lat and lng
+        } else if (typeof coord === 'string') {
+          return parseCoordinates(coord);
+        } else {
+          console.log('Invalid coordinate format:', coord);
+          return coord;
+        }
+      })
+      .filter((coord) => coord !== null); // Filter out invalid coordinates
   } else {
-    return []; // If input is invalid, return an empty array
+    console.error('Expected an array of coordinates or strings:', input);
+    return [];
   }
 }
+
 /**
  * TMap 컴포넌트
  * @param {number} lat - 위도 값
@@ -46,33 +57,28 @@ export default function TMap({
   lat,
   lng,
   locationCoords = () => {},
-  origins,
-  destinations,
-  checkedNodes,
-  clickedNode,
+  routeFullCoords, // List of routes with coordinates
+  checkedNodes,    // List of checked nodes
+  clickedNode,     // Node that is clicked
+  searchedLocation, // Searched location to center on
 }) {
-  const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
-  const [center, setCenter] = useState(initialCoords); // 지도 중심 좌표 상태 관리
-  const mapRef = useRef(null); // 지도 인스턴스를 참조하기 위한 ref
-  const markerRef = useRef(null); // 마커 인스턴스를 참조하기 위한 ref
+  const initialCoords = calculateCenterAndMarker(lat, lng); // Initial map center calculation
+  const [center, setCenter] = useState(initialCoords); // Manage map center state
+  const mapRef = useRef(null); // Reference for map instance
+  const markerRef = useRef(null); // Reference for center marker
   const zoomSetRef = useRef(false); // Track if zoom has been set
 
   const startMarkerRef = useRef([]); // Multiple start markers
   const finishMarkerRef = useRef([]); // Multiple finish markers
   const polylineRef = useRef([]); // To store polylines
 
-  const parsedOrigins = handleCoordinateInput(origins) || [];
-  const parsedDestinations = handleCoordinateInput(destinations) || [];
-
-  // lat와 lng가 변경될 때마다 지도 중심 좌표 업데이트
+  // Update the center of the map when lat and lng props change
   useEffect(() => {
     const newCenter = calculateCenterAndMarker(lat, lng);
     setCenter(newCenter);
   }, [lat, lng]);
 
-  console.log('checkedNodes ==>', checkedNodes);
-
-  // TMap 스크립트 로드 및 지도 초기화
+  // Load TMap script and initialize the map
   useEffect(() => {
     if (!window.Tmapv2) {
       const scriptUrl = `https://api2.sktelecom.com/tmap/djs?version=1&appKey=${process.env.REACT_APP_TMAP_API}`;
@@ -92,24 +98,151 @@ export default function TMap({
     }
   }, []);
 
-  // 지도 중심 좌표가 변경될 때마다 지도 업데이트
+  // Update the center and marker on the map when `center` changes
   useEffect(() => {
     if (mapRef.current) {
-      updateMapCenter(); // 지도 중심 및 마커 업데이트
+      updateMapCenter();
     }
   }, [center]);
 
-  // Define the missing updateMapCenter function
+  // Update map center when a new location is searched
+  useEffect(() => {
+    if (searchedLocation && mapRef.current) {
+      const { lat: searchedLat, lng: searchedLng } = searchedLocation;
+      const newCenter = new window.Tmapv2.LatLng(searchedLat, searchedLng);
+      mapRef.current.setCenter(newCenter); // Center map on the searched location
+      mapRef.current.setZoom(10); // Optionally zoom in on the searched location
+    }
+  }, [searchedLocation]);
+
+  // Update map when a route node is clicked
+  useEffect(() => {
+    if (clickedNode && mapRef.current) {
+      const { start_coord, goal_coord } = clickedNode;
+
+      if (start_coord && goal_coord) {
+        const { lat: startLat, lng: startLng } = parseCoordinates(start_coord);
+        const startLocation = new window.Tmapv2.LatLng(startLat, startLng);
+        mapRef.current.setCenter(startLocation); // Center map on the start location
+        mapRef.current.setZoom(10); // Optionally zoom in when a route is clicked
+        console.log('Clicked node centered:', clickedNode);
+      }
+    }
+  }, [clickedNode]);
+
+  // Update map with routes and checked nodes
+  useEffect(() => {
+    async function fetchRoutesAndUpdateMap() {
+      const { Tmapv2 } = window;
+
+      // Define colors for different routes
+      const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080']; // Red, Blue, Green, Orange, Purple
+
+      // Clear previous markers and routes
+      if (startMarkerRef.current.length) {
+        startMarkerRef.current.forEach(marker => marker.setMap(null));
+        startMarkerRef.current = [];
+      }
+      if (finishMarkerRef.current.length) {
+        finishMarkerRef.current.forEach(marker => marker.setMap(null));
+        finishMarkerRef.current = [];
+      }
+      if (polylineRef.current.length) {
+        polylineRef.current.forEach(polyline => polyline.setMap(null));
+        polylineRef.current = [];
+      }
+
+      // Loop over each route and draw only checked ones
+      if (routeFullCoords && Array.isArray(routeFullCoords)) {
+        routeFullCoords.forEach((route, index) => {
+          const nodeChecked = checkedNodes[index]; // Use checkedNodes to filter
+          if (!nodeChecked) return; // Skip if node is unchecked
+
+          const coords = route.coords; // Extract coords for the route
+          const parsedCoords = handleCoordinateInput(coords); // Parse coordinates
+
+          if (parsedCoords.length === 0) {
+            console.warn('No valid coordinates for route');
+            return;
+          }
+
+          // Start and Finish markers
+          const startCoord = parsedCoords[0]; // First coordinate
+          const finishCoord = parsedCoords[parsedCoords.length - 1]; // Last coordinate
+
+          // Add start marker
+          const startMarker = new Tmapv2.Marker({
+            position: new Tmapv2.LatLng(startCoord.lat, startCoord.lng),
+            map: mapRef.current,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', // Green for start
+            iconSize: new Tmapv2.Size(32, 32),
+          });
+          startMarkerRef.current.push(startMarker);
+
+          // Add finish marker
+          const finishMarker = new Tmapv2.Marker({
+            position: new Tmapv2.LatLng(finishCoord.lat, finishCoord.lng),
+            map: mapRef.current,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', // Red for finish
+            iconSize: new Tmapv2.Size(32, 32),
+          });
+          finishMarkerRef.current.push(finishMarker);
+
+          // Select a color for the polyline
+          const color = colors[index % colors.length];
+
+          // Create polyline for the route
+          const polylinePath = parsedCoords.map(coord => new Tmapv2.LatLng(coord.lat, coord.lng));
+          const polyline = new Tmapv2.Polyline({
+            path: polylinePath,
+            strokeColor: color,
+            strokeWeight: 4,
+            map: mapRef.current,
+          });
+          polylineRef.current.push(polyline);
+
+          // Optionally center map on the route
+          let latSum = 0;
+          let lngSum = 0;
+          let pointCount = 0;
+
+          parsedCoords.forEach(({ lat, lng }) => {
+            latSum += lat;
+            lngSum += lng;
+            pointCount++;
+          });
+
+          if (pointCount > 0) {
+            const avgLat = latSum / pointCount;
+            const avgLng = lngSum / pointCount;
+            const centerCoords = new Tmapv2.LatLng(avgLat, avgLng);
+            mapRef.current.setCenter(centerCoords);
+
+            if (!zoomSetRef.current) {
+              mapRef.current.setZoom(7); // Set zoom once
+              zoomSetRef.current = true;
+            }
+          }
+        });
+      } else {
+        console.warn('routeFullCoords is null or not an array');
+      }
+    }
+
+    fetchRoutesAndUpdateMap();
+  }, [routeFullCoords, checkedNodes]);
+
+  // Function to update the map center and marker
   function updateMapCenter() {
     const { Tmapv2 } = window;
     if (mapRef.current && Tmapv2) {
       mapRef.current.setCenter(new Tmapv2.LatLng(center.lat, center.lng));
 
       if (markerRef.current) {
-        markerRef.current.setMap(null); // 기존 마커가 있으면 제거
+        markerRef.current.setMap(null); // Remove previous marker
       }
 
-      // 새로운 마커를 지도에 추가
+      // Add a new marker at the current center
       markerRef.current = new Tmapv2.Marker({
         position: new Tmapv2.LatLng(center.lat, center.lng),
         map: mapRef.current,
@@ -119,182 +252,9 @@ export default function TMap({
     }
   }
 
-  // Effect for clickedNode to center map on the clicked route
-  useEffect(() => {
-    if (
-      clickedNode &&
-      clickedNode.start_coord &&
-      clickedNode.goal_coord &&
-      mapRef.current
-    ) {
-      const { lat: startLat, lng: startLng } = parseCoordinates(
-        clickedNode.start_coord,
-      );
-
-      // Center the map on the start location of the clicked node
-      const centerCoords = new window.Tmapv2.LatLng(startLat, startLng);
-      mapRef.current.setCenter(centerCoords); // Center map on the start location
-      mapRef.current.setZoom(10); // Optionally, zoom in when a route is clicked
-      console.log('Clicked node', clickedNode);
-    }
-  }, [clickedNode]);
-
-  // Effect to handle route updates and markers
-  useEffect(() => {
-    async function fetchRoutesAndUpdateMap() {
-      const { Tmapv2 } = window;
-      let latSum = 0;
-      let lngSum = 0;
-      let pointCount = 0; // Track the number of points to calculate the center
-
-      // Clear previous markers and routes
-      if (startMarkerRef.current.length) {
-        startMarkerRef.current.forEach((marker) => marker.setMap(null));
-        startMarkerRef.current = [];
-      }
-
-      if (finishMarkerRef.current.length) {
-        finishMarkerRef.current.forEach((marker) => marker.setMap(null));
-        finishMarkerRef.current = [];
-      }
-
-      if (polylineRef.current.length) {
-        polylineRef.current.forEach((polyline) => polyline.setMap(null));
-        polylineRef.current = [];
-      }
-
-      // If no routes are selected, log and return
-      if (parsedOrigins.length === 0 || parsedDestinations.length === 0) {
-        console.log('No routes selected');
-        return;
-      }
-
-      // Loop through filtered origins and destinations
-      for (let i = 0; i < parsedOrigins.length; i++) {
-        const origin = parsedOrigins[i];
-        const destination =
-          parsedDestinations[i] ||
-          parsedDestinations[parsedDestinations.length - 1];
-
-        const url = `https://apis.openapi.sk.com/tmap/routes?version=1&format=json&appKey=${process.env.REACT_APP_TMAP_API}`;
-
-        const body = {
-          startX: origin.lng,
-          startY: origin.lat,
-          endX: destination.lng,
-          endY: destination.lat,
-          reqCoordType: 'WGS84GEO',
-          resCoordType: 'EPSG3857',
-          searchOption: '0',
-          trafficInfo: 'N',
-        };
-
-        try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body),
-          });
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Error ${response.status}: ${errorText}`);
-          }
-
-          const data = await response.json();
-
-          // Convert EPSG3857 coordinates to WGS84 for rendering on map
-          function convertEPSG3857ToWGS84(x, y) {
-            const lng = (x / 6378137) * (180 / Math.PI);
-            const lat =
-              (Math.atan(Math.exp(y / 6378137)) * 2 - Math.PI / 2) *
-              (180 / Math.PI);
-            return { lat, lng };
-          }
-
-          if (data.features && data.features.length) {
-            const path = data.features
-              .filter((feature) => feature.geometry.type === 'LineString')
-              .flatMap((feature) => {
-                return feature.geometry.coordinates.map(([x, y]) => {
-                  const { lat, lng } = convertEPSG3857ToWGS84(x, y);
-                  const latLng = new Tmapv2.LatLng(lat, lng);
-
-                  // Add to sums for calculating center
-                  latSum += lat;
-                  lngSum += lng;
-                  pointCount++;
-
-                  return latLng;
-                });
-              });
-
-            // Create polyline for the route
-            const polyline = new Tmapv2.Polyline({
-              path,
-              strokeColor: '#0000FF', // Route color
-              strokeWeight: 5,
-              map: mapRef.current, // Add the polyline to the map
-            });
-            polylineRef.current.push(polyline);
-
-            // Add start marker
-            const startMarker = new Tmapv2.Marker({
-              position: new Tmapv2.LatLng(origin.lat, origin.lng),
-              label: `출발지 ${i + 1}`,
-              map: mapRef.current,
-              icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-              iconSize: new Tmapv2.Size(32, 32),
-            });
-            startMarkerRef.current.push(startMarker);
-
-            // Add finish marker
-            const finishMarker = new Tmapv2.Marker({
-              position: new Tmapv2.LatLng(destination.lat, destination.lng),
-              label: `도착지 ${i + 1}`,
-              map: mapRef.current,
-              icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-              iconSize: new Tmapv2.Size(32, 32),
-            });
-            finishMarkerRef.current.push(finishMarker);
-
-            // Also include origin and destination in center calculation
-            latSum += origin.lat + destination.lat;
-            lngSum += origin.lng + destination.lng;
-            pointCount += 2;
-          }
-        } catch (error) {
-          console.error('Error fetching route:', error.message);
-        }
-      }
-
-      // Calculate the center by averaging latitudes and longitudes
-      if (pointCount > 0) {
-        if (!zoomSetRef.current) {
-          mapRef.current.setZoom(7); // Set zoom once
-          zoomSetRef.current = true; // Mark zoom as set
-        }
-      }
-    }
-
-    // Check if we have valid data to proceed
-    if (
-      parsedOrigins.length &&
-      parsedDestinations.length &&
-      checkedNodes.length > 0
-    ) {
-      fetchRoutesAndUpdateMap();
-    }
-  }, [parsedOrigins, parsedDestinations, checkedNodes]);
-
-  /**
-   * 지도 초기화 함수
-   * 지도 인스턴스를 생성하고 클릭 이벤트 리스너를 추가
-   */
+  // Initialize the map
   function initMap() {
-    if (mapRef.current) return; // 이미 초기화된 경우 종료
+    if (mapRef.current) return; // Exit if already initialized
 
     const { Tmapv2 } = window;
     mapRef.current = new Tmapv2.Map('map_div', {
@@ -302,14 +262,14 @@ export default function TMap({
       zoom: Number(process.env.REACT_APP_ZOOM),
     });
 
-    // 지도 클릭 이벤트 리스너 추가
+    // Add a click event listener to the map
     mapRef.current.addListener('click', (evt) => {
       const clickedLat = evt.latLng.lat();
       const clickedLng = evt.latLng.lng();
       locationCoords({ lat: clickedLat, lng: clickedLng });
     });
 
-    updateMapCenter(); // 초기 마커 설정
+    updateMapCenter(); // Set initial center marker
   }
 
   return <div id="map_div" className="map" />;

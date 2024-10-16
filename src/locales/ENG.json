@@ -170,6 +170,7 @@
   },
   "LeftSideSlide": {
     "CourseList": "Course Lists",
-    "NoDataFound": "Course Data aren't Searched."
+    "NoDataFound": "Course Data aren't Searched.",
+    "CourseName": "Course Name"
   }
 }

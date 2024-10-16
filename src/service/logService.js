@@ -242,6 +242,31 @@ const logService = {
 
     return result.data;
   },
+  SPACE_INTERPOLATION: async (obj) => {
+    const { cond, cancelToken } = obj;
+    const result = await nonAuthInstance
+      .get(`/space/interpolation/${cond.file_id}`, {
+        cancelToken,
+        params: cond, // cond의 다른 값들은 query params로 사용 가능
+      })
+      .catch((error) => {
+        console.log('error', error);
+        if (error.response) {
+          alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
+          return error.response;
+        } else if (error.request) {
+          // 응답이 오지 않은 경우 처리
+          alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
+          return error.request;
+        } else if (axiosInstance.isCancel(error)) {
+          // 요청이 취소된 경우 처리
+          return console.log('취소', error);
+        }
+        return error;
+      });
+
+    return result.data;
+  },
 };
 
 export default logService;

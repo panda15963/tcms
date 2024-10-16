@@ -44,6 +44,7 @@ const TopMenuBar = ({
   const [origins, setOrigins] = useState([]);
   const [destinations, setDestinations] = useState([]);
   const [country, setCountry] = useState(null);
+  const [routeFullCoords, setRouteFullCoords] = useState(null);
 
   const storeModalRef = useRef();
   const logModalRef = useRef();
@@ -79,8 +80,6 @@ const TopMenuBar = ({
       storeModalRef.current.close();
     }
   };
-
-  console.log(checkedNodes)
 
   useEffect(() => {
     // Only run if checkedNodes is defined and has elements
@@ -122,16 +121,15 @@ const TopMenuBar = ({
       }
     }
   }, [checkedNodes]); // This effect runs whenever `checkedNodes` changes
-
-  const handleChoosingMapAPIs = () => {
+  
+  const handleChoosingMapAPIs = () => {    
     if (selectedAPI?.name === 'GOOGLE') {
       return (
         <GoogleMapHandler
           key="google"
           selectedCoords={selectedCoords}
           googleLocation={setClickedCoords}
-          origins={origins}
-          destinations={destinations}
+          routeFullCoords={routeFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
         />
@@ -142,8 +140,7 @@ const TopMenuBar = ({
           key="routo"
           selectedCoords={selectedCoords}
           routoLocation={setClickedCoords}
-          origins={origins}
-          destinations={destinations}
+          routeFullCoords={routeFullCoords}
           country={country}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -155,8 +152,7 @@ const TopMenuBar = ({
           key="tmap"
           selectedCoords={selectedCoords}
           tmapLocation={setClickedCoords}
-          origins={origins}
-          destinations={destinations}
+          routeFullCoords={routeFullCoords}
           country={country}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -168,8 +164,7 @@ const TopMenuBar = ({
           key="tomtom"
           selectedCoords={selectedCoords}
           tomtomLocation={setClickedCoords}
-          origins={origins}
-          destinations={destinations}
+          routeFullCoords={routeFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
         />
@@ -182,12 +177,13 @@ const TopMenuBar = ({
           baiduLocation={setClickedCoords}
           origins={origins}
           destinations={destinations}
+          routeFullCoords={routeFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
         />
       );
     }
-  };
+  };  
 
   useEffect(() => {
     if (selectedAPI) {
@@ -547,7 +543,7 @@ const TopMenuBar = ({
                           />
                         </button>
                       </div>
-                      <LogModal routeData={handleRouteData} ref={logModalRef} />
+                      <LogModal routeData={handleRouteData} routeFullCoords={setRouteFullCoords} ref={logModalRef} />
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
                           {/* 공간 검색 */}

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 /**
  * 중심 좌표와 마커 좌표를 계산하는 함수
@@ -25,10 +25,8 @@ export default function RoutoMap({
   lat,
   lng,
   locationCoords = () => {},
-  origins,
-  destinations,
+  routeFullCoords,
   clickedNode, // The clicked route node with start and goal coordinates
-  checkedNodes, // The checked routes (array of start and goal coordinates)
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 좌표 상태 관리
@@ -36,65 +34,27 @@ export default function RoutoMap({
   const markerRef = useRef(null); // 마커 인스턴스를 참조하기 위한 ref
   const [routeObjects, setRouteObjects] = useState([]); // Store route objects for clearing
   const [routeMarkers, setRouteMarkers] = useState([]); // Store markers for clearing
-  const [selectedRouteIndex, setSelectedRouteIndex] = useState(null); // Track which route is selected
-
+  console.log(routeFullCoords);
   // Clear routes and markers when updating the map
   const clearRoutesAndMarkers = () => {
     routeObjects.forEach((routeArray) => {
       if (Array.isArray(routeArray)) {
         routeArray.forEach((route) => {
           if (route && typeof route.setMap === 'function') {
-            route.setMap(null); // Remove individual route from the map
+            route.setMap(null);
           }
         });
       }
     });
-    setRouteObjects([]); // Clear the state
+    setRouteObjects([]);
 
     routeMarkers.forEach((marker) => {
       if (marker && typeof marker.setMap === 'function') {
-        marker.setMap(null); // Remove marker from the map
+        marker.setMap(null);
       }
     });
-    setRouteMarkers([]); // Clear the state
+    setRouteMarkers([]);
   };
-
-  // Memoized processing of origins and destinations to avoid recalculating on every render
-  const processedOrigins = useMemo(() => {
-    if (!origins) return null;
-    if (Array.isArray(origins)) {
-      return origins.map((origin) => {
-        const [lng, lat] = origin.split(',').map(parseFloat);
-        return { lat, lng };
-      });
-    }
-    if (typeof origins === 'string') {
-      const [lng, lat] = origins.split(',').map(parseFloat);
-      return { lat, lng };
-    }
-    if (origins.lat && origins.lng) {
-      return { lat: origins.lat, lng: origins.lng };
-    }
-    return null;
-  }, [origins]);
-
-  const processedDestinations = useMemo(() => {
-    if (!destinations) return null;
-    if (Array.isArray(destinations)) {
-      return destinations.map((destination) => {
-        const [lng, lat] = destination.split(',').map(parseFloat);
-        return { lat, lng };
-      });
-    }
-    if (typeof destinations === 'string') {
-      const [lng, lat] = destinations.split(',').map(parseFloat);
-      return { lat, lng };
-    }
-    if (destinations.lat && destinations.lng) {
-      return { lat: destinations.lat, lng: destinations.lng };
-    }
-    return null;
-  }, [destinations]);
 
   // Function to fit map to bounds
   const fitMapToBounds = (mapInstance, checkedNodes) => {
@@ -113,111 +73,97 @@ export default function RoutoMap({
     mapInstance.fitBounds(bounds);
   };
 
-  // Function to draw routes for checkedNodes
-  const drawCheckedRoutes = (mapInstance, checkedNodes) => {
-    clearRoutesAndMarkers(); // Clear any existing routes
+  const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080']; // Define different colors
+
+  const drawCheckedRoutes = (mapInstance, routeFullCoords) => {
+    clearRoutesAndMarkers(); // Clear any existing routes and markers
 
     const newRouteObjects = [];
     const newRouteMarkers = [];
+    const bounds = new routo.maps.LatLngBounds(); // Initialize bounds to fit all routes
 
-    checkedNodes.forEach((node, index) => {
-      const [startLng, startLat] = node.start_coord.split(',').map(parseFloat);
-      const [goalLng, goalLat] = node.goal_coord.split(',').map(parseFloat);
+    if (Array.isArray(routeFullCoords)) {
+      routeFullCoords.forEach((route, index) => {
+        if (Array.isArray(route.coords)) {
+          const routePath = route.coords
+            .map((coord) => {
+              if (Array.isArray(coord)) {
+                const [lng, lat] = coord;
+                return { lat, lng };
+              } else if (coord.lat !== undefined && coord.lng !== undefined) {
+                return { lat: coord.lat, lng: coord.lng };
+              } else {
+                console.warn('Unexpected coord format:', coord);
+                return null;
+              }
+            })
+            .filter(Boolean);
 
-      if (!startLng || !startLat || !goalLng || !goalLat) return;
+          // Extend bounds with all route points
+          routePath.forEach((point) => {
+            bounds.extend(new routo.maps.LatLng(point.lat, point.lng));
+          });
 
-      // Parameters for route
-      const parameters = {
-        RPOption: [{ FeeOption: 0, RoadOption: 0, RouteOption: 0 }],
-        CoordType: 2,
-        CarType: 0,
-        StartPoint: {
-          XPos: startLng,
-          YPos: startLat,
-          Name: `출발지 ${index + 1}`,
-        },
-        GoalPoint: {
-          XPos: goalLng,
-          YPos: goalLat,
-          Name: `도착지 ${index + 1}`,
-        },
-      };
+          // Select a color based on the index, loop back if more routes than colors
+          const strokeColor = colors[index % colors.length];
 
-      // Fetch and draw each checked route
-      fetch('https://mlp.hyundai-mnsoft.com:9144/mlp/rtsrch', {
-        mode: 'cors',
-        method: 'post',
-        headers: {
-          AuthCode: 'AB7B15940E89447C',
-          UniqueId: '01012345678',
-          Version: '1.1.0',
-          ServiceId: '5000',
-          MsgId: 'RCH03',
-          coordinate: 'G',
-          ReqCompression: '0',
-          ReqEncription: '0',
-          ReqFormat: 'J',
-          RespCompression: '0',
-          RespEncription: '0',
-          RespFormat: 'J',
-          Country: '1',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(parameters),
-      })
-        .then((response) => response.json())
-        .then((json) => {
-          const jsonTraffic = routo.maps.Traffic.trafficRead(json);
-          const routeLine = routo.maps.Traffic.drawRouteLineByTraffic(
-            mapInstance,
-            jsonTraffic,
+          // Create and draw the polyline with the selected color
+          const polyline = new routo.maps.Polyline({
+            path: routePath,
+            geodesic: true,
+            strokeColor: strokeColor, // Use the selected color
+            strokeOpacity: 1.0,
+            strokeWeight: 2,
+            map: mapInstance,
+          });
+
+          newRouteObjects.push(polyline);
+
+          if (routePath.length > 0) {
+            const startMarker = new routo.maps.Marker({
+              position: routePath[0],
+              map: mapInstance,
+              label: `Start ${index + 1}`,
+              icon: {
+                path: routo.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: '#00FF00',
+                fillOpacity: 1,
+                strokeWeight: 1,
+                strokeColor: '#000000',
+              },
+            });
+
+            const endMarker = new routo.maps.Marker({
+              position: routePath[routePath.length - 1],
+              map: mapInstance,
+              label: `End ${index + 1}`,
+              icon: {
+                path: routo.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: '#FF0000',
+                fillOpacity: 1,
+                strokeWeight: 1,
+                strokeColor: '#000000',
+              },
+            });
+
+            newRouteMarkers.push(startMarker, endMarker);
+          }
+        } else {
+          console.warn(
+            `route.coords for route ${index} is not in the expected format.`,
           );
-
-          newRouteObjects.push(routeLine);
-
-          const startMarker = new routo.maps.Marker({
-            position: { lat: startLat, lng: startLng },
-            clickable: false,
-            icon: {
-              path: routo.maps.SymbolPath.CIRCLE,
-              scale: 20,
-              fillColor: '#d4dc72',
-            },
-            label: `출발 ${index + 1}`,
-            map: mapInstance,
-          });
-
-          const goalMarker = new routo.maps.Marker({
-            position: { lat: goalLat, lng: goalLng },
-            clickable: false,
-            icon: {
-              path: routo.maps.SymbolPath.CIRCLE,
-              scale: 20,
-              fillColor: '#d4dc72',
-            },
-            label: `종료 ${index + 1}`,
-            map: mapInstance,
-          });
-
-          newRouteMarkers.push(startMarker, goalMarker);
-        });
-    });
-
-    setRouteObjects(newRouteObjects);
-    setRouteMarkers(newRouteMarkers);
-
-    // Fit map to bounds (Korean Peninsula) after drawing all checked routes
-    fitMapToBounds(mapInstance, checkedNodes);
-  };
-
-  // Handle checked routes when checkedNodes changes
-  useEffect(() => {
-    if (checkedNodes && Array.isArray(checkedNodes)) {
-      if (mapRef.current) {
-        drawCheckedRoutes(mapRef.current, checkedNodes);
-      }
+        }
+      });
+    } else {
+      console.warn('routeFullCoords is not an array.');
     }
-  }, [checkedNodes]);
+
+    setRouteObjects(newRouteObjects); // Update the state to hold the drawn route objects
+    setRouteMarkers(newRouteMarkers); // Update the state to hold the drawn markers
+    mapInstance.setZoom(8); // Set zoom level to zoom out
+  };
 
   // Center the map on the clicked route when clickedNode is provided
   useEffect(() => {
@@ -318,6 +264,12 @@ export default function RoutoMap({
       }
     };
   }, [center.lat, center.lng, locationCoords]);
+
+  useEffect(() => {
+    if (mapRef.current && Array.isArray(routeFullCoords)) {
+      drawCheckedRoutes(mapRef.current, routeFullCoords);
+    }
+  }, [mapRef.current, routeFullCoords]);
 
   // Update map center based on lat and lng changes
   useEffect(() => {

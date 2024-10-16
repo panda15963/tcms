@@ -5,24 +5,14 @@ import {
   useState,
   useRef,
 } from 'react';
-import {
-  Dialog,
-  DialogPanel,
-  Transition,
-  TransitionChild,
-} from '@headlessui/react';
+import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
-import {
-  FaRegFolderOpen,
-  FaCloudDownloadAlt,
-  FaCheck,
-  FaSearch,
-} from 'react-icons/fa';
+import { FaCheck, FaSearch } from 'react-icons/fa';
 import MainGrid from '../tables/MainGrid';
 import { nonAuthInstance } from '../../server/AxiosConfig';
 import logService from '../../service/logService';
 import MultipleSelectDropDown from '../dropdowns/MultipleSelectDropDown';
-import { isArray, isEmpty, isFunction } from 'lodash';
+import { isEmpty } from 'lodash';
 import SingleSelectDropDown from '../dropdowns/SingleSelectDropDown';
 import { useTranslation } from 'react-i18next';
 import ConfigGridL from '../tables/ConfigGridL';
@@ -37,7 +27,7 @@ import i18next from 'i18next';
  * http://localhost:3000/log/kr
  * http://localhost:3000/log/en
  */
-const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
+const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const { t, i18n } = useTranslation();
   const location = useLocation(); // 현재 경로 정보를 얻기 위한 useLocation 훅 사용
   const initialCond = {
@@ -132,7 +122,6 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
   const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
     [],
   );
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [countryList, setCountryList] = useState(initialList);
   const [featureList, setFeatureList] = useState(initialList);
@@ -142,11 +131,9 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
   const [list2, setList2] = useState(initialList);
   const [configList, setConfigList] = useState(initialList);
   const [configList2, setConfigList2] = useState(initialList);
-  const [selectedTopFeature, setSelectedTopFeature] = useState(null);
   const [filteredBottomOptions, setFilteredBottomOptions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedConfigIds, setSelectedConfigIds] = useState([]);
-  const [selectedData, setSelectedData] = useState([]);
   const [selectedLogList, setSelectedLogList] = useState([]);
   const [selectedLogList2, setSelectedLogList2] = useState([]);
   const selectedConfigRowsRef = useRef([]); // useRef instead of useState
@@ -228,7 +215,6 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
    * Find 클릭 이벤트
    */
   const onFindMeta = async () => {
-    setLoading(true);
     setError(null);
 
     console.log('cond.operation', cond.operation);
@@ -283,11 +269,9 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
               list: res.findMeta,
             };
           });
-          setLoading(false);
         });
     } catch (e) {
       console.log('FIND_META of error ==>', e);
-      setLoading(false);
     }
   };
 
@@ -456,8 +440,6 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
   const handleTopFeatureChange = (selectedOption) => {
     console.log('handleTopFeatureChange of selectedOption ==>', selectedOption);
 
-    setSelectedTopFeature(selectedOption);
-
     // Ensure featureBottom is defined and is an array
     if (!Array.isArray(featureList.featureBottom)) {
       console.log('featureBottom is not defined or not an array.');
@@ -610,6 +592,50 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
       .join(',');
   };
 
+  /**
+   * SPACE_INTERPOLATION
+   */
+  const SPACE_INTERPOLATION = async (fileIds) => {
+    try {
+      if (!Array.isArray(fileIds)) {
+        fileIds = [fileIds]; // Convert single fileId to array
+      }
+
+      const promises = fileIds.map((fileId) => {
+        return logService
+          .SPACE_INTERPOLATION({
+            cond: { file_id: fileId },
+          })
+          .then((res) => {
+            try {
+              // Check if `res` is a string before applying `replace()`
+              if (typeof res === 'string') {
+                const preprocessedRes = res.replace(
+                  /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
+                  '{"lat":$1,"lng":$2}',
+                );
+                return JSON.parse(preprocessedRes); // Parse the preprocessed string into JSON
+              } else {
+                console.warn('Response is not a string:', res);
+                return res; // If it's an object, return it as is
+              }
+            } catch (error) {
+              console.error(
+                `Error parsing response for fileId ${fileId}:`,
+                error,
+              );
+              return null; // Return null if parsing fails
+            }
+          });
+      });
+
+      const results = await Promise.all(promises);
+      return results.filter((res) => res !== null); // Filter out any null values
+    } catch (e) {
+      console.log('SPACE_INTERPOLATION error ==>', e);
+    }
+  };
+
   // 라디오 버튼 클릭 시 호출되는 핸들러
   const handleRadioChange = (event) => {
     console.log('event.target.value', event.target.value);
@@ -619,13 +645,42 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
     return value;
   };
 
-  const handleSelectionChange = (selectedRows) => {
-    setSelectedData(selectedRows);
-  };
+  // Example function where list is expected to be an array
+  const handleButtonClick = async () => {
+    // A recursive function to find the first array within the object
+    const findArray = (obj) => {
+      if (Array.isArray(obj)) {
+        return obj;
+      }
 
-  const handleButtonClick = () => {
-    // Pass the selected data to the parent component (or use it as needed)
-    routeData(list);
+      if (typeof obj === 'object' && obj !== null) {
+        for (const key in obj) {
+          const foundArray = findArray(obj[key]);
+          if (foundArray) {
+            return foundArray;
+          }
+        }
+      }
+
+      return null; // No array found
+    };
+
+    // Find the array in the list object
+    const arrayFromList = findArray(list);
+
+    if (arrayFromList) {
+      // Extract file_ids from the found array
+      const fileIds = arrayFromList.map((route) => route.file_id);
+
+      // Call SPACE_INTERPOLATION with the extracted fileIds
+      const routeCoords = await SPACE_INTERPOLATION(fileIds);
+
+      // Pass the selected data to the parent component (or use it as needed)
+      routeData(list);
+      routeFullCoords(routeCoords);
+    } else {
+      console.error('No array found in list');
+    }
 
     // Close the modal
     setOpen(false);
@@ -635,35 +690,43 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
     setSelectedSearchFields([]); // Reset the selected search fields
     setSelectedIds([]); // Reset the selected IDs for fields
     setList(initialList); // Reset the list of search results
-    setSelectedData([]); // Reset the selected data
 
     // Optionally reset other lists or selections if needed
     setSelectedLogList([]);
     setSelectedLogList2([]);
   };
 
-  const handleConfigButtonClick = () => {
-    if (
-      selectedConfigRowsRef.current &&
-      selectedConfigRowsRef.current.length > 0
-    ) {
-      routeData(selectedConfigRowsRef.current);
-    } else {
-      console.log('No rows selected!');
-    }
+  const handleConfigButtonClick = async () => {
+    console.log(selectedLogList);
+    // Extract file_ids from the found array
+    const fileIds = selectedConfigRowsRef.current.map((route) => route.file_id);
 
-    console.log('selectedConfigRowsRef ==> ',selectedConfigRowsRef)
-    console.log('selectedRouteCellData ==> ', selectedRouteCellData)
+    // Call SPACE_INTERPOLATION with the extracted fileIds
+    const routeCoords = await SPACE_INTERPOLATION(fileIds);
+    console.log(routeCoords);
+
+    // Pass the selected data to the parent component (or use it as needed)
+    routeData(selectedConfigRowsRef.current);
+    routeFullCoords(routeCoords);
 
     // Close the modal
     setOpen(false);
+
+    // Optionally reset other lists or selections if needed
+    setCond(initialCond); // Resetting the search conditions
+    setSelectedSearchFields([]); // Reset the selected search fields
+    setSelectedIds([]); // Reset the selected IDs for fields
+    setList(initialList); // Reset the list of search results
+
+    // Optionally reset other lists or selections if needed
+    setSelectedLogList([]);
+    setSelectedLogList2([]);
   };
 
   /**
    * Find Tccfg 클릭 이벤트
    */
   const onFindTccfg = async () => {
-    setLoading(true);
     setError(null);
 
     const condTmp = {
@@ -696,11 +759,9 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
               list: res.findTccfg,
             };
           });
-          setLoading(false);
         });
     } catch (e) {
       console.log('FIND_TCCFG_10003 of error ==>', e);
-      setLoading(false);
     }
   };
 
@@ -793,7 +854,9 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
           <div className="bg-white p-4 rounded-md shadow-lg">
             <div className="flex justify-between py-3 px-5 bg-blue_ncs">
-              <h1 className="font-semibold text-white">{t('LogModal.AllVersions')}</h1>
+              <h1 className="font-semibold text-white">
+                {t('LogModal.AllVersions')}
+              </h1>
               <button
                 className="font-semibold"
                 onClick={() => setIsRouteModalOpen(false)}
@@ -832,7 +895,11 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
   };
 
   const handleSelectionChangeRoute = (selectedRows) => {
-    console.log('handleSelectionChangeRoute of selectedRows ==>', selectedRows,selectedConfigRowsRef);
+    console.log(
+      'handleSelectionChangeRoute of selectedRows ==>',
+      selectedRows,
+      selectedConfigRowsRef,
+    );
     if (selectedRows && selectedRows.length > 0) {
       selectedConfigRowsRef.current = selectedRows;
     }
@@ -877,7 +944,9 @@ const LogModal = forwardRef(({ routeData, isDirect }, ref) => {
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
           <div className="bg-white p-4 rounded-md shadow-lg">
             <div className="flex justify-between py-3 px-5 bg-blue_ncs">
-              <h1 className="font-semibold text-white">{t('LogModal.AllVersions')}</h1>
+              <h1 className="font-semibold text-white">
+                {t('LogModal.AllVersions')}
+              </h1>
               <button
                 className="font-semibold"
                 onClick={() => setIsConfigModalOpen(false)}

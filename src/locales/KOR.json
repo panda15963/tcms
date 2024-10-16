@@ -170,6 +170,7 @@
   },
   "LeftSideSlide": {
     "CourseList": "경로 목록",
-    "NoDataFound": "경로 데이터 검색 되지 않았습니다."
+    "NoDataFound": "경로 데이터 검색 되지 않았습니다.",
+    "CourseName": "코스 이름"
   }
 }

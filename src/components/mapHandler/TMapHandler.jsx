@@ -6,8 +6,7 @@ import Error from '../alerts/Error';
 export default function TMapHandler({
   selectedCoords,
   tmapLocation,
-  origins,
-  destinations,
+  routeFullCoords,
   country,
   checkedNode,
   clickedNode,
@@ -41,13 +40,12 @@ export default function TMapHandler({
   return (
     <>
       {error && <Error errorMessage={errorValue} />}
-      {selectedCoords && tmapLocation && origins && destinations ? (
+      {selectedCoords && tmapLocation ? (
         <TMap
           lat={selectedCoords.lat}
           lng={selectedCoords.lng}
           locationCoords={tmapLocation}
-          origins={origins}
-          destinations={destinations}
+          routeFullCoords={routeFullCoords}
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
         />
@@ -57,11 +55,10 @@ export default function TMapHandler({
           lng={selectedCoords.lng}
           locationCoords={tmapLocation}
         />
-      ) : !selectedCoords && tmapLocation && origins && destinations ? (
+      ) : !selectedCoords && tmapLocation ? (
         <TMap
           locationCoords={tmapLocation}
-          origins={origins}
-          destinations={destinations}
+          routeFullCoords={routeFullCoords}
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
         />

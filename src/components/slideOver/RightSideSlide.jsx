@@ -8,7 +8,7 @@ import { CiSquarePlus, CiSquareMinus } from 'react-icons/ci';
 export default function RightSideSlide({ data, onMapChange }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [expandedRows, setExpandedRows] = useState([]);
+  const [expandedRows, setExpandedRows] = useState([]); // Default to all expanded
   const [rowsData, setRowsData] = useState([]); // State to manage rows data
 
   // useEffect to automatically open the panel when data is provided
@@ -16,6 +16,10 @@ export default function RightSideSlide({ data, onMapChange }) {
     if (data && data.length > 0) {
       setOpen(true); // Open the panel when data is not empty
       setRowsData(data); // Set rows data based on provided data
+
+      // Automatically expand all rows by default
+      const allRowIds = data.map((_, index) => index + 1); // Generate IDs for all rows
+      setExpandedRows(allRowIds); // Set all rows as expanded initially
     } else {
       setOpen(false);
     }
@@ -206,10 +210,6 @@ export default function RightSideSlide({ data, onMapChange }) {
         }))
       : [];
 
-  /**
-   * 행 확장/축소를 처리하는 함수
-   * @param {number} id - 확장 또는 축소할 행의 id
-   */
   const toggleRow = (id) => {
     setExpandedRows((pre) =>
       pre.includes(id) ? pre.filter((rowId) => rowId !== id) : [...pre, id],
@@ -284,7 +284,6 @@ export default function RightSideSlide({ data, onMapChange }) {
                         </td>
                       </tr>
 
-                      {/* Expanded child rows */}
                       {Array.isArray(row.children) &&
                         expandedRows.includes(row.id) &&
                         row.children.map((child) => (
@@ -313,7 +312,6 @@ export default function RightSideSlide({ data, onMapChange }) {
                               </td>
                             </tr>
 
-                            {/* Further expanded nested children */}
                             {Array.isArray(child.children) &&
                               expandedRows.includes(child.id) &&
                               child.children.map((nestedChild) => (

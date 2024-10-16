@@ -12,193 +12,182 @@ function calculateCenterAndMarker(lat, lng) {
   };
 }
 
-function calculateCenterFromCoords(startCoord, goalCoord) {
-  const [startLng, startLat] = startCoord.split(',').map(Number);
-  const [goalLng, goalLat] = goalCoord.split(',').map(Number);
-
-  const centerLat = (startLat + goalLat) / 2;
-  const centerLng = (startLng + goalLng) / 2;
-
-  return { lat: centerLat, lng: centerLng };
+function calculateBounds(coordsArray) {
+  const bounds = new window.google.maps.LatLngBounds();
+  coordsArray.forEach((coord) => {
+    bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+  });
+  return bounds;
 }
 
 export default function GoogleMap({
   lat,
   lng,
   locationCoords = () => {}, // Callback function to pass coordinates
-  origins = [], // Default to empty array
-  destinations = [], // Default to empty array
+  routeFullCoords, // Contains coords for polyline
+  clickedNode, // Selected route to center the map on
   error = () => {},
-  clickedNode,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
-  const [center, setCenter] = useState(initialCoords);
-  const [markers, setMarkers] = useState([initialCoords]);
   const [map, setMap] = useState(null);
-  const [directionsRenderers, setDirectionsRenderers] = useState([]);
   const mapRef = useRef(null);
-  const markerRefs = useRef([]);
+  const markerRefs = useRef([]); // Store references to markers for cleanup
+  const polylinesRef = useRef([]); // Store references to multiple polylines
   const { t } = useTranslation();
+  
+  const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080']; // Define different colors
 
-  // Effect to handle when clickedNode is changed (route selection)
-  useEffect(() => {
-    if (clickedNode && clickedNode.start_coord && clickedNode.goal_coord) {
-      const newCenter = calculateCenterFromCoords(
-        clickedNode.start_coord,
-        clickedNode.goal_coord,
-      );
-      const startMarker = calculateCenterAndMarker(
-        ...clickedNode.start_coord.split(','),
-      );
-      const goalMarker = calculateCenterAndMarker(
-        ...clickedNode.goal_coord.split(','),
-      );
-
-      setCenter(newCenter);
-      setMarkers([startMarker, goalMarker]);
-
-      // Zoom out when a route is selected
-      if (map) {
-        map.setZoom(11);
-      }
-    }
-  }, [clickedNode, map]);
-
-  // Effect to handle lat and lng updates (when a specific point is selected via search)
-  useEffect(() => {
-    if (
-      lat !== undefined &&
-      lng !== undefined &&
-      (!clickedNode || lat || lng)
-    ) {
-      const newCenter = calculateCenterAndMarker(lat, lng);
-      setCenter(newCenter);
-      setMarkers([newCenter]);
-
-      // Zoom in when a specific point is searched
-      if (map) {
-        map.setZoom(17);
-      }
-    }
-  }, [lat, lng, map]);
-
+  // Clear all existing markers
   const clearMarkers = () => {
-    markerRefs.current.forEach((marker) => marker.setMap(null));
-    markerRefs.current = [];
+    markerRefs.current.forEach((marker) => marker.setMap(null)); // Remove all markers from map
+    markerRefs.current = []; // Clear marker references
   };
 
-  // Initialize the map and other Google Maps components
+  // Clear all existing polylines
+  const clearPolylines = () => {
+    polylinesRef.current.forEach((polyline) => polyline.setMap(null)); // Remove all polylines from map
+    polylinesRef.current = []; // Clear polyline references
+  };
+
+  // Initialize the map once when the component is mounted
   useEffect(() => {
     if (!window.google) {
       error(t('GoogleMap.APIError'));
       return;
     }
 
-    const mapInstance = new window.google.maps.Map(mapRef.current, {
-      zoom: Number(process.env.REACT_APP_ZOOM), // Initial zoom level from env variables
-      center: center,
-      mapTypeControl: false,
-    });
+    // Ensure the map is initialized only once
+    if (!map) {
+      const mapInstance = new window.google.maps.Map(mapRef.current, {
+        zoom: Number(process.env.REACT_APP_ZOOM) || 10,
+        center: initialCoords,
+        mapTypeControl: false,
+      });
 
-    setMap(mapInstance); // Set the map instance to state
+      setMap(mapInstance);
 
-    // Add click listener to map
-    mapInstance.addListener('click', (event) => {
-      const clickedLat = event.latLng.lat();
-      const clickedLng = event.latLng.lng();
+      // Add map click listener
+      mapInstance.addListener('click', (event) => {
+        const clickedLat = event.latLng.lat();
+        const clickedLng = event.latLng.lng();
+        locationCoords({ lat: clickedLat, lng: clickedLng });
+      });
+    }
+  }, [map, initialCoords, t, error, locationCoords]);
 
-      // Call the locationCoords callback with clicked coordinates
-      locationCoords({ lat: clickedLat, lng: clickedLng });
-    });
-  }, []);
-
-  // Center the map and update markers when 'center' state changes
+  // Update center and zoom when lat/lng updates, and ensure a marker is placed
   useEffect(() => {
-    if (map && center) {
-      map.setCenter(center); // Directly re-center the map
+    if (map) {
+      const newCenter = calculateCenterAndMarker(lat, lng);
 
-      clearMarkers();
-      markers.forEach((marker) => {
+      // Check if the center has changed
+      if (
+        newCenter.lat !== map.getCenter().lat() ||
+        newCenter.lng !== map.getCenter().lng()
+      ) {
+        // Clear existing markers and polylines, then add a marker for the new center
+        clearMarkers(); // Clear all previous markers
+        clearPolylines(); // Clear all previous polylines
+
+        map.setCenter(newCenter); // Set the new center
+        map.setZoom(17); // Zoom in for specific point
+
+        // Add a new marker at the center
+        const marker = new window.google.maps.Marker({
+          position: newCenter,
+          map: map,
+        });
+        markerRefs.current.push(marker); // Store marker reference for cleanup
+      }
+    }
+  }, [lat, lng, map]);
+
+  // Draw polylines and fit bounds when routeFullCoords changes
+  useEffect(() => {
+    if (!map || !routeFullCoords || routeFullCoords.length === 0) return;
+
+    clearPolylines(); // Clear previous polylines
+
+    const allCoords = [];
+    const newMarkers = [];
+
+    routeFullCoords.forEach((route, index) => {
+      if (route.coords && route.coords.length > 0) {
+        allCoords.push(...route.coords);
+
+        const startMarker = calculateCenterAndMarker(
+          route.coords[0].lat,
+          route.coords[0].lng,
+        );
+        const goalMarker = calculateCenterAndMarker(
+          route.coords[route.coords.length - 1].lat,
+          route.coords[route.coords.length - 1].lng,
+        );
+
+        newMarkers.push(startMarker, goalMarker);
+
+        const polylinePath = route.coords.map((coord) => ({
+          lat: coord.lat,
+          lng: coord.lng,
+        }));
+
+        const routeColor = colors[index % colors.length]; // Assign different color for each route
+
+        const polyline = new window.google.maps.Polyline({
+          path: polylinePath,
+          geodesic: true,
+          strokeColor: routeColor, // Set color for each route
+          strokeOpacity: 1.0,
+          strokeWeight: 2,
+        });
+
+        polyline.setMap(map); // Draw polyline on map
+        polylinesRef.current.push(polyline); // Store reference to polyline
+      }
+    });
+
+    // Update markers and fit bounds only if coordinates have changed
+    if (allCoords.length > 0) {
+      clearMarkers(); // Clear old markers
+      newMarkers.forEach((marker) => {
         const newMarker = new window.google.maps.Marker({
           position: marker,
           map: map,
         });
-        markerRefs.current.push(newMarker);
+        markerRefs.current.push(newMarker); // Store reference to marker
       });
-    }
-  }, [center, map, markers, clickedNode]);
 
-  // Handle directions (routing) between multiple origins and destinations
+      const bounds = calculateBounds(allCoords);
+      map.fitBounds(bounds); // Fit the map to the route bounds
+    }
+  }, [routeFullCoords, map]);
+
+  // Center map on selected route when clickedNode changes
   useEffect(() => {
-    // Convert origins and destinations to arrays if they are strings
-    const originsArray = typeof origins === 'string' ? [origins] : origins;
-    const destinationsArray =
-      typeof destinations === 'string' ? [destinations] : destinations;
-
-    // Check if originsArray and destinationsArray have elements
     if (
-      Array.isArray(originsArray) &&
-      Array.isArray(destinationsArray) &&
-      originsArray.length &&
-      destinationsArray.length &&
-      map
-    ) {
-      // Clear previous directions
-      directionsRenderers.forEach((renderer) => renderer.setMap(null));
-      setDirectionsRenderers([]);
+      !map ||
+      !clickedNode ||
+      !clickedNode.start_coord ||
+      !clickedNode.goal_coord
+    )
+      return;
 
-      // Create a directions renderer for each pair of origin and destination
-      originsArray.forEach((origin, index) => {
-        const destination = destinationsArray[index];
-        const originString = typeof origin === 'string' ? origin : '';
-        const destinationString =
-          typeof destination === 'string' ? destination : '';
+    // Split and convert string coordinates to numbers
+    const startCoord = clickedNode.start_coord.split(',').map(Number);
+    const goalCoord = clickedNode.goal_coord.split(',').map(Number);
 
-        const [originsLng, originsLat] = originString.split(',').map(Number);
-        const [destinationsLng, destinationsLat] = destinationString
-          .split(',')
-          .map(Number);
+    const routeCoords = [
+      { lat: startCoord[1], lng: startCoord[0] },
+      { lat: goalCoord[1], lng: goalCoord[0] },
+    ];
 
-        if (
-          !isNaN(originsLng) &&
-          !isNaN(originsLat) &&
-          !isNaN(destinationsLng) &&
-          !isNaN(destinationsLat)
-        ) {
-          const directionsService = new window.google.maps.DirectionsService();
-          const directionsRendererInstance =
-            new window.google.maps.DirectionsRenderer();
+    const bounds = calculateBounds(routeCoords);
 
-          directionsService.route(
-            {
-              origin: new window.google.maps.LatLng(originsLat, originsLng),
-              destination: new window.google.maps.LatLng(
-                destinationsLat,
-                destinationsLng,
-              ),
-              travelMode: window.google.maps.TravelMode.DRIVING,
-            },
-            (result, status) => {
-              if (status === 'OK') {
-                directionsRendererInstance.setDirections(result);
-                directionsRendererInstance.setMap(map);
-                setDirectionsRenderers((prevRenderers) => [
-                  ...prevRenderers,
-                  directionsRendererInstance,
-                ]);
-                // Optionally adjust zoom level or add other map features here
-              } else if (status === 'ZERO_RESULTS') {
-                error(t('GoogleMap.RouteZeroResults'));
-              } else {
-                error(t('GoogleMap.RouteError'));
-              }
-            },
-          );
-        }
-      });
+    // Ensure the map is set to the selected route's bounds
+    if (bounds) {
+      map.fitBounds(bounds); // Fit the map to the selected route bounds
     }
-  }, [origins, destinations, map]);
+  }, [clickedNode, map]);
 
-  // Render the map container
   return <div ref={mapRef} className="map" />;
 }

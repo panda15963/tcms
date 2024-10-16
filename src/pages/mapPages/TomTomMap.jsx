@@ -2,7 +2,6 @@ import tt from '@tomtom-international/web-sdk-maps';
 import '@tomtom-international/web-sdk-maps/dist/maps.css';
 import { useEffect, useState, useRef } from 'react';
 import '../../style/MapStyle.css';
-import ttServices from '@tomtom-international/web-sdk-services';
 
 /**
  * 중심 좌표와 마커 좌표를 계산하는 함수
@@ -20,41 +19,13 @@ function calculateCenterAndMarker(lat, lng) {
 }
 
 /**
- * TomTomMap 컴포넌트
- * @param {number} lat - 위도 값
- * @param {number} lng - 경도 값
- * @param {function} locationCoords - 클릭한 좌표를 부모로 전달하기 위한 함수
- */
-const processCoordinates = (coords) => {
-  if (Array.isArray(coords)) {
-    return coords.map((coord) => parseCoordinateString(coord)).filter(Boolean);
-  }
-  if (typeof coords === 'string') {
-    return parseCoordinateString(coords);
-  }
-  if (
-    coords &&
-    typeof coords === 'object' &&
-    'lat' in coords &&
-    'lng' in coords
-  ) {
-    return { lat: coords.lat, lng: coords.lng };
-  }
-  return null;
-};
-
-/**
  * Parses a coordinate string into an object with lat and lng properties.
  * @param {string} coordString - The coordinate string in the format "lng,lat".
  * @returns {Object|null} - Returns an object {lat, lng} or null if invalid.
  */
 const parseCoordinateString = (coordString) => {
   const coordsArray = coordString.split(',').map(parseFloat);
-  if (
-    coordsArray.length === 2 &&
-    !isNaN(coordsArray[0]) &&
-    !isNaN(coordsArray[1])
-  ) {
+  if (coordsArray.length === 2 && !isNaN(coordsArray[0]) && !isNaN(coordsArray[1])) {
     return { lng: coordsArray[0], lat: coordsArray[1] };
   }
   return null;
@@ -64,8 +35,7 @@ export default function TomTomMap({
   lat,
   lng,
   locationCoords = () => {},
-  origins,
-  destinations,
+  routeFullCoords, // Use this for drawing routes
   place,
   checkedNodes,
   clickedNode, // Use this to center the map on a clicked route
@@ -111,9 +81,12 @@ export default function TomTomMap({
         .setLngLat([center.lng, center.lat])
         .addTo(mapRef.current);
 
-      if (!place && origins && destinations) {
-        drawRoutes(mapRef.current, origins, destinations);
-      }
+      // Wait until the style is fully loaded before drawing routes
+      mapRef.current.on('style.load', () => {
+        if (!place && routeFullCoords) {
+          drawRoutes(mapRef.current, routeFullCoords);
+        }
+      });
     };
 
     if (!window.tt) {
@@ -121,7 +94,7 @@ export default function TomTomMap({
     } else {
       initializeMap();
     }
-  }, [center, origins, destinations, place]);
+  }, [center, routeFullCoords, place]);
 
   // Clear previous routes function
   const clearRoutes = (map) => {
@@ -178,90 +151,71 @@ export default function TomTomMap({
   };
 
   /**
-   * Draws multiple routes on the map and adds start (origin) and finish (destination) markers.
+   * Draws multiple routes from routeFullCoords on the map and adds start (origin) and finish (destination) markers.
    * @param {Object} map - The TomTom map instance
-   * @param {Array|string|Object} origins - Origin coordinates
-   * @param {Array|string|Object} destinations - Destination coordinates
+   * @param {Array} routeFullCoords - The array of route objects with coordinates
    */
-  const drawRoutes = (map, origins, destinations) => {
-    let processedOrigins = processCoordinates(origins);
-    let processedDestinations = processCoordinates(destinations);
+  const drawRoutes = (map, routeFullCoords) => {
+    console.log('routeFullCoords', routeFullCoords);
 
-    processedOrigins = Array.isArray(processedOrigins)
-      ? processedOrigins
-      : [processedOrigins];
-    processedDestinations = Array.isArray(processedDestinations)
-      ? processedDestinations
-      : [processedDestinations];
-
-    if (
-      !processedOrigins ||
-      !processedDestinations ||
-      processedOrigins.length !== processedDestinations.length
-    ) {
-      console.error('Invalid origin or destination coordinates');
+    if (!routeFullCoords || !Array.isArray(routeFullCoords)) {
+      console.error('Invalid routeFullCoords');
       return;
     }
 
     // Clear any previous routes
     clearRoutes(map);
 
-    processedOrigins.forEach((originCoords, index) => {
-      const destinationCoords = processedDestinations[index];
-
-      if (
-        !originCoords ||
-        !originCoords.lng ||
-        !originCoords.lat ||
-        !destinationCoords ||
-        !destinationCoords.lng ||
-        !destinationCoords.lat
-      ) {
-        console.error(
-          'Missing or invalid lng/lat in origin or destination coordinates',
-        );
+    // Loop through each route in routeFullCoords
+    routeFullCoords.forEach((route, index) => {
+      if (!route.coords || route.coords.length === 0) {
+        console.error(`Invalid coordinates for route ${index}`);
         return;
       }
 
-      new tt.Marker({ color: 'green' })
-        .setLngLat([originCoords.lng, originCoords.lat])
-        .addTo(map);
+      // Extract coordinates from route.coords
+      const coordinates = route.coords.map((coord) => [coord.lng, coord.lat]);
 
-      new tt.Marker({ color: 'red' })
-        .setLngLat([destinationCoords.lng, destinationCoords.lat])
-        .addTo(map);
+      // Add start and end markers
+      const startCoord = coordinates[0];
+      const endCoord = coordinates[coordinates.length - 1];
 
-      // Calculate the route for each origin-destination pair
-      ttServices.services
-        .calculateRoute({
-          key: process.env.REACT_APP_TOMTOM_MAP_API,
-          locations: `${originCoords.lng},${originCoords.lat}:${destinationCoords.lng},${destinationCoords.lat}`,
-        })
-        .then(function (routeData) {
-          const geoJsonRoute = routeData.toGeoJson();
-          const newRouteLayerId = `route-${index}-${Date.now()}`;
-          routeLayerIds.current.push(newRouteLayerId);
+      new tt.Marker({ color: 'green' }).setLngLat(startCoord).addTo(map);
+      new tt.Marker({ color: 'red' }).setLngLat(endCoord).addTo(map);
 
-          // Add the route to the map
-          map.addLayer({
-            id: newRouteLayerId,
-            type: 'line',
-            source: {
-              type: 'geojson',
-              data: geoJsonRoute,
-            },
-            paint: {
-              'line-color': `hsl(${Math.random() * 360}, 100%, 50%)`,
-              'line-width': 6,
-            },
-          });
+      // Create GeoJSON for the route
+      const geoJsonRoute = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: coordinates,
+        },
+      };
 
-          // Call the centerRoute function to fit the map to the route
-          centerRoute(map, originCoords, destinationCoords);
-        })
-        .catch((error) => {
-          console.error('Error calculating route:', error);
-        });
+      const newRouteLayerId = `route-${index}-${Date.now()}`;
+      routeLayerIds.current.push(newRouteLayerId);
+
+      // Add the polyline route to the map
+      map.addLayer({
+        id: newRouteLayerId,
+        type: 'line',
+        source: {
+          type: 'geojson',
+          data: geoJsonRoute,
+        },
+        paint: {
+          'line-color': `hsl(${Math.random() * 360}, 100%, 50%)`, // Random color for each route
+          'line-width': 6,
+        },
+      });
+
+      // Center the map on the route
+      const bounds = new tt.LngLatBounds();
+      coordinates.forEach((coord) => {
+        bounds.extend(coord);
+      });
+
+      map.fitBounds(bounds, { padding: 50 });
     });
   };
 
