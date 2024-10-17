@@ -63,6 +63,7 @@ export default function TMap({
   checkedNodes, // List of checked nodes
   clickedNode, // Node that is clicked
   searchedLocation, // Searched location to center on
+  routeColors = () => {},
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // Initial map center calculation
   const [center, setCenter] = useState(initialCoords); // Manage map center state
@@ -132,13 +133,16 @@ export default function TMap({
     }
   }, [clickedNode]);
 
-  // Update map with routes and checked nodes
+  // Add a ref to store the previous colors
+  const previousColorsRef = useRef([]);
+
   useEffect(() => {
     async function fetchRoutesAndUpdateMap() {
       const { Tmapv2 } = window;
 
       // Define colors for different routes
       const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080']; // Red, Blue, Green, Orange, Purple
+      const newColors = []; // Array to store the new route colors
 
       // Clear previous markers and routes
       if (startMarkerRef.current.length) {
@@ -192,19 +196,18 @@ export default function TMap({
 
           // Select a color for the polyline
           const color = colors[index % colors.length];
+          newColors.push(color); // Store the color for this route
 
           // Create polyline for the route
           const polylinePath = parsedCoords.map(
             (coord) => new Tmapv2.LatLng(coord.lat, coord.lng),
           );
-          
           const polyline = new Tmapv2.Polyline({
             path: polylinePath,
             strokeColor: color,
             strokeWeight: 4,
             map: mapRef.current, // Add this to display the polyline on the map
           });
-          
           polylineRef.current.push(polyline);
 
           // Optionally center map on the route
@@ -230,6 +233,15 @@ export default function TMap({
             }
           }
         });
+
+        // Compare newColors with previousColorsRef
+        if (
+          JSON.stringify(newColors) !==
+          JSON.stringify(previousColorsRef.current)
+        ) {
+          previousColorsRef.current = newColors; // Update the reference
+          routeColors(newColors); // Update the parent with new colors
+        }
       } else {
         console.warn('routeFullCoords is null or not an array');
       }

@@ -27,8 +27,9 @@ export default function RoutoMap({
   lat,
   lng,
   locationCoords = () => {},
+  routeColors = () => {},
   routeFullCoords,
-  clickedNode, // The clicked route node with start and goal coordinates
+  clickedNode,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 좌표 상태 관리
@@ -36,26 +37,24 @@ export default function RoutoMap({
   const markerRef = useRef(null); // 마커 인스턴스를 참조하기 위한 ref
   const [routeObjects, setRouteObjects] = useState([]); // Store route objects for clearing
   const [routeMarkers, setRouteMarkers] = useState([]); // Store markers for clearing
-  console.log(routeFullCoords);
-  // Clear routes and markers when updating the map
+
+  // 경로와 마커를 모두 삭제하는 함수
   const clearRoutesAndMarkers = () => {
-    routeObjects.forEach((routeArray) => {
-      if (Array.isArray(routeArray)) {
-        routeArray.forEach((route) => {
-          if (route && typeof route.setMap === 'function') {
-            route.setMap(null);
-          }
-        });
+    // 지도에서 모든 경로(폴리라인) 제거
+    routeObjects.forEach((route) => {
+      if (route && typeof route.setMap === 'function') {
+        route.setMap(null); // 지도에서 폴리라인 제거
       }
     });
-    setRouteObjects([]);
+    setRouteObjects([]); // 경로 객체 상태 초기화
 
+    // 지도에서 모든 마커 제거
     routeMarkers.forEach((marker) => {
       if (marker && typeof marker.setMap === 'function') {
-        marker.setMap(null);
+        marker.setMap(null); // 지도에서 마커 제거
       }
     });
-    setRouteMarkers([]);
+    setRouteMarkers([]); // 마커 상태 초기화
   };
 
   // Function to fit map to bounds
@@ -75,7 +74,8 @@ export default function RoutoMap({
     mapInstance.fitBounds(bounds);
   };
 
-  const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080']; // Define different colors
+  const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080'];
+  const previousColorsRef = useRef([]); // Store previous colors
 
   const drawCheckedRoutes = (mapInstance, routeFullCoords) => {
     clearRoutesAndMarkers(); // Clear any existing routes and markers
@@ -83,6 +83,7 @@ export default function RoutoMap({
     const newRouteObjects = [];
     const newRouteMarkers = [];
     const bounds = new routo.maps.LatLngBounds(); // Initialize bounds to fit all routes
+    const newColors = [];
 
     if (Array.isArray(routeFullCoords)) {
       routeFullCoords.forEach((route, index) => {
@@ -108,6 +109,7 @@ export default function RoutoMap({
 
           // Select a color based on the index, loop back if more routes than colors
           const strokeColor = colors[index % colors.length];
+          newColors.push(strokeColor);
 
           // Create and draw the polyline with the selected color
           const polyline = new routo.maps.Polyline({
@@ -154,9 +156,15 @@ export default function RoutoMap({
       console.warn('routeFullCoords is not an array.');
     }
 
+    if (
+      JSON.stringify(newColors) !== JSON.stringify(previousColorsRef.current)
+    ) {
+      previousColorsRef.current = newColors;
+      routeColors(newColors); // Update parent with new colors
+    }
+
     setRouteObjects(newRouteObjects); // Update the state to hold the drawn route objects
     setRouteMarkers(newRouteMarkers); // Update the state to hold the drawn markers
-    mapInstance.setZoom(8); // Set zoom level to zoom out
   };
 
   // Center the map on the clicked route when clickedNode is provided

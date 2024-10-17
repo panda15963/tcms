@@ -6,6 +6,7 @@ export default function TomTomMapHandler({
   routeFullCoords,
   checkedNode,
   clickedNode,
+  routeColors = () => {},
 }) {
   /**
    * TomTom 지도 표출 컴포넌트
@@ -23,12 +24,14 @@ export default function TomTomMapHandler({
           routeFullCoords={routeFullCoords}
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
+          routeColors={routeColors}
         />
       ) : selectedCoords && tomtomLocation ? (
         <TomTomMap
           lat={selectedCoords.lat}
           lng={selectedCoords.lng}
           locationCoords={tomtomLocation}
+          routeColors={routeColors}
         />
       ) : !selectedCoords && tomtomLocation? (
         <TomTomMap
@@ -36,6 +39,7 @@ export default function TomTomMapHandler({
           routeFullCoords={routeFullCoords}
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
+          routeColors={routeColors}
         />
       ) : tomtomLocation ? (
         <TomTomMap locationCoords={tomtomLocation} />

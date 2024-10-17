@@ -10,6 +10,7 @@ export default function TMapHandler({
   country,
   checkedNode,
   clickedNode,
+  routeColors = () =>{},
 }) {
   /**
    *  TMap 지도 표출 컴포넌트
@@ -48,12 +49,14 @@ export default function TMapHandler({
           routeFullCoords={routeFullCoords}
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
+          routeColors={routeColors}
         />
       ) : selectedCoords && tmapLocation ? (
         <TMap
           lat={selectedCoords.lat}
           lng={selectedCoords.lng}
           locationCoords={tmapLocation}
+          routeColors={routeColors}
         />
       ) : !selectedCoords && tmapLocation ? (
         <TMap
@@ -61,6 +64,7 @@ export default function TMapHandler({
           routeFullCoords={routeFullCoords}
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
+          routeColors={routeColors}
         />
       ) : tmapLocation ? (
         <TMap locationCoords={tmapLocation} />

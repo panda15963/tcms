@@ -29,12 +29,14 @@ export default function GoogleMap({
   routeFullCoords, // Contains coords for polyline
   clickedNode, // Selected route to center the map on
   error = () => {},
+  routeColors = () => {}, // Callback function to pass route colors
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
   const [map, setMap] = useState(null);
   const mapRef = useRef(null);
   const markerRefs = useRef([]); // Store references to markers for cleanup
   const polylinesRef = useRef([]); // Store references to multiple polylines
+  const previousColors = useRef([]);
   const { t } = useTranslation();
 
   const defaultColors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080'];
@@ -50,7 +52,7 @@ export default function GoogleMap({
     polylinesRef.current.forEach((polyline) => polyline.setMap(null)); // Remove all polylines from map
     polylinesRef.current = []; // Clear polyline references
   };
-  
+
   // Initialize the map once when the component is mounted
   useEffect(() => {
     if (!window.google) {
@@ -107,33 +109,6 @@ export default function GoogleMap({
     }
   }, [lat, lng, map]);
 
-  // Update center and zoom when lat/lng updates, and ensure a marker is placed
-  useEffect(() => {
-    if (map) {
-      const newCenter = calculateCenterAndMarker(lat, lng);
-
-      // Check if the center has changed
-      if (
-        newCenter.lat !== map.getCenter().lat() ||
-        newCenter.lng !== map.getCenter().lng()
-      ) {
-        // Clear existing markers and polylines, then add a marker for the new center
-        clearMarkers(); // Clear all previous markers
-        clearPolylines(); // Clear all previous polylines
-
-        map.setCenter(newCenter); // Set the new center
-        map.setZoom(17); // Zoom in for specific point
-
-        // Add a new marker at the center
-        const marker = new window.google.maps.Marker({
-          position: newCenter,
-          map: map,
-        });
-        markerRefs.current.push(marker); // Store marker reference for cleanup
-      }
-    }
-  }, [lat, lng, map]);
-
   // Draw polylines and fit bounds when routeFullCoords changes
   useEffect(() => {
     if (!map || !routeFullCoords || routeFullCoords.length === 0) return;
@@ -142,6 +117,7 @@ export default function GoogleMap({
 
     const allCoords = [];
     const newMarkers = [];
+    const newColors = []; // Initialize a new colors array
 
     routeFullCoords.forEach((route, index) => {
       if (route.coords && route.coords.length > 0) {
@@ -163,8 +139,8 @@ export default function GoogleMap({
           lng: coord.lng,
         }));
 
-        // const routeColor = colors[index % colors.length];
         const routeColor = defaultColors[index % defaultColors.length];
+        newColors.push(routeColor); // Add the route color to the newColors array
 
         const polyline = new window.google.maps.Polyline({
           path: polylinePath,
@@ -194,7 +170,17 @@ export default function GoogleMap({
       const bounds = calculateBounds(allCoords);
       map.fitBounds(bounds); // Fit the map to the route bounds
     }
-  }, [routeFullCoords, map]);
+
+    // Check if the newColors array is different from the current colors
+    if (
+      routeColors &&
+      newColors.length > 0 &&
+      JSON.stringify(previousColors.current) !== JSON.stringify(newColors)
+    ) {
+      routeColors(newColors);  // Only call when colors are different
+      previousColors.current = newColors;  // Update the ref to the new colors
+    }
+  }, [routeFullCoords, map, routeColors]);
 
   // Center map on selected route when clickedNode changes
   useEffect(() => {

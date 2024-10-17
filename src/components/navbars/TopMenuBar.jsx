@@ -28,6 +28,7 @@ const TopMenuBar = ({
   handleRouteData,
   clickedNode,
   setCurrentApi,
+  routeColors = () => {},
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [keyPressed, setKeyPressed] = useState('');
@@ -107,11 +108,6 @@ const TopMenuBar = ({
     setRouteFullCoords(null);
   }, [selectedAPI, setCurrentApi]);
 
-  const handleChangeColors = (colors) => {
-    routeColors(colors)
-    console.log(colors)
-  }
-
   const handleChoosingMapAPIs = () => {
     if (selectedAPI?.name === 'GOOGLE') {
       return (
@@ -122,6 +118,7 @@ const TopMenuBar = ({
           routeFullCoords={routeFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
+          routeColors={routeColors}
         />
       );
     } else if (selectedAPI?.name === 'ROUTO') {
@@ -134,6 +131,7 @@ const TopMenuBar = ({
           country={country}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
+          routeColors={routeColors}
         />
       );
     } else if (selectedAPI?.name === 'TMAP') {
@@ -146,6 +144,7 @@ const TopMenuBar = ({
           country={country}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
+          routeColors={routeColors}
         />
       );
     } else if (selectedAPI?.name === 'TOMTOM') {
@@ -157,6 +156,7 @@ const TopMenuBar = ({
           routeFullCoords={routeFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
+          routeColors={routeColors}
         />
       );
     } else if (selectedAPI?.name === 'BAIDU') {

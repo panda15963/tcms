@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { CiSquarePlus, CiSquareMinus } from 'react-icons/ci';
-export default function TreeNode({ node, onCheck, onNodeClick, currentIndex }) {
+
+export default function TreeNode({
+  node,
+  onCheck,
+  onNodeClick,
+  currentIndex,
+  routeColor,
+}) {
   const [expanded, setExpanded] = useState(false); // Node expand/collapse state
 
   const handleCheck = (e) => {
@@ -34,9 +41,19 @@ export default function TreeNode({ node, onCheck, onNodeClick, currentIndex }) {
         )}
         {/* 체크박스 */}
         <input type="checkbox" checked={node.checked} onChange={handleCheck} />
+        {/* 번호 */}
+        <span className="ml-2 font-bold">{currentIndex + 1}.</span>
+        {/* Route Color 상자 */}
+        <span
+          className="w-4 h-4 ml-2"
+          style={{
+            backgroundColor: node.checked ? routeColor : '#ffffff',
+            display: 'inline-block',
+          }}
+        ></span>
         {/* 노드 이름 표시 */}
         <span
-          className="pl-2 text-sm flex items-center cursor-pointer hover:text-blue-500 hover:underline"
+          className="pl-2 text-sm flex font-bold items-center cursor-pointer hover:text-blue-500 hover:underline"
           onClick={handleFileClick} // Trigger node click handler
         >
           {node.file_name}
@@ -51,7 +68,8 @@ export default function TreeNode({ node, onCheck, onNodeClick, currentIndex }) {
               node={child}
               onCheck={onCheck}
               onNodeClick={onNodeClick} // Pass the click handler down
-              currentIndex={`${currentIndex}.${index + 1}`}
+              currentIndex={`${currentIndex}.${index + 1}`} // Update the currentIndex
+              routeColor={routeColor} // Pass routeColor to child nodes if needed
             />
           ))}
         </div>

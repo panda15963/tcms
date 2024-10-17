@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import TreeNode from './TreeNode';
 
-const Tree = ({ data, onCheckedNodesChange, onNodeClick }) => {
+const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
   const { t } = useTranslation();
   const [treeData, setTreeData] = useState([]);
 
@@ -31,18 +31,18 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick }) => {
   const updateNodeRecursively = (node, checked) => {
     return {
       ...node,
-      checked,
+      checked, // Ensure the checked status is updated
       children: node.children.map((child) =>
         updateNodeRecursively(child, checked),
       ),
     };
   };
 
-  const updateParentNodeRecursively = (node, nodesMap) => {
+  const updateParentNodeRecursively = (node) => {
     if (!node.children || node.children.length === 0) return node;
 
     const updatedChildren = node.children.map((child) =>
-      updateParentNodeRecursively(child, nodesMap),
+      updateParentNodeRecursively(child),
     );
 
     const allChecked = updatedChildren.every((child) => child.checked);
@@ -105,10 +105,13 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick }) => {
     return checkedNodes;
   };
 
+  // Function to map colors only to checked nodes
   const handleGetCheckedNodes = () => {
     const checkedNodes = getCheckedNodes(treeData);
-    onCheckedNodesChange(checkedNodes);
+    onCheckedNodesChange(checkedNodes); // Pass only checked nodes
   };
+
+  const checkedNodes = getCheckedNodes(treeData);
 
   useEffect(() => {
     handleGetCheckedNodes();
@@ -122,8 +125,13 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick }) => {
             key={node.id}
             node={node}
             onCheck={handleCheck}
-            currentIndex={index + 1}
-            onNodeClick={handleNodeClick} // Pass onNodeClick to TreeNode
+            onNodeClick={handleNodeClick} // Pass the click handler down
+            currentIndex={index} // Change index to reflect only the checked ones
+            routeColor={
+              node.checked
+                ? routeColors[checkedNodes.indexOf(node) % routeColors.length]
+                : '#ffffff'
+            } // Assign color only to checked nodes
           />
         ))
       ) : (

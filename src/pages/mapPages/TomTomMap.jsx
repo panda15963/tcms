@@ -45,6 +45,7 @@ export default function TomTomMap({
   place,
   checkedNodes,
   clickedNode, // Use this to center the map on a clicked route
+  routeColors = () => {},
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
   const [center, setCenter] = useState(initialCoords);
@@ -52,6 +53,7 @@ export default function TomTomMap({
   const markerRef = useRef(null);
   const routeLayerIds = useRef([]); // Store the route layer IDs to manage multiple routes
   const routeMarkers = useRef([]); // Store the markers for each route (start and end)
+  const previousColorsRef = useRef([]);
 
   // Array of specific colors to assign to each route
   const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080'];
@@ -97,7 +99,12 @@ export default function TomTomMap({
   useEffect(() => {
     if (mapRef.current && routeFullCoords) {
       // Redraw the routes based on the checked nodes (if no checked nodes, show all)
-      const routesToDraw = checkedNodes.length === 0 ? routeFullCoords : routeFullCoords.filter(route => checkedNodes.some(node => node.file_id === route.file_id));
+      const routesToDraw =
+        checkedNodes.length === 0
+          ? routeFullCoords
+          : routeFullCoords.filter((route) =>
+              checkedNodes.some((node) => node.file_id === route.file_id),
+            );
       drawRoutes(mapRef.current, routesToDraw); // Redraw with filtered routes
     }
   }, [routeFullCoords, checkedNodes]);
@@ -148,6 +155,8 @@ export default function TomTomMap({
     // Clear any previous routes and markers
     clearRoutesAndMarkers(map);
 
+    const newColors = [];
+
     // Loop through the routes and draw them
     routeFullCoords.forEach((route, index) => {
       if (!route.coords || route.coords.length === 0) {
@@ -161,11 +170,15 @@ export default function TomTomMap({
       // Add start and end markers with custom icons (Start_Point and End_Point)
       const startMarker = new tt.Marker({
         element: createCustomMarker(Start_Point),
-      }).setLngLat(coordinates[0]).addTo(map);
+      })
+        .setLngLat(coordinates[0])
+        .addTo(map);
 
       const endMarker = new tt.Marker({
         element: createCustomMarker(End_Point),
-      }).setLngLat(coordinates[coordinates.length - 1]).addTo(map);
+      })
+        .setLngLat(coordinates[coordinates.length - 1])
+        .addTo(map);
 
       // Store markers in the ref array
       routeMarkers.current.push(startMarker, endMarker);
@@ -184,6 +197,7 @@ export default function TomTomMap({
 
       // Select a color from the predefined colors array
       const routeColor = colors[index % colors.length];
+      newColors.push(routeColor);
 
       // Add the polyline route to the map
       map.addLayer({
@@ -207,6 +221,13 @@ export default function TomTomMap({
 
       map.fitBounds(bounds, { padding: 50 });
     });
+
+    if (
+      JSON.stringify(newColors) !== JSON.stringify(previousColorsRef.current)
+    ) {
+      previousColorsRef.current = newColors; // Update the reference
+      routeColors(newColors); // Update the parent with new colors
+    }
   };
 
   // Helper function to create a custom marker with an image
@@ -247,7 +268,9 @@ export default function TomTomMap({
       if (originCoords && destinationCoords) {
         centerRoute(mapRef.current, originCoords, destinationCoords);
       } else {
-        console.error('Invalid origin or destination coordinates for clicked node.');
+        console.error(
+          'Invalid origin or destination coordinates for clicked node.',
+        );
       }
     }
   }, [clickedNode]);

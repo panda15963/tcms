@@ -8,6 +8,7 @@ export default function GoogleMapHandler({
   routeFullCoords = null, // Start with null and handle it safely inside the component
   checkedNode = null, // Start with null and handle it safely inside the component
   clickedNode,
+  routeColors = () => {},
 }) {
   const [isError, setIsError] = useState(false); // Error state
   const [errorText, setErrorText] = useState(null); // Error message state
@@ -26,6 +27,11 @@ export default function GoogleMapHandler({
     checkedFileIds.includes(route.file_id)
   );
 
+  const handleChangeColors = (colors) => {
+    routeColors(colors);
+  };
+  
+
   return (
     <>
       {isError && <Error errorMessage={errorText} />}
@@ -37,6 +43,7 @@ export default function GoogleMapHandler({
           routeFullCoords={filteredRoutes} // Pass only filtered routes
           clickedNode={clickedNode}
           error={handleError}
+          routeColors={handleChangeColors} // Ensure this is passed here
         />
       ) : selectedCoords && googleLocation ? (
         <GoogleMap
@@ -44,6 +51,7 @@ export default function GoogleMapHandler({
           lng={selectedCoords.lng}
           locationCoords={googleLocation}
           error={handleError} // Pass the error handling function
+          routeColors={handleChangeColors} // Pass the color handler here too
         />
       ) : !selectedCoords && googleLocation ? (
         <GoogleMap
@@ -51,6 +59,7 @@ export default function GoogleMapHandler({
           routeFullCoords={filteredRoutes} // Pass only filtered routes
           clickedNode={clickedNode}
           error={handleError} // Pass the error handling function
+          routeColors={handleChangeColors} // Ensure this is passed here
         />
       ) : googleLocation ? (
         <GoogleMap

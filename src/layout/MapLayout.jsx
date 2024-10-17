@@ -9,7 +9,8 @@ export default function MapLayout() {
   const [routeData, setRouteData] = useState([]);
   const [checkedNodes, setCheckedNodes] = useState([]);
   const [clickedNode, setClickedNode] = useState(null);
-  const [currentApi, setCurrentApi] = useState(null); // Define currentApi state
+  const [currentApi, setCurrentApi] = useState(null);
+  const [routeColors, setRouteColors] = useState([]);
 
   // Capture route data
   const handleRouteData = (data) => {
@@ -34,6 +35,7 @@ export default function MapLayout() {
         checkedNodes={checkedNodes}
         clickedNode={clickedNode}
         setCurrentApi={setCurrentApi}
+        routeColors={setRouteColors}
       />
 
       {/* 좌측 슬라이드 패널 */}
@@ -42,6 +44,7 @@ export default function MapLayout() {
         onCheckedNodesChange={handleCheckedNodes}
         onClickedNode={handleClickedNode}
         onMapChange={currentApi}
+        routeColors={routeColors}
       />
       {/* 우측 슬라이드 패널 */}
       <RightSideSlide data={routeData} onMapChange={currentApi} />

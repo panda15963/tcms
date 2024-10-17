@@ -10,6 +10,7 @@ export default function LeftSideSlide({
   onCheckedNodesChange,
   onClickedNode,
   onMapChange,
+  routeColors, // Add routeColors to props
 }) {
   const [open, setOpen] = useState(false); // State to manage whether the panel is open
   const [treeData, setTreeData] = useState([]); // Local state to manage tree data
@@ -36,10 +37,10 @@ export default function LeftSideSlide({
       setTreeData(data); // Set the data for the Tree component
     }
   }, [data]);
-  
+
   useEffect(() => {
     if (onMapChange) {
-      setOpen(false)
+      setOpen(false);
     }
   }, [onMapChange]);
 
@@ -99,6 +100,7 @@ export default function LeftSideSlide({
               onCheckedNodesChange={handleCheckedNodes}
               onNodeClick={handleNodeClick} // Pass the onNodeClick handler to Tree
               onMapChange={onMapChange}
+              routeColors={routeColors} // Pass routeColors to Tree component
             />
           </div>
         </div>
@@ -106,3 +108,4 @@ export default function LeftSideSlide({
     </div>
   );
 }
+
