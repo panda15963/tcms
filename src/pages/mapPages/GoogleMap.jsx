@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import End_Point from '../../img/Multi End Point.svg'; // Import your custom End Point icon
+import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css';
 
 function calculateCenterAndMarker(lat, lng) {
@@ -34,8 +36,8 @@ export default function GoogleMap({
   const markerRefs = useRef([]); // Store references to markers for cleanup
   const polylinesRef = useRef([]); // Store references to multiple polylines
   const { t } = useTranslation();
-  
-  const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080']; // Define different colors
+
+  const defaultColors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080'];
 
   // Clear all existing markers
   const clearMarkers = () => {
@@ -48,7 +50,7 @@ export default function GoogleMap({
     polylinesRef.current.forEach((polyline) => polyline.setMap(null)); // Remove all polylines from map
     polylinesRef.current = []; // Clear polyline references
   };
-
+  
   // Initialize the map once when the component is mounted
   useEffect(() => {
     if (!window.google) {
@@ -66,6 +68,13 @@ export default function GoogleMap({
 
       setMap(mapInstance);
 
+      // Add a marker at the initial center when the map is created
+      const initialMarker = new window.google.maps.Marker({
+        position: initialCoords,
+        map: mapInstance,
+      });
+      markerRefs.current.push(initialMarker); // Store the marker reference
+
       // Add map click listener
       mapInstance.addListener('click', (event) => {
         const clickedLat = event.latLng.lat();
@@ -74,6 +83,29 @@ export default function GoogleMap({
       });
     }
   }, [map, initialCoords, t, error, locationCoords]);
+
+  // Update center and zoom when lat/lng updates, and ensure a marker is placed
+  useEffect(() => {
+    if (map) {
+      const newCenter = calculateCenterAndMarker(lat, lng);
+
+      // Check if the center has changed
+      if (
+        newCenter.lat !== map.getCenter().lat() ||
+        newCenter.lng !== map.getCenter().lng()
+      ) {
+        map.setCenter(newCenter); // Set the new center
+      }
+
+      // Always clear existing markers and add a new marker
+      clearMarkers(); // Clear all previous markers
+      const marker = new window.google.maps.Marker({
+        position: newCenter,
+        map: map,
+      });
+      markerRefs.current.push(marker); // Store marker reference for cleanup
+    }
+  }, [lat, lng, map]);
 
   // Update center and zoom when lat/lng updates, and ensure a marker is placed
   useEffect(() => {
@@ -131,7 +163,8 @@ export default function GoogleMap({
           lng: coord.lng,
         }));
 
-        const routeColor = colors[index % colors.length]; // Assign different color for each route
+        // const routeColor = colors[index % colors.length];
+        const routeColor = defaultColors[index % defaultColors.length];
 
         const polyline = new window.google.maps.Polyline({
           path: polylinePath,
@@ -149,10 +182,11 @@ export default function GoogleMap({
     // Update markers and fit bounds only if coordinates have changed
     if (allCoords.length > 0) {
       clearMarkers(); // Clear old markers
-      newMarkers.forEach((marker) => {
+      newMarkers.forEach((marker, index) => {
         const newMarker = new window.google.maps.Marker({
           position: marker,
           map: map,
+          icon: index % 2 === 0 ? Start_Point : End_Point, // Use custom Start_Point or End_Point icon
         });
         markerRefs.current.push(newMarker); // Store reference to marker
       });

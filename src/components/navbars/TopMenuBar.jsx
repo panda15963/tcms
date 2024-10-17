@@ -25,8 +25,8 @@ import Error from '../alerts/Error';
 
 const TopMenuBar = ({
   checkedNodes,
-  handleRouteData, 
-  clickedNode, 
+  handleRouteData,
+  clickedNode,
   setCurrentApi,
 }) => {
   const [inputValue, setInputValue] = useState('');
@@ -82,47 +82,37 @@ const TopMenuBar = ({
   };
 
   useEffect(() => {
-    // Only run if checkedNodes is defined and has elements
-    if (checkedNodes && checkedNodes.length > 0) {
-      // Extract coordinate data
-      const coordinates = checkedNodes
-        .map((item) => {
-          const startCoord = item.start_coord;
-          const goalCoord = item.goal_coord;
-          if (startCoord && goalCoord) {
-            return {
-              startCoord,
-              goalCoord,
-            };
-          }
-          return null; // Return null for invalid items
-        })
-        .filter((item) => item !== null); // Remove null items
+    if (selectedAPI) {
+      // Reset states when a new API is selected
+      setOrigins([]);
+      setDestinations([]);
+      setInputValue('');
+      setSelectedCoords(null);
+      setClickedCoords(null);
+      setCountry(null);
+      setConvertedCoords({ lat: '', lng: '' });
+      setDisplayCoords(null);
 
-      const countries = checkedNodes
-        .map((item) => item.country_str)
-        .filter((item) => item !== null);
+      // Reset routeFullCoords when the map changes
+      setRouteFullCoords(null);
 
-      if (coordinates.length === 0) {
-        setErrorValue(`${t('TopMenuBar.EmptyCoords')}`);
-      } else if (coordinates.length === 1) {
-        // Handle single route
-        setOrigins([coordinates[0].startCoord]); // Set in array format
-        setDestinations([coordinates[0].goalCoord]);
-        setCountry(countries);
-      } else {
-        // Handle multiple routes
-        const startCoords = coordinates.map((route) => route.startCoord);
-        const goalCoords = coordinates.map((route) => route.goalCoord);
+      // Set the current API to the selected API
+      setCurrentApi(selectedAPI);
 
-        setOrigins(startCoords); // Set arrays of coordinates
-        setDestinations(goalCoords);
-        setCountry(countries);
-      }
+      // Display success message
+      setSuccessValue(
+        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`,
+      );
     }
-  }, [checkedNodes]); // This effect runs whenever `checkedNodes` changes
-  
-  const handleChoosingMapAPIs = () => {    
+    setRouteFullCoords(null);
+  }, [selectedAPI, setCurrentApi]);
+
+  const handleChangeColors = (colors) => {
+    routeColors(colors)
+    console.log(colors)
+  }
+
+  const handleChoosingMapAPIs = () => {
     if (selectedAPI?.name === 'GOOGLE') {
       return (
         <GoogleMapHandler
@@ -183,29 +173,29 @@ const TopMenuBar = ({
         />
       );
     }
-  };  
+  };
 
   useEffect(() => {
     if (selectedAPI) {
-      // Reset all related states when a new map API is selected
+      // Reset states when a new API is selected
       setOrigins([]);
       setDestinations([]);
-      setInputValue(''); // Reset store search input
-      setSelectedCoords(null); // Reset selected coordinates
-      setClickedCoords(null); // Reset clicked coordinates
-      setCountry(null); // Reset country data
-      setConvertedCoords({ lat: '', lng: '' }); // Reset converted coordinates
-      setDisplayCoords(null); // Reset display coordinates
+      setInputValue('');
+      setSelectedCoords(null);
+      setClickedCoords(null);
+      setCountry(null);
+      setConvertedCoords({ lat: '', lng: '' });
+      setDisplayCoords(null);
 
       // Set the current API to the selected API
       setCurrentApi(selectedAPI);
 
-      // Display success message for API selection
+      // Display success message
       setSuccessValue(
         `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`,
       );
     }
-  }, [selectedAPI, setCurrentApi]); // Add setCurrentApi to the dependency array
+  }, [selectedAPI, setCurrentApi]);
 
   const handleCoordsChange = (e) => {
     const { name, value } = e.target;
@@ -543,7 +533,11 @@ const TopMenuBar = ({
                           />
                         </button>
                       </div>
-                      <LogModal routeData={handleRouteData} routeFullCoords={setRouteFullCoords} ref={logModalRef} />
+                      <LogModal
+                        routeData={handleRouteData}
+                        routeFullCoords={setRouteFullCoords}
+                        ref={logModalRef}
+                      />
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
                           {/* 공간 검색 */}

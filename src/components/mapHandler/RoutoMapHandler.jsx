@@ -6,28 +6,21 @@ import Error from '../alerts/Error';
 export default function RoutoMapHandler({
   selectedCoords,
   routoLocation,
-  origins,
-  destinations,
+  routeFullCoords = [], // Set default value as empty array
   country,
-  checkedNode,
+  checkedNode = [], // Set default value as empty array
   clickedNode,
 }) {
-  /**
-   * ROUTO 지도 표출 컴포넌트
-   *
-   * selectedCoords가 null이 아닌 경우, 해당 좌표(lat, lng)를 RoutoMap 컴포넌트에 전달하여 지도에 해당 좌표를 표시하고,
-   * 그렇지 않으면 routoLocation 좌표만 RoutoMap 컴포넌트에 전달하여 기본 위치를 지도에 표시합니다.
-   */
   const [error, setError] = useState(false);
   const [errorValue, setErrorValue] = useState('');
   const { t } = useTranslation();
 
-  // country 배열에서 "KOR" 이외의 값이 있는지 확인하는 함수
+  // Function to check if country array contains any value other than "KOR"
   const containsNonKOR = (countries) => {
-    return countries.some((item) => item !== 'KOR');
+    return countries?.some((item) => item !== 'KOR'); // Add optional chaining to avoid null errors
   };
 
-  // country 배열에 "KOR" 이외의 값이 있을 때 에러 알림 설정
+  // Show error if country contains non-KOR values
   useEffect(() => {
     if (Array.isArray(country) && containsNonKOR(country)) {
       setError(true);
@@ -36,19 +29,24 @@ export default function RoutoMapHandler({
       setError(false);
       setErrorValue('');
     }
-  }, [country]);
+  }, [country, t]);
+
+  // Extract file_id from checkedNode and filter routeFullCoords
+  const checkedFileIds = checkedNode?.map(node => node.file_id); // Add optional chaining
+  const filteredRoutes = routeFullCoords?.filter(route =>
+    checkedFileIds?.includes(route.file_id) // Add optional chaining
+  ) || []; // Ensure filteredRoutes is at least an empty array
 
   return (
     <>
       {error && <Error errorMessage={errorValue} />}
-      {selectedCoords && routoLocation && origins && destinations ? (
+      {selectedCoords && routoLocation ? (
         <RoutoMap
           lat={selectedCoords.lat}
           lng={selectedCoords.lng}
           locationCoords={routoLocation}
-          origins={origins}
-          destinations={destinations}
-          checkedNodes={checkedNode}
+          checkedNodes={checkedNode} // Pass checked nodes
+          routeFullCoords={filteredRoutes} // Pass filtered routes
           clickedNode={clickedNode}
         />
       ) : selectedCoords && routoLocation ? (
@@ -57,12 +55,11 @@ export default function RoutoMapHandler({
           lng={selectedCoords.lng}
           locationCoords={routoLocation}
         />
-      ) : !selectedCoords && routoLocation && origins && destinations ? (
+      ) : !selectedCoords && routoLocation ? (
         <RoutoMap
           locationCoords={routoLocation}
-          origins={origins}
-          destinations={destinations}
-          checkedNodes={checkedNode}
+          checkedNodes={checkedNode} // Pass checked nodes
+          routeFullCoords={filteredRoutes} // Pass filtered routes
           clickedNode={clickedNode}
         />
       ) : routoLocation ? (

@@ -1,6 +1,8 @@
 import tt from '@tomtom-international/web-sdk-maps';
 import '@tomtom-international/web-sdk-maps/dist/maps.css';
 import { useEffect, useState, useRef } from 'react';
+import End_Point from '../../img/Multi End Point.svg'; // Import your custom End Point icon
+import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css';
 
 /**
@@ -25,7 +27,11 @@ function calculateCenterAndMarker(lat, lng) {
  */
 const parseCoordinateString = (coordString) => {
   const coordsArray = coordString.split(',').map(parseFloat);
-  if (coordsArray.length === 2 && !isNaN(coordsArray[0]) && !isNaN(coordsArray[1])) {
+  if (
+    coordsArray.length === 2 &&
+    !isNaN(coordsArray[0]) &&
+    !isNaN(coordsArray[1])
+  ) {
     return { lng: coordsArray[0], lat: coordsArray[1] };
   }
   return null;
@@ -45,25 +51,18 @@ export default function TomTomMap({
   const mapRef = useRef(null);
   const markerRef = useRef(null);
   const routeLayerIds = useRef([]); // Store the route layer IDs to manage multiple routes
+  const routeMarkers = useRef([]); // Store the markers for each route (start and end)
+
+  // Array of specific colors to assign to each route
+  const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080'];
 
   // Update center coordinates whenever lat or lng changes
   useEffect(() => {
     setCenter(calculateCenterAndMarker(lat, lng));
   }, [lat, lng]);
 
-  console.log('checkedNodes ==>', checkedNodes);
-
   // TomTom API load and map initialization
   useEffect(() => {
-    const loadScript = () => {
-      const script = document.createElement('script');
-      script.src =
-        'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.14.0/maps/maps-web.min.js';
-      script.async = true;
-      script.onload = initializeMap;
-      document.body.appendChild(script);
-    };
-
     const initializeMap = () => {
       mapRef.current = tt.map({
         key: process.env.REACT_APP_TOMTOM_MAP_API,
@@ -83,21 +82,29 @@ export default function TomTomMap({
 
       // Wait until the style is fully loaded before drawing routes
       mapRef.current.on('style.load', () => {
-        if (!place && routeFullCoords) {
-          drawRoutes(mapRef.current, routeFullCoords);
+        if (routeFullCoords) {
+          drawRoutes(mapRef.current, routeFullCoords); // Initial draw, show all routes
         }
       });
     };
 
-    if (!window.tt) {
-      loadScript();
-    } else {
+    if (!mapRef.current) {
       initializeMap();
     }
   }, [center, routeFullCoords, place]);
 
-  // Clear previous routes function
-  const clearRoutes = (map) => {
+  // **Updated Effect for Handling checkedNodes Changes**
+  useEffect(() => {
+    if (mapRef.current && routeFullCoords) {
+      // Redraw the routes based on the checked nodes (if no checked nodes, show all)
+      const routesToDraw = checkedNodes.length === 0 ? routeFullCoords : routeFullCoords.filter(route => checkedNodes.some(node => node.file_id === route.file_id));
+      drawRoutes(mapRef.current, routesToDraw); // Redraw with filtered routes
+    }
+  }, [routeFullCoords, checkedNodes]);
+
+  // Clear previous routes and markers function
+  const clearRoutesAndMarkers = (map) => {
+    // Clear route layers
     if (routeLayerIds.current.length > 0) {
       routeLayerIds.current.forEach((layerId) => {
         if (map.getLayer(layerId)) {
@@ -107,30 +114,111 @@ export default function TomTomMap({
       });
       routeLayerIds.current = [];
     }
+
+    // Clear markers
+    if (routeMarkers.current.length > 0) {
+      routeMarkers.current.forEach((marker) => {
+        marker.remove(); // Remove the marker from the map
+      });
+      routeMarkers.current = [];
+    }
   };
 
-  // Handle searched place and move map
-  useEffect(() => {
-    if (place && place.lat && place.lng && mapRef.current) {
-      moveToPlace(place);
-    }
-  }, [place]);
-
   /**
-   * Moves the map to a new place and resets the routes.
-   * @param {Object} place - The coordinates of the new place to move the map to.
+   * Draws multiple routes based on the checkedNodes.
+   * If all nodes are checked, show all routes.
+   * If some nodes are unchecked, only show the checked routes.
+   * @param {Object} map - The TomTom map instance
+   * @param {Array} routeFullCoords - The array of all route objects with coordinates
    */
-  const moveToPlace = (place) => {
-    if (place && place.lat && place.lng) {
-      // Clear previous routes
-      clearRoutes(mapRef.current); // Clear routes when moving to a new place
-
-      // Move the map center to the new place
-      mapRef.current.setCenter([place.lng, place.lat]);
-
-      // Move the marker to the new place
-      markerRef.current.setLngLat([place.lng, place.lat]);
+  const drawRoutes = (map, routeFullCoords = []) => {
+    // Ensure the style is loaded before trying to add layers
+    if (!map.isStyleLoaded()) {
+      map.on('style.load', () => {
+        drawRoutes(map, routeFullCoords); // After the style has loaded, draw the routes
+      });
+      return;
     }
+
+    if (!routeFullCoords || !Array.isArray(routeFullCoords)) {
+      console.error('Invalid routeFullCoords');
+      return;
+    }
+
+    // Clear any previous routes and markers
+    clearRoutesAndMarkers(map);
+
+    // Loop through the routes and draw them
+    routeFullCoords.forEach((route, index) => {
+      if (!route.coords || route.coords.length === 0) {
+        console.error(`Invalid coordinates for route ${index}`);
+        return;
+      }
+
+      // Extract coordinates from route.coords
+      const coordinates = route.coords.map((coord) => [coord.lng, coord.lat]);
+
+      // Add start and end markers with custom icons (Start_Point and End_Point)
+      const startMarker = new tt.Marker({
+        element: createCustomMarker(Start_Point),
+      }).setLngLat(coordinates[0]).addTo(map);
+
+      const endMarker = new tt.Marker({
+        element: createCustomMarker(End_Point),
+      }).setLngLat(coordinates[coordinates.length - 1]).addTo(map);
+
+      // Store markers in the ref array
+      routeMarkers.current.push(startMarker, endMarker);
+
+      // Create GeoJSON for the route
+      const geoJsonRoute = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: coordinates,
+        },
+      };
+
+      const newRouteLayerId = `route-${index}-${Date.now()}`;
+      routeLayerIds.current.push(newRouteLayerId);
+
+      // Select a color from the predefined colors array
+      const routeColor = colors[index % colors.length];
+
+      // Add the polyline route to the map
+      map.addLayer({
+        id: newRouteLayerId,
+        type: 'line',
+        source: {
+          type: 'geojson',
+          data: geoJsonRoute,
+        },
+        paint: {
+          'line-color': routeColor,
+          'line-width': 6,
+        },
+      });
+
+      // Center the map on the route
+      const bounds = new tt.LngLatBounds();
+      coordinates.forEach((coord) => {
+        bounds.extend(coord);
+      });
+
+      map.fitBounds(bounds, { padding: 50 });
+    });
+  };
+
+  // Helper function to create a custom marker with an image
+  const createCustomMarker = (icon) => {
+    const markerElement = document.createElement('div');
+    markerElement.className = 'custom-marker';
+    const img = document.createElement('img');
+    img.src = icon;
+    img.style.width = '32px'; // Set the desired width
+    img.style.height = '32px'; // Set the desired height
+    markerElement.appendChild(img);
+    return markerElement;
   };
 
   /**
@@ -150,75 +238,6 @@ export default function TomTomMap({
     map.fitBounds(bounds, { padding: 50 });
   };
 
-  /**
-   * Draws multiple routes from routeFullCoords on the map and adds start (origin) and finish (destination) markers.
-   * @param {Object} map - The TomTom map instance
-   * @param {Array} routeFullCoords - The array of route objects with coordinates
-   */
-  const drawRoutes = (map, routeFullCoords) => {
-    console.log('routeFullCoords', routeFullCoords);
-
-    if (!routeFullCoords || !Array.isArray(routeFullCoords)) {
-      console.error('Invalid routeFullCoords');
-      return;
-    }
-
-    // Clear any previous routes
-    clearRoutes(map);
-
-    // Loop through each route in routeFullCoords
-    routeFullCoords.forEach((route, index) => {
-      if (!route.coords || route.coords.length === 0) {
-        console.error(`Invalid coordinates for route ${index}`);
-        return;
-      }
-
-      // Extract coordinates from route.coords
-      const coordinates = route.coords.map((coord) => [coord.lng, coord.lat]);
-
-      // Add start and end markers
-      const startCoord = coordinates[0];
-      const endCoord = coordinates[coordinates.length - 1];
-
-      new tt.Marker({ color: 'green' }).setLngLat(startCoord).addTo(map);
-      new tt.Marker({ color: 'red' }).setLngLat(endCoord).addTo(map);
-
-      // Create GeoJSON for the route
-      const geoJsonRoute = {
-        type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: coordinates,
-        },
-      };
-
-      const newRouteLayerId = `route-${index}-${Date.now()}`;
-      routeLayerIds.current.push(newRouteLayerId);
-
-      // Add the polyline route to the map
-      map.addLayer({
-        id: newRouteLayerId,
-        type: 'line',
-        source: {
-          type: 'geojson',
-          data: geoJsonRoute,
-        },
-        paint: {
-          'line-color': `hsl(${Math.random() * 360}, 100%, 50%)`, // Random color for each route
-          'line-width': 6,
-        },
-      });
-
-      // Center the map on the route
-      const bounds = new tt.LngLatBounds();
-      coordinates.forEach((coord) => {
-        bounds.extend(coord);
-      });
-
-      map.fitBounds(bounds, { padding: 50 });
-    });
-  };
-
   // **New Effect to Handle clickedNode and Center the Route**
   useEffect(() => {
     if (clickedNode != null && mapRef.current) {
@@ -228,9 +247,7 @@ export default function TomTomMap({
       if (originCoords && destinationCoords) {
         centerRoute(mapRef.current, originCoords, destinationCoords);
       } else {
-        console.error(
-          'Invalid origin or destination coordinates for clicked node.',
-        );
+        console.error('Invalid origin or destination coordinates for clicked node.');
       }
     }
   }, [clickedNode]);

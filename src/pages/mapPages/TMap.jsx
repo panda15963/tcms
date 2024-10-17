@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
+import End_Point from '../../img/Multi End Point.svg'; // Import your custom End Point icon
+import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css'; // Ensure this CSS file exists
 
 // Function to parse the coordinates string
@@ -58,8 +60,8 @@ export default function TMap({
   lng,
   locationCoords = () => {},
   routeFullCoords, // List of routes with coordinates
-  checkedNodes,    // List of checked nodes
-  clickedNode,     // Node that is clicked
+  checkedNodes, // List of checked nodes
+  clickedNode, // Node that is clicked
   searchedLocation, // Searched location to center on
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // Initial map center calculation
@@ -140,15 +142,15 @@ export default function TMap({
 
       // Clear previous markers and routes
       if (startMarkerRef.current.length) {
-        startMarkerRef.current.forEach(marker => marker.setMap(null));
+        startMarkerRef.current.forEach((marker) => marker.setMap(null));
         startMarkerRef.current = [];
       }
       if (finishMarkerRef.current.length) {
-        finishMarkerRef.current.forEach(marker => marker.setMap(null));
+        finishMarkerRef.current.forEach((marker) => marker.setMap(null));
         finishMarkerRef.current = [];
       }
       if (polylineRef.current.length) {
-        polylineRef.current.forEach(polyline => polyline.setMap(null));
+        polylineRef.current.forEach((polyline) => polyline.setMap(null));
         polylineRef.current = [];
       }
 
@@ -174,7 +176,7 @@ export default function TMap({
           const startMarker = new Tmapv2.Marker({
             position: new Tmapv2.LatLng(startCoord.lat, startCoord.lng),
             map: mapRef.current,
-            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', // Green for start
+            icon: Start_Point, // Use custom Start_Point icon
             iconSize: new Tmapv2.Size(32, 32),
           });
           startMarkerRef.current.push(startMarker);
@@ -183,7 +185,7 @@ export default function TMap({
           const finishMarker = new Tmapv2.Marker({
             position: new Tmapv2.LatLng(finishCoord.lat, finishCoord.lng),
             map: mapRef.current,
-            icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', // Red for finish
+            icon: End_Point, // Use custom End_Point icon
             iconSize: new Tmapv2.Size(32, 32),
           });
           finishMarkerRef.current.push(finishMarker);
@@ -192,13 +194,17 @@ export default function TMap({
           const color = colors[index % colors.length];
 
           // Create polyline for the route
-          const polylinePath = parsedCoords.map(coord => new Tmapv2.LatLng(coord.lat, coord.lng));
+          const polylinePath = parsedCoords.map(
+            (coord) => new Tmapv2.LatLng(coord.lat, coord.lng),
+          );
+          
           const polyline = new Tmapv2.Polyline({
             path: polylinePath,
             strokeColor: color,
             strokeWeight: 4,
-            map: mapRef.current,
+            map: mapRef.current, // Add this to display the polyline on the map
           });
+          
           polylineRef.current.push(polyline);
 
           // Optionally center map on the route

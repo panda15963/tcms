@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
+import End_Point from '../../img/Multi End Point.svg'; // Import your custom End Point icon
+import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
 
 /**
  * 중심 좌표와 마커 좌표를 계산하는 함수
@@ -125,12 +127,8 @@ export default function RoutoMap({
               map: mapInstance,
               label: `Start ${index + 1}`,
               icon: {
-                path: routo.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: '#00FF00',
-                fillOpacity: 1,
-                strokeWeight: 1,
-                strokeColor: '#000000',
+                url: Start_Point, // Use the custom Start_Point icon
+                scaledSize: new routo.maps.Size(30, 30), // Adjust size as needed
               },
             });
 
@@ -139,12 +137,8 @@ export default function RoutoMap({
               map: mapInstance,
               label: `End ${index + 1}`,
               icon: {
-                path: routo.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: '#FF0000',
-                fillOpacity: 1,
-                strokeWeight: 1,
-                strokeColor: '#000000',
+                url: End_Point, // Use the custom End_Point icon
+                scaledSize: new routo.maps.Size(30, 30), // Adjust size as needed
               },
             });
 

@@ -3,8 +3,7 @@ import TomTomMap from '../../pages/mapPages/TomTomMap';
 export default function TomTomMapHandler({
   selectedCoords,
   tomtomLocation,
-  origins,
-  destinations,
+  routeFullCoords,
   checkedNode,
   clickedNode,
 }) {
@@ -16,13 +15,12 @@ export default function TomTomMapHandler({
    */
   return (
     <>
-      {selectedCoords && tomtomLocation && origins && destinations ? (
+      {selectedCoords && tomtomLocation ? (
         <TomTomMap
           lat={selectedCoords.lat}
           lng={selectedCoords.lng}
           locationCoords={tomtomLocation}
-          origins={origins}
-          destinations={destinations}
+          routeFullCoords={routeFullCoords}
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
         />
@@ -32,11 +30,10 @@ export default function TomTomMapHandler({
           lng={selectedCoords.lng}
           locationCoords={tomtomLocation}
         />
-      ) : !selectedCoords && tomtomLocation && origins && destinations ? (
+      ) : !selectedCoords && tomtomLocation? (
         <TomTomMap
           locationCoords={tomtomLocation}
-          origins={origins}
-          destinations={destinations}
+          routeFullCoords={routeFullCoords}
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
         />
