@@ -158,10 +158,21 @@ export default function TMap({
         polylineRef.current = [];
       }
 
-      // Loop over each route and draw only checked ones
       if (routeFullCoords && Array.isArray(routeFullCoords)) {
+        // Clear existing markers and polylines first
+        startMarkerRef.current.forEach((marker) => marker.setMap(null));
+        finishMarkerRef.current.forEach((marker) => marker.setMap(null));
+        polylineRef.current.forEach((polyline) => polyline.setMap(null));
+
+        // Reset marker and polyline arrays
+        startMarkerRef.current = [];
+        finishMarkerRef.current = [];
+        polylineRef.current = [];
+
         routeFullCoords.forEach((route, index) => {
-          const nodeChecked = checkedNodes[index]; // Use checkedNodes to filter
+          const nodeChecked = checkedNodes.some(
+            (node) => node.file_id === route.file_id,
+          ); // Check if the route is in checkedNodes
           if (!nodeChecked) return; // Skip if node is unchecked
 
           const coords = route.coords; // Extract coords for the route
