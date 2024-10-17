@@ -59,18 +59,39 @@ const defaultColumns = (t) => [
     header: t('Common.Map'),
     cell: ({ row }) => {
       const imagePath = row.original.imagePath;
-      // console.log('imagePath', imagePath);
+      // 모디엠개발 : /testcourse/image/DESKTOP-6A267SH/20231214/HIP/20231124_083827_S_KOR_서울특별시_E_KOR_서울특별시.hip.png
+      // 오토검증계 : /home/wasadmin/testcourse/image/DESKTOP-6A267SH/20231214/HIP/20231124_083827_S_KOR_서울특별시_E_KOR_서울특별시.hip.png
 
       const [showModal, setShowModal] = useState(false);
 
+      // 현재 baseURL의 패턴을 보고 서버에 맞는 경로로 바꾸는 함수
+      const adjustImagePath = (baseURL, imagePath) => {
+        if (baseURL.includes('192.168.0.88')) {
+          // 서버가 192.168.0.88인 경우
+          return `/images${imagePath.replace('/testcourse/image', '')}`;
+        } else if (baseURL.includes('10.5.35.121')) {
+          // 서버가 10.5.35.121인 경우
+          // return imagePath.replace('/home/wasadmin', '');
+          return `/images${imagePath.replace('/home/wasadmin/testcourse/image', '')}`;
+        }
+        // 기본값 반환 (필요시 추가 설정 가능)
+        return imagePath;
+      };
+
       // 포트 번호(:8080)와 '/api' 제거
-      const baseURL = process.env.REACT_APP_BASEURL.replace(':8080/api', '');
-      // console.log('baseURL', baseURL);
+      const baseURL = process.env.REACT_APP_BASEURL.replace(
+        /:(8080|8090)\/api/,
+        '',
+      );
+
+      const adjustedImagePath = adjustImagePath(baseURL, imagePath);
+      // console.log('adjustedImagePath', adjustedImagePath);
 
       return imagePath ? (
         <>
           <img
-            src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
+            // src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
+            src={`${baseURL}${adjustedImagePath}`}
             style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
             onClick={() => setShowModal(true)} // 이미지 클릭 시 모달 표시
           />
@@ -78,7 +99,8 @@ const defaultColumns = (t) => [
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
               <div className="bg-white p-4">
                 <img
-                  src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
+                  // src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
+                  src={`${baseURL}${adjustedImagePath}`}
                   style={{ width: '900px', height: 'auto' }}
                 />
                 <button
