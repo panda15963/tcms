@@ -37,7 +37,7 @@ const NavBar = () => {
     console.log('Saved Language:', savedLanguage);
     console.log('Current i18n Language:', i18n.language);
     if (i18n.language === savedLanguage.toLowerCase()) {
-      i18n.changeLanguage(savedLanguage.toLowerCase())
+      i18n.changeLanguage(savedLanguage.toLowerCase());
     }
   }, [i18n]);
 
@@ -45,10 +45,10 @@ const NavBar = () => {
     (lng) => {
       const newLanguage = lng.toLowerCase();
       if (i18n.language !== newLanguage) {
-        i18n.changeLanguage(newLanguage)
+        i18n.changeLanguage(newLanguage);
       }
     },
-    [i18n.language, i18n]
+    [i18n.language, i18n],
   );
 
   const handleLinkClick = (link) => {

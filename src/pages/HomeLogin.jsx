@@ -5,6 +5,7 @@ import useLoadingBar from '../hooks/useLoading';
 import useAuth from '../hooks/useAuth';
 import useToast from '../hooks/useToast';
 import { FaRegEyeSlash, FaRegEye } from 'react-icons/fa';
+import { ToastTypes } from '../context/ToastProvider';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ export default function Login() {
   const { login } = useAuth();
   const { showToast } = useToast();
 
-  // console.log(setLoading); // 함수가 출력되는지 확인
+  console.log(setLoading); // 함수가 출력되는지 확인
 
   const idRef = useRef();
   const passRef = useRef();
@@ -36,77 +37,77 @@ export default function Login() {
     // e.preventDefault();
 
     console.log('hello');
-    // setLoading(true);
+    setLoading(true);
 
-    // try {
-    //   //Call api auth endpoint
-    //   setLoading(true);
-    //   console.log('[Authentication request] ', request);
-    //   await authenticate(request).then((response) => {
-    //     console.log(
-    //       '🚀 ~ file: Login.jsx:63 ~ handleSubmit ~ response:',
-    //       response,
-    //     );
-    //     if (response && response.data && response.data.resultCode === 200) {
-    //       if (response.data.detail && isString(response.data.detail)) {
-    //         const token = response.data.detail;
-    //         const decodedToken = jwtDecode(token);
-    //         console.log('🚀 ~ awaitauthenticate ~ decodedToken:', decodedToken);
-    //         Cookies.set('access-token', token, { expires: 1 });
-    //         const adminInfo = {
-    //           admin_seq: decodedToken.sub ?? '',
-    //           admin_id: decodedToken.admin_id,
-    //           admin_level_cd: decodedToken.admin_level_cd,
-    //           admin_level_nm: decodedToken.admin_level_nm,
-    //           admin_name: decodedToken.admin_name,
-    //           admin_type: decodedToken.admin_type,
-    //         };
-    //         axiosInstance.interceptors.request.use(
-    //           (config) => {
-    //             config.headers['Authorization'] = `Bearer ${token}`;
-    //             return config;
-    //           },
-    //           (error) => {
-    //             return Promise.reject(error);
-    //           },
-    //         );
-    //         setLoading(false);
+    try {
+      //Call api auth endpoint
+      setLoading(true);
+      console.log('[Authentication request] ', request);
+      await authenticate(request).then((response) => {
+        console.log(
+          '🚀 ~ file: Login.jsx:63 ~ handleSubmit ~ response:',
+          response,
+        );
+        if (response && response.data && response.data.resultCode === 200) {
+          if (response.data.detail && isString(response.data.detail)) {
+            const token = response.data.detail;
+            const decodedToken = jwtDecode(token);
+            console.log('🚀 ~ awaitauthenticate ~ decodedToken:', decodedToken);
+            Cookies.set('access-token', token, { expires: 1 });
+            const adminInfo = {
+              admin_seq: decodedToken.sub ?? '',
+              admin_id: decodedToken.admin_id,
+              admin_level_cd: decodedToken.admin_level_cd,
+              admin_level_nm: decodedToken.admin_level_nm,
+              admin_name: decodedToken.admin_name,
+              admin_type: decodedToken.admin_type,
+            };
+            axiosInstance.interceptors.request.use(
+              (config) => {
+                config.headers['Authorization'] = `Bearer ${token}`;
+                return config;
+              },
+              (error) => {
+                return Promise.reject(error);
+              },
+            );
+            setLoading(false);
 
-    //         login(adminInfo);
-    //         // setAuth(adminInfo);
-    //         if (
-    //           adminInfo.admin_level_cd === ROLES.Admin ||
-    //           adminInfo.admin_level_cd === ROLES.Volunteer
-    //         ) {
-    //           navigate('/ad/dashboard', { replace: true });
-    //         } else {
-    //           navigate('/user/dashboard', { replace: true });
-    //         }
-    //       }
-    //     } else if (response.data && response.data.resultCode === 404) {
-    //       setLoading(false);
-    //       showToast(
-    //         ToastTypes.ERROR,
-    //         '실패',
-    //         '아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
-    //       );
-    //     } else {
-    //       showToast(
-    //         ToastTypes.ERROR,
-    //         '실패',
-    //         '아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
-    //       );
-    //     }
-    //   });
-    // } catch (e) {
-    //   setLoading(false);
-    //   console.log('Error complicated to login => ', e);
-    //   showToast(
-    //     ToastTypes.ERROR,
-    //     '실패',
-    //     '아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
-    //   );
-    // }
+            login(adminInfo);
+            // setAuth(adminInfo);
+            if (
+              adminInfo.admin_level_cd === ROLES.Admin ||
+              adminInfo.admin_level_cd === ROLES.Volunteer
+            ) {
+              // navigate('/ad/dashboard', { replace: true });
+            } else {
+              // navigate('/user/dashboard', { replace: true });
+            }
+          }
+        } else if (response.data && response.data.resultCode === 404) {
+          setLoading(false);
+          showToast(
+            ToastTypes.ERROR,
+            '실패',
+            '아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
+          );
+        } else {
+          showToast(
+            ToastTypes.ERROR,
+            '실패',
+            '아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
+          );
+        }
+      });
+    } catch (e) {
+      setLoading(false);
+      console.log('Error complicated to login => ', e);
+      showToast(
+        ToastTypes.ERROR,
+        '실패',
+        '아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
+      );
+    }
   };
 
   const handleMouseUp = () => {
@@ -148,7 +149,7 @@ export default function Login() {
               <div className="w-full">
                 <div className="w-full justify-center px-6 py-12 ">
                   <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                    {/* TCMS */}
+                    {/* TestCourse ManagementSystem */}
                     <h1 className="text-5xl font-bold tracking-tight text-gray-900">
                       TestCourse
                     </h1>

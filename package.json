@@ -37,6 +37,7 @@
     "react-dropdown": "^1.11.0",
     "react-here-map": "^4.0.0",
     "react-i18next": "^15.1.0",
+    "react-lottie": "^1.2.4",
     "react-router-dom": "^6.27.0",
     "react-scripts": "^5.0.1",
     "reactstrap": "^9.2.3",
