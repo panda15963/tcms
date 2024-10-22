@@ -65,13 +65,14 @@ const NavBar = () => {
         <div className="flex lg:flex-1">
           <Link to="/main/map" className="-m-1.5 p-1.5">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-              {/* TestCourse ManagementSystem */}
-              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-                TestCourse
-              </h1>
-              <h2 className="text-1xl font-semibold tracking-tight text-blue-700">
-                ManagementSystem
-              </h2>
+              <div className="flex items-center space-x-1">
+                <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                  TestCourse
+                </h1>
+                <h2 className="text-2xl font-semibold tracking-tight text-blue-700">
+                  ManagementSystem
+                </h2>
+              </div>
             </div>
           </Link>
         </div>
