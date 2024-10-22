@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import KOR_Flags from '../../img/KOR_Flags.svg';
 import ENG_Flags from '../../img/ENG_Flags.svg';
+import korflag from '../../assets/images/flag_kor.png';
+import usaflag from '../../assets/images/flag_usa.png';
 
 export default function SwitchLanguages({ onClick }) {
   // Always default to Korean ('KOR') on page load, regardless of localStorage
@@ -37,7 +39,7 @@ export default function SwitchLanguages({ onClick }) {
         className="focus:outline-none"
       >
         <img
-          src={isEnglish ? ENG_Flags : KOR_Flags}
+          src={isEnglish ? usaflag : korflag}
           alt={isEnglish ? 'English Flag' : 'Korean Flag'}
           className="inline-block h-10 w-10 rounded-full"
         />
