@@ -64,7 +64,15 @@ const NavBar = () => {
       >
         <div className="flex lg:flex-1">
           <Link to="/main/map" className="-m-1.5 p-1.5">
-            <h1 className="text-5xl px-4 font-bold font-serif">TCMS</h1>
+            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+              {/* TestCourse ManagementSystem */}
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+                TestCourse
+              </h1>
+              <h2 className="text-1xl font-semibold tracking-tight text-blue-700">
+                ManagementSystem
+              </h2>
+            </div>
           </Link>
         </div>
         <div className="flex lg:hidden">
