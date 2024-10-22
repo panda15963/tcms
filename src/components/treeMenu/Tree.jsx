@@ -5,6 +5,7 @@ import TreeNode from './TreeNode';
 const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
   const { t } = useTranslation();
   const [treeData, setTreeData] = useState([]);
+  const [checkedNodes, setCheckedNodes] = useState([]);
 
   // Function to initialize tree data with ids and checked status
   const initializeTreeData = (data) => {
@@ -13,18 +14,22 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
         ...node,
         id: node.id || index + 1, // Assign an id based on index if no id exists
         checked: true, // Mark all nodes as checked initially
-        children: node.children ? addIdsToData(node.children) : [],
+        children: Array.isArray(node.children)
+          ? addIdsToData(node.children)
+          : [], // Ensure children is an array
       }));
     };
 
-    return addIdsToData(data);
+    return Array.isArray(data) ? addIdsToData(data) : []; // Initialize with empty array if data is not valid
   };
 
   // Initialize tree data when component mounts or data changes
   useEffect(() => {
-    if (data && data.length > 0) {
+    if (Array.isArray(data) && data.length > 0) {
       const dataWithIdsAndChecked = initializeTreeData(data);
       setTreeData(dataWithIdsAndChecked);
+    } else {
+      setTreeData([]); // Fallback to an empty array if data is not valid
     }
   }, [data]);
 
@@ -32,14 +37,15 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
     return {
       ...node,
       checked, // Ensure the checked status is updated
-      children: node.children.map((child) =>
-        updateNodeRecursively(child, checked),
-      ),
+      children: Array.isArray(node.children)
+        ? node.children.map((child) => updateNodeRecursively(child, checked))
+        : [], // Ensure children is an array
     };
   };
 
   const updateParentNodeRecursively = (node) => {
-    if (!node.children || node.children.length === 0) return node;
+    if (!Array.isArray(node.children) || node.children.length === 0)
+      return node;
 
     const updatedChildren = node.children.map((child) =>
       updateParentNodeRecursively(child),
@@ -63,7 +69,9 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
           updatedNodesMap.set(currentNode.id, updatedNode);
           return updatedNode;
         } else {
-          const updatedChildNode = updateNodes(currentNode.children || []);
+          const updatedChildNode = updateNodes(
+            Array.isArray(currentNode.children) ? currentNode.children : [],
+          );
           const updatedNode = {
             ...currentNode,
             children: updatedChildNode,
@@ -79,7 +87,7 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
       updateParentNodeRecursively(node, updatedNodesMap),
     );
 
-    // 상태가 변경된 경우에만 업데이트
+    // Update the state only if there is a change
     if (JSON.stringify(finalTreeData) !== JSON.stringify(treeData)) {
       setTreeData(finalTreeData);
     }
@@ -97,29 +105,45 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
       if (node.checked) {
         checkedNodes.push(node);
       }
-      if (node.children) {
+      if (Array.isArray(node.children)) {
         node.children.forEach(traverse);
       }
     };
-    nodes.forEach(traverse);
+    if (Array.isArray(nodes)) {
+      nodes.forEach(traverse);
+    }
     return checkedNodes;
   };
 
-  // Function to map colors only to checked nodes
-  const handleGetCheckedNodes = () => {
-    const checkedNodes = getCheckedNodes(treeData);
-    onCheckedNodesChange(checkedNodes); // Pass only checked nodes
+  // Function to map colors to checked nodes without changing the original order
+  const getRouteColor = (node) => {
+    if (node.checked && Array.isArray(routeColors) && routeColors.length > 0) {
+      // Get the list of currently checked nodes
+      const checkedNodes = treeData.filter((item) => item.checked);
+
+      // Find the index of the node among the checked nodes
+      const checkedIndex = checkedNodes.findIndex(
+        (item) => item.id === node.id,
+      );
+
+      // Assign the color based on the index of the checked node
+      return routeColors[checkedIndex % routeColors.length];
+    }
+    return '#ffffff'; // Default color for unchecked nodes
   };
 
-  const checkedNodes = getCheckedNodes(treeData);
-
+  // Update checked nodes state when treeData changes
   useEffect(() => {
-    handleGetCheckedNodes();
-  }, [treeData]);
+    const currentCheckedNodes = getCheckedNodes(treeData);
+    if (JSON.stringify(currentCheckedNodes) !== JSON.stringify(checkedNodes)) {
+      setCheckedNodes(currentCheckedNodes);
+      onCheckedNodesChange(currentCheckedNodes); // Pass only checked nodes
+    }
+  }, [treeData, checkedNodes, onCheckedNodesChange]);
 
   return (
     <div>
-      {treeData && treeData.length > 0 ? (
+      {Array.isArray(treeData) && treeData.length > 0 ? (
         treeData.map((node, index) => (
           <TreeNode
             key={node.id}
@@ -127,11 +151,7 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
             onCheck={handleCheck}
             onNodeClick={handleNodeClick} // Pass the click handler down
             currentIndex={index} // Change index to reflect only the checked ones
-            routeColor={
-              node.checked
-                ? routeColors[checkedNodes.indexOf(node) % routeColors.length]
-                : '#ffffff'
-            } // Assign color only to checked nodes
+            routeColor={getRouteColor(node)} // Use the new color function
           />
         ))
       ) : (

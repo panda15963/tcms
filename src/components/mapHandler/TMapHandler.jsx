@@ -7,6 +7,7 @@ export default function TMapHandler({
   selectedCoords,
   tmapLocation,
   routeFullCoords,
+  spaceFullCoords,
   country,
   checkedNode,
   clickedNode,
@@ -50,6 +51,7 @@ export default function TMapHandler({
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
           routeColors={routeColors}
+          spaceFullCoords={spaceFullCoords}
         />
       ) : selectedCoords && tmapLocation ? (
         <TMap
@@ -57,6 +59,7 @@ export default function TMapHandler({
           lng={selectedCoords.lng}
           locationCoords={tmapLocation}
           routeColors={routeColors}
+          spaceFullCoords={spaceFullCoords}
         />
       ) : !selectedCoords && tmapLocation ? (
         <TMap
@@ -65,6 +68,7 @@ export default function TMapHandler({
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
           routeColors={routeColors}
+          spaceFullCoords={spaceFullCoords}
         />
       ) : tmapLocation ? (
         <TMap locationCoords={tmapLocation} />

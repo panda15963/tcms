@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Outlet } from 'react-router-dom';
 import TopMenuBar from '../components/navbars/TopMenuBar';
 import LeftSideSlide from '../components/slideOver/LeftSideSlide';
@@ -10,45 +10,77 @@ export default function MapLayout() {
   const [checkedNodes, setCheckedNodes] = useState([]);
   const [clickedNode, setClickedNode] = useState(null);
   const [currentApi, setCurrentApi] = useState(null);
-  const [routeColors, setRouteColors] = useState([]);
+  const [routeColors, setRouteColors] = useState(null);
 
-  // Capture route data
-  const handleRouteData = (data) => {
-    setRouteData(data);
-  };
+  const memoizedRouteData = useMemo(() => routeData, [routeData]);
+  const memoizedCheckedNodes = useMemo(() => checkedNodes, [checkedNodes]);
+  const memoizedRouteColors = useMemo(() => routeColors, [routeColors]);
 
-  // Capture checked nodes
-  const handleCheckedNodes = (nodes) => {
-    setCheckedNodes(nodes);
-  };
+  const handleRouteData = useCallback(
+    (data) => {
+      if (data !== routeData) {
+        setRouteData(data);
+      }
+    },
+    [routeData],
+  );
 
-  // Capture clicked node
-  const handleClickedNode = (node) => {
-    setClickedNode(node);
-  };
+  const handleCheckedNodes = useCallback(
+    (nodes) => {
+      if (nodes !== checkedNodes) {
+        setCheckedNodes(nodes);
+      }
+    },
+    [checkedNodes],
+  );
+
+  const handleClickedNode = useCallback(
+    (node) => {
+      if (node !== clickedNode) {
+        setClickedNode(node);
+      }
+    },
+    [clickedNode],
+  );
+
+  const handleRouteColors = useCallback(
+    (colors) => {
+      // Check if the new colors are the same as the current state to avoid setting the state repeatedly
+      if (JSON.stringify(colors) !== JSON.stringify(routeColors)) {
+        setRouteColors(colors);
+      }
+    },
+    [routeColors],
+  );
 
   return (
     <>
       {/* 상단 메뉴바 */}
       <TopMenuBar
         handleRouteData={handleRouteData}
-        checkedNodes={checkedNodes}
+        checkedNodes={memoizedCheckedNodes}
         clickedNode={clickedNode}
         setCurrentApi={setCurrentApi}
-        routeColors={setRouteColors}
+        routeColors={handleRouteColors}
+        handleSpaceData={
+          // Add handleSpaceData to props
+          (data) => {
+            setRouteData(data);
+          }
+        }
       />
 
       {/* 좌측 슬라이드 패널 */}
       <LeftSideSlide
-        data={routeData}
+        data={memoizedRouteData}
         onCheckedNodesChange={handleCheckedNodes}
         onClickedNode={handleClickedNode}
         onMapChange={currentApi}
-        routeColors={routeColors}
+        routeColors={memoizedRouteColors}
       />
       {/* 우측 슬라이드 패널 */}
-      <RightSideSlide data={routeData} onMapChange={currentApi} />
-      
+      <RightSideSlide data={memoizedRouteData} onMapChange={currentApi} />
+
       {/* Outlet은 중첩된 라우트에 의해 선택된 컴포넌트를 렌더링 */}
       <main>
         <Outlet />

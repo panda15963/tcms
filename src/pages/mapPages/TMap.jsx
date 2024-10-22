@@ -3,6 +3,143 @@ import End_Point from '../../img/Multi End Point.svg'; // Import your custom End
 import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css'; // Ensure this CSS file exists
 
+// Define colors for different routes
+const colors = [
+  '#cd5c5c',
+  '#176347',
+  '#ffa07a',
+  '#8b4513',
+  '#faf0e6',
+  '#faebd7',
+  '#ffefdS',
+  '#fdfSe6',
+  '#fff8de',
+  '#eeeBaa',
+  '#ffffe0',
+  '#6b8e23',
+  '#b0e0e6',
+  '#87cefa',
+  '#778899',
+  '#bOcdde',
+  '#e6e6fa',
+  '#0000cd',
+  '#7b68ee',
+  '#4b0082',
+  '#dabfd8',
+  '#8b008D',
+  '#c71585',
+  '#db7093',
+  '#696969',
+  '#292929',
+  '#fffafa',
+  '#a52a2a',
+  '#ff0000',
+  '#e9967a',
+  '#a0522d',
+  '#f4a460',
+  '#ffedc4',
+  '#d2b48c',
+  '#ffedb5',
+  '#fffafo',
+  '#ffd700',
+  '#bdb76b',
+  '#fafad2',
+  '#9acd32',
+  '#7cfc00',
+  '#008000',
+  '#ffb6c1',
+  '#00ff7F',
+  '#7fffda',
+  '#fOffff',
+  '#2fafaf',
+  '#00ffff',
+  '#add8e6',
+  '#4682b4',
+  '#778899',
+  '#6495ed',
+  '#191970',
+  '#0000fF',
+  '#9370db',
+  '#9932cc',
+  '#ddaddd',
+  '#ff00ff',
+  '#171493',
+  '#dc143c',
+  '#696969',
+  '#a9a9a9',
+  '#tdedede',
+  '#bc8I8f',
+  '#b22222',
+  '#ffedel',
+  '#ff7f50',
+  '#fffSee',
+  '#ffdab9',
+  '#ff8c00',
+  '#ffdead',
+  '#ffa500',
+  '#b8860b',
+  '#fffacd',
+  '#ffffTO',
+  '#808000',
+  '#556b2f',
+  '#f0Fff0',
+  '#228522',
+  '#00ff00',
+  '#f5fffa',
+  '#40e0d0',
+  '#eofiff',
+  '#008080',
+  '#00ced1',
+  '#00bfff',
+  '#f0f8ff',
+  '#708090',
+  '#4169e1',
+  '#000080',
+  '#6a5acd',
+  '#663399',
+  '#9400d3',
+  '#eeB2ee',
+  '#ff00ff',
+  '#ff69b4',
+  '#ffcOcb',
+  '#808080',
+  '#cOcOcO',
+  '#fSfS15',
+  '#f08080',
+  '#800000',
+  '#fa8072',
+  '#ff4500',
+  '#d2691e',
+  '#cd853f',
+  '#deb887',
+  '#ffebcd',
+  '#fSdeb3',
+  '#daa520',
+  '#f0e68c',
+  '#f5f5dc',
+  '#fffF00',
+  '#adff2f',
+  '#Bfbc8F',
+  '#32cd32',
+  '#2e8b57',
+  '#00fa9a',
+  '#20b2aa',
+  '#afeeee',
+  '#008b8b',
+  '#5f9ea0',
+  '#87ceeb',
+  '#1e90ff',
+  '#708090',
+  '#f8f8ff',
+  '#00008b',
+  '#483d8b',
+  '#8a2be2',
+  '#ba55d3',
+  '#800080',
+  '#da70d6',
+  '#fffOtS',
+];
+
 // Function to parse the coordinates string
 function parseCoordinates(coordString) {
   const [lng, lat] = coordString.split(',').map(Number); // Split and convert to numbers
@@ -60,6 +197,7 @@ export default function TMap({
   lng,
   locationCoords = () => {},
   routeFullCoords, // List of routes with coordinates
+  spaceFullCoords,
   checkedNodes, // List of checked nodes
   clickedNode, // Node that is clicked
   searchedLocation, // Searched location to center on
@@ -67,6 +205,8 @@ export default function TMap({
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // Initial map center calculation
   const [center, setCenter] = useState(initialCoords); // Manage map center state
+  const [forceUpdate, setForceUpdate] = useState(false);
+
   const mapRef = useRef(null); // Reference for map instance
   const markerRef = useRef(null); // Reference for center marker
   const zoomSetRef = useRef(false); // Track if zoom has been set
@@ -74,6 +214,7 @@ export default function TMap({
   const startMarkerRef = useRef([]); // Multiple start markers
   const finishMarkerRef = useRef([]); // Multiple finish markers
   const polylineRef = useRef([]); // To store polylines
+  const spaceMarkerRef = useRef([]); // Reference for space markers
 
   // Update the center of the map when lat and lng props change
   useEffect(() => {
@@ -140,8 +281,6 @@ export default function TMap({
     async function fetchRoutesAndUpdateMap() {
       const { Tmapv2 } = window;
 
-      // Define colors for different routes
-      const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080']; // Red, Blue, Green, Orange, Purple
       const newColors = []; // Array to store the new route colors
 
       // Clear previous markers and routes
@@ -256,10 +395,127 @@ export default function TMap({
       } else {
         console.warn('routeFullCoords is null or not an array');
       }
+      setForceUpdate((prev) => !prev); // Force a re-render
     }
 
-    fetchRoutesAndUpdateMap();
+    if (routeFullCoords) {
+      fetchRoutesAndUpdateMap();
+    }
   }, [routeFullCoords, checkedNodes]);
+
+  // Update the map with space markers and polylines
+  useEffect(() => {
+    async function fetchSpacesAndUpdateMap() {
+      const { Tmapv2 } = window;
+
+      const newColors = []; // Array to store the new route colors
+
+      // Clear previous space markers and polylines
+      if (spaceMarkerRef.current.length) {
+        spaceMarkerRef.current.forEach((marker) => marker.setMap(null));
+        spaceMarkerRef.current = [];
+      }
+      if (polylineRef.current.length) {
+        polylineRef.current.forEach((polyline) => polyline.setMap(null));
+        polylineRef.current = [];
+      }
+
+      if (spaceFullCoords && Array.isArray(spaceFullCoords)) {
+        console.log(spaceFullCoords);
+        // Parse and add start, finish markers, and polylines for each space
+        spaceFullCoords.forEach((space, index) => {
+          const spaceChecked = checkedNodes.some(
+            (node) => node.file_id === space.file_id,
+          ); // Check if the space is in checkedNodes
+          if (!spaceChecked) return; // Skip if the space is unchecked
+
+          const parsedCoords = handleCoordinateInput(space.coords); // Parse coordinates
+          if (parsedCoords.length === 0) {
+            console.warn('No valid coordinates for space');
+            return;
+          }
+
+          // Get the start and finish coordinates
+          const startCoord = parsedCoords[0]; // First coordinate
+          const finishCoord = parsedCoords[parsedCoords.length - 1]; // Last coordinate
+
+          // Add the start marker using the custom Start_Point icon
+          const startMarker = new Tmapv2.Marker({
+            position: new Tmapv2.LatLng(startCoord.lat, startCoord.lng),
+            map: mapRef.current,
+            icon: Start_Point, // Use custom Start_Point icon
+            iconSize: new Tmapv2.Size(32, 32),
+          });
+          spaceMarkerRef.current.push(startMarker);
+
+          // Add the finish marker using the custom End_Point icon
+          const finishMarker = new Tmapv2.Marker({
+            position: new Tmapv2.LatLng(finishCoord.lat, finishCoord.lng),
+            map: mapRef.current,
+            icon: End_Point, // Use custom End_Point icon
+            iconSize: new Tmapv2.Size(32, 32),
+          });
+          spaceMarkerRef.current.push(finishMarker);
+
+          // Choose a color for the polyline based on the index
+          const color = colors[index % colors.length];
+          newColors.push(color); // Store the color for this route
+
+          // Draw the polyline for the route
+          const polylinePath = parsedCoords.map(
+            (coord) => new Tmapv2.LatLng(coord.lat, coord.lng),
+          );
+          const polyline = new Tmapv2.Polyline({
+            path: polylinePath,
+            strokeColor: color, // Use the chosen color for the polyline
+            strokeWeight: 4,
+            map: mapRef.current, // Add the polyline to the map
+          });
+          polylineRef.current.push(polyline);
+        });
+
+        // Optionally center the map based on the average coordinates of all start and finish markers
+        let latSum = 0;
+        let lngSum = 0;
+        let pointCount = 0;
+
+        spaceFullCoords.forEach((space) => {
+          space.coords.forEach(({ lat, lng }) => {
+            latSum += lat;
+            lngSum += lng;
+            pointCount++;
+          });
+        });
+
+        if (pointCount > 0) {
+          const avgLat = latSum / pointCount;
+          const avgLng = lngSum / pointCount;
+          const centerCoords = new Tmapv2.LatLng(avgLat, avgLng);
+          mapRef.current.setCenter(centerCoords);
+
+          if (!zoomSetRef.current) {
+            mapRef.current.setZoom(10); // Set zoom once
+            zoomSetRef.current = true;
+          }
+        }
+        // Compare newColors with previousColorsRef
+        if (
+          JSON.stringify(newColors) !==
+          JSON.stringify(previousColorsRef.current)
+        ) {
+          previousColorsRef.current = newColors; // Update the reference
+          routeColors(newColors); // Update the parent with new colors
+        }
+      } else {
+        console.warn('spaceFullCoords is null or not an array');
+      }
+      setForceUpdate((prev) => !prev); // Force a re-render
+    }
+
+    if (spaceFullCoords) {
+      fetchSpacesAndUpdateMap();
+    }
+  }, [spaceFullCoords, checkedNodes]);
 
   // Function to update the map center and marker
   function updateMapCenter() {
@@ -283,7 +539,10 @@ export default function TMap({
 
   // Initialize the map
   function initMap() {
-    if (mapRef.current) return; // Exit if already initialized
+    if (mapRef.current) {
+      updateMapCenter(); // Update the map if it's already initialized
+      return; // Exit if already initialized
+    }
 
     const { Tmapv2 } = window;
     mapRef.current = new Tmapv2.Map('map_div', {

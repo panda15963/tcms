@@ -46,6 +46,7 @@ export default function TomTomMap({
   checkedNodes,
   clickedNode, // Use this to center the map on a clicked route
   routeColors = () => {},
+  spaceFullCoords,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
   const [center, setCenter] = useState(initialCoords);
@@ -55,8 +56,141 @@ export default function TomTomMap({
   const routeMarkers = useRef([]); // Store the markers for each route (start and end)
   const previousColorsRef = useRef([]);
 
-  // Array of specific colors to assign to each route
-  const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080'];
+  const colors = [
+    '#cd5c5c',
+    '#176347',
+    '#ffa07a',
+    '#8b4513',
+    '#faf0e6',
+    '#faebd7',
+    '#ffefdS',
+    '#fdfSe6',
+    '#fff8de',
+    '#eeeBaa',
+    '#ffffe0',
+    '#6b8e23',
+    '#b0e0e6',
+    '#87cefa',
+    '#778899',
+    '#bOcdde',
+    '#e6e6fa',
+    '#0000cd',
+    '#7b68ee',
+    '#4b0082',
+    '#dabfd8',
+    '#8b008D',
+    '#c71585',
+    '#db7093',
+    '#696969',
+    '#292929',
+    '#fffafa',
+    '#a52a2a',
+    '#ff0000',
+    '#e9967a',
+    '#a0522d',
+    '#f4a460',
+    '#ffedc4',
+    '#d2b48c',
+    '#ffedb5',
+    '#fffafo',
+    '#ffd700',
+    '#bdb76b',
+    '#fafad2',
+    '#9acd32',
+    '#7cfc00',
+    '#008000',
+    '#ffb6c1',
+    '#00ff7F',
+    '#7fffda',
+    '#fOffff',
+    '#2fafaf',
+    '#00ffff',
+    '#add8e6',
+    '#4682b4',
+    '#778899',
+    '#6495ed',
+    '#191970',
+    '#0000fF',
+    '#9370db',
+    '#9932cc',
+    '#ddaddd',
+    '#ff00ff',
+    '#171493',
+    '#dc143c',
+    '#696969',
+    '#a9a9a9',
+    '#tdedede',
+    '#bc8I8f',
+    '#b22222',
+    '#ffedel',
+    '#ff7f50',
+    '#fffSee',
+    '#ffdab9',
+    '#ff8c00',
+    '#ffdead',
+    '#ffa500',
+    '#b8860b',
+    '#fffacd',
+    '#ffffTO',
+    '#808000',
+    '#556b2f',
+    '#f0Fff0',
+    '#228522',
+    '#00ff00',
+    '#f5fffa',
+    '#40e0d0',
+    '#eofiff',
+    '#008080',
+    '#00ced1',
+    '#00bfff',
+    '#f0f8ff',
+    '#708090',
+    '#4169e1',
+    '#000080',
+    '#6a5acd',
+    '#663399',
+    '#9400d3',
+    '#eeB2ee',
+    '#ff00ff',
+    '#ff69b4',
+    '#ffcOcb',
+    '#808080',
+    '#cOcOcO',
+    '#fSfS15',
+    '#f08080',
+    '#800000',
+    '#fa8072',
+    '#ff4500',
+    '#d2691e',
+    '#cd853f',
+    '#deb887',
+    '#ffebcd',
+    '#fSdeb3',
+    '#daa520',
+    '#f0e68c',
+    '#f5f5dc',
+    '#fffF00',
+    '#adff2f',
+    '#Bfbc8F',
+    '#32cd32',
+    '#2e8b57',
+    '#00fa9a',
+    '#20b2aa',
+    '#afeeee',
+    '#008b8b',
+    '#5f9ea0',
+    '#87ceeb',
+    '#1e90ff',
+    '#708090',
+    '#f8f8ff',
+    '#00008b',
+    '#483d8b',
+    '#8a2be2',
+    '#ba55d3',
+    '#800080',
+    '#da70d6',
+    '#fffOtS',
+  ];
 
   // Update center coordinates whenever lat or lng changes
   useEffect(() => {
@@ -95,19 +229,40 @@ export default function TomTomMap({
     }
   }, [center, routeFullCoords, place]);
 
-  // **Updated Effect for Handling checkedNodes Changes**
+  // Updated Effect for Handling checkedNodes Changes
   useEffect(() => {
-    if (mapRef.current && routeFullCoords) {
-      // Redraw the routes based on the checked nodes (if no checked nodes, show all)
+    if (mapRef.current) {
+      // Ensure routeFullCoords is a valid array
+      const validRouteFullCoords = Array.isArray(routeFullCoords)
+        ? routeFullCoords
+        : [];
+      const validSpaceFullCoords = Array.isArray(spaceFullCoords)
+        ? spaceFullCoords
+        : [];
+
+      // Filter routeFullCoords based on checkedNodes (if no checked nodes, show all)
       const routesToDraw =
         checkedNodes.length === 0
-          ? routeFullCoords
-          : routeFullCoords.filter((route) =>
+          ? validRouteFullCoords
+          : validRouteFullCoords.filter((route) =>
               checkedNodes.some((node) => node.file_id === route.file_id),
             );
-      drawRoutes(mapRef.current, routesToDraw); // Redraw with filtered routes
+
+      // Filter spaceFullCoords based on checkedNodes (if no checked nodes, show all)
+      const spacesToDraw =
+        checkedNodes.length === 0
+          ? validSpaceFullCoords
+          : validSpaceFullCoords.filter((space) =>
+              checkedNodes.some((node) => node.file_id === space.file_id),
+            );
+
+      // Combine filtered routeFullCoords and spaceFullCoords for drawing
+      const combinedCoords = [...routesToDraw, ...spacesToDraw];
+
+      // Redraw the routes and spaces on the map
+      drawRoutes(mapRef.current, combinedCoords);
     }
-  }, [routeFullCoords, checkedNodes]);
+  }, [routeFullCoords, checkedNodes, spaceFullCoords]);
 
   // Clear previous routes and markers function
   const clearRoutesAndMarkers = (map) => {

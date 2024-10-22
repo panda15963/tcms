@@ -9,6 +9,7 @@ import {
 } from '@headlessui/react';
 import LogModal from '../modals/LogModal';
 import StoreModal from '../modals/StoreModal';
+import SpaceModal from '../modals/SpaceModal';
 import MapAPIsLists from '../dropdowns/MapAPIsLists';
 import MapCoordLists from '../dropdowns/MapCoordLists';
 import GoogleMapHandler from '../mapHandler/GoogleMapHandler';
@@ -22,12 +23,12 @@ import { DEGToDEC } from '../calculateCoords/ConvertsDEG';
 import { useTranslation } from 'react-i18next';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
-
 const TopMenuBar = ({
   checkedNodes,
   handleRouteData,
   clickedNode,
   setCurrentApi,
+  handleSpaceData,
   routeColors = () => {},
 }) => {
   const [inputValue, setInputValue] = useState('');
@@ -46,9 +47,11 @@ const TopMenuBar = ({
   const [destinations, setDestinations] = useState([]);
   const [country, setCountry] = useState(null);
   const [routeFullCoords, setRouteFullCoords] = useState(null);
-
+  const [spaceFullCoords, setSpaceFullCoords] = useState(null);
+  
   const storeModalRef = useRef();
   const logModalRef = useRef();
+  const spaceModalRef = useRef();
 
   const { t } = useTranslation();
 
@@ -96,6 +99,7 @@ const TopMenuBar = ({
 
       // Reset routeFullCoords when the map changes
       setRouteFullCoords(null);
+      setSpaceFullCoords(null);
 
       // Set the current API to the selected API
       setCurrentApi(selectedAPI);
@@ -108,6 +112,11 @@ const TopMenuBar = ({
     setRouteFullCoords(null);
   }, [selectedAPI, setCurrentApi]);
 
+  const handleRouteColors = (colors) => {
+    console.log(colors)
+    routeColors(colors);
+  }
+
   const handleChoosingMapAPIs = () => {
     if (selectedAPI?.name === 'GOOGLE') {
       return (
@@ -116,6 +125,7 @@ const TopMenuBar = ({
           selectedCoords={selectedCoords}
           googleLocation={setClickedCoords}
           routeFullCoords={routeFullCoords}
+          spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
           routeColors={routeColors}
@@ -128,6 +138,7 @@ const TopMenuBar = ({
           selectedCoords={selectedCoords}
           routoLocation={setClickedCoords}
           routeFullCoords={routeFullCoords}
+          spaceFullCoords={spaceFullCoords}
           country={country}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -141,6 +152,7 @@ const TopMenuBar = ({
           selectedCoords={selectedCoords}
           tmapLocation={setClickedCoords}
           routeFullCoords={routeFullCoords}
+          spaceFullCoords={spaceFullCoords}
           country={country}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -154,6 +166,7 @@ const TopMenuBar = ({
           selectedCoords={selectedCoords}
           tomtomLocation={setClickedCoords}
           routeFullCoords={routeFullCoords}
+          spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
           routeColors={routeColors}
@@ -168,6 +181,7 @@ const TopMenuBar = ({
           origins={origins}
           destinations={destinations}
           routeFullCoords={routeFullCoords}
+          spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
         />
@@ -545,7 +559,7 @@ const TopMenuBar = ({
                         </label>
                         <button
                           type="button"
-                          // onClick={() => logModalRef.current.show()}
+                          onClick={() => spaceModalRef.current.show()}
                           className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
                         >
                           <HiOutlineDocumentSearch
@@ -554,6 +568,7 @@ const TopMenuBar = ({
                           />
                         </button>
                       </div>
+                      <SpaceModal ref={spaceModalRef} spaceFullCoords={setSpaceFullCoords} selectedLists={handleSpaceData} />
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
                         {/* 입력 좌표 출력 */}
                         {t('TopMenuBar.CoordsOutput')}

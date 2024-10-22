@@ -149,7 +149,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
 
   const [data, setData] = useState(list ?? defaultData);
   const [selectedRows, setSelectedRows] = useState([]);
-
+  
   useEffect(() => {
     console.log('useEffect LIST ==>', list);
     if (list && !isEmpty(list.list)) {

@@ -9,6 +9,7 @@ export default function GoogleMapHandler({
   checkedNode = null, // Start with null and handle it safely inside the component
   clickedNode,
   routeColors = () => {},
+  spaceFullCoords,
 }) {
   const [isError, setIsError] = useState(false); // Error state
   const [errorText, setErrorText] = useState(null); // Error message state
@@ -22,15 +23,17 @@ export default function GoogleMapHandler({
   // Safely extract file_id from checkedNode (use nullish coalescing to ensure it's an array)
   const checkedFileIds = (checkedNode ?? []).map((node) => node.file_id);
 
-  // Safely filter routeFullCoords based on checkedFileIds
-  const filteredRoutes = (routeFullCoords ?? []).filter((route) => 
-    checkedFileIds.includes(route.file_id)
+  const filteredRoutes = (routeFullCoords ?? []).filter((route) =>
+    checkedFileIds.includes(route.file_id),
+  );
+
+  const filteredSpaces = (spaceFullCoords ?? []).filter((space) =>
+    checkedFileIds.includes(space.file_id),
   );
 
   const handleChangeColors = (colors) => {
     routeColors(colors);
   };
-  
 
   return (
     <>
@@ -43,7 +46,8 @@ export default function GoogleMapHandler({
           routeFullCoords={filteredRoutes} // Pass only filtered routes
           clickedNode={clickedNode}
           error={handleError}
-          routeColors={handleChangeColors} // Ensure this is passed here
+          routeColors={handleChangeColors}
+          spaceFullCoords={filteredSpaces}
         />
       ) : selectedCoords && googleLocation ? (
         <GoogleMap
@@ -52,6 +56,7 @@ export default function GoogleMapHandler({
           locationCoords={googleLocation}
           error={handleError} // Pass the error handling function
           routeColors={handleChangeColors} // Pass the color handler here too
+          spaceFullCoords={filteredSpaces}
         />
       ) : !selectedCoords && googleLocation ? (
         <GoogleMap
@@ -60,6 +65,7 @@ export default function GoogleMapHandler({
           clickedNode={clickedNode}
           error={handleError} // Pass the error handling function
           routeColors={handleChangeColors} // Ensure this is passed here
+          spaceFullCoords={filteredSpaces}
         />
       ) : googleLocation ? (
         <GoogleMap

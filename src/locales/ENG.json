@@ -125,6 +125,27 @@
     "NextButton": "Next",
     "PaginationText": "Showing {{first}} to {{last}} of {{total}} stores"
   },
+  "SpaceModal":{
+    "ModalSearch": "Modal Search",
+    "Lon": "Longitude",
+    "Lat": "Latitude",
+    "Find": "Find",
+    "Select": "Select",
+    "Meters": "M(Meters)"
+  },
+  "SpaceTable": {
+    "UploadDate": "Upload Date",
+    "Name": "No Results found",
+    "Version": "No Spaces found",
+    "Country": "One Space found",
+    "CreatedDate": "Created Date",
+    "Priority": "Priority",
+    "Feature": "Feature",
+    "LogType": "LogType",
+    "Target": "Target",
+    "Summary": "Summary",
+    "NoResults": "No Results found"
+  },
   "GoogleMap": {
     "RouteZeroResults": "Can't find the routes",
     "RouteError": "Directions request failed due to"

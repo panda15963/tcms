@@ -4,6 +4,7 @@ export default function TomTomMapHandler({
   selectedCoords,
   tomtomLocation,
   routeFullCoords,
+  spaceFullCoords,
   checkedNode,
   clickedNode,
   routeColors = () => {},
@@ -25,6 +26,7 @@ export default function TomTomMapHandler({
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
           routeColors={routeColors}
+          spaceFullCoords={spaceFullCoords}
         />
       ) : selectedCoords && tomtomLocation ? (
         <TomTomMap
@@ -32,6 +34,7 @@ export default function TomTomMapHandler({
           lng={selectedCoords.lng}
           locationCoords={tomtomLocation}
           routeColors={routeColors}
+          spaceFullCoords={spaceFullCoords}
         />
       ) : !selectedCoords && tomtomLocation? (
         <TomTomMap
@@ -40,6 +43,7 @@ export default function TomTomMapHandler({
           checkedNodes={checkedNode}
           clickedNode={clickedNode}
           routeColors={routeColors}
+          spaceFullCoords={spaceFullCoords}
         />
       ) : tomtomLocation ? (
         <TomTomMap locationCoords={tomtomLocation} />

@@ -11,6 +11,7 @@ export default function RoutoMapHandler({
   checkedNode = [], // Set default value as empty array
   clickedNode,
   routeColors = () => {},
+  spaceFullCoords,
 }) {
   const [error, setError] = useState(false);
   const [errorValue, setErrorValue] = useState('');
@@ -38,6 +39,11 @@ export default function RoutoMapHandler({
     checkedFileIds?.includes(route.file_id) // Add optional chaining
   ) || []; // Ensure filteredRoutes is at least an empty array
 
+  const filteredSpaces = spaceFullCoords?.filter(route =>
+    checkedFileIds?.includes(route.file_id) // Add optional chaining
+  ) || []; // Ensure filteredRoutes is at least an empty array
+
+
   const handleChangeColors = (colors) => {
     routeColors(colors);
   };
@@ -54,6 +60,7 @@ export default function RoutoMapHandler({
           routeFullCoords={filteredRoutes} // Pass filtered routes
           clickedNode={clickedNode}
           routeColors={handleChangeColors}
+          spaceFullCoords={filteredSpaces}
         />
       ) : selectedCoords && routoLocation ? (
         <RoutoMap
@@ -61,6 +68,7 @@ export default function RoutoMapHandler({
           lng={selectedCoords.lng}
           locationCoords={routoLocation}
           routeColors={handleChangeColors}
+          spaceFullCoords={filteredSpaces}
         />
       ) : !selectedCoords && routoLocation ? (
         <RoutoMap
@@ -69,6 +77,7 @@ export default function RoutoMapHandler({
           routeFullCoords={filteredRoutes} // Pass filtered routes
           clickedNode={clickedNode}
           routeColors={handleChangeColors}
+          spaceFullCoords={filteredSpaces}
         />
       ) : routoLocation ? (
         <RoutoMap locationCoords={routoLocation} />

@@ -154,8 +154,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       setOpen(true);
     }
   }, []);
-
-  // console.log('countryList', countryList);
+  
   /**
    * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
    * useImperativeHandle을 사용하여 ref를 설정
