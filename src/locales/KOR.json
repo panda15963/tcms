@@ -43,9 +43,9 @@
     "SelectedAPI": "선택된 지도"
   },
   "LogModal": {
-    "ModalName": "로그 검색",    
-    "Route":"경로",
-    "Configuration": "구성",
+    "ModalName": "로그 검색",
+    "Route": "경로",
+    "Configuration": "배치",
     "SearchFields": "검색 필드",
     "Find": "검색",
     "DownloadDir": "다운로드 경로",
@@ -125,7 +125,7 @@
     "NextButton": "다음",
     "PaginationText": "{{first}}부터 {{last}}까지의 {{total}}개의 항목 표시"
   },
-  "SpaceModal":{
+  "SpaceModal": {
     "ModalSearch": "공간 검색",
     "Lon": "경도",
     "Lat": "위도",
@@ -137,10 +137,10 @@
     "UploadDate": "업로드 된 날짜",
     "Name": "이름",
     "Version": "버전",
-    "Country": "국가",    
+    "Country": "국가",
     "CreatedDate": "만든 날짜",
     "Priority": "우선순위",
-    "Feature":"기능",   
+    "Feature": "기능",
     "LogType": "로그 종류",
     "Target": "대상",
     "Summary": "요약",

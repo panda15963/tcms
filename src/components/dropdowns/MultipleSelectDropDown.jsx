@@ -98,7 +98,7 @@ export default function MultipleSelectDropDown({ options, onChange }) {
       as={'div'}
       value={selectedFields} // 현재 선택된 항목을 설정
       onChange={handleSelectionChange} // 선택된 항목이 변경되면 실행
-      className="w-full mb-2" // 컴포넌트 스타일
+      className="w-full mb-0" // 컴포넌트 스타일
     >
       <div className="relative mt-2">
         {/* ComboboxInput: 사용자가 선택한 항목을 보여주는 인풋 */}

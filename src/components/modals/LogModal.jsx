@@ -695,31 +695,37 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setSelectedLogList2([]);
   };
 
+  /*
+   * 선택버튼 이벤트
+   */
   const handleConfigButtonClick = async () => {
-    console.log(selectedLogList);
-    // Extract file_ids from the found array
+    console.log(
+      'handleConfigButtonClick of selectedLogList ==>',
+      selectedLogList,
+    );
+
     const fileIds = selectedConfigRowsRef.current.map((route) => route.file_id);
 
-    // Call SPACE_INTERPOLATION with the extracted fileIds
     const routeCoords = await SPACE_INTERPOLATION(fileIds);
-    console.log(routeCoords);
+    console.log('handleConfigButtonClick of routeCoords ==>', routeCoords);
 
-    // Pass the selected data to the parent component (or use it as needed)
     routeData(selectedConfigRowsRef.current);
     routeFullCoords(routeCoords);
 
-    // Close the modal
     setOpen(false);
 
-    // Optionally reset other lists or selections if needed
-    setCond(initialCond); // Resetting the search conditions
-    setSelectedSearchFields([]); // Reset the selected search fields
-    setSelectedIds([]); // Reset the selected IDs for fields
-    setList(initialList); // Reset the list of search results
+    setCond(initialCond);
+    setSelectedSearchFields([]);
+    setSelectedIds([]);
 
-    // Optionally reset other lists or selections if needed
+    setList(initialList);
+    setList2(initialList);
+
     setSelectedLogList([]);
     setSelectedLogList2([]);
+
+    setSelectedRouteCellData();
+    setIsRouteModalOpen(false);
   };
 
   /**
@@ -820,6 +826,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const RouteModalComponent = ({ data, onClose }) => {
     console.log('RouteModalComponent of data ==>', data);
+    console.log('RouteModalComponent of onClose ==>', onClose);
 
     useEffect(() => {
       const fetchData = async () => {
@@ -829,8 +836,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             const response = await nonAuthInstance.get(
               `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`,
             );
-            console.log('response', response);
-            console.log('response', response.data);
+            console.log('RouteModalComponent of response1', response);
+            console.log('RouteModalComponent of response2', response.data);
 
             setList2((prevState) => {
               const newList = response.data.findMeta;
@@ -850,11 +857,12 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
     }, [data]);
 
+    // 경로 모달창에서 더블클릭
     return (
       <Dialog open={true} onClose={onClose}>
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
-          <div className="bg-white p-4 rounded-md shadow-lg">
-            <div className="flex justify-between py-3 px-5 bg-blue_ncs">
+          <div className="bg-white p-1 rounded-md shadow-lg">
+            <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
               <h1 className="font-semibold text-white">
                 {t('LogModal.AllVersions')}
               </h1>
@@ -875,13 +883,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 />
               </div>
             </div>
-            <div className="flex justify-end mt-3">
+            <div className="flex justify-end mt-1">
               <button
                 onClick={handleConfigButtonClick}
-                className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
                 <FaCheck className="h-5 w-5 text-sky-500" aria-hidden="true" />
                 <span className="text-base text-sky-500 font-bold">
+                  {/* 로그검색 -> 더블클릭 -> 선택 버튼 */}
                   {t('LogModal.Select')}
                 </span>
               </button>
@@ -940,7 +949,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
     }, [data]);
 
-    // 로그 검색 (구성탭 -> 더블클릭)
+    // 로그 검색 (배치탭 -> 더블클릭)
     return (
       <Dialog open={true} onClose={onClose}>
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
@@ -1001,7 +1010,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   // 로그검색
   return (
     <Transition show={open}>
-      <Dialog onClose={() => setOpen(false)} className="relative z-50">
+      <Dialog
+        onClose={() => {
+          setList(initialList); // list 초기화
+          setList2(initialList);
+          setOpen(false); // 모달 닫기
+        }}
+        className="relative z-50"
+      >
         <Transition.Child
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -1034,7 +1050,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                   </h1>
                   <button
                     className="font-semibold"
-                    onClick={() => setOpen(false)}
+                    onClick={() => {
+                      setOpen(false);
+                      setList(initialList);
+                      setList2(initialList);
+                    }}
                   >
                     <MdClose className="text-white" size={16} />
                   </button>
@@ -1043,23 +1063,31 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 {/* 탭 버튼 */}
                 <div className="m-2 flex space-x-2 ">
                   <button
-                    className={`px-4 py-2 rounded-lg ${activeTab === 'route' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    className={`h-9 px-2 py-1 rounded-lg border transition duration-300 ease-in-out min-w-[120px] ${
+                      activeTab === 'route'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
+                    }`}
                     onClick={() => handleTabChange('route')}
                   >
                     {/* 경로탭 버튼*/}
                     {t('LogModal.Route')}
                   </button>
                   <button
-                    className={`px-4 py-2 rounded-lg ${activeTab === 'batch' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    className={`h-9 px-2 py-1 rounded-lg border transition duration-300 ease-in-out min-w-[120px] ${
+                      activeTab === 'batch'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
+                    }`}
                     onClick={() => handleTabChange('batch')}
                   >
-                    {/* 구성탭 버튼*/}
+                    {/* 배치탭 버튼*/}
                     {t('LogModal.Configuration')}
                   </button>
                 </div>
 
                 {/* 탭 내용 */}
-                <div className="mt-5">
+                <div className="mt-0">
                   {/* 경로탭 */}
                   {activeTab === 'route' && (
                     <div className="mr-2 ml-2 mb-2">
@@ -1079,7 +1107,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           onChange={(val) => setSelectedSearchFields(val)}
                         />
                       </div>
-                      <div className="flex flex-wrap mb-4 mt-4">
+                      <div className="flex flex-wrap mb-5 mt-0">
                         {!isEmpty(selectedSearchFields) &&
                           selectedSearchFields.map((field) => (
                             <div
@@ -1231,7 +1259,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       </div>
                       <div className="flex justify-end">
                         <button
-                          className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={onFindMeta}
                         >
                           <FaSearch
@@ -1239,6 +1267,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                             aria-hidden="true"
                           />
                           <span className="text-base text-sky-500 font-bold">
+                            {/* 로그검색 -> 검색 버튼 */}
                             {t('LogModal.Find')}
                           </span>
                         </button>
@@ -1264,20 +1293,21 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       <div className="flex justify-end mt-3">
                         <button
                           onClick={handleButtonClick}
-                          className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
                           <FaCheck
                             className="h-5 w-5 text-sky-500"
                             aria-hidden="true"
                           />
                           <span className="text-base text-sky-500 font-bold">
+                            {/* 로그검색 -> 선택 버튼 */}
                             {t('LogModal.Select')}
                           </span>
                         </button>
                       </div>
                     </div>
                   )}
-                  {/* 구성탭 */}
+                  {/* 배치탭 */}
                   {activeTab === 'batch' && (
                     <div className="mr-2 ml-2 mb-2">
                       <div
@@ -1296,7 +1326,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           onChange={(val) => setSelectedSearchFieldsConfig(val)}
                         />
                       </div>
-                      <div className="flex flex-wrap mb-4 mt-4">
+                      <div className="flex flex-wrap mb-4 mt-0">
                         {!isEmpty(selectedSearchFieldsConfig) &&
                           selectedSearchFieldsConfig.map((field) => (
                             <div

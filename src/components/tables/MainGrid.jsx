@@ -29,10 +29,34 @@ const defaultColumns = (t) => [
   {
     accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
     header: t('MainGrid.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
+    cell: ({ getValue }) => {
+      const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
+      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
+
+      return (
+        <span title={fullDate} className="cursor-pointer">
+          {shortDate}
+        </span>
+      );
+    },
   },
   {
     accessorKey: 'log_name',
     header: t('MainGrid.Name'),
+    cell: ({ getValue }) => {
+      const fullText = getValue();
+      const maxLength = 30; // 표시할 최대 문자 수
+      const shortText =
+        fullText.length > maxLength
+          ? fullText.slice(0, maxLength) + '...'
+          : fullText;
+
+      return (
+        <span title={fullText} className="cursor-pointer">
+          {shortText}
+        </span>
+      );
+    },
   },
   {
     accessorKey: 'version_id',
@@ -53,6 +77,20 @@ const defaultColumns = (t) => [
   {
     accessorKey: 'summary_str',
     header: t('MainGrid.Summary'),
+    cell: ({ getValue }) => {
+      const fullText = getValue();
+      const maxLength = 40; // 표시할 최대 문자 수
+      const shortText =
+        fullText.length > maxLength
+          ? fullText.slice(0, maxLength) + '...'
+          : fullText;
+
+      return (
+        <span title={fullText} className="cursor-pointer">
+          {shortText}
+        </span>
+      );
+    },
   },
   {
     accessorKey: 'map',
@@ -149,7 +187,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
 
   const [data, setData] = useState(list ?? defaultData);
   const [selectedRows, setSelectedRows] = useState([]);
-  
+
   useEffect(() => {
     console.log('useEffect LIST ==>', list);
     if (list && !isEmpty(list.list)) {
@@ -194,7 +232,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
 
   return (
     // <div className="my-2 h-96 block overflow-x-auto">
-    <div className="my-2 h-[400px]  block overflow-x-auto">
+    <div className="my-2 h-[400px] block overflow-x-auto">
       <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
         <thead className="bg-gray-50 border-2 sticky top-0 ">
           {table.getHeaderGroups().map((headerGroup) => (
