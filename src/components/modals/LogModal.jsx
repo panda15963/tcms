@@ -154,7 +154,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       setOpen(true);
     }
   }, []);
-  
+
   /**
    * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
    * useImperativeHandle을 사용하여 ref를 설정
@@ -814,7 +814,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setIsConfigModalOpen(false); // 모달 닫기
   };
 
-  // 경로 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
+  /*
+   * 경로 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
+   * 경로 모달 (더블클릭)
+   */
   const RouteModalComponent = ({ data, onClose }) => {
     console.log('RouteModalComponent of data ==>', data);
 
@@ -847,7 +850,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
     }, [data]);
 
-    // 작업중
     return (
       <Dialog open={true} onClose={onClose}>
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
@@ -938,6 +940,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
     }, [data]);
 
+    // 로그 검색 (구성탭 -> 더블클릭)
     return (
       <Dialog open={true} onClose={onClose}>
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
@@ -995,6 +998,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     );
   };
 
+  // 로그검색
   return (
     <Transition show={open}>
       <Dialog onClose={() => setOpen(false)} className="relative z-50">
@@ -1020,10 +1024,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <DialogPanel
-                className="relative rounded-lg bg-white p-3 shadow-xl text-left transition-all sm:max-w-screen-xl"
+                className="relative rounded-lg bg-white  shadow-xl text-left transition-all sm:max-w-screen-xl"
                 style={{ width: '1324px' }}
               >
-                <div className="flex justify-between py-3 px-5 bg-blue_ncs">
+                {/* 모달 헤더 */}
+                <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
                   <h1 className="font-semibold text-white">
                     {t('LogModal.ModalName')}
                   </h1>
@@ -1036,25 +1041,28 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 </div>
 
                 {/* 탭 버튼 */}
-                <div className="mt-4 flex space-x-4">
+                <div className="m-2 flex space-x-2 ">
                   <button
-                    className={`px-4 py-2 font-semibold ${activeTab === 'route' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    className={`px-4 py-2 rounded-lg ${activeTab === 'route' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
                     onClick={() => handleTabChange('route')}
                   >
+                    {/* 경로탭 버튼*/}
                     {t('LogModal.Route')}
                   </button>
                   <button
-                    className={`px-4 py-2 font-semibold ${activeTab === 'batch' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    className={`px-4 py-2 rounded-lg ${activeTab === 'batch' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
                     onClick={() => handleTabChange('batch')}
                   >
+                    {/* 구성탭 버튼*/}
                     {t('LogModal.Configuration')}
                   </button>
                 </div>
 
                 {/* 탭 내용 */}
                 <div className="mt-5">
+                  {/* 경로탭 */}
                   {activeTab === 'route' && (
-                    <div>
+                    <div className="mr-2 ml-2 mb-2">
                       <div
                         id="search_fieds"
                         className="flex items-center justify-start z-20"
@@ -1269,9 +1277,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       </div>
                     </div>
                   )}
-
+                  {/* 구성탭 */}
                   {activeTab === 'batch' && (
-                    <div>
+                    <div className="mr-2 ml-2 mb-2">
                       <div
                         id="search_fieds"
                         className="flex items-center justify-start z-20"
