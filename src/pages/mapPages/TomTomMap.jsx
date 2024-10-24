@@ -190,37 +190,55 @@ export default function TomTomMap({
 
     return deactivatedRoutes;
   };
+
   const insertNullsAtDeactivatedIndices = (
     routeFullCoords,
     deactivatedRoutes,
+    removedRoutes = [],
   ) => {
     // Create a copy of routeFullCoords to avoid mutating the original array
     let routesWithNulls = [...routeFullCoords];
 
-    // Insert null at each deactivated index
+    // Insert null at each deactivated index and store the original data
     deactivatedRoutes.forEach((index) => {
       if (index < routesWithNulls.length) {
+        // Save the original data and its index before inserting null
+        removedRoutes.push({ index, data: routesWithNulls[index] });
         routesWithNulls.splice(index, 0, null);
       } else {
-        routesWithNulls.push(null); // In case index is beyond the array length
+        // If the index is beyond the array length, just push null
+        routesWithNulls.push(null);
       }
     });
 
-    // Reconstruct the array to replace nulls with the original values if reactivated
-    routesWithNulls = routesWithNulls.map((route, index) => {
-      // If the original index in deactivatedRoutes does not contain the current index,
-      // it means this position was not meant to remain null and can be replaced by the original value
-      if (
-        route === null &&
-        !deactivatedRoutes.includes(index) &&
-        routeFullCoords[index] !== undefined
-      ) {
-        return routeFullCoords[index];
+    // 복구된 데이터를 removedRoutes에서 제거하고 제자리에 되돌림
+    removedRoutes.forEach(({ index, data }) => {
+      if (index < routesWithNulls.length && routesWithNulls[index] === null) {
+        // null 자리에 원래 데이터를 복구
+        routesWithNulls[index] = data;
       }
-      return route; // Otherwise, keep the original value or null as intended
     });
 
-    return routesWithNulls;
+    // 복구가 완료된 데이터는 removedRoutes에서 제거
+    removedRoutes = removedRoutes.filter(({ index }) => {
+      return routesWithNulls[index] === null; // 여전히 null인 경우만 남겨둠
+    });
+
+    // 마지막 요소가 중복되었거나 null인 경우 삭제
+    if (
+      routesWithNulls.length > 1 &&
+      routesWithNulls[routesWithNulls.length - 1] ===
+        routesWithNulls[routesWithNulls.length - 2]
+    ) {
+      routesWithNulls.pop();
+    } else if (routesWithNulls[routesWithNulls.length - 1] === null) {
+      routesWithNulls.pop();
+    }
+
+    console.log(routesWithNulls, removedRoutes);
+
+    // 반환된 배열과 복구 후 남은 removedRoutes를 반환
+    return { routesWithNulls, removedRoutes };
   };
 
   /**
@@ -230,6 +248,7 @@ export default function TomTomMap({
    * @param {Object} map - The TomTom map instance
    * @param {Array} routeFullCoords - The array of all route objects with coordinates
    */
+  // Update the drawRoutes function
   const drawRoutes = (map, routeFullCoords = []) => {
     if (!map.isStyleLoaded()) {
       map.on('style.load', () => {
@@ -255,10 +274,16 @@ export default function TomTomMap({
     console.log('Deactivated route indices:', deactivatedRoutes);
 
     // Create a new array with nulls inserted at deactivated indices
-    const routesWithNulls = insertNullsAtDeactivatedIndices(
+    const { routesWithNulls } = insertNullsAtDeactivatedIndices(
       routeFullCoords,
       deactivatedRoutes,
     );
+
+    // Ensure routesWithNulls is a valid array
+    if (!Array.isArray(routesWithNulls)) {
+      console.error('Invalid routesWithNulls');
+      return;
+    }
 
     // Update the previous routes reference with the new array (including nulls)
     previousRouteRef.current = routesWithNulls;

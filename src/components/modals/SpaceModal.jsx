@@ -192,9 +192,7 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
       // Call SPACE_INTERPOLATION with the extracted fileIds
       const routeCoords = await SPACE_INTERPOLATION(fileIds);
       spaceFullCoords(routeCoords);
-      console.log(arrayFromList)
       selectedLists(arrayFromList);
-      console.log('routeCoords ==>', routeCoords);
     } else {
       console.error('No array found in list');
     }
