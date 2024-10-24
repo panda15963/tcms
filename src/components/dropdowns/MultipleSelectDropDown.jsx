@@ -100,7 +100,7 @@ export default function MultipleSelectDropDown({ options, onChange }) {
       onChange={handleSelectionChange} // 선택된 항목이 변경되면 실행
       className="w-full mb-0" // 컴포넌트 스타일
     >
-      <div className="relative mt-2">
+      <div className="relative mt-0">
         {/* ComboboxInput: 사용자가 선택한 항목을 보여주는 인풋 */}
         <ComboboxInput
           disabled={true} // 인풋은 읽기 전용

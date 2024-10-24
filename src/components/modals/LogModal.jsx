@@ -884,7 +884,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 <MdClose className="text-white" size={16} />
               </button>
             </div>
-            <div className="flex flex-row justify-between space-x-4 my-4">
+            <div
+              className="flex flex-row justify-between space-x-4 my-4"
+              style={{ marginTop: '0px', marginBottom: '0px' }}
+            >
               {/* 메인2 그리드 */}
               <div className="flex-1 border border-gray-300 p-4">
                 <h2 className="text-center text-xl font-bold mb-2"></h2>
@@ -1321,14 +1324,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                   {/* 배치탭 */}
                   {activeTab === 'batch' && (
                     <div className="mr-2 ml-2 mb-2">
-                      <div
-                        id="search_fieds"
-                        className="flex items-center justify-start z-20"
-                      >
-                        <span className="w-1/4 text-md font-semibold text-slate-700 text-left">
+                      <div id="search_fieds" className="flex items-center">
+                        <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
                           {/* 검색 필드 */}
                           {t('LogModal.SearchFields')}
-                        </span>
+                        </label>
                         <MultipleSelectDropDown
                           options={fieldsCinfiguration.map((field) => ({
                             ...field,
@@ -1491,7 +1491,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           }
                         />
                       </div>
-                      <div className="flex justify-end mt-3">
+                      <div className="flex justify-end mt-1">
                         <button
                           onClick={handleConfigBtnClick}
                           className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
