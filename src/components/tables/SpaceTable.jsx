@@ -26,22 +26,51 @@ const SpaceTableHeaderList = (t) => [
     ),
   },
   {
+    // 업로드 된 날짜
     accessorKey: 'upload_date',
     header: t('SpaceTable.UploadDate'),
+    cell: ({ getValue }) => {
+      const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
+      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
+
+      return (
+        <span title={fullDate} className="cursor-pointer">
+          {shortDate}
+        </span>
+      );
+    },
   },
   {
+    // 이름
     accessorKey: 'file_name',
     header: t('SpaceTable.Name'),
+    cell: ({ getValue }) => {
+      const fullText = getValue();
+      const maxLength = 70; // 표시할 최대 문자 수
+      const shortText =
+        fullText.length > maxLength
+          ? fullText.slice(0, maxLength) + '...'
+          : fullText;
+
+      return (
+        <span title={fullText} className="cursor-pointer">
+          {shortText}
+        </span>
+      );
+    },
   },
   {
+    // 버전
     accessorKey: 'version_id',
     header: t('SpaceTable.Version'),
   },
   {
+    // 국가
     accessorKey: 'country_str',
     header: t('SpaceTable.Country'),
   },
   {
+    // 로그 종류
     accessorKey: 'b_virtual',
     header: t('SpaceTable.LogType'),
     cell: ({ getValue }) => {
@@ -50,8 +79,23 @@ const SpaceTableHeaderList = (t) => [
     },
   },
   {
+    // 요약
     accessorKey: 'summary_str',
     header: t('SpaceTable.Summary'),
+    cell: ({ getValue }) => {
+      const fullText = getValue();
+      const maxLength = 40; // 표시할 최대 문자 수
+      const shortText =
+        fullText.length > maxLength
+          ? fullText.slice(0, maxLength) + '...'
+          : fullText;
+
+      return (
+        <span title={fullText} className="cursor-pointer">
+          {shortText}
+        </span>
+      );
+    },
   },
   {
     accessorKey: 'map',

@@ -21,6 +21,7 @@ import ConfigGridL2 from '../tables/ConfigGridL2';
 import MainGrid2 from '../tables/MainGrid2';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
+import ConfigGridR2 from '../tables/ConfigGridR2';
 
 /**
  * 로그 검색
@@ -1034,7 +1035,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
     }, [data]);
 
-    // 경로 모달창에서 더블클릭
+    /**
+     * 버전 모아보기 (경로탭)
+     */
     return (
       <Dialog open={true} onClose={onClose}>
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
@@ -1129,12 +1132,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
     }, [data]);
 
-    // 로그 검색 (배치탭 -> 더블클릭)
+    /**
+     * 버전 모아보기 (배치탭)
+     */
     return (
       <Dialog open={true} onClose={onClose}>
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
-          <div className="bg-white p-4 rounded-md shadow-lg">
-            <div className="flex justify-between py-3 px-5 bg-blue_ncs">
+          <div className="bg-white p-1 rounded-md shadow-lg">
+            <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
               <h1 className="font-semibold text-white">
                 {t('LogModal.AllVersions')}
               </h1>
@@ -1145,32 +1150,29 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 <MdClose className="text-white" size={16} />
               </button>
             </div>
-            <div className="flex flex-row justify-between space-x-4 my-4">
+            <div className="flex flex-row justify-between space-x-2 ">
               {/* 왼쪽 그리드 */}
-              <div className="flex-1 border border-gray-300 p-4">
-                <h2 className="text-center text-xl font-bold mb-2"></h2>
-                <ConfigGridL2
-                  list={configList2} // 왼쪽 그리드에 대한 데이터 리스트
-                  onSelectionChange={handleLeftSelectionChange2}
-                  onCellClick={handleLeftCellClick2} // 셀 클릭 시
-                />
-              </div>
+              <h2 className="text-center text-xl font-bold mb-2"></h2>
+
+              <ConfigGridL2
+                list={configList2} // 왼쪽 그리드에 대한 데이터 리스트
+                onSelectionChange={handleLeftSelectionChange2}
+                onCellClick={handleLeftCellClick2} // 셀 클릭 시
+              />
 
               {/* 오른쪽 그리드 */}
-              <div className="flex-1 border border-gray-300 p-4">
-                <h2 className="text-center text-xl font-bold mb-2"></h2>
-                <ConfigGridR
-                  list={selectedLogList2} // 오른쪽 그리드에 대한 데이터 리스트
-                  // onSelectionChange={
-                  //   (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
-                  // }
-                />
-              </div>
+              <h2 className="text-center text-xl font-bold mb-2"></h2>
+              <ConfigGridR2
+                list={selectedLogList2} // 오른쪽 그리드에 대한 데이터 리스트
+                // onSelectionChange={
+                //   (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
+                // }
+              />
             </div>
-            <div className="flex justify-end mt-3">
+            <div className="flex justify-end mt-1">
               <button
                 onClick={handleConfigBtn2Click}
-                className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
                 <FaCheck className="h-5 w-5 text-sky-500" aria-hidden="true" />
                 <span className="text-base text-sky-500 font-bold">
@@ -1224,7 +1226,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <DialogPanel
-                className="relative rounded-lg bg-white  shadow-xl text-left transition-all sm:max-w-screen-xl"
+                className="relative rounded-lg bg-white shadow-xl text-left transition-all sm:max-w-screen-xl"
                 style={{ width: '1324px' }}
               >
                 {/* 모달 헤더 */}

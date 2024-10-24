@@ -221,7 +221,7 @@ export default function RightSideSlide({ data, onMapChange }) {
       {!open && (
         <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className="text-white px-2 py-3 rounded-l-full bg-blue-700 hover:bg-blue_lapis"
+            className="text-white px-2 py-3 rounded-l-full bg-blue-600 hover:bg-blue_lapis"
             onClick={() => setOpen(true)}
           >
             <FaArrowCircleLeft size={30} />
@@ -237,8 +237,8 @@ export default function RightSideSlide({ data, onMapChange }) {
         leaveFrom="translate-x-0"
         leaveTo="translate-x-full"
       >
-        <div className="fixed inset-y-0 top-32 right-0 w-3/12 bg-stone-50 shadow-lg z-50 flex flex-col space-y-4 h-[800px]">
-          <div className="bg-blue-700 px-2 py-2 sm:px-3 shadow-xl">
+        <div className="fixed inset-y-0 top-32 right-0 w-3/12 bg-stone-50 shadow-lg z-50 flex flex-col space-y-4 h-[800px] rounded-t-lg">
+          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-t-lg">
             <div className="flex items-center justify-between">
               <span className="text-base font-semibold leading-6 text-white">
                 {t('RightSideSlide.LogMetaDataList')}

@@ -153,7 +153,7 @@ const StoreModal = forwardRef(
               >
                 <DialogPanel className="relative rounded-lg shadow-xl bg-white">
                   {/* 모달 헤더 */}
-                  <div className="flex justify-between py-3 px-5 bg-blue_ncs rounded-t-lg">
+                  <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
                     <h1 className="font-semibold pl-3 text-white">
                       {t('StoreModal.ModalName')}
                     </h1>

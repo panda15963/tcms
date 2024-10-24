@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 // 테이블의 기본 컬럼 정의
 const defaultColumns = (t) => [
   {
+    // CFG 이름
     accessorKey: 'tccfg_name',
     header: t('ConfigGridR.CFG_name'),
   },
@@ -20,6 +21,20 @@ const defaultColumns = (t) => [
   {
     accessorKey: 'file_name',
     header: t('ConfigGridR.Contents'),
+    cell: ({ getValue }) => {
+      const fullText = getValue();
+      const maxLength = 34; // 표시할 최대 문자 수
+      const shortText =
+        fullText.length > maxLength
+          ? fullText.slice(0, maxLength) + '...'
+          : fullText;
+
+      return (
+        <span title={fullText} className="cursor-pointer">
+          {shortText}
+        </span>
+      );
+    },
   },
 ];
 
@@ -89,7 +104,10 @@ const ConfigGridR2 = ({ list, onSelectionChange }) => {
 
   return (
     // <div className="my-2 h-96 block overflow-x-auto">
-    <div className="my-2 h-[400px] w-[580px] block overflow-x-auto">
+    <div
+      className="my-2 h-[400px] w-[450px] block overflow-x-auto"
+      style={{ marginLeft: '0px' }}
+    >
       <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
         <thead className="bg-gray-50 border-2 sticky top-0 ">
           {table.getHeaderGroups().map((headerGroup) => (

@@ -24,7 +24,7 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
   const [rangeValue, setRangeValue] = useState(100); // Initialize rangeValue state
   const [list, setList] = useState([]); // Initialize list state
   const [checkedLists, setCheckedLists] = useState([]);
-  
+
   // Use useImperativeHandle to allow parent component to call show() to open the modal
   useImperativeHandle(ref, () => ({
     show() {
@@ -103,7 +103,7 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
         cond: inputCond,
       });
 
-        console.log('FIND_SPACE of res ==>', res.findMeta);
+      console.log('FIND_SPACE of res ==>', res.findMeta);
 
       if (res.findMeta) {
         setList((prevState) => ({
@@ -192,7 +192,7 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
       // Call SPACE_INTERPOLATION with the extracted fileIds
       const routeCoords = await SPACE_INTERPOLATION(fileIds);
       spaceFullCoords(routeCoords);
-      console.log(arrayFromList)
+      console.log(arrayFromList);
       selectedLists(arrayFromList);
       console.log('routeCoords ==>', routeCoords);
     } else {
@@ -214,7 +214,7 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" />
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -228,10 +228,10 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <DialogPanel
-                className="relative rounded-lg bg-white p-3 shadow-xl text-left transition-all sm:max-w-screen-xl"
+                className="relative rounded-lg bg-white p-0 shadow-xl text-left transition-all sm:max-w-screen-xl"
                 style={{ width: '1324px' }}
               >
-                <div className="flex justify-between py-3 px-5 bg-blue_ncs">
+                <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
                   <h1 className="font-semibold text-white">
                     {t('SpaceModal.ModalSearch')}
                   </h1>
@@ -244,7 +244,7 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
                 </div>
 
                 {/* Modal Content */}
-                <div className="mt-5">
+                <div className="p-2 mt-2">
                   <div className="flex justify-center items-center gap-4 mb-4">
                     <label className="text-sm font-semibold">
                       {t('SpaceModal.Lat')}:
@@ -307,10 +307,7 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
                   </div>
 
                   {/* Table Section */}
-                  <SpaceTable
-                    list={list}
-                    onSelectionChange={setCheckedLists}
-                  />
+                  <SpaceTable list={list} onSelectionChange={setCheckedLists} />
                   <div className="flex justify-end mt-3">
                     <button
                       onClick={handleButtonClick}
