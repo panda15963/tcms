@@ -726,13 +726,65 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /*
-   * 로그검색 배치 이벤트
+   * 로그검색 배치 선택 이벤트
    */
   const handleConfigBtnClick = async () => {
     console.log('로그검색 배치 선택버튼 이벤트 입니다.');
     console.log('handleConfigBtnClick of selectedLogList ==>', selectedLogList);
+
+    // selectedLogList에서 meta_id 추출하여 FIND_META_ID 호출
+    if (selectedLogList && selectedLogList.length > 0) {
+      // 각 selectedLogList에 대한 FIND_META_ID 호출을 동시에 처리
+      const resultList = await Promise.all(
+        selectedLogList.map(async (log) => {
+          const condTmp = {
+            meta_id: log.meta_id, // 각 log에서 meta_id 추출
+          };
+
+          // FIND_META_ID 실행하고 결과 반환
+          console.log('condTmp', condTmp);
+
+          const result = await FIND_META_ID(condTmp);
+          console.log('result', result);
+
+          return result; // result를 반환하여 리스트에 추가
+        }),
+      );
+
+      // resultList를 평탄화(flatten)하여 단일 배열로 변환
+      const flatResultList = resultList.flat();
+
+      console.log('FIND_META_ID 결과 리스트 ==>', resultList);
+      console.log(
+        'FIND_META_ID 결과 리스트 flatResultList ==>',
+        flatResultList,
+      );
+
+      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
+      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
+    } else {
+      console.log('선택된 로그가 없습니다.');
+    }
   };
 
+  /**
+   * FIND META ID
+   */
+  const FIND_META_ID = async (inputCond) => {
+    try {
+      const res = await logService.FIND_META_ID({
+        cond: inputCond,
+      });
+
+      console.log('FIND_META_ID of res ==>', res.findMeta);
+
+      // res.findMeta 값을 반환하도록 수정
+      return res.findMeta;
+    } catch (e) {
+      console.log('FIND_META_ID of error ==>', e);
+      return null; // 오류가 발생하면 null을 반환하여 처리
+    }
+  };
   /**
    * Find Tccfg 클릭 이벤트
    */
@@ -775,17 +827,31 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }
   };
 
-  /*
+  /**
    * 로그검색 -> 배치탭 -> 선택 이벤트
-   */
+   * 배치탭에서 선택 하였을때 발생
+   * 셀렉트Row 의 로그리스트 들 배열로 생성
+   **/
   const handleLeftSelectionChange = (selectedRows) => {
     console.log('handleLeftSelectionChange of selectedRows ==>', selectedRows);
+
     if (selectedRows && selectedRows.length > 0) {
-      setSelectedLogList(selectedRows[0].loglist);
+      const combinedLogList = selectedRows.reduce((acc, row) => {
+        return acc.concat(row.loglist); // 각 row의 loglist를 배열에 합침
+      }, []);
+
+      console.log(
+        'handleLeftSelectionChange of combinedLogList ==>',
+        combinedLogList,
+      );
+
+      setSelectedLogList(combinedLogList); // 전체 합쳐진 loglist 설정
     }
   };
 
   const handleLeftCellClick = (rowData) => {
+    console.log('handleLeftCellClick of rowData ==>', rowData);
+
     setSelectedLogList(rowData.loglist); // 셀 클릭 시 loglist 설정
   };
 
@@ -1109,10 +1175,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                         id="search_fieds"
                         className="flex items-center justify-start z-20"
                       >
-                        <span className="w-1/4 text-md font-semibold text-slate-700 text-left">
+                        <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
                           {/* 검색 필드 */}
                           {t('LogModal.SearchFields')}
-                        </span>
+                        </label>
                         <MultipleSelectDropDown
                           options={fields.map((field) => ({
                             ...field,

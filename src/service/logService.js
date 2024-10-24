@@ -318,7 +318,38 @@ const logService = {
       });
 
     return result.data;
-  }
+  },
+  FIND_META_ID: async (obj) => {
+    const { cond, cancelToken } = obj;
+    const { meta_id, ...otherParams } = cond; // cond에서 meta_id 추출, 나머지 파라미터는 유지
+
+    const result = await nonAuthInstance
+      .get(`/find/meta/${meta_id}`, {
+        params: otherParams, // 나머지 파라미터는 쿼리스트링으로 전달
+        cancelToken,
+      })
+      .catch((error) => {
+        console.log('error', error);
+        if (error.response) {
+          alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
+          return error.response;
+        } else if (error.request) {
+          // 응답이 오지 않은 경우 처리
+          alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
+          return error.request;
+        } else if (axiosInstance.isCancel(error)) {
+          // 취소되면 이곳이 발동된다.
+          // axiosInstance 요청이 취소되어버린경우 처리
+          return console.log('취소', error);
+        }
+        // return rejectWithValue(error.response.data);
+        return error;
+      });
+
+    console.log('[FIND_META_ID] result ==>', result);
+
+    return result.data;
+  },
 };
 
 export default logService;
