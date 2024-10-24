@@ -3,143 +3,6 @@ import End_Point from '../../img/Multi End Point.svg'; // Import your custom End
 import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css'; // Ensure this CSS file exists
 
-// Define colors for different routes
-const colors = [
-  '#cd5c5c',
-  '#176347',
-  '#ffa07a',
-  '#8b4513',
-  '#faf0e6',
-  '#faebd7',
-  '#ffefdS',
-  '#fdfSe6',
-  '#fff8de',
-  '#eeeBaa',
-  '#ffffe0',
-  '#6b8e23',
-  '#b0e0e6',
-  '#87cefa',
-  '#778899',
-  '#bOcdde',
-  '#e6e6fa',
-  '#0000cd',
-  '#7b68ee',
-  '#4b0082',
-  '#dabfd8',
-  '#8b008D',
-  '#c71585',
-  '#db7093',
-  '#696969',
-  '#292929',
-  '#fffafa',
-  '#a52a2a',
-  '#ff0000',
-  '#e9967a',
-  '#a0522d',
-  '#f4a460',
-  '#ffedc4',
-  '#d2b48c',
-  '#ffedb5',
-  '#fffafo',
-  '#ffd700',
-  '#bdb76b',
-  '#fafad2',
-  '#9acd32',
-  '#7cfc00',
-  '#008000',
-  '#ffb6c1',
-  '#00ff7F',
-  '#7fffda',
-  '#fOffff',
-  '#2fafaf',
-  '#00ffff',
-  '#add8e6',
-  '#4682b4',
-  '#778899',
-  '#6495ed',
-  '#191970',
-  '#0000fF',
-  '#9370db',
-  '#9932cc',
-  '#ddaddd',
-  '#ff00ff',
-  '#171493',
-  '#dc143c',
-  '#696969',
-  '#a9a9a9',
-  '#tdedede',
-  '#bc8I8f',
-  '#b22222',
-  '#ffedel',
-  '#ff7f50',
-  '#fffSee',
-  '#ffdab9',
-  '#ff8c00',
-  '#ffdead',
-  '#ffa500',
-  '#b8860b',
-  '#fffacd',
-  '#ffffTO',
-  '#808000',
-  '#556b2f',
-  '#f0Fff0',
-  '#228522',
-  '#00ff00',
-  '#f5fffa',
-  '#40e0d0',
-  '#eofiff',
-  '#008080',
-  '#00ced1',
-  '#00bfff',
-  '#f0f8ff',
-  '#708090',
-  '#4169e1',
-  '#000080',
-  '#6a5acd',
-  '#663399',
-  '#9400d3',
-  '#eeB2ee',
-  '#ff00ff',
-  '#ff69b4',
-  '#ffcOcb',
-  '#808080',
-  '#cOcOcO',
-  '#fSfS15',
-  '#f08080',
-  '#800000',
-  '#fa8072',
-  '#ff4500',
-  '#d2691e',
-  '#cd853f',
-  '#deb887',
-  '#ffebcd',
-  '#fSdeb3',
-  '#daa520',
-  '#f0e68c',
-  '#f5f5dc',
-  '#fffF00',
-  '#adff2f',
-  '#Bfbc8F',
-  '#32cd32',
-  '#2e8b57',
-  '#00fa9a',
-  '#20b2aa',
-  '#afeeee',
-  '#008b8b',
-  '#5f9ea0',
-  '#87ceeb',
-  '#1e90ff',
-  '#708090',
-  '#f8f8ff',
-  '#00008b',
-  '#483d8b',
-  '#8a2be2',
-  '#ba55d3',
-  '#800080',
-  '#da70d6',
-  '#fffOtS',
-];
-
 // Function to parse the coordinates string
 function parseCoordinates(coordString) {
   const [lng, lat] = coordString.split(',').map(Number); // Split and convert to numbers
@@ -201,7 +64,7 @@ export default function TMap({
   checkedNodes, // List of checked nodes
   clickedNode, // Node that is clicked
   searchedLocation, // Searched location to center on
-  routeColors = () => {},
+  routeColors = [], // Array of route colors
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // Initial map center calculation
   const [center, setCenter] = useState(initialCoords); // Manage map center state
@@ -307,7 +170,7 @@ export default function TMap({
         startMarkerRef.current = [];
         finishMarkerRef.current = [];
         polylineRef.current = [];
-
+        // Assuming routeColors is passed as an array of colors
         routeFullCoords.forEach((route, index) => {
           const nodeChecked = checkedNodes.some(
             (node) => node.file_id === route.file_id,
@@ -344,8 +207,8 @@ export default function TMap({
           });
           finishMarkerRef.current.push(finishMarker);
 
-          // Select a color for the polyline
-          const color = colors[index % colors.length];
+          // Select a color for the polyline from the routeColors array
+          const color = routeColors[index % routeColors.length] || '#ff0000'; // Default color if no color available
           newColors.push(color); // Store the color for this route
 
           // Create polyline for the route
@@ -354,7 +217,7 @@ export default function TMap({
           );
           const polyline = new Tmapv2.Polyline({
             path: polylinePath,
-            strokeColor: color,
+            strokeColor: color, // Apply the selected color
             strokeWeight: 4,
             map: mapRef.current, // Add this to display the polyline on the map
           });
@@ -390,7 +253,6 @@ export default function TMap({
           JSON.stringify(previousColorsRef.current)
         ) {
           previousColorsRef.current = newColors; // Update the reference
-          routeColors(newColors); // Update the parent with new colors
         }
       } else {
         console.warn('routeFullCoords is null or not an array');
@@ -457,8 +319,8 @@ export default function TMap({
           });
           spaceMarkerRef.current.push(finishMarker);
 
-          // Choose a color for the polyline based on the index
-          const color = colors[index % colors.length];
+          // Select a color for the polyline from the routeColors array
+          const color = routeColors[index % routeColors.length] || '#0000ff'; // Default color if no color is available
           newColors.push(color); // Store the color for this route
 
           // Draw the polyline for the route
@@ -467,7 +329,7 @@ export default function TMap({
           );
           const polyline = new Tmapv2.Polyline({
             path: polylinePath,
-            strokeColor: color, // Use the chosen color for the polyline
+            strokeColor: color, // Apply the selected color
             strokeWeight: 4,
             map: mapRef.current, // Add the polyline to the map
           });
@@ -504,7 +366,6 @@ export default function TMap({
           JSON.stringify(previousColorsRef.current)
         ) {
           previousColorsRef.current = newColors; // Update the reference
-          routeColors(newColors); // Update the parent with new colors
         }
       } else {
         console.warn('spaceFullCoords is null or not an array');

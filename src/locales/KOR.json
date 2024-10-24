@@ -43,8 +43,8 @@
     "SelectedAPI": "선택된 지도"
   },
   "LogModal": {
-    "ModalName": "로그 검색",    
-    "Route":"경로",
+    "ModalName": "로그 검색",
+    "Route": "경로",
     "Configuration": "구성",
     "SearchFields": "검색 필드",
     "Find": "검색",
@@ -125,7 +125,7 @@
     "NextButton": "다음",
     "PaginationText": "{{first}}부터 {{last}}까지의 {{total}}개의 항목 표시"
   },
-  "SpaceModal":{
+  "SpaceModal": {
     "ModalSearch": "공간 검색",
     "Lon": "경도",
     "Lat": "위도",
@@ -137,10 +137,10 @@
     "UploadDate": "업로드 된 날짜",
     "Name": "이름",
     "Version": "버전",
-    "Country": "국가",    
+    "Country": "국가",
     "CreatedDate": "만든 날짜",
     "Priority": "우선순위",
-    "Feature":"기능",   
+    "Feature": "기능",
     "LogType": "로그 종류",
     "Target": "대상",
     "Summary": "요약",
@@ -193,5 +193,15 @@
     "CourseList": "경로 목록",
     "NoDataFound": "경로 데이터 검색 되지 않았습니다.",
     "CourseName": "코스 이름"
+  },
+  "HomeLogin": {
+    "ID": "아이디",
+    "InputID": "아이디를 입력하세요",
+    "Password": "비밀번호",
+    "InputPassword": "비밀번호를 입력하세요",
+    "AuthenticationMethod": "인증 방법 선택",
+    "InputOTP": "OTP 번호 입력",
+    "Login": "로그인",
+    "ToMainPage": "메인페이지로 이동"
   }
 }

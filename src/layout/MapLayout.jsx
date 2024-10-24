@@ -1,67 +1,97 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import TopMenuBar from '../components/navbars/TopMenuBar';
 import LeftSideSlide from '../components/slideOver/LeftSideSlide';
 import RightSideSlide from '../components/slideOver/RightSideSlide';
 
-// MapLayout 컴포넌트 정의
+// MapLayout component definition
 export default function MapLayout() {
   const [routeData, setRouteData] = useState([]);
   const [checkedNodes, setCheckedNodes] = useState([]);
   const [clickedNode, setClickedNode] = useState(null);
   const [currentApi, setCurrentApi] = useState(null);
-  const [routeColors, setRouteColors] = useState(null);
+  const [routeColors, setRouteColors] = useState([]);
 
   const memoizedRouteData = useMemo(() => routeData, [routeData]);
   const memoizedCheckedNodes = useMemo(() => checkedNodes, [checkedNodes]);
-  const memoizedRouteColors = useMemo(() => routeColors, [routeColors]);
 
-  const handleRouteData = useCallback(
-    (data) => {
-      if (data !== routeData) {
-        setRouteData(data);
-      }
-    },
-    [routeData],
-  );
+  const handleRouteColors = useCallback((colors) => {
+    setRouteColors((prevColors) => {
+      let formattedColors = [];
 
-  const handleCheckedNodes = useCallback(
-    (nodes) => {
-      if (nodes !== checkedNodes) {
-        setCheckedNodes(nodes);
+      // Ensure colors is an array, or convert it to an array if possible
+      if (Array.isArray(colors)) {
+        formattedColors = colors;
+      } else if (typeof colors === 'string') {
+        // If colors is a string, split it into an array
+        formattedColors = colors.split('');
+      } else {
+        console.warn('Unexpected format for colors:', colors);
+        return prevColors; // If colors is not an array or a string, return previous state
       }
-    },
-    [checkedNodes],
-  );
 
-  const handleClickedNode = useCallback(
-    (node) => {
-      if (node !== clickedNode) {
-        setClickedNode(node);
+      // Check if the colors are in individual character format or complete hex strings
+      if (formattedColors.length > 0 && formattedColors[0].length === 1) {
+        // Group the characters into valid hex color strings
+        const groupedColors = [];
+        for (let i = 0; i < formattedColors.length; i += 7) {
+          if (formattedColors[i] === '#') {
+            const colorChunk = formattedColors.slice(i, i + 7);
+            if (colorChunk.length === 7) {
+              groupedColors.push(colorChunk.join(''));
+            }
+          }
+        }
+        formattedColors = groupedColors;
       }
-    },
-    [clickedNode],
-  );
 
-  const handleRouteColors = useCallback(
-    (colors) => {
-      // Check if the new colors are the same as the current state to avoid setting the state repeatedly
-      if (JSON.stringify(colors) !== JSON.stringify(routeColors)) {
-        setRouteColors(colors);
+      // Check if any of the new colors are not already in the previous colors
+      const newColors = formattedColors.filter(
+        (color) => !prevColors.includes(color),
+      );
+      if (newColors.length === 0) {
+        return prevColors; // No new colors to add, return previous state to avoid re-render
       }
-    },
-    [routeColors],
-  );
+
+      const updatedColors = [...prevColors, ...newColors];
+      return updatedColors; // Update the state with the new list
+    });
+  }, []);
+
+  const handleRouteData = useCallback((data) => {
+    if (data !== routeData) {
+      setRouteData(data);
+    }
+  }, [routeData]);
+
+  const handleCheckedNodes = useCallback((nodes) => {
+    if (nodes !== checkedNodes) {
+      setCheckedNodes(nodes);
+    }
+  }, [checkedNodes]);
+
+  const handleClickedNode = useCallback((node) => {
+    if (node !== clickedNode) {
+      setClickedNode(node);
+    }
+  }, [clickedNode]);
+
+  // Use useEffect to update state based on external changes, not during render
+  useEffect(() => {
+    if (currentApi) {
+      // Handle any updates needed when currentApi changes
+    }
+  }, [currentApi]);
 
   return (
     <>
-      {/* 상단 메뉴바 */}
+      {/* Top Menu Bar */}
       <TopMenuBar
         handleRouteData={handleRouteData}
         checkedNodes={memoizedCheckedNodes}
         clickedNode={clickedNode}
         setCurrentApi={setCurrentApi}
-        routeColors={handleRouteColors}
+        routeColors={routeColors}
         handleSpaceData={
           // Add handleSpaceData to props
           (data) => {
@@ -70,18 +100,19 @@ export default function MapLayout() {
         }
       />
 
-      {/* 좌측 슬라이드 패널 */}
+      {/* Left Slide Panel */}
       <LeftSideSlide
         data={memoizedRouteData}
         onCheckedNodesChange={handleCheckedNodes}
         onClickedNode={handleClickedNode}
         onMapChange={currentApi}
-        routeColors={memoizedRouteColors}
+        routeColors={handleRouteColors}
       />
-      {/* 우측 슬라이드 패널 */}
+      
+      {/* Right Slide Panel */}
       <RightSideSlide data={memoizedRouteData} onMapChange={currentApi} />
 
-      {/* Outlet은 중첩된 라우트에 의해 선택된 컴포넌트를 렌더링 */}
+      {/* Outlet renders nested route components */}
       <main>
         <Outlet />
       </main>

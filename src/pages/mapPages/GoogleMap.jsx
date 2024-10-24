@@ -34,159 +34,22 @@ export default function GoogleMap({
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
   const [map, setMap] = useState(null);
-  const [routeColorsState, setRouteColorsState] = useState([]);
   const mapRef = useRef(null);
   const spaceMarkerRefs = useRef([]);
   const spacePolylinesRef = useRef([]);
   const routeMarkerRefs = useRef([]);
   const routePolylinesRef = useRef([]);
+  const [previousRouteCoords, setPreviousRouteCoords] = useState([]);
+  const [adjustedRouteCoords, setAdjustedRouteCoords] = useState([]);
+  const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
+  const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
 
   const markerRefs = useRef([]); // Store references to markers for cleanup
   const initialMarkerRef = useRef(null);
   const { t } = useTranslation();
 
-  console.log('spaceFullCoords', spaceFullCoords);
-  console.log('routeFullCoords', routeFullCoords);
-
-  const colors = [
-    '#cd5c5c',
-    '#176347',
-    '#ffa07a',
-    '#8b4513',
-    '#faf0e6',
-    '#faebd7',
-    '#ffefdS',
-    '#fdfSe6',
-    '#fff8de',
-    '#eeeBaa',
-    '#ffffe0',
-    '#6b8e23',
-    '#b0e0e6',
-    '#87cefa',
-    '#778899',
-    '#bOcdde',
-    '#e6e6fa',
-    '#0000cd',
-    '#7b68ee',
-    '#4b0082',
-    '#dabfd8',
-    '#8b008D',
-    '#c71585',
-    '#db7093',
-    '#696969',
-    '#292929',
-    '#fffafa',
-    '#a52a2a',
-    '#ff0000',
-    '#e9967a',
-    '#a0522d',
-    '#f4a460',
-    '#ffedc4',
-    '#d2b48c',
-    '#ffedb5',
-    '#fffafo',
-    '#ffd700',
-    '#bdb76b',
-    '#fafad2',
-    '#9acd32',
-    '#7cfc00',
-    '#008000',
-    '#ffb6c1',
-    '#00ff7F',
-    '#7fffda',
-    '#fOffff',
-    '#2fafaf',
-    '#00ffff',
-    '#add8e6',
-    '#4682b4',
-    '#778899',
-    '#6495ed',
-    '#191970',
-    '#0000fF',
-    '#9370db',
-    '#9932cc',
-    '#ddaddd',
-    '#ff00ff',
-    '#171493',
-    '#dc143c',
-    '#696969',
-    '#a9a9a9',
-    '#tdedede',
-    '#bc8I8f',
-    '#b22222',
-    '#ffedel',
-    '#ff7f50',
-    '#fffSee',
-    '#ffdab9',
-    '#ff8c00',
-    '#ffdead',
-    '#ffa500',
-    '#b8860b',
-    '#fffacd',
-    '#ffffTO',
-    '#808000',
-    '#556b2f',
-    '#f0Fff0',
-    '#228522',
-    '#00ff00',
-    '#f5fffa',
-    '#40e0d0',
-    '#eofiff',
-    '#008080',
-    '#00ced1',
-    '#00bfff',
-    '#f0f8ff',
-    '#708090',
-    '#4169e1',
-    '#000080',
-    '#6a5acd',
-    '#663399',
-    '#9400d3',
-    '#eeB2ee',
-    '#ff00ff',
-    '#ff69b4',
-    '#ffcOcb',
-    '#808080',
-    '#cOcOcO',
-    '#fSfS15',
-    '#f08080',
-    '#800000',
-    '#fa8072',
-    '#ff4500',
-    '#d2691e',
-    '#cd853f',
-    '#deb887',
-    '#ffebcd',
-    '#fSdeb3',
-    '#daa520',
-    '#f0e68c',
-    '#f5f5dc',
-    '#fffF00',
-    '#adff2f',
-    '#Bfbc8F',
-    '#32cd32',
-    '#2e8b57',
-    '#00fa9a',
-    '#20b2aa',
-    '#afeeee',
-    '#008b8b',
-    '#5f9ea0',
-    '#87ceeb',
-    '#1e90ff',
-    '#708090',
-    '#f8f8ff',
-    '#00008b',
-    '#483d8b',
-    '#8a2be2',
-    '#ba55d3',
-    '#800080',
-    '#da70d6',
-    '#fffOtS',
-  ];
-
   // Memoize the callback functions
   const memoizedLocationCoords = useCallback(locationCoords, []);
-  const memoizedRouteColors = useCallback(routeColors, []);
 
   // Clear functions for spaceFullCoords
   const clearSpacePolylines = () => {
@@ -265,6 +128,44 @@ export default function GoogleMap({
     }
   }, [lat, lng, map]);
 
+  const findRemovedSpaceIndex = (prevCoords, currentCoords) => {
+    for (let i = 0; i < prevCoords.length; i++) {
+      const prevRoute = prevCoords[i];
+      const isRouteRemoved = !currentCoords.some(
+        (route) => route.file_id === prevRoute.file_id,
+      );
+      if (isRouteRemoved) {
+        return i; // Index of the removed route
+      }
+    }
+    return -1; // No route was removed
+  };
+
+  useEffect(() => {
+    if (
+      previousSpaceCoords.length > 0 &&
+      previousSpaceCoords.length > spaceFullCoords.length
+    ) {
+      const removedIndex = findRemovedSpaceIndex(
+        previousSpaceCoords,
+        spaceFullCoords,
+      );
+      if (removedIndex !== -1) {
+        console.log('Space route removed at index:', removedIndex);
+        // Create a new array with null at the removed index
+        const newAdjustedCoords = [...previousSpaceCoords];
+        newAdjustedCoords[removedIndex] = null;
+        setAdjustedSpaceCoords(newAdjustedCoords);
+      }
+    } else {
+      // If no routes have been removed, just update the adjustedSpaceCoords to match spaceFullCoords
+      setAdjustedSpaceCoords(spaceFullCoords);
+    }
+
+    // Update previousSpaceCoords state
+    setPreviousSpaceCoords(spaceFullCoords);
+  }, [spaceFullCoords]);
+
   // Draw spaceFullCoords on the map
   useEffect(() => {
     if (!map) return;
@@ -275,10 +176,10 @@ export default function GoogleMap({
 
     const spaceCoords = [];
     const spaceMarkers = [];
-    const generatedColors = [];
 
-    spaceFullCoords.forEach((space, index) => {
-      if (space.coords && space.coords.length > 0) {
+    adjustedSpaceCoords.forEach((space, index) => {
+      if (space && space.coords && space.coords.length > 0) {
+        // Check if space is not null before accessing its properties
         spaceCoords.push(...space.coords);
 
         const startMarker = calculateCenterAndMarker(
@@ -297,13 +198,13 @@ export default function GoogleMap({
           lng: coord.lng,
         }));
 
-        const spaceColor = colors[index % colors.length];
-        generatedColors.push(spaceColor);
+        // Use the color from routeColors based on the current index
+        const polylineColor = routeColors[index % routeColors.length];
 
         const polyline = new window.google.maps.Polyline({
           path: polylinePath,
           geodesic: true,
-          strokeColor: spaceColor,
+          strokeColor: polylineColor,
           strokeOpacity: 0.8,
           strokeWeight: 3,
         });
@@ -326,15 +227,51 @@ export default function GoogleMap({
       const bounds = calculateBounds(spaceCoords);
       map.fitBounds(bounds);
     }
+  }, [adjustedSpaceCoords, map, routeColors]);
 
-    if (
-      generatedColors.length > 0 &&
-      JSON.stringify(routeColorsState) !== JSON.stringify(generatedColors)
-    ) {
-      setRouteColorsState(generatedColors);
-      memoizedRouteColors(generatedColors);
+  const findRemovedRouteIndex = (prevCoords, currentCoords) => {
+    for (let i = 0; i < prevCoords.length; i++) {
+      const prevRoute = prevCoords[i];
+      const isRouteRemoved = !currentCoords.some(
+        (route) => route.file_id === prevRoute.file_id,
+      );
+      if (isRouteRemoved) {
+        return i; // Index of the removed route
+      }
     }
-  }, [spaceFullCoords, map, memoizedRouteColors]);
+    return -1; // No route was removed
+  };
+
+  // Effect to detect when a route is removed and update adjustedRouteCoords
+  useEffect(() => {
+    if (
+      previousRouteCoords.length > 0 &&
+      previousRouteCoords.length > routeFullCoords.length
+    ) {
+      const removedIndex = findRemovedRouteIndex(
+        previousRouteCoords,
+        routeFullCoords,
+      );
+      if (removedIndex !== -1) {
+        console.log('Route removed at index:', removedIndex);
+        // Create a new array with null at the removed index
+        const newAdjustedCoords = [...previousRouteCoords];
+        newAdjustedCoords[removedIndex] = null;
+        setAdjustedRouteCoords(newAdjustedCoords);
+      }
+    } else {
+      // If no routes have been removed, just update the adjustedRouteCoords to match routeFullCoords
+      setAdjustedRouteCoords(routeFullCoords);
+    }
+
+    // Update previousRouteCoords state
+    setPreviousRouteCoords(routeFullCoords);
+  }, [routeFullCoords]);
+
+  useEffect(() => {
+    console.log('Adjusted Route Coords:', adjustedRouteCoords);
+    // Do something with adjustedRouteCoords if needed
+  }, [adjustedRouteCoords]);
 
   // Draw routeFullCoords on the map
   useEffect(() => {
@@ -354,10 +291,10 @@ export default function GoogleMap({
 
     const routeCoords = [];
     const routeMarkers = [];
-    const generatedColors = [];
 
-    routeFullCoords.forEach((route, index) => {
-      if (route.coords && route.coords.length > 0) {
+    adjustedRouteCoords.forEach((route, index) => {
+      if (route && route.coords && route.coords.length > 0) {
+        // Check if route is not null before accessing its properties
         routeCoords.push(...route.coords);
 
         const startMarker = calculateCenterAndMarker(
@@ -376,13 +313,13 @@ export default function GoogleMap({
           lng: coord.lng,
         }));
 
-        const spaceColor = colors[index % colors.length];
-        generatedColors.push(spaceColor);
+        // Use the color from routeColors based on the current index
+        const polylineColor = routeColors[index % routeColors.length];
 
         const polyline = new window.google.maps.Polyline({
           path: polylinePath,
           geodesic: true,
-          strokeColor: spaceColor,
+          strokeColor: polylineColor,
           strokeOpacity: 0.8,
           strokeWeight: 3,
         });
@@ -405,15 +342,7 @@ export default function GoogleMap({
       const bounds = calculateBounds(routeCoords);
       map.fitBounds(bounds);
     }
-
-    if (
-      generatedColors.length > 0 &&
-      JSON.stringify(routeColorsState) !== JSON.stringify(generatedColors)
-    ) {
-      setRouteColorsState(generatedColors);
-      memoizedRouteColors(generatedColors);
-    }
-  }, [routeFullCoords, map, memoizedRouteColors]);
+  }, [adjustedRouteCoords, map, routeColors]);
 
   // Center map on clickedNode when it changes
   useEffect(() => {

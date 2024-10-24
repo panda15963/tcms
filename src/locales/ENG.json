@@ -193,5 +193,15 @@
     "CourseList": "Course Lists",
     "NoDataFound": "Course Data aren't Searched.",
     "CourseName": "Course Name"
+  },
+  "HomeLogin": {
+    "ID": "ID",
+    "InputID": "Enter your ID",
+    "Password": "Password",
+    "InputPassword": "Enter your Password",
+    "AuthenticationMethod":"Select Authentication Method",
+    "InputOTP": "Enter the OTP Number",
+    "Login": "Login",
+    "ToMainPage": "Go to the Main Page"
   }
 }
