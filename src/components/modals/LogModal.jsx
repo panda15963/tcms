@@ -21,6 +21,7 @@ import ConfigGridL2 from '../tables/ConfigGridL2';
 import MainGrid2 from '../tables/MainGrid2';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
+import ConfigGridR2 from '../tables/ConfigGridR2';
 
 /**
  * 로그 검색
@@ -134,8 +135,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [filteredBottomOptions, setFilteredBottomOptions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedConfigIds, setSelectedConfigIds] = useState([]);
-  const [selectedLogList, setSelectedLogList] = useState([]);
-  const [selectedLogList2, setSelectedLogList2] = useState([]);
+  const [selectedLogList, setSelectedLogList] = useState(initialList);
+  const [selectedLogList2, setSelectedLogList2] = useState(initialList);
   const selectedConfigRowsRef = useRef([]); // useRef instead of useState
 
   useEffect(() => {
@@ -154,7 +155,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       setOpen(true);
     }
   }, []);
-  
+
   /**
    * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
    * useImperativeHandle을 사용하여 ref를 설정
@@ -645,8 +646,13 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   // Example function where list is expected to be an array
+
+  /*
+   * 로그검색 선택 이벤트
+   */
   const handleButtonClick = async () => {
-    // A recursive function to find the first array within the object
+    console.log('로그검색 경로 선택버튼 이벤트 입니다.');
+
     const findArray = (obj) => {
       if (Array.isArray(obj)) {
         return obj;
@@ -661,67 +667,220 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         }
       }
 
-      return null; // No array found
+      return null;
     };
 
-    // Find the array in the list object
     const arrayFromList = findArray(list);
 
+    console.log('arrayFromList', arrayFromList);
+    console.log('list', list);
+
     if (arrayFromList) {
-      // Extract file_ids from the found array
       const fileIds = arrayFromList.map((route) => route.file_id);
-
-      // Call SPACE_INTERPOLATION with the extracted fileIds
       const routeCoords = await SPACE_INTERPOLATION(fileIds);
-
-      // Pass the selected data to the parent component (or use it as needed)
       routeData(list);
       routeFullCoords(routeCoords);
     } else {
       console.error('No array found in list');
     }
 
-    // Close the modal
     setOpen(false);
 
-    // Reset search conditions, selected fields, and lists
-    setCond(initialCond); // Resetting the search conditions
-    setSelectedSearchFields([]); // Reset the selected search fields
-    setSelectedIds([]); // Reset the selected IDs for fields
-    setList(initialList); // Reset the list of search results
+    setCond(initialCond);
+    setSelectedSearchFields([]);
+    setSelectedSearchFieldsConfig([]);
+    setSelectedIds([]);
+    setList(initialList);
 
-    // Optionally reset other lists or selections if needed
-    setSelectedLogList([]);
-    setSelectedLogList2([]);
+    setConfigList(initialList);
+    setConfigList2(initialList);
+
+    setSelectedLogList(initialList);
+    setSelectedLogList2(initialList);
   };
 
+  /*
+   * 선택버튼 이벤트
+   */
   const handleConfigButtonClick = async () => {
-    console.log(selectedLogList);
-    // Extract file_ids from the found array
+    console.log(
+      'handleConfigButtonClick of selectedLogList ==>',
+      selectedLogList,
+    );
+
     const fileIds = selectedConfigRowsRef.current.map((route) => route.file_id);
+    console.log('handleConfigButtonClick of fileIds ==>', fileIds);
 
-    // Call SPACE_INTERPOLATION with the extracted fileIds
     const routeCoords = await SPACE_INTERPOLATION(fileIds);
-    console.log(routeCoords);
+    console.log('handleConfigButtonClick of routeCoords ==>', routeCoords);
 
-    // Pass the selected data to the parent component (or use it as needed)
     routeData(selectedConfigRowsRef.current);
     routeFullCoords(routeCoords);
 
-    // Close the modal
     setOpen(false);
 
-    // Optionally reset other lists or selections if needed
-    setCond(initialCond); // Resetting the search conditions
-    setSelectedSearchFields([]); // Reset the selected search fields
-    setSelectedIds([]); // Reset the selected IDs for fields
-    setList(initialList); // Reset the list of search results
+    setCond(initialCond);
+    setSelectedSearchFields([]);
+    setSelectedIds([]);
 
-    // Optionally reset other lists or selections if needed
-    setSelectedLogList([]);
-    setSelectedLogList2([]);
+    setList(initialList);
+    setList2(initialList);
+
+    setConfigList(initialList);
+    setConfigList2(initialList);
+
+    setSelectedLogList(initialList);
+    setSelectedLogList2(initialList);
+
+    setSelectedRouteCellData();
+    setSelectedConfigCellData();
+    setIsRouteModalOpen(false);
+    setIsConfigModalOpen(false);
   };
 
+  /*
+   * 로그검색 배치 선택 이벤트
+   */
+  const handleConfigBtnClick = async () => {
+    console.log('로그검색 배치 선택버튼 이벤트 입니다.');
+    console.log('handleConfigBtnClick of selectedLogList ==>', selectedLogList);
+
+    // selectedLogList에서 meta_id 추출하여 FIND_META_ID 호출
+    if (selectedLogList && selectedLogList.length > 0) {
+      // 각 selectedLogList에 대한 FIND_META_ID 호출을 동시에 처리
+      const resultList = await Promise.all(
+        selectedLogList.map(async (log) => {
+          const condTmp = {
+            meta_id: log.meta_id, // 각 log에서 meta_id 추출
+          };
+
+          // FIND_META_ID 실행하고 결과 반환
+          console.log('condTmp', condTmp);
+
+          const result = await FIND_META_ID(condTmp);
+          console.log('result', result);
+
+          return result; // result를 반환하여 리스트에 추가
+        }),
+      );
+
+      // resultList를 평탄화(flatten)하여 단일 배열로 변환
+      const flatResultList = resultList.flat();
+
+      console.log('FIND_META_ID 결과 리스트 ==>', resultList);
+      console.log(
+        'FIND_META_ID 결과 리스트 flatResultList ==>',
+        flatResultList,
+      );
+
+      handleConfigBtnClickConfirm(flatResultList);
+
+      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
+      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
+    } else {
+      console.log('선택된 로그가 없습니다.');
+    }
+  };
+
+  /*
+   * 로그검색 배치 더블클릭 선택 이벤트
+   */
+  const handleConfigBtn2Click = async () => {
+    console.log('로그검색 배치 선택버튼 이벤트 입니다.');
+    console.log('handleConfigBtnClick of selectedLogList ==>', selectedLogList);
+
+    // selectedLogList에서 meta_id 추출하여 FIND_META_ID 호출
+    if (selectedLogList2 && selectedLogList2.length > 0) {
+      // 각 selectedLogList에 대한 FIND_META_ID 호출을 동시에 처리
+      const resultList = await Promise.all(
+        selectedLogList.map(async (log) => {
+          const condTmp = {
+            meta_id: log.meta_id, // 각 log에서 meta_id 추출
+          };
+
+          // FIND_META_ID 실행하고 결과 반환
+          console.log('condTmp', condTmp);
+
+          const result = await FIND_META_ID(condTmp);
+          console.log('result', result);
+
+          return result; // result를 반환하여 리스트에 추가
+        }),
+      );
+
+      // resultList를 평탄화(flatten)하여 단일 배열로 변환
+      const flatResultList = resultList.flat();
+
+      console.log('FIND_META_ID 결과 리스트 ==>', resultList);
+      console.log(
+        'FIND_META_ID 결과 리스트 flatResultList ==>',
+        flatResultList,
+      );
+
+      handleConfigBtnClickConfirm(flatResultList);
+
+      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
+      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
+    } else {
+      console.log('선택된 로그가 없습니다.');
+    }
+  };
+
+  /*
+   * 로그검색 배치 선택 이벤트
+   */
+  const handleConfigBtnClickConfirm = async (confirmList) => {
+    console.log('confirmList', confirmList);
+
+    if (confirmList) {
+      const fileIds = confirmList.map((route) => route.file_id);
+      const routeCoords = await SPACE_INTERPOLATION(fileIds);
+      routeData(confirmList);
+      routeFullCoords(routeCoords);
+    } else {
+      console.error('No array found in list');
+    }
+
+    setOpen(false);
+
+    setConfigList([]);
+
+    setCond(initialCond);
+    setSelectedSearchFields([]);
+    setSelectedSearchFieldsConfig([]);
+    setSelectedIds([]);
+    setList(initialList);
+
+    setConfigList(initialList);
+    setConfigList2(initialList);
+
+    setSelectedLogList(initialList);
+    setSelectedLogList2(initialList);
+
+    setSelectedRouteCellData();
+    setSelectedConfigCellData();
+
+    setIsConfigModalOpen(false);
+  };
+
+  /**
+   * FIND META ID
+   */
+  const FIND_META_ID = async (inputCond) => {
+    try {
+      const res = await logService.FIND_META_ID({
+        cond: inputCond,
+      });
+
+      console.log('FIND_META_ID of res ==>', res.findMeta);
+
+      // res.findMeta 값을 반환하도록 수정
+      return res.findMeta;
+    } catch (e) {
+      console.log('FIND_META_ID of error ==>', e);
+      return null; // 오류가 발생하면 null을 반환하여 처리
+    }
+  };
   /**
    * Find Tccfg 클릭 이벤트
    */
@@ -764,19 +923,44 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }
   };
 
+  /**
+   * 로그검색 -> 배치탭 -> 선택 이벤트
+   * 배치탭에서 선택 하였을때 발생
+   * 셀렉트Row 의 로그리스트 들 배열로 생성
+   **/
   const handleLeftSelectionChange = (selectedRows) => {
     console.log('handleLeftSelectionChange of selectedRows ==>', selectedRows);
+
     if (selectedRows && selectedRows.length > 0) {
-      setSelectedLogList(selectedRows[0].loglist);
+      const combinedLogList = selectedRows.reduce((acc, row) => {
+        return acc.concat(row.loglist); // 각 row의 loglist를 배열에 합침
+      }, []);
+
+      console.log(
+        'handleLeftSelectionChange of combinedLogList ==>',
+        combinedLogList,
+      );
+
+      setSelectedLogList(combinedLogList); // 전체 합쳐진 loglist 설정
     }
   };
 
   const handleLeftCellClick = (rowData) => {
+    console.log('handleLeftCellClick of rowData ==>', rowData);
+
     setSelectedLogList(rowData.loglist); // 셀 클릭 시 loglist 설정
   };
 
+  /**
+   * 배치탭 -> 버전 모아보기 -> 선택 이벤트
+   * 체크할때 이벤트
+   */
   const handleLeftSelectionChange2 = (selectedRows) => {
-    console.log('handleLeftSelectionChange of selectedRows2 ==>', selectedRows);
+    console.log(
+      'handleLeftSelectionChange2 of selectedRows2 ==>',
+      selectedRows,
+    );
+
     if (selectedRows && selectedRows.length > 0) {
       setSelectedLogList2(selectedRows[0].loglist);
     }
@@ -814,9 +998,13 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setIsConfigModalOpen(false); // 모달 닫기
   };
 
-  // 경로 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
+  /*
+   * 경로 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
+   * 경로 모달 (더블클릭)
+   */
   const RouteModalComponent = ({ data, onClose }) => {
     console.log('RouteModalComponent of data ==>', data);
+    console.log('RouteModalComponent of onClose ==>', onClose);
 
     useEffect(() => {
       const fetchData = async () => {
@@ -826,8 +1014,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             const response = await nonAuthInstance.get(
               `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`,
             );
-            console.log('response', response);
-            console.log('response', response.data);
+            console.log('RouteModalComponent of response1', response);
+            console.log('RouteModalComponent of response2', response.data);
 
             setList2((prevState) => {
               const newList = response.data.findMeta;
@@ -847,12 +1035,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
     }, [data]);
 
-    // 작업중
+    /**
+     * 버전 모아보기 (경로탭)
+     */
     return (
       <Dialog open={true} onClose={onClose}>
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
-          <div className="bg-white p-4 rounded-md shadow-lg">
-            <div className="flex justify-between py-3 px-5 bg-blue_ncs">
+          <div className="bg-white p-1 rounded-md shadow-lg">
+            <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
               <h1 className="font-semibold text-white">
                 {t('LogModal.AllVersions')}
               </h1>
@@ -863,7 +1053,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 <MdClose className="text-white" size={16} />
               </button>
             </div>
-            <div className="flex flex-row justify-between space-x-4 my-4">
+            <div
+              className="flex flex-row justify-between space-x-4 my-4"
+              style={{ marginTop: '0px', marginBottom: '0px' }}
+            >
               {/* 메인2 그리드 */}
               <div className="flex-1 border border-gray-300 p-4">
                 <h2 className="text-center text-xl font-bold mb-2"></h2>
@@ -873,13 +1066,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 />
               </div>
             </div>
-            <div className="flex justify-end mt-3">
+            <div className="flex justify-end mt-1">
               <button
                 onClick={handleConfigButtonClick}
-                className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
                 <FaCheck className="h-5 w-5 text-sky-500" aria-hidden="true" />
                 <span className="text-base text-sky-500 font-bold">
+                  {/* 로그검색 -> 더블클릭 -> 선택 버튼 */}
                   {t('LogModal.Select')}
                 </span>
               </button>
@@ -938,11 +1132,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
     }, [data]);
 
+    /**
+     * 버전 모아보기 (배치탭)
+     */
     return (
       <Dialog open={true} onClose={onClose}>
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
-          <div className="bg-white p-4 rounded-md shadow-lg">
-            <div className="flex justify-between py-3 px-5 bg-blue_ncs">
+          <div className="bg-white p-1 rounded-md shadow-lg">
+            <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
               <h1 className="font-semibold text-white">
                 {t('LogModal.AllVersions')}
               </h1>
@@ -953,32 +1150,29 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 <MdClose className="text-white" size={16} />
               </button>
             </div>
-            <div className="flex flex-row justify-between space-x-4 my-4">
+            <div className="flex flex-row justify-between space-x-2 ">
               {/* 왼쪽 그리드 */}
-              <div className="flex-1 border border-gray-300 p-4">
-                <h2 className="text-center text-xl font-bold mb-2"></h2>
-                <ConfigGridL2
-                  list={configList2} // 왼쪽 그리드에 대한 데이터 리스트
-                  onSelectionChange={handleLeftSelectionChange2}
-                  onCellClick={handleLeftCellClick2} // 셀 클릭 시
-                />
-              </div>
+              <h2 className="text-center text-xl font-bold mb-2"></h2>
+
+              <ConfigGridL2
+                list={configList2} // 왼쪽 그리드에 대한 데이터 리스트
+                onSelectionChange={handleLeftSelectionChange2}
+                onCellClick={handleLeftCellClick2} // 셀 클릭 시
+              />
 
               {/* 오른쪽 그리드 */}
-              <div className="flex-1 border border-gray-300 p-4">
-                <h2 className="text-center text-xl font-bold mb-2"></h2>
-                <ConfigGridR
-                  list={selectedLogList2} // 오른쪽 그리드에 대한 데이터 리스트
-                  // onSelectionChange={
-                  //   (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
-                  // }
-                />
-              </div>
+              <h2 className="text-center text-xl font-bold mb-2"></h2>
+              <ConfigGridR2
+                list={selectedLogList2} // 오른쪽 그리드에 대한 데이터 리스트
+                // onSelectionChange={
+                //   (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
+                // }
+              />
             </div>
-            <div className="flex justify-end mt-3">
+            <div className="flex justify-end mt-1">
               <button
-                onClick={handleConfigButtonClick}
-                className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                onClick={handleConfigBtn2Click}
+                className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
                 <FaCheck className="h-5 w-5 text-sky-500" aria-hidden="true" />
                 <span className="text-base text-sky-500 font-bold">
@@ -995,9 +1189,21 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     );
   };
 
+  // 로그검색
   return (
     <Transition show={open}>
-      <Dialog onClose={() => setOpen(false)} className="relative z-50">
+      <Dialog
+        onClose={() => {
+          setList(initialList); // list 초기화
+          setList2(initialList);
+          setConfigList(initialList);
+          setConfigList2(initialList);
+          setSelectedLogList(initialList);
+          setSelectedLogList2(initialList);
+          setOpen(false); // 모달 닫기
+        }}
+        className="relative z-50"
+      >
         <Transition.Child
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -1020,49 +1226,69 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <DialogPanel
-                className="relative rounded-lg bg-white p-3 shadow-xl text-left transition-all sm:max-w-screen-xl"
+                className="relative rounded-lg bg-white shadow-xl text-left transition-all sm:max-w-screen-xl"
                 style={{ width: '1324px' }}
               >
-                <div className="flex justify-between py-3 px-5 bg-blue_ncs">
+                {/* 모달 헤더 */}
+                <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
                   <h1 className="font-semibold text-white">
                     {t('LogModal.ModalName')}
                   </h1>
                   <button
                     className="font-semibold"
-                    onClick={() => setOpen(false)}
+                    onClick={() => {
+                      setList(initialList);
+                      setList2(initialList);
+                      setConfigList(initialList);
+                      setConfigList2(initialList);
+                      setSelectedLogList(initialList);
+                      setSelectedLogList2(initialList);
+                      setOpen(false);
+                    }}
                   >
                     <MdClose className="text-white" size={16} />
                   </button>
                 </div>
 
                 {/* 탭 버튼 */}
-                <div className="mt-4 flex space-x-4">
+                <div className="m-2 flex space-x-2 ">
                   <button
-                    className={`px-4 py-2 font-semibold ${activeTab === 'route' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    className={`h-9 px-2 py-1 rounded-lg border transition duration-300 ease-in-out min-w-[120px] ${
+                      activeTab === 'route'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
+                    }`}
                     onClick={() => handleTabChange('route')}
                   >
+                    {/* 경로탭 버튼*/}
                     {t('LogModal.Route')}
                   </button>
                   <button
-                    className={`px-4 py-2 font-semibold ${activeTab === 'batch' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+                    className={`h-9 px-2 py-1 rounded-lg border transition duration-300 ease-in-out min-w-[120px] ${
+                      activeTab === 'batch'
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
+                    }`}
                     onClick={() => handleTabChange('batch')}
                   >
+                    {/* 배치탭 버튼*/}
                     {t('LogModal.Configuration')}
                   </button>
                 </div>
 
                 {/* 탭 내용 */}
-                <div className="mt-5">
+                <div className="mt-0">
+                  {/* 경로탭 */}
                   {activeTab === 'route' && (
-                    <div>
+                    <div className="mr-2 ml-2 mb-2">
                       <div
                         id="search_fieds"
                         className="flex items-center justify-start z-20"
                       >
-                        <span className="w-1/4 text-md font-semibold text-slate-700 text-left">
+                        <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
                           {/* 검색 필드 */}
                           {t('LogModal.SearchFields')}
-                        </span>
+                        </label>
                         <MultipleSelectDropDown
                           options={fields.map((field) => ({
                             ...field,
@@ -1071,7 +1297,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           onChange={(val) => setSelectedSearchFields(val)}
                         />
                       </div>
-                      <div className="flex flex-wrap mb-4 mt-4">
+                      <div className="flex flex-wrap mb-2 mt-0">
                         {!isEmpty(selectedSearchFields) &&
                           selectedSearchFields.map((field) => (
                             <div
@@ -1223,7 +1449,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       </div>
                       <div className="flex justify-end">
                         <button
-                          className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={onFindMeta}
                         >
                           <FaSearch
@@ -1231,6 +1457,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                             aria-hidden="true"
                           />
                           <span className="text-base text-sky-500 font-bold">
+                            {/* 로그검색 -> 검색 버튼 */}
                             {t('LogModal.Find')}
                           </span>
                         </button>
@@ -1256,30 +1483,28 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       <div className="flex justify-end mt-3">
                         <button
                           onClick={handleButtonClick}
-                          className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
                           <FaCheck
                             className="h-5 w-5 text-sky-500"
                             aria-hidden="true"
                           />
                           <span className="text-base text-sky-500 font-bold">
+                            {/* 경로탭 선택 버튼 */}
                             {t('LogModal.Select')}
                           </span>
                         </button>
                       </div>
                     </div>
                   )}
-
+                  {/* 배치탭 */}
                   {activeTab === 'batch' && (
-                    <div>
-                      <div
-                        id="search_fieds"
-                        className="flex items-center justify-start z-20"
-                      >
-                        <span className="w-1/4 text-md font-semibold text-slate-700 text-left">
+                    <div className="mr-2 ml-2 mb-2">
+                      <div id="search_fieds" className="flex items-center">
+                        <label className="w-1/4 text-sm font-semibold text-slate-700 px-2">
                           {/* 검색 필드 */}
                           {t('LogModal.SearchFields')}
-                        </span>
+                        </label>
                         <MultipleSelectDropDown
                           options={fieldsCinfiguration.map((field) => ({
                             ...field,
@@ -1288,7 +1513,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           onChange={(val) => setSelectedSearchFieldsConfig(val)}
                         />
                       </div>
-                      <div className="flex flex-wrap mb-4 mt-4">
+                      <div className="flex flex-wrap mb-2 mt-0">
                         {!isEmpty(selectedSearchFieldsConfig) &&
                           selectedSearchFieldsConfig.map((field) => (
                             <div
@@ -1397,7 +1622,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       </div>
                       <div className="flex justify-end">
                         <button
-                          className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={onFindTccfg}
                         >
                           <FaSearch
@@ -1405,6 +1630,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                             aria-hidden="true"
                           />
                           <span className="text-base text-sky-500 font-bold">
+                            {/* 배치탭 검색버튼 */}
                             {t('LogModal.Find')}
                           </span>
                         </button>
@@ -1412,20 +1638,17 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       {/* {loading && <p>로딩 중...</p>} */}
                       {error && <p className="text-red-500">{error}</p>}
                       {/* 그리드를 2개로 나누어 왼쪽과 오른쪽에 표시 */}
-                      <div className="flex flex-row justify-between space-x-4 my-4">
+                      <div className="flex flex-row justify-between space-x-2 ">
                         {/* 왼쪽 그리드 */}
-                        <div className="flex-1 border border-gray-300 p-4">
-                          <h2 className="text-center text-xl font-bold mb-2"></h2>
-                          <ConfigGridL
-                            list={configList} // 왼쪽 그리드에 대한 데이터 리스트
-                            onSelectionChange={
-                              // (selectedRows) => setLeftList(selectedRows) // 왼쪽 그리드에서 선택된 행 업데이트
-                              handleLeftSelectionChange
-                            }
-                            onCellClick={handleLeftCellClick} // 셀 클릭 시
-                            onCellDoubleClick={openConfigModal} // 더블클릭 이벤트 추가
-                          />
-                        </div>
+                        <ConfigGridL
+                          list={configList} // 왼쪽 그리드에 대한 데이터 리스트
+                          onSelectionChange={
+                            // (selectedRows) => setLeftList(selectedRows) // 왼쪽 그리드에서 선택된 행 업데이트
+                            handleLeftSelectionChange
+                          }
+                          onCellClick={handleLeftCellClick} // 셀 클릭 시
+                          onCellDoubleClick={openConfigModal} // 더블클릭 이벤트 추가
+                        />
 
                         {/* 모달 렌더링 */}
                         {isConfigModalOpen && (
@@ -1436,26 +1659,25 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                         )}
 
                         {/* 오른쪽 그리드 */}
-                        <div className="flex-1 border border-gray-300 p-4">
-                          <h2 className="text-center text-xl font-bold mb-2"></h2>
-                          <ConfigGridR
-                            list={selectedLogList} // 오른쪽 그리드에 대한 데이터 리스트
-                            onSelectionChange={
-                              (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
-                            }
-                          />
-                        </div>
+                        <h2 className="text-center text-xl font-bold mb-2 border"></h2>
+                        <ConfigGridR
+                          list={selectedLogList} // 오른쪽 그리드에 대한 데이터 리스트
+                          onSelectionChange={
+                            (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
+                          }
+                        />
                       </div>
-                      <div className="flex justify-end mt-3">
+                      <div className="flex justify-end mt-1">
                         <button
-                          onClick={handleConfigButtonClick}
-                          className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          onClick={handleConfigBtnClick}
+                          className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
                           <FaCheck
                             className="h-5 w-5 text-sky-500"
                             aria-hidden="true"
                           />
                           <span className="text-base text-sky-500 font-bold">
+                            {/* 배치탭 선택 버튼 */}
                             {t('LogModal.Select')}
                           </span>
                         </button>
