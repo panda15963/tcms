@@ -134,8 +134,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [filteredBottomOptions, setFilteredBottomOptions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedConfigIds, setSelectedConfigIds] = useState([]);
-  const [selectedLogList, setSelectedLogList] = useState([]);
-  const [selectedLogList2, setSelectedLogList2] = useState([]);
+  const [selectedLogList, setSelectedLogList] = useState(initialList);
+  const [selectedLogList2, setSelectedLogList2] = useState(initialList);
   const selectedConfigRowsRef = useRef([]); // useRef instead of useState
 
   useEffect(() => {
@@ -671,6 +671,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
     const arrayFromList = findArray(list);
 
+    console.log('arrayFromList', arrayFromList);
+    console.log('list', list);
+
     if (arrayFromList) {
       const fileIds = arrayFromList.map((route) => route.file_id);
       const routeCoords = await SPACE_INTERPOLATION(fileIds);
@@ -682,13 +685,17 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
     setOpen(false);
 
-    setCond(initialCond); // Resetting the search conditions
-    setSelectedSearchFields([]); // Reset the selected search fields
-    setSelectedIds([]); // Reset the selected IDs for fields
-    setList(initialList); // Reset the list of search results
+    setCond(initialCond);
+    setSelectedSearchFields([]);
+    setSelectedSearchFieldsConfig([]);
+    setSelectedIds([]);
+    setList(initialList);
 
-    setSelectedLogList([]);
-    setSelectedLogList2([]);
+    setConfigList(initialList);
+    setConfigList2(initialList);
+
+    setSelectedLogList(initialList);
+    setSelectedLogList2(initialList);
   };
 
   /*
@@ -718,11 +725,16 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setList(initialList);
     setList2(initialList);
 
-    setSelectedLogList([]);
-    setSelectedLogList2([]);
+    setConfigList(initialList);
+    setConfigList2(initialList);
+
+    setSelectedLogList(initialList);
+    setSelectedLogList2(initialList);
 
     setSelectedRouteCellData();
+    setSelectedConfigCellData();
     setIsRouteModalOpen(false);
+    setIsConfigModalOpen(false);
   };
 
   /*
@@ -760,11 +772,94 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         flatResultList,
       );
 
+      handleConfigBtnClickConfirm(flatResultList);
+
       // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
       // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
     } else {
       console.log('선택된 로그가 없습니다.');
     }
+  };
+
+  /*
+   * 로그검색 배치 더블클릭 선택 이벤트
+   */
+  const handleConfigBtn2Click = async () => {
+    console.log('로그검색 배치 선택버튼 이벤트 입니다.');
+    console.log('handleConfigBtnClick of selectedLogList ==>', selectedLogList);
+
+    // selectedLogList에서 meta_id 추출하여 FIND_META_ID 호출
+    if (selectedLogList2 && selectedLogList2.length > 0) {
+      // 각 selectedLogList에 대한 FIND_META_ID 호출을 동시에 처리
+      const resultList = await Promise.all(
+        selectedLogList.map(async (log) => {
+          const condTmp = {
+            meta_id: log.meta_id, // 각 log에서 meta_id 추출
+          };
+
+          // FIND_META_ID 실행하고 결과 반환
+          console.log('condTmp', condTmp);
+
+          const result = await FIND_META_ID(condTmp);
+          console.log('result', result);
+
+          return result; // result를 반환하여 리스트에 추가
+        }),
+      );
+
+      // resultList를 평탄화(flatten)하여 단일 배열로 변환
+      const flatResultList = resultList.flat();
+
+      console.log('FIND_META_ID 결과 리스트 ==>', resultList);
+      console.log(
+        'FIND_META_ID 결과 리스트 flatResultList ==>',
+        flatResultList,
+      );
+
+      handleConfigBtnClickConfirm(flatResultList);
+
+      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
+      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
+    } else {
+      console.log('선택된 로그가 없습니다.');
+    }
+  };
+
+  /*
+   * 로그검색 배치 선택 이벤트
+   */
+  const handleConfigBtnClickConfirm = async (confirmList) => {
+    console.log('confirmList', confirmList);
+
+    if (confirmList) {
+      const fileIds = confirmList.map((route) => route.file_id);
+      const routeCoords = await SPACE_INTERPOLATION(fileIds);
+      routeData(confirmList);
+      routeFullCoords(routeCoords);
+    } else {
+      console.error('No array found in list');
+    }
+
+    setOpen(false);
+
+    setConfigList([]);
+
+    setCond(initialCond);
+    setSelectedSearchFields([]);
+    setSelectedSearchFieldsConfig([]);
+    setSelectedIds([]);
+    setList(initialList);
+
+    setConfigList(initialList);
+    setConfigList2(initialList);
+
+    setSelectedLogList(initialList);
+    setSelectedLogList2(initialList);
+
+    setSelectedRouteCellData();
+    setSelectedConfigCellData();
+
+    setIsConfigModalOpen(false);
   };
 
   /**
@@ -855,11 +950,16 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setSelectedLogList(rowData.loglist); // 셀 클릭 시 loglist 설정
   };
 
+  /**
+   * 배치탭 -> 버전 모아보기 -> 선택 이벤트
+   * 체크할때 이벤트
+   */
   const handleLeftSelectionChange2 = (selectedRows) => {
     console.log(
       'handleLeftSelectionChange2 of selectedRows2 ==>',
       selectedRows,
     );
+
     if (selectedRows && selectedRows.length > 0) {
       setSelectedLogList2(selectedRows[0].loglist);
     }
@@ -1069,7 +1169,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             </div>
             <div className="flex justify-end mt-3">
               <button
-                onClick={handleConfigButtonClick}
+                onClick={handleConfigBtn2Click}
                 className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
                 <FaCheck className="h-5 w-5 text-sky-500" aria-hidden="true" />
@@ -1094,6 +1194,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         onClose={() => {
           setList(initialList); // list 초기화
           setList2(initialList);
+          setConfigList(initialList);
+          setConfigList2(initialList);
+          setSelectedLogList(initialList);
+          setSelectedLogList2(initialList);
           setOpen(false); // 모달 닫기
         }}
         className="relative z-50"
@@ -1131,9 +1235,13 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                   <button
                     className="font-semibold"
                     onClick={() => {
-                      setOpen(false);
                       setList(initialList);
                       setList2(initialList);
+                      setConfigList(initialList);
+                      setConfigList2(initialList);
+                      setSelectedLogList(initialList);
+                      setSelectedLogList2(initialList);
+                      setOpen(false);
                     }}
                   >
                     <MdClose className="text-white" size={16} />
