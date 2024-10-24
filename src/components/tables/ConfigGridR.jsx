@@ -10,16 +10,45 @@ import { useTranslation } from 'react-i18next';
 // 테이블의 기본 컬럼 정의
 const defaultColumns = (t) => [
   {
+    // CFG 이름
     accessorKey: 'tccfg_name',
     header: t('ConfigGridR.CFG_name'),
+    // cell: ({ getValue }) => getValue(),
+    // // 스타일을 추가해 헤더가 한 줄로 나오게 설정
+    // header: ({ column }) => (
+    //   <div
+    //     style={{
+    //       whiteSpace: 'pre-wrap', // 텍스트가 줄바꿈 없이 한 줄로 유지되도록 설정
+    //       width: '30px', // 헤더 셀의 너비를 넓혀서 한 줄에 맞도록 설정
+    //     }}
+    //   >
+    //     {t('ConfigGridR.CFG_name')}
+    //   </div>
+    // ),
   },
   {
+    // 범주
     accessorKey: 'category',
     header: t('ConfigGridR.Category'),
   },
   {
+    // 내용
     accessorKey: 'file_name',
     header: t('ConfigGridR.Contents'),
+    cell: ({ getValue }) => {
+      const fullText = getValue();
+      const maxLength = 34; // 표시할 최대 문자 수
+      const shortText =
+        fullText.length > maxLength
+          ? fullText.slice(0, maxLength) + '...'
+          : fullText;
+
+      return (
+        <span title={fullText} className="cursor-pointer">
+          {shortText}
+        </span>
+      );
+    },
   },
 ];
 
@@ -89,7 +118,10 @@ const ConfigGridR = ({ list, onSelectionChange }) => {
 
   return (
     // <div className="my-2 h-96 block overflow-x-auto">
-    <div className="my-2 h-[400px] w-[580px] block overflow-x-auto">
+    <div
+      class="my-2 h-[400px] w-[510px] block overflow-x-auto"
+      style={{ marginLeft: '0px' }}
+    >
       <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
         <thead className="bg-gray-50 border-2 sticky top-0 ">
           {table.getHeaderGroups().map((headerGroup) => (
