@@ -34,7 +34,7 @@ const defaultColumns = (t) => [
       const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
 
       return (
-        <span title={fullDate} className="cursor-pointer">
+        <span title={fullDate} className="cursor-pointer text-xs">
           {shortDate}
         </span>
       );
@@ -52,7 +52,7 @@ const defaultColumns = (t) => [
           : fullText;
 
       return (
-        <span title={fullText} className="cursor-pointer">
+        <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
         </span>
       );
@@ -61,17 +61,23 @@ const defaultColumns = (t) => [
   {
     accessorKey: 'version_id',
     header: t('MainGrid.Version'),
+    cell: ({ getValue }) => <span className="text-xs">{getValue()}</span>,
   },
   {
     accessorKey: 'country_str',
     header: t('MainGrid.Country'),
+    cell: ({ getValue }) => <span className="text-xs">{getValue()}</span>,
   },
   {
     accessorKey: 'b_virtual',
     header: t('MainGrid.LogType'),
     cell: ({ getValue }) => {
       const value = getValue();
-      return value === 0 ? 'Virtual Log' : 'Real Log';
+      return (
+        <span className="text-xs">
+          {value === 0 ? 'Virtual Log' : 'Real Log'}
+        </span>
+      );
     },
   },
   {
@@ -86,7 +92,7 @@ const defaultColumns = (t) => [
           : fullText;
 
       return (
-        <span title={fullText} className="cursor-pointer">
+        <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
         </span>
       );
@@ -128,22 +134,25 @@ const defaultColumns = (t) => [
       return imagePath ? (
         <>
           <img
-            // src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
             src={`${baseURL}${adjustedImagePath}`}
             style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
-            onClick={() => setShowModal(true)} // 이미지 클릭 시 모달 표시
+            onClick={() => setShowModal(true)}
           />
           {showModal && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white p-4">
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white p-4 max-w-full max-h-full overflow-auto">
                 <img
-                  // src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
                   src={`${baseURL}${adjustedImagePath}`}
-                  style={{ width: '900px', height: 'auto' }}
+                  style={{
+                    maxWidth: '55vw', // 화면 너비의 90%로 제한
+                    maxHeight: '55vh', // 화면 높이의 90%로 제한
+                    width: 'auto',
+                    height: 'auto',
+                  }}
                 />
                 <button
                   className="mt-2 px-4 py-2 bg-blue-500 text-white"
-                  onClick={() => setShowModal(false)} // 닫기 버튼
+                  onClick={() => setShowModal(false)}
                 >
                   Close
                 </button>
@@ -240,7 +249,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-3 py-2 border-2 text-center text-sm font-bold text-black uppercase tracking-wider text-nowrap"
+                  className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider text-nowrap"
                 >
                   {/* 헤더 렌더링 */}
                   {header.isPlaceholder

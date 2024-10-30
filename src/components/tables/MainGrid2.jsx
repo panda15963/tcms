@@ -96,16 +96,20 @@ const defaultColumns = (t) => [
             onClick={() => setShowModal(true)} // 이미지 클릭 시 모달 표시
           />
           {showModal && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white p-4">
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white p-4 max-w-full max-h-full overflow-auto">
                 <img
-                  // src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
                   src={`${baseURL}${adjustedImagePath}`}
-                  style={{ width: '900px', height: 'auto' }}
+                  style={{
+                    maxWidth: '55vw', // 화면 너비의 90%로 제한
+                    maxHeight: '55vh', // 화면 높이의 90%로 제한
+                    width: 'auto',
+                    height: 'auto',
+                  }}
                 />
                 <button
                   className="mt-2 px-4 py-2 bg-blue-500 text-white"
-                  onClick={() => setShowModal(false)} // 닫기 버튼
+                  onClick={() => setShowModal(false)}
                 >
                   Close
                 </button>

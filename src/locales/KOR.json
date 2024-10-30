@@ -45,7 +45,7 @@
   "LogModal": {
     "ModalName": "로그 검색",
     "Route": "경로",
-    "Configuration": "배치",
+    "Configuration": "화면정보",
     "SearchFields": "검색 필드",
     "Find": "검색",
     "DownloadDir": "다운로드 경로",
