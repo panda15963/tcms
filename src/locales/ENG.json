@@ -135,13 +135,13 @@
   },
   "SpaceTable": {
     "UploadDate": "Upload Date",
-    "Name": "No Results found",
-    "Version": "No Spaces found",
-    "Country": "One Space found",
+    "Name": "Name",
+    "Version": "Version",
+    "Country": "Country",
     "CreatedDate": "Created Date",
     "Priority": "Priority",
     "Feature": "Feature",
-    "LogType": "LogType",
+    "LogType": "Log Type",
     "Target": "Target",
     "Summary": "Summary",
     "NoResults": "No Results found"
