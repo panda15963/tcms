@@ -28,7 +28,16 @@ const defaultColumns = (t) => [
   },
   {
     accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
-    header: t('MainGrid.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
+    header: () => (
+      <div
+        className="text-xs"
+        style={{
+          whiteSpace: 'nowrap', // 텍스트 줄바꿈 방지
+        }}
+      >
+        {t('MainGrid.UploadedDate')}
+      </div>
+    ),
     cell: ({ getValue }) => {
       const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
       const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
@@ -151,7 +160,7 @@ const defaultColumns = (t) => [
                   }}
                 />
                 <button
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white"
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                   onClick={() => setShowModal(false)}
                 >
                   Close
@@ -273,7 +282,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
-                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-sm text-black"
+                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
                 >
                   {/* 셀 렌더링 */}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

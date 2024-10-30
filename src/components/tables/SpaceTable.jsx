@@ -140,7 +140,7 @@ const SpaceTableHeaderList = (t) => [
                   }}
                 />
                 <button
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white"
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
                   onClick={() => setShowModal(false)}
                 >
                   Close
@@ -221,7 +221,7 @@ const SpaceTable = ({ list, onSelectionChange }) => {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-3 py-2 border-2 text-center text-sm font-bold text-black uppercase tracking-wider"
+                  className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider"
                   style={{ whiteSpace: 'nowrap' }}
                 >
                   {header.isPlaceholder
@@ -256,7 +256,7 @@ const SpaceTable = ({ list, onSelectionChange }) => {
                 {row.getVisibleCells().map((cell) => (
                   <td
                     key={cell.id}
-                    className="px-3 py-2 whitespace-nowrap text-center border-2 text-sm text-black"
+                    className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>

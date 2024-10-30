@@ -202,7 +202,7 @@ const ConfigGridL2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-3 py-2 border-2 text-center text-sm font-bold text-black uppercase tracking-wider"
+                  className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider"
                 >
                   {/* 헤더 렌더링 */}
                   {header.isPlaceholder
@@ -227,7 +227,7 @@ const ConfigGridL2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
-                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-sm text-black"
+                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
                 >
                   {/* 셀 렌더링 */}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

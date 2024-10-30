@@ -1063,7 +1063,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
           <div className="bg-white p-1 rounded-md shadow-lg">
             <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
-              <h1 className="font-semibold text-white">
+              <h1 className="text-sm font-semibold text-white">
+                {/* 버전 모아보기 */}
                 {t('LogModal.AllVersions')}
               </h1>
               <button

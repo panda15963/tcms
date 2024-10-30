@@ -29,13 +29,22 @@ const defaultColumns = (t) => [
   {
     // 업로드 된 날짜
     accessorKey: 'modif_date', // 데이터를 가져올 키 (데이터의 속성 이름)
-    header: t('ConfigGridL.UploadedDate'), // 컬럼 헤더에 표시될 텍스트?
+    header: () => (
+      <div
+        className="text-xs"
+        style={{
+          whiteSpace: 'nowrap', // 텍스트 줄바꿈 방지
+        }}
+      >
+        {t('ConfigGridL.UploadedDate')}
+      </div>
+    ),
     cell: ({ getValue }) => {
-      const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
+      const fullDate = getValue(); // "2024-10-20 23:12:11" 형식의 데이터
       const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
 
       return (
-        <span title={fullDate} className="cursor-pointer text-sm">
+        <span title={fullDate} className="cursor-pointer text-xs">
           {shortDate}
         </span>
       );
@@ -54,7 +63,7 @@ const defaultColumns = (t) => [
           : fullText;
 
       return (
-        <span title={fullText} className="cursor-pointer">
+        <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
         </span>
       );
@@ -73,7 +82,7 @@ const defaultColumns = (t) => [
           : fullText;
 
       return (
-        <span title={fullText} className="cursor-pointer">
+        <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
         </span>
       );
@@ -92,7 +101,7 @@ const defaultColumns = (t) => [
           : fullText;
 
       return (
-        <span title={fullText} className="cursor-pointer">
+        <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
         </span>
       );
@@ -106,6 +115,7 @@ const defaultColumns = (t) => [
     // 스타일을 추가해 헤더가 한 줄로 나오게 설정
     header: ({ column }) => (
       <div
+        className="text-xs"
         style={{
           whiteSpace: 'nowrap', // 텍스트가 줄바꿈 없이 한 줄로 유지되도록 설정
           width: '25px', // 헤더 셀의 너비를 넓혀서 한 줄에 맞도록 설정
@@ -128,7 +138,7 @@ const defaultColumns = (t) => [
           : fullText;
 
       return (
-        <span title={fullText} className="cursor-pointer">
+        <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
         </span>
       );
@@ -147,7 +157,7 @@ const defaultColumns = (t) => [
           : fullText;
 
       return (
-        <span title={fullText} className="cursor-pointer">
+        <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
         </span>
       );
@@ -246,7 +256,7 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-3 py-2 border-2 text-center text-sm font-bold text-black uppercase tracking-wider"
+                  className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider"
                 >
                   {/* 헤더 렌더링 */}
                   {header.isPlaceholder
@@ -271,7 +281,7 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
-                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-sm text-black"
+                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
                 >
                   {/* 셀 렌더링 */}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

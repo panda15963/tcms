@@ -232,7 +232,8 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
                 style={{ width: '1324px' }}
               >
                 <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
-                  <h1 className="font-semibold text-white">
+                  <h1 className="text-sm font-semibold text-white">
+                    {/* 공간 검색 */}
                     {t('SpaceModal.ModalSearch')}
                   </h1>
                   <button
@@ -246,7 +247,8 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
                 {/* Modal Content */}
                 <div className="p-2 mt-2">
                   <div className="flex justify-center items-center gap-4 mb-4">
-                    <label className="text-sm font-semibold">
+                    <label className="text-xs font-semibold">
+                      {/* 위도 */}
                       {t('SpaceModal.Lat')}:
                     </label>
                     <div className="flex flex-col">
@@ -263,7 +265,8 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
                         )}
                       />
                     </div>
-                    <label className="text-sm font-semibold">
+                    <label className="text-xs font-semibold">
+                      {/* 경도 */}
                       {t('SpaceModal.Lon')}:
                     </label>
                     <div className="flex flex-col">
@@ -295,13 +298,15 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
                       onChange={handleTextChange}
                       placeholder="100"
                     />
-                    <label className="text-sm font-semibold">
+                    <label className="text-xs font-semibold">
+                      {/* 미터 */}
                       {t('SpaceModal.Meters')}
                     </label>
                     <button
-                      className="ml-2 px-3 py-1 bg-blue-500 text-white rounded"
+                      className="text-base ml-2 px-3 py-1 bg-blue-500 text-white rounded"
                       onClick={handleFindClick}
                     >
+                      {/* 찾기 */}
                       {t('SpaceModal.Find')}
                     </button>
                   </div>
@@ -311,10 +316,10 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
                   <div className="flex justify-end mt-3">
                     <button
                       onClick={handleButtonClick}
-                      className="inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                      className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                     >
                       <FaCheck
-                        className="h-5 w-5 text-sky-500"
+                        className="h-4 w-5 text-sky-500"
                         aria-hidden="true"
                       />
                       <span className="text-base text-sky-500 font-bold">

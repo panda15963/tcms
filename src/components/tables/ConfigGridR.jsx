@@ -13,6 +13,7 @@ const defaultColumns = (t) => [
     // CFG 이름
     accessorKey: 'tccfg_name',
     header: t('ConfigGridR.CFG_name'),
+    cell: ({ getValue }) => <span className="text-xs">{getValue()}</span>,
     // cell: ({ getValue }) => getValue(),
     // // 스타일을 추가해 헤더가 한 줄로 나오게 설정
     // header: ({ column }) => (
@@ -30,6 +31,7 @@ const defaultColumns = (t) => [
     // 범주
     accessorKey: 'category',
     header: t('ConfigGridR.Category'),
+    cell: ({ getValue }) => <span className="text-xs">{getValue()}</span>,
   },
   {
     // 내용
@@ -44,7 +46,7 @@ const defaultColumns = (t) => [
           : fullText;
 
       return (
-        <span title={fullText} className="cursor-pointer">
+        <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
         </span>
       );
@@ -129,7 +131,7 @@ const ConfigGridR = ({ list, onSelectionChange }) => {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-3 py-2 border-2 text-center text-sm font-bold text-black uppercase tracking-wider"
+                  className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider"
                 >
                   {/* 헤더 렌더링 */}
                   {header.isPlaceholder
@@ -149,7 +151,7 @@ const ConfigGridR = ({ list, onSelectionChange }) => {
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
-                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-sm text-black"
+                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
                 >
                   {/* 셀 렌더링 */}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
