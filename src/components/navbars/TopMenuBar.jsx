@@ -48,7 +48,7 @@ const TopMenuBar = ({
   const [country, setCountry] = useState(null);
   const [routeFullCoords, setRouteFullCoords] = useState(null);
   const [spaceFullCoords, setSpaceFullCoords] = useState(null);
-  
+
   const storeModalRef = useRef();
   const logModalRef = useRef();
   const spaceModalRef = useRef();
@@ -111,7 +111,16 @@ const TopMenuBar = ({
     }
     setRouteFullCoords(null);
   }, [selectedAPI, setCurrentApi]);
+<<<<<<< HEAD
   
+=======
+
+  const handleRouteColors = (colors) => {
+    console.log(colors);
+    routeColors(colors);
+  };
+
+>>>>>>> master
   const handleChoosingMapAPIs = () => {
     if (selectedAPI?.name === 'GOOGLE') {
       return (
@@ -481,9 +490,9 @@ const TopMenuBar = ({
         {({ open }) => (
           <>
             <div className="mx-auto inset-x-0">
-              <div className="flex h-16 justify-between">
+              <div className="flex h-14 justify-between">
                 <div className="flex items-center lg:px-0">
-                  <div className="hidden lg:ml-6 lg:block">
+                  <div className="hidden lg:ml-5 lg:block">
                     <div className="flex">
                       <label className="px-3 py-2 text-sm font-bold text-white">
                         {/* 지도 선택 */}
@@ -563,7 +572,11 @@ const TopMenuBar = ({
                           />
                         </button>
                       </div>
-                      <SpaceModal ref={spaceModalRef} spaceFullCoords={setSpaceFullCoords} selectedLists={handleSpaceData} />
+                      <SpaceModal
+                        ref={spaceModalRef}
+                        spaceFullCoords={setSpaceFullCoords}
+                        selectedLists={handleSpaceData}
+                      />
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
                         {/* 입력 좌표 출력 */}
                         {t('TopMenuBar.CoordsOutput')}

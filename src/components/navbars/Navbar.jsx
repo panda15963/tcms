@@ -91,14 +91,19 @@ const NavBar = () => {
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-12 text-center">
-          <Link to="/main/map" className="text-lg font-semibold">
+          <Link
+            to="/main/map"
+            className="text-sm font-semibold flex items-center"
+          >
+            {/* 지도 */}
             {t('Common.Map')}
           </Link>
           <Menu
             as="div"
             className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
           >
-            <MenuButton className="text-lg font-semibold">
+            <MenuButton className="text-sm font-semibold">
+              {/* 통계 */}
               {t('NavBar.Dashboard')} <FaAngleDown className="inline" />
             </MenuButton>
             <Transition
@@ -130,7 +135,8 @@ const NavBar = () => {
             as="div"
             className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
           >
-            <MenuButton className="text-lg font-semibold">
+            <MenuButton className="text-sm font-semibold">
+              {/* 관리 */}
               {t('NavBar.Management')} <FaAngleDown className="inline" />
             </MenuButton>
             <Transition

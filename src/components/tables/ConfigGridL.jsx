@@ -35,7 +35,7 @@ const defaultColumns = (t) => [
       const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
 
       return (
-        <span title={fullDate} className="cursor-pointer">
+        <span title={fullDate} className="cursor-pointer text-sm">
           {shortDate}
         </span>
       );

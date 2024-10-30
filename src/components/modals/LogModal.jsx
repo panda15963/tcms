@@ -212,6 +212,26 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   }, [selectedSearchFieldsConfig]);
 
   /**
+   * ESC키 이벤트
+   */
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // ESC 키(키 코드 27)를 무시하도록 설정
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+      }
+    };
+
+    // keydown 이벤트 리스너 추가
+    document.addEventListener('keydown', handleKeyDown);
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  /**
    * Find 클릭 이벤트
    */
   const onFindMeta = async () => {
@@ -1071,8 +1091,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 onClick={handleConfigButtonClick}
                 className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
-                <FaCheck className="h-5 w-5 text-sky-500" aria-hidden="true" />
-                <span className="text-base text-sky-500 font-bold">
+                <FaCheck className="h-4 w-5 text-sky-500" aria-hidden="true" />
+                <span className="text-sm text-sky-500 font-bold">
                   {/* 로그검색 -> 더블클릭 -> 선택 버튼 */}
                   {t('LogModal.Select')}
                 </span>
@@ -1174,8 +1194,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 onClick={handleConfigBtn2Click}
                 className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
-                <FaCheck className="h-5 w-5 text-sky-500" aria-hidden="true" />
-                <span className="text-base text-sky-500 font-bold">
+                <FaCheck className="h-4 w-5 text-sky-500" aria-hidden="true" />
+                <span className="text-sm text-sky-500 font-bold">
                   {t('LogModal.Select')}
                 </span>
               </button>
@@ -1189,7 +1209,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     );
   };
 
-  // 로그검색
   return (
     <Transition show={open}>
       <Dialog
@@ -1231,7 +1250,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               >
                 {/* 모달 헤더 */}
                 <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
-                  <h1 className="font-semibold text-white">
+                  <h1 className="text-sm font-semibold text-white">
+                    {/* 로그 검색 */}
                     {t('LogModal.ModalName')}
                   </h1>
                   <button
@@ -1253,7 +1273,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 {/* 탭 버튼 */}
                 <div className="m-2 flex space-x-2 ">
                   <button
-                    className={`h-9 px-2 py-1 rounded-lg border transition duration-300 ease-in-out min-w-[120px] ${
+                    className={`h-8 px-2 py-1 text-sm rounded-lg border transition duration-300 ease-in-out min-w-[80px] ${
                       activeTab === 'route'
                         ? 'bg-blue-600 text-white border-blue-600'
                         : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
@@ -1264,7 +1284,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                     {t('LogModal.Route')}
                   </button>
                   <button
-                    className={`h-9 px-2 py-1 rounded-lg border transition duration-300 ease-in-out min-w-[120px] ${
+                    className={`h-8 px-2 py-1 text-sm rounded-lg border transition duration-300 ease-in-out min-w-[80px] ${
                       activeTab === 'batch'
                         ? 'bg-blue-600 text-white border-blue-600'
                         : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
@@ -1449,14 +1469,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       </div>
                       <div className="flex justify-end">
                         <button
-                          className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={onFindMeta}
                         >
                           <FaSearch
-                            className="h-5 w-5 text-sky-500"
+                            className="h-4 w-5 text-sky-500"
                             aria-hidden="true"
                           />
-                          <span className="text-base text-sky-500 font-bold">
+                          <span className="text-sm text-sky-500 font-bold">
                             {/* 로그검색 -> 검색 버튼 */}
                             {t('LogModal.Find')}
                           </span>
@@ -1483,13 +1503,13 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       <div className="flex justify-end mt-3">
                         <button
                           onClick={handleButtonClick}
-                          className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
                           <FaCheck
-                            className="h-5 w-5 text-sky-500"
+                            className="h-4 w-5 text-sky-500"
                             aria-hidden="true"
                           />
-                          <span className="text-base text-sky-500 font-bold">
+                          <span className="text-sm text-sky-500 font-bold">
                             {/* 경로탭 선택 버튼 */}
                             {t('LogModal.Select')}
                           </span>
@@ -1622,14 +1642,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       </div>
                       <div className="flex justify-end">
                         <button
-                          className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={onFindTccfg}
                         >
                           <FaSearch
-                            className="h-5 w-5 text-sky-500"
+                            className="h-4 w-5 text-sky-500"
                             aria-hidden="true"
                           />
-                          <span className="text-base text-sky-500 font-bold">
+                          <span className="text-sm text-sky-500 font-bold">
                             {/* 배치탭 검색버튼 */}
                             {t('LogModal.Find')}
                           </span>
@@ -1670,13 +1690,13 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       <div className="flex justify-end mt-1">
                         <button
                           onClick={handleConfigBtnClick}
-                          className="h-10 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
                           <FaCheck
-                            className="h-5 w-5 text-sky-500"
+                            className="h-4 w-5 text-sky-500"
                             aria-hidden="true"
                           />
-                          <span className="text-base text-sky-500 font-bold">
+                          <span className="text-sm text-sky-500 font-bold">
                             {/* 배치탭 선택 버튼 */}
                             {t('LogModal.Select')}
                           </span>
