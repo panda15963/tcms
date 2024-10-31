@@ -486,7 +486,7 @@ const TopMenuBar = ({
         {({ open }) => (
           <>
             <div className="mx-auto inset-x-0">
-              <div className="flex h-14 justify-between">
+              <div className="flex h-[52px] justify-between">
                 <div className="flex items-center lg:px-0">
                   <div className="hidden lg:ml-5 lg:block">
                     <div className="flex">
@@ -631,6 +631,7 @@ const TopMenuBar = ({
                           className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                           onClick={handleSearch}
                         >
+                          {/* 조회 */}
                           {t('Common.Search')}
                         </button>
                       </div>
@@ -640,6 +641,7 @@ const TopMenuBar = ({
                           className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                           onClick={handleCopy}
                         >
+                          {/* 복사 */}
                           {t('TopMenuBar.CopyButton')}
                         </button>
                       </div>
