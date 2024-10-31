@@ -5,6 +5,7 @@ import { FaCheck } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import SpaceTable from '../tables/SpaceTable';
 import logService from '../../service/logService';
+import MapComponent from '../mapAssist/MapComponent';
 
 // Helper function to round to 5 decimal places
 const roundToFive = (value) => {
@@ -24,6 +25,12 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
   const [rangeValue, setRangeValue] = useState(100); // Initialize rangeValue state
   const [list, setList] = useState([]); // Initialize list state
   const [checkedLists, setCheckedLists] = useState([]);
+
+  const [radius, setRadius] = useState(1000); // 기본 반경 1000m 설정
+
+  const handleRadiusChange = (e) => {
+    setRadius(Number(e.target.value)); // 슬라이더 값으로 반경 업데이트
+  };
 
   // Use useImperativeHandle to allow parent component to call show() to open the modal
   useImperativeHandle(ref, () => ({
@@ -309,6 +316,21 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
                       {/* 찾기 */}
                       {t('SpaceModal.Find')}
                     </button>
+                  </div>
+
+                  <div className="pb-2">
+                    {/* <h2>서울 지도 반경 조절</h2> */}
+                    {/* <input
+                      type="range"
+                      min="100" // 최소값 설정
+                      max="5000" // 최대값 설정
+                      value={rangeValue}
+                      onChange={handleRadiusChange}
+                      className="w-full"
+                    /> */}
+                    {/* <p>반경: {rangeValue}m</p> */}
+
+                    <MapComponent radius={rangeValue} />
                   </div>
 
                   {/* Table Section */}

@@ -1,6 +1,8 @@
 node_modules
 .env
 
+package-lock.json
+
 ## 폴더 무시
 build/
-.package-lock.json
+
