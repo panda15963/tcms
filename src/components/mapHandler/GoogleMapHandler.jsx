@@ -31,10 +31,6 @@ export default function GoogleMapHandler({
     checkedFileIds.includes(space.file_id),
   );
 
-  const handleChangeColors = (colors) => {
-    routeColors(colors);
-  };
-
   return (
     <>
       {isError && <Error errorMessage={errorText} />}
@@ -46,7 +42,7 @@ export default function GoogleMapHandler({
           routeFullCoords={filteredRoutes} // Pass only filtered routes
           clickedNode={clickedNode}
           error={handleError}
-          routeColors={handleChangeColors}
+          routeColors={routeColors}
           spaceFullCoords={filteredSpaces}
         />
       ) : selectedCoords && googleLocation ? (
@@ -55,7 +51,7 @@ export default function GoogleMapHandler({
           lng={selectedCoords.lng}
           locationCoords={googleLocation}
           error={handleError} // Pass the error handling function
-          routeColors={handleChangeColors} // Pass the color handler here too
+          routeColors={routeColors} // Pass the color handler here too
           spaceFullCoords={filteredSpaces}
         />
       ) : !selectedCoords && googleLocation ? (
@@ -64,7 +60,7 @@ export default function GoogleMapHandler({
           routeFullCoords={filteredRoutes} // Pass only filtered routes
           clickedNode={clickedNode}
           error={handleError} // Pass the error handling function
-          routeColors={handleChangeColors} // Ensure this is passed here
+          routeColors={routeColors} // Ensure this is passed here
           spaceFullCoords={filteredSpaces}
         />
       ) : googleLocation ? (

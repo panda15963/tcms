@@ -201,7 +201,6 @@ const SpaceModal = forwardRef(({ spaceFullCoords, selectedLists }, ref) => {
       spaceFullCoords(routeCoords);
       console.log(arrayFromList);
       selectedLists(arrayFromList);
-      console.log('routeCoords ==>', routeCoords);
     } else {
       console.error('No array found in list');
     }

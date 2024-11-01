@@ -34,19 +34,16 @@ export default function RoutoMapHandler({
   }, [country, t]);
 
   // Extract file_id from checkedNode and filter routeFullCoords
-  const checkedFileIds = checkedNode?.map(node => node.file_id); // Add optional chaining
-  const filteredRoutes = routeFullCoords?.filter(route =>
-    checkedFileIds?.includes(route.file_id) // Add optional chaining
-  ) || []; // Ensure filteredRoutes is at least an empty array
+  const checkedFileIds = checkedNode?.map((node) => node.file_id); // Add optional chaining
+  const filteredRoutes =
+    routeFullCoords?.filter(
+      (route) => checkedFileIds?.includes(route.file_id), // Add optional chaining
+    ) || []; // Ensure filteredRoutes is at least an empty array
 
-  const filteredSpaces = spaceFullCoords?.filter(route =>
-    checkedFileIds?.includes(route.file_id) // Add optional chaining
-  ) || []; // Ensure filteredRoutes is at least an empty array
-
-
-  const handleChangeColors = (colors) => {
-    routeColors(colors);
-  };
+  const filteredSpaces =
+    spaceFullCoords?.filter(
+      (route) => checkedFileIds?.includes(route.file_id), // Add optional chaining
+    ) || []; // Ensure filteredRoutes is at least an empty array
 
   return (
     <>
@@ -59,7 +56,7 @@ export default function RoutoMapHandler({
           checkedNodes={checkedNode} // Pass checked nodes
           routeFullCoords={filteredRoutes} // Pass filtered routes
           clickedNode={clickedNode}
-          routeColors={handleChangeColors}
+          routeColors={routeColors}
           spaceFullCoords={filteredSpaces}
         />
       ) : selectedCoords && routoLocation ? (
@@ -67,7 +64,7 @@ export default function RoutoMapHandler({
           lat={selectedCoords.lat}
           lng={selectedCoords.lng}
           locationCoords={routoLocation}
-          routeColors={handleChangeColors}
+          routeColors={routeColors}
           spaceFullCoords={filteredSpaces}
         />
       ) : !selectedCoords && routoLocation ? (
@@ -76,7 +73,7 @@ export default function RoutoMapHandler({
           checkedNodes={checkedNode} // Pass checked nodes
           routeFullCoords={filteredRoutes} // Pass filtered routes
           clickedNode={clickedNode}
-          routeColors={handleChangeColors}
+          routeColors={routeColors}
           spaceFullCoords={filteredSpaces}
         />
       ) : routoLocation ? (

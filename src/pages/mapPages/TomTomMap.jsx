@@ -5,6 +5,29 @@ import End_Point from '../../img/Multi End Point.svg'; // Import your custom End
 import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css';
 
+const colors = [
+  '#FF0000',
+  '#00FF00',
+  '#0000FF',
+  '#FFFF00',
+  '#00FFFF',
+  '#FF00FF',
+  '#FFA500',
+  '#00FF80',
+  '#7FFFFF',
+  '#80D000',
+  '#0080FF',
+  '#FF0800',
+  '#FFA700',
+  '#80D100',
+  '#807FFF',
+  '#888888',
+  '#00AA00',
+  '#7FFF08',
+  '#888800',
+  '#008700',
+];
+
 /**
  * 중심 좌표와 마커 좌표를 계산하는 함수
  * @param {number} lat - 위도 값
@@ -45,7 +68,6 @@ export default function TomTomMap({
   place,
   checkedNodes,
   clickedNode, // Use this to center the map on a clicked route
-  routeColors = () => {},
   spaceFullCoords,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng);
@@ -55,142 +77,7 @@ export default function TomTomMap({
   const routeLayerIds = useRef([]); // Store the route layer IDs to manage multiple routes
   const routeMarkers = useRef([]); // Store the markers for each route (start and end)
   const previousColorsRef = useRef([]);
-
-  const colors = [
-    '#cd5c5c',
-    '#176347',
-    '#ffa07a',
-    '#8b4513',
-    '#faf0e6',
-    '#faebd7',
-    '#ffefdS',
-    '#fdfSe6',
-    '#fff8de',
-    '#eeeBaa',
-    '#ffffe0',
-    '#6b8e23',
-    '#b0e0e6',
-    '#87cefa',
-    '#778899',
-    '#bOcdde',
-    '#e6e6fa',
-    '#0000cd',
-    '#7b68ee',
-    '#4b0082',
-    '#dabfd8',
-    '#8b008D',
-    '#c71585',
-    '#db7093',
-    '#696969',
-    '#292929',
-    '#fffafa',
-    '#a52a2a',
-    '#ff0000',
-    '#e9967a',
-    '#a0522d',
-    '#f4a460',
-    '#ffedc4',
-    '#d2b48c',
-    '#ffedb5',
-    '#fffafo',
-    '#ffd700',
-    '#bdb76b',
-    '#fafad2',
-    '#9acd32',
-    '#7cfc00',
-    '#008000',
-    '#ffb6c1',
-    '#00ff7F',
-    '#7fffda',
-    '#fOffff',
-    '#2fafaf',
-    '#00ffff',
-    '#add8e6',
-    '#4682b4',
-    '#778899',
-    '#6495ed',
-    '#191970',
-    '#0000fF',
-    '#9370db',
-    '#9932cc',
-    '#ddaddd',
-    '#ff00ff',
-    '#171493',
-    '#dc143c',
-    '#696969',
-    '#a9a9a9',
-    '#tdedede',
-    '#bc8I8f',
-    '#b22222',
-    '#ffedel',
-    '#ff7f50',
-    '#fffSee',
-    '#ffdab9',
-    '#ff8c00',
-    '#ffdead',
-    '#ffa500',
-    '#b8860b',
-    '#fffacd',
-    '#ffffTO',
-    '#808000',
-    '#556b2f',
-    '#f0Fff0',
-    '#228522',
-    '#00ff00',
-    '#f5fffa',
-    '#40e0d0',
-    '#eofiff',
-    '#008080',
-    '#00ced1',
-    '#00bfff',
-    '#f0f8ff',
-    '#708090',
-    '#4169e1',
-    '#000080',
-    '#6a5acd',
-    '#663399',
-    '#9400d3',
-    '#eeB2ee',
-    '#ff00ff',
-    '#ff69b4',
-    '#ffcOcb',
-    '#808080',
-    '#cOcOcO',
-    '#fSfS15',
-    '#f08080',
-    '#800000',
-    '#fa8072',
-    '#ff4500',
-    '#d2691e',
-    '#cd853f',
-    '#deb887',
-    '#ffebcd',
-    '#fSdeb3',
-    '#daa520',
-    '#f0e68c',
-    '#f5f5dc',
-    '#fffF00',
-    '#adff2f',
-    '#Bfbc8F',
-    '#32cd32',
-    '#2e8b57',
-    '#00fa9a',
-    '#20b2aa',
-    '#afeeee',
-    '#008b8b',
-    '#5f9ea0',
-    '#87ceeb',
-    '#1e90ff',
-    '#708090',
-    '#f8f8ff',
-    '#00008b',
-    '#483d8b',
-    '#8a2be2',
-    '#ba55d3',
-    '#800080',
-    '#da70d6',
-    '#fffOtS',
-  ];
+  const previousRouteRef = useRef([]);
 
   // Update center coordinates whenever lat or lng changes
   useEffect(() => {
@@ -256,7 +143,7 @@ export default function TomTomMap({
               checkedNodes.some((node) => node.file_id === space.file_id),
             );
 
-      // Combine filtered routeFullCoords and spaceFullCoords for drawing
+      // Combine filtered rorouteFullCoords and spaceFullCoords for drawing
       const combinedCoords = [...routesToDraw, ...spacesToDraw];
 
       // Redraw the routes and spaces on the map
@@ -287,17 +174,85 @@ export default function TomTomMap({
   };
 
   /**
+   * Finds deactivated routes by comparing the previous and current route lists.
+   * @param {Array} previousRoutes - The previous list of routes.
+   * @param {Array} currentRoutes - The current list of routes.
+   * @returns {Array} - An array of indices representing the deactivated routes.
+   */
+  const findDeactivatedRoutes = (previousRoutes, currentRoutes) => {
+    // Identify the deactivated routes by comparing the previous and current lists
+    const deactivatedRoutes = previousRoutes
+      .map((route, index) => {
+        // If the route is not in the currentRoutes, it's deactivated
+        return currentRoutes.includes(route) ? null : index;
+      })
+      .filter((index) => index !== null); // Remove null values
+
+    return deactivatedRoutes;
+  };
+
+  const insertNullsAtDeactivatedIndices = (
+    routeFullCoords,
+    deactivatedRoutes,
+    removedRoutes = [],
+  ) => {
+    // Create a copy of routeFullCoords to avoid mutating the original array
+    let routesWithNulls = [...routeFullCoords];
+
+    // Insert null at each deactivated index and store the original data
+    deactivatedRoutes.forEach((index) => {
+      if (index < routesWithNulls.length) {
+        // Save the original data and its index before inserting null
+        removedRoutes.push({ index, data: routesWithNulls[index] });
+        routesWithNulls.splice(index, 0, null);
+      } else {
+        // If the index is beyond the array length, just push null
+        routesWithNulls.push(null);
+      }
+    });
+
+    // 복구된 데이터를 removedRoutes에서 제거하고 제자리에 되돌림
+    removedRoutes.forEach(({ index, data }) => {
+      if (index < routesWithNulls.length && routesWithNulls[index] === null) {
+        // null 자리에 원래 데이터를 복구
+        routesWithNulls[index] = data;
+      }
+    });
+
+    // 복구가 완료된 데이터는 removedRoutes에서 제거
+    removedRoutes = removedRoutes.filter(({ index }) => {
+      return routesWithNulls[index] === null; // 여전히 null인 경우만 남겨둠
+    });
+
+    // 마지막 요소가 중복되었거나 null인 경우 삭제
+    if (
+      routesWithNulls.length > 1 &&
+      routesWithNulls[routesWithNulls.length - 1] ===
+        routesWithNulls[routesWithNulls.length - 2]
+    ) {
+      routesWithNulls.pop();
+    } else if (routesWithNulls[routesWithNulls.length - 1] === null) {
+      routesWithNulls.pop();
+    }
+
+    console.log(routesWithNulls, removedRoutes);
+
+    // 반환된 배열과 복구 후 남은 removedRoutes를 반환
+    return { routesWithNulls, removedRoutes };
+  };
+
+  /**
    * Draws multiple routes based on the checkedNodes.
    * If all nodes are checked, show all routes.
    * If some nodes are unchecked, only show the checked routes.
    * @param {Object} map - The TomTom map instance
    * @param {Array} routeFullCoords - The array of all route objects with coordinates
    */
+  // Update the drawRoutes function
   const drawRoutes = (map, routeFullCoords = []) => {
-    // Ensure the style is loaded before trying to add layers
     if (!map.isStyleLoaded()) {
       map.on('style.load', () => {
-        drawRoutes(map, routeFullCoords); // After the style has loaded, draw the routes
+        map.once('style.load', () => drawRoutes(map, routeFullCoords));
       });
       return;
     }
@@ -307,22 +262,46 @@ export default function TomTomMap({
       return;
     }
 
-    // Clear any previous routes and markers
+    // Clear any previous routes, markers, and colors
     clearRoutesAndMarkers(map);
+    previousColorsRef.current = []; // Reset the color array for new routes
 
-    const newColors = [];
+    // Find deactivated routes
+    const deactivatedRoutes = findDeactivatedRoutes(
+      previousRouteRef.current,
+      routeFullCoords,
+    );
+    console.log('Deactivated route indices:', deactivatedRoutes);
 
-    // Loop through the routes and draw them
-    routeFullCoords.forEach((route, index) => {
+    // Create a new array with nulls inserted at deactivated indices
+    const { routesWithNulls } = insertNullsAtDeactivatedIndices(
+      routeFullCoords,
+      deactivatedRoutes,
+    );
+
+    // Ensure routesWithNulls is a valid array
+    if (!Array.isArray(routesWithNulls)) {
+      console.error('Invalid routesWithNulls');
+      return;
+    }
+
+    // Update the previous routes reference with the new array (including nulls)
+    previousRouteRef.current = routesWithNulls;
+
+    // Loop through the routesWithNulls and draw the routes
+    routesWithNulls.forEach((route, index) => {
+      if (!route) {
+        // Skip if the route is null (indicating a deactivated route)
+        return;
+      }
+
       if (!route.coords || route.coords.length === 0) {
         console.error(`Invalid coordinates for route ${index}`);
         return;
       }
 
-      // Extract coordinates from route.coords
       const coordinates = route.coords.map((coord) => [coord.lng, coord.lat]);
 
-      // Add start and end markers with custom icons (Start_Point and End_Point)
       const startMarker = new tt.Marker({
         element: createCustomMarker(Start_Point),
       })
@@ -335,10 +314,8 @@ export default function TomTomMap({
         .setLngLat(coordinates[coordinates.length - 1])
         .addTo(map);
 
-      // Store markers in the ref array
       routeMarkers.current.push(startMarker, endMarker);
 
-      // Create GeoJSON for the route
       const geoJsonRoute = {
         type: 'Feature',
         geometry: {
@@ -350,11 +327,10 @@ export default function TomTomMap({
       const newRouteLayerId = `route-${index}-${Date.now()}`;
       routeLayerIds.current.push(newRouteLayerId);
 
-      // Select a color from the predefined colors array
+      // Get the color for the current route
       const routeColor = colors[index % colors.length];
-      newColors.push(routeColor);
+      previousColorsRef.current.push(routeColor); // Track the color used for this route
 
-      // Add the polyline route to the map
       map.addLayer({
         id: newRouteLayerId,
         type: 'line',
@@ -368,7 +344,6 @@ export default function TomTomMap({
         },
       });
 
-      // Center the map on the route
       const bounds = new tt.LngLatBounds();
       coordinates.forEach((coord) => {
         bounds.extend(coord);
@@ -376,13 +351,6 @@ export default function TomTomMap({
 
       map.fitBounds(bounds, { padding: 50 });
     });
-
-    if (
-      JSON.stringify(newColors) !== JSON.stringify(previousColorsRef.current)
-    ) {
-      previousColorsRef.current = newColors; // Update the reference
-      routeColors(newColors); // Update the parent with new colors
-    }
   };
 
   // Helper function to create a custom marker with an image
@@ -430,5 +398,5 @@ export default function TomTomMap({
     }
   }, [clickedNode]);
 
-  return <div id="map-container" className="map" />;
+  return <div id="map-container" className="map" style={{ height: '87.8vh' }} />;
 }

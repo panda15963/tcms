@@ -26,7 +26,7 @@ export default function TreeNode({
   return (
     <div className="pl-4">
       <div className="flex items-center pb-2">
-        {/* 자식 노드가 있는 경우 확장/축소 버튼 표시 */}
+        {/* Show expand/collapse button if there are child nodes */}
         {node.children && node.children.length > 0 && (
           <button
             className="focus:outline-none pr-2"
@@ -39,19 +39,19 @@ export default function TreeNode({
             )}
           </button>
         )}
-        {/* 체크박스 */}
+        {/* Checkbox */}
         <input type="checkbox" checked={node.checked} onChange={handleCheck} />
-        {/* 번호 */}
+        {/* Index */}
         <span className="ml-2 font-bold">{currentIndex + 1}.</span>
-        {/* Route Color 상자 */}
+        {/* Route Color Box */}
         <span
           className="w-4 h-4 ml-2"
           style={{
-            backgroundColor: node.checked ? routeColor : '#ffffff',
+            backgroundColor: routeColor, // Always use the routeColor, regardless of checked state
             display: 'inline-block',
           }}
         ></span>
-        {/* 노드 이름 표시 */}
+        {/* Display node name */}
         <span
           className="pl-2 text-sm flex font-bold items-center cursor-pointer hover:text-blue-500 hover:underline"
           onClick={handleFileClick} // Trigger node click handler
@@ -59,7 +59,7 @@ export default function TreeNode({
           {node.file_name}
         </span>
       </div>
-      {/* 자식 노드가 확장된 경우 자식 노드 렌더링 */}
+      {/* Render child nodes if expanded */}
       {expanded && node.children && node.children.length > 0 && (
         <div className="pl-4">
           {node.children.map((child, index) => (

@@ -193,5 +193,15 @@
     "CourseList": "경로 목록",
     "NoDataFound": "경로 데이터 검색 되지 않았습니다.",
     "CourseName": "코스 이름"
+  },
+  "HomeLogin": {
+    "ID": "아이디",
+    "InputID": "아이디를 입력하세요",
+    "Password": "비밀번호",
+    "InputPassword": "비밀번호를 입력하세요",
+    "AuthenticationMethod": "인증 방법 선택",
+    "InputOTP": "OTP 번호 입력",
+    "Login": "로그인",
+    "ToMainPage": "메인페이지로 이동"
   }
 }

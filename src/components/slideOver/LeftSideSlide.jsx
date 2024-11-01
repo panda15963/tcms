@@ -10,11 +10,17 @@ export default function LeftSideSlide({
   onCheckedNodesChange,
   onClickedNode,
   onMapChange,
-  routeColors, // Add routeColors to props
+  routeColors,
 }) {
   const [open, setOpen] = useState(false); // State to manage whether the panel is open
   const [treeData, setTreeData] = useState([]); // Local state to manage tree data
   const { t } = useTranslation();
+
+  const handleRouteColors = (colors) => {
+    if (typeof routeColors === 'function') {
+      routeColors(colors);
+    }
+  };
 
   // Function to handle checked nodes change
   const handleCheckedNodes = (nodes) => {
@@ -75,8 +81,8 @@ export default function LeftSideSlide({
         leaveTo="-translate-x-full"
       >
         {/* <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4"> */}
-        <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-t-lg">
-          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-t-lg">
+        <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
+          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
             <div className="flex items-center justify-between">
               <label className="flex text-base font-semibold leading-6 text-white">
                 {t('LeftSideSlide.CourseList')}
@@ -101,7 +107,7 @@ export default function LeftSideSlide({
               onCheckedNodesChange={handleCheckedNodes}
               onNodeClick={handleNodeClick} // Pass the onNodeClick handler to Tree
               onMapChange={onMapChange}
-              routeColors={routeColors} // Pass routeColors to Tree component
+              routeColors={handleRouteColors} // Pass routeColors to Tree component
             />
           </div>
         </div>

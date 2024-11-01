@@ -102,34 +102,13 @@ const NavBar = () => {
             as="div"
             className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
           >
-            <MenuButton className="text-sm font-semibold">
-              {/* 통계 */}
-              {t('NavBar.Dashboard')} <FaAngleDown className="inline" />
-            </MenuButton>
-            <Transition
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
+            <MenuButton
+              className="text-sm font-semibold"
+              onClick={() => handleLinkClick('/main/dashboard')}
             >
-              <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40">
-                <MenuItem className="font-bold text-center text-lg">
-                  {({ active }) => (
-                    <button
-                      type="button"
-                      className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${
-                        active ? 'bg-gray-100' : ''
-                      }`}
-                      onClick={() => handleLinkClick('/main/dashboard')}
-                    >
-                      {t('NavBar.UsageRate')}
-                    </button>
-                  )}
-                </MenuItem>
-              </MenuItems>
-            </Transition>
+              {/* 통계 */}
+              {t('NavBar.Dashboard')}
+            </MenuButton>
           </Menu>
           <Menu
             as="div"
