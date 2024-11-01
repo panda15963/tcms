@@ -365,5 +365,5 @@ export default function GoogleMap({
     map.fitBounds(bounds);
   }, [clickedNode, map]);
 
-  return <div ref={mapRef} className="map" />;
+  return <div ref={mapRef} style={{ height: "87.8vh"}} />;
 }

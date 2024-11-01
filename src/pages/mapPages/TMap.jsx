@@ -68,7 +68,6 @@ export default function TMap({
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // Initial map center calculation
   const [center, setCenter] = useState(initialCoords); // Manage map center state
-  const [forceUpdate, setForceUpdate] = useState(false);
 
   const mapRef = useRef(null); // Reference for map instance
   const markerRef = useRef(null); // Reference for center marker
@@ -257,7 +256,6 @@ export default function TMap({
       } else {
         console.warn('routeFullCoords is null or not an array');
       }
-      setForceUpdate((prev) => !prev); // Force a re-render
     }
 
     if (routeFullCoords) {
@@ -370,7 +368,6 @@ export default function TMap({
       } else {
         console.warn('spaceFullCoords is null or not an array');
       }
-      setForceUpdate((prev) => !prev); // Force a re-render
     }
 
     if (spaceFullCoords) {
@@ -421,5 +418,5 @@ export default function TMap({
     updateMapCenter(); // Set initial center marker
   }
 
-  return <div id="map_div" className="map" />;
+  return <div id="map_div" className="map" style={{ height: '87.8vh' }} />;
 }

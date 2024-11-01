@@ -398,5 +398,5 @@ export default function TomTomMap({
     }
   }, [clickedNode]);
 
-  return <div id="map-container" className="map" />;
+  return <div id="map-container" className="map" style={{ height: '87.8vh' }} />;
 }

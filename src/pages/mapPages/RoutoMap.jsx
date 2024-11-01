@@ -462,5 +462,5 @@ export default function RoutoMap({
     }
   }, [lat, lng]);
 
-  return <div id="map" className="map" />;
+  return <div id="map" className="map" style={{ height: "87.8vh"}} />;
 }
