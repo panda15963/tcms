@@ -237,8 +237,8 @@ export default function RightSideSlide({ data, onMapChange }) {
         leaveFrom="translate-x-0"
         leaveTo="translate-x-full"
       >
-        <div className="fixed inset-y-0 top-32 right-0 w-3/12 bg-stone-50 shadow-lg z-50 flex flex-col space-y-4 h-[800px] rounded-t-lg">
-          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-t-lg">
+        <div className="fixed inset-y-0 top-32 right-0 w-3/12 bg-stone-50 shadow-lg z-50 flex flex-col space-y-4 h-[800px] rounded-tl-lg">
+          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tl-lg">
             <div className="flex items-center justify-between">
               <span className="text-base font-semibold leading-6 text-white">
                 {t('RightSideSlide.LogMetaDataList')}

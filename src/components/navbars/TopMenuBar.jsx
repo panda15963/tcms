@@ -111,16 +111,7 @@ const TopMenuBar = ({
     }
     setRouteFullCoords(null);
   }, [selectedAPI, setCurrentApi]);
-<<<<<<< HEAD
-  
-=======
 
-  const handleRouteColors = (colors) => {
-    console.log(colors);
-    routeColors(colors);
-  };
-
->>>>>>> master
   const handleChoosingMapAPIs = () => {
     if (selectedAPI?.name === 'GOOGLE') {
       return (
