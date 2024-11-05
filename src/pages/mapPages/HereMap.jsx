@@ -1,50 +1,57 @@
+import React, { useEffect, useRef } from 'react';
 import H from '@here/maps-api-for-javascript';
-import { useEffect, useRef } from 'react';
-import '../../style/MapStyle.css';
 
-/**
- * HereMap 컴포넌트
- */
-export default function HereMap() {
-  const mapRef = useRef(null); // 지도 DOM 요소를 참조하기 위한 ref
-  const map = useRef(null); // 지도 인스턴스 상태 관리
-  const platform = useRef(null); // HERE Maps 플랫폼 인스턴스 상태 관리
-  const API_KEY = process.env.REACT_APP_HERE_MAP_API; // 환경 변수에서 HERE Maps API 키 가져오기
+const HereMap = () => {
+  const mapRef = useRef(null);
+  const map = useRef(null);
+  const platform = useRef(null);
+  const apiKey = process.env.REACT_APP_HERE_API;
 
-  // HERE Maps API 로드 및 지도 초기화
-  useEffect(() => {
-    if (!map.current) {
-      // 플랫폼 인스턴스 생성
-      platform.current = new H.service.Platform({
-        apikey: API_KEY, // HERE Maps API 키 설정
-      });
-
-      // 기본 레이어 생성
-      const defaultLayers = platform.current.createDefaultLayers({
-        pois: true, // POI(Point of Interest) 레이어 활성화
-      });
-
-      // 지도 인스턴스 생성
-      const newMap = new H.Map(
-        mapRef.current, // 렌더링할 DOM 요소
-        defaultLayers.vector.normal.map, // 기본 벡터 지도 레이어 사용
-        {
-          zoom: Number(process.env.REACT_APP_ZOOM), // 환경 변수에서 줌 레벨 가져오기
-          center: {
-            lat: Number(process.env.REACT_APP_LATITUDE), // 환경 변수에서 기본 위도 값 가져오기
-            lng: Number(process.env.REACT_APP_LONGITUDE), // 환경 변수에서 기본 경도 값 가져오기
+  useEffect(
+    () => {
+      // Check if the map object has already been created
+      if (!map.current) {
+        // Create a platform object with the API key
+        platform.current = new H.service.Platform({ apiKey });
+        // Create a new Raster Tile service instance
+        const rasterTileService = platform.current.getRasterTileService({
+          queryParams: {
+            style: 'explore.day',
+            size: 512,
           },
-        },
-      );
+        });
+        // Creates a new instance of the H.service.rasterTile.Provider class
+        // The class provides raster tiles for a given tile layer ID and pixel format
+        const rasterTileProvider = new H.service.rasterTile.Provider(
+          rasterTileService,
+        );
+        // Create a new Tile layer with the Raster Tile provider
+        const rasterTileLayer = new H.map.layer.TileLayer(rasterTileProvider);
+        // Create a new map instance with the Tile layer, center and zoom level
+        const newMap = new H.Map(mapRef.current, rasterTileLayer, {
+          pixelRatio: window.devicePixelRatio,
+          center: {
+            lat: 64.144,
+            lng: -21.94,
+          },
+          zoom: 14,
+        });
 
-      // 지도 상에서의 마우스 이벤트 활성화 (줌, 패닝 등)
-      new H.mapevents.Behavior(new H.mapevents.MapEvents(newMap));
+        // Add panning and zooming behavior to the map
+        const behavior = new H.mapevents.Behavior(
+          new H.mapevents.MapEvents(newMap),
+        );
 
-      // 지도 인스턴스 저장
-      map.current = newMap;
-    }
-  }, [API_KEY]); // API_KEY가 변경될 때마다 effect 실행
+        // Set the map object to the reference
+        map.current = newMap;
+      }
+    },
+    // Dependencies array
+    [apiKey],
+  );
 
-  // 지도 DOM 요소를 렌더링
-  return <div className='map' ref={mapRef} />;
-}
+  // Return a div element to hold the map
+  return <div style={{ width: '100%', height: '350px' }} ref={mapRef} />;
+};
+
+export default HereMap;
