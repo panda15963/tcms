@@ -22,6 +22,7 @@ import MainGrid2 from '../tables/MainGrid2';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
 import ConfigGridR2 from '../tables/ConfigGridR2';
+import { FaDownload } from 'react-icons/fa6';
 
 /**
  * 로그 검색
@@ -1016,7 +1017,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setIsConfigModalOpen(false); // 모달 닫기
   };
 
-  /*
+  /**
    * 경로 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
    * 경로 모달 (더블클릭)
    */
@@ -1206,6 +1207,26 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         </div>
       </Dialog>
     );
+  };
+
+  /**
+   * 다운로드 기능
+   */
+  const handleDownload = () => {
+    // Example: Generate CSV data from list or any other data you want to download
+    const dataToDownload = list.list; // Assuming 'list.list' contains the data you want to download
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      dataToDownload.map((e) => e.join(',')).join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'log_data.csv');
+    document.body.appendChild(link);
+
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -1503,17 +1524,32 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
                       <div className="flex justify-end mt-3">
                         <button
-                          onClick={handleButtonClick}
+                          onClick={
+                            isDirect ? handleDownload : handleButtonClick
+                          }
                           className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
-                          <FaCheck
-                            className="h-4 w-5 text-sky-500"
-                            aria-hidden="true"
-                          />
-                          <span className="text-sm text-sky-500 font-bold">
-                            {/* 경로탭 선택 버튼 */}
-                            {t('LogModal.Select')}
-                          </span>
+                          {isDirect ? (
+                            <>
+                              <FaDownload
+                                className="h-4 w-5 text-sky-500"
+                                aria-hidden="true"
+                              />
+                              <span className="text-sm text-sky-500 font-bold">
+                                {t('LogModal.Download')}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <FaCheck
+                                className="h-4 w-5 text-sky-500"
+                                aria-hidden="true"
+                              />
+                              <span className="text-sm text-sky-500 font-bold">
+                                {t('LogModal.Select')}
+                              </span>
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
