@@ -85,6 +85,7 @@ export default function LeftSideSlide({
           <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
             <div className="flex items-center justify-between">
               <label className="flex text-base font-semibold leading-6 text-white">
+                {/* 경로 목록 */}
                 {t('LeftSideSlide.CourseList')}
               </label>
               <div className="ml-3 flex h-7 items-center">
