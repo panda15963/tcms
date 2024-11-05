@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { CiSquarePlus, CiSquareMinus } from 'react-icons/ci';
 
 export default function TreeNode({

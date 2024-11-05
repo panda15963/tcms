@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import End_Point from '../../img/Multi End Point.svg'; // Import your custom End Point icon
 import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
 
@@ -133,7 +133,6 @@ export default function RoutoMap({
 
     if (Array.isArray(routeFullCoords)) {
       adjustedRouteCoords.forEach((route, index) => {
-        // Skip if the route is null
         if (!route) {
           console.warn(`Skipping null route at index ${index}`);
           return;
@@ -159,16 +158,13 @@ export default function RoutoMap({
             bounds.extend(new routo.maps.LatLng(point.lat, point.lng));
           });
 
-          // Use routeColors to get the color for this route
           const strokeColor = routeColors[index % routeColors.length];
-
-          // Create and draw the polyline with the selected color
           const polyline = new routo.maps.Polyline({
             path: routePath,
             geodesic: true,
-            strokeColor: strokeColor, // Use the color from routeColors
+            strokeColor: strokeColor,
             strokeOpacity: 1.0,
-            strokeWeight: 2,
+            strokeWeight: 5,
             map: mapInstance,
           });
 
@@ -179,8 +175,8 @@ export default function RoutoMap({
               position: routePath[0],
               map: mapInstance,
               icon: {
-                url: Start_Point, // Use the custom Start_Point icon
-                scaledSize: new routo.maps.Size(30, 30), // Adjust size as needed
+                url: Start_Point,
+                scaledSize: new routo.maps.Size(30, 30),
               },
             });
 
@@ -188,8 +184,8 @@ export default function RoutoMap({
               position: routePath[routePath.length - 1],
               map: mapInstance,
               icon: {
-                url: End_Point, // Use the custom End_Point icon
-                scaledSize: new routo.maps.Size(30, 30), // Adjust size as needed
+                url: End_Point,
+                scaledSize: new routo.maps.Size(30, 30),
               },
             });
 
@@ -201,12 +197,17 @@ export default function RoutoMap({
           );
         }
       });
+
+      // Adjust map to fit all routes after processing
+      if (!bounds.isEmpty()) {
+        mapInstance.fitBounds(bounds);
+      }
     } else {
       console.warn('routeFullCoords is not an array.');
     }
 
-    setRouteObjects(newRouteObjects); // Update the state to hold the drawn route objects
-    setRouteMarkers(newRouteMarkers); // Update the state to hold the drawn markers
+    setRouteObjects(newRouteObjects);
+    setRouteMarkers(newRouteMarkers);
   };
 
   const findRemovedSpaceIndex = (prevCoords, currentCoords) => {
@@ -256,7 +257,6 @@ export default function RoutoMap({
 
     if (Array.isArray(spaceFullCoords)) {
       spaceFullCoords.forEach((space, index) => {
-        // Skip if the space route is null
         if (!space) {
           console.warn(`Skipping null space route at index ${index}`);
           return;
@@ -282,16 +282,13 @@ export default function RoutoMap({
             bounds.extend(new routo.maps.LatLng(point.lat, point.lng));
           });
 
-          // Use routeColors to get the color for this route
           const strokeColor = routeColors[index % routeColors.length];
-
-          // Create and draw the polyline with the selected color
           const polyline = new routo.maps.Polyline({
             path: spacePath,
             geodesic: true,
-            strokeColor: strokeColor, // Use the color from routeColors
+            strokeColor: strokeColor,
             strokeOpacity: 1.0,
-            strokeWeight: 2,
+            strokeWeight: 5,
             map: mapInstance,
           });
 
@@ -302,8 +299,8 @@ export default function RoutoMap({
               position: spacePath[0],
               map: mapInstance,
               icon: {
-                url: Start_Point, // Use the custom Start_Point icon
-                scaledSize: new routo.maps.Size(30, 30), // Adjust size as needed
+                url: Start_Point,
+                scaledSize: new routo.maps.Size(30, 30),
               },
             });
 
@@ -311,8 +308,8 @@ export default function RoutoMap({
               position: spacePath[spacePath.length - 1],
               map: mapInstance,
               icon: {
-                url: End_Point, // Use the custom End_Point icon
-                scaledSize: new routo.maps.Size(30, 30), // Adjust size as needed
+                url: End_Point,
+                scaledSize: new routo.maps.Size(30, 30),
               },
             });
 
@@ -324,12 +321,17 @@ export default function RoutoMap({
           );
         }
       });
+
+      // Adjust map to fit all routes after processing
+      if (!bounds.isEmpty()) {
+        mapInstance.fitBounds(bounds);
+      }
     } else {
       console.warn('spaceFullCoords is not an array.');
     }
 
-    setSpaceObjects(newRouteObjects); // Update the state to hold the drawn route objects
-    setSpaceMarkers(newRouteMarkers); // Update the state to hold the drawn markers
+    setSpaceObjects(newRouteObjects);
+    setSpaceMarkers(newRouteMarkers);
   };
 
   useEffect(() => {
@@ -462,5 +464,5 @@ export default function RoutoMap({
     }
   }, [lat, lng]);
 
-  return <div id="map" className="map" style={{ height: "87.8vh"}} />;
+  return <div id="map" className="map" style={{ height: '87.8vh' }} />;
 }
