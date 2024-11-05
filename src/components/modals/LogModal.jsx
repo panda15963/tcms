@@ -31,6 +31,7 @@ import ConfigGridR2 from '../tables/ConfigGridR2';
 const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const { t, i18n } = useTranslation();
   const location = useLocation(); // 현재 경로 정보를 얻기 위한 useLocation 훅 사용
+
   const initialCond = {
     searchWord: '',
     continent: '',
@@ -174,22 +175,17 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   useEffect(() => {
-    console.log('유즈이팩 실행 체크 ==>');
     MAIN_COUNTRY();
     MAIN_FEATURE();
     MAIN_TARGET();
     MAIN_TAG();
 
-    console.log('유즈이팩 featureList', featureList);
-
-    // Ensure featureTop is defined and has items
     if (featureList.featureTop && featureList.featureTop.length > 0) {
       handleTopFeatureChange(featureList.featureTop[0]);
     }
-  }, []); // Include featureList in the dependency array
+  }, []);
 
   useEffect(() => {
-    console.log('[LIST]유즈이팩 실행 체크 ==>');
     console.log('useEffect of selectedSearchFields ==>', selectedSearchFields);
     // selectedOptions는 선택된 필드의 객체 리스트로 가정합니다.
     const ids = selectedSearchFields.map((option) => option.id);
@@ -199,7 +195,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   }, [selectedSearchFields]);
 
   useEffect(() => {
-    console.log('[LIST]유즈이팩 실행 체크 ==>');
     console.log(
       'useEffect of selectedSearchFieldsConfig ==>',
       selectedSearchFieldsConfig,
@@ -656,7 +651,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }
   };
 
-  // 라디오 버튼 클릭 시 호출되는 핸들러
+  /**
+   * 라디오 버튼 클릭 시 호출되는 핸들러
+   */
   const handleRadioChange = (event) => {
     console.log('event.target.value', event.target.value);
 
@@ -901,6 +898,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       return null; // 오류가 발생하면 null을 반환하여 처리
     }
   };
+
   /**
    * Find Tccfg 클릭 이벤트
    */
@@ -947,7 +945,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 로그검색 -> 배치탭 -> 선택 이벤트
    * 배치탭에서 선택 하였을때 발생
    * 셀렉트Row 의 로그리스트 들 배열로 생성
-   **/
+   */
   const handleLeftSelectionChange = (selectedRows) => {
     console.log('handleLeftSelectionChange of selectedRows ==>', selectedRows);
 
@@ -1250,26 +1248,28 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 style={{ width: '1324px' }}
               >
                 {/* 모달 헤더 */}
-                <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
-                  <h1 className="text-sm font-semibold text-white">
-                    {/* 로그 검색 */}
-                    {t('LogModal.ModalName')}
-                  </h1>
-                  <button
-                    className="font-semibold"
-                    onClick={() => {
-                      setList(initialList);
-                      setList2(initialList);
-                      setConfigList(initialList);
-                      setConfigList2(initialList);
-                      setSelectedLogList(initialList);
-                      setSelectedLogList2(initialList);
-                      setOpen(false);
-                    }}
-                  >
-                    <MdClose className="text-white" size={16} />
-                  </button>
-                </div>
+                {!isDirect && (
+                  <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
+                    <h1 className="text-sm font-semibold text-white">
+                      {/* 로그 검색 */}
+                      {t('LogModal.ModalName')}
+                    </h1>
+                    <button
+                      className="font-semibold"
+                      onClick={() => {
+                        setList(initialList);
+                        setList2(initialList);
+                        setConfigList(initialList);
+                        setConfigList2(initialList);
+                        setSelectedLogList(initialList);
+                        setSelectedLogList2(initialList);
+                        setOpen(false);
+                      }}
+                    >
+                      <MdClose className="text-white" size={16} />
+                    </button>
+                  </div>
+                )}
 
                 {/* 탭 버튼 */}
                 <div className="m-2 flex space-x-2 ">
