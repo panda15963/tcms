@@ -6,26 +6,26 @@ import Start_Point from '../../assets/images/multi_start_point.svg'; // Import y
 import '../../style/MapStyle.css';
 
 const colors = [
-  '#FF0000',
-  '#00FF00',
-  '#0000FF',
-  '#FFFF00',
-  '#00FFFF',
-  '#FF00FF',
-  '#FFA500',
-  '#00FF80',
-  '#7FFFFF',
-  '#80D000',
-  '#0080FF',
-  '#FF0800',
-  '#FFA700',
-  '#80D100',
-  '#807FFF',
-  '#888888',
-  '#00AA00',
-  '#7FFF08',
-  '#888800',
-  '#008700',
+  '#0000FF', // 파란색
+  '#00FF00', // 초록색
+  '#FF0000', // 빨간색
+  '#00FFFF', // 청록색
+  '#FFFF00', // 노란색
+  '#FF00FF', // 자홍색
+  '#0080FF', // 밝은 파란색
+  '#80FF00', // 연두색
+  '#ff0075', // 빨간색 비슷
+  '#98ff98', // 연한 녹색
+  '#FFA500', // 주황색
+  '#8811FF', // 보라색
+  '#8080FF', // 연한 보라색
+  '#88FF80', // 밝은 연녹색
+  '#ffae00', // 황금색
+  '#008828', // 밝은 하늘색
+  '#50664e', // 짙은 초록색
+  '#790963', // 짙은 보라색
+  '#32437a', // 짙은 파란색
+  '#415e45', // 짙은 녹색
 ];
 
 /**
@@ -398,5 +398,7 @@ export default function TomTomMap({
     }
   }, [clickedNode]);
 
-  return <div id="map-container" className="map" style={{ height: '87.8vh' }} />;
+  return (
+    <div id="map-container" className="map" style={{ height: '87.8vh' }} />
+  );
 }
