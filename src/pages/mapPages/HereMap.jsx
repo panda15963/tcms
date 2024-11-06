@@ -5,7 +5,8 @@ const HereMap = () => {
   const mapRef = useRef(null);
   const map = useRef(null);
   const platform = useRef(null);
-  const apiKey = process.env.REACT_APP_HERE_API;
+  // const apiKey = process.env.REACT_APP_HERE_API;
+  const apiKey = 'gCL3ZwexchPxY4iXqsKMUUGutgkzHGgBdCeG2oN8_uc'
 
   useEffect(
     () => {
