@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import End_Point from '../../img/Multi End Point.svg'; // Import your custom End Point icon
-import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
+import End_Point from '../../assets/images/multi_end_point.svg'; // Import your custom End Point icon
+import Start_Point from '../../assets/images/multi_start_point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css'; // Ensure this CSS file exists
 
 // Function to parse the coordinates string

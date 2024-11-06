@@ -1,8 +1,8 @@
 import tt from '@tomtom-international/web-sdk-maps';
 import '@tomtom-international/web-sdk-maps/dist/maps.css';
 import React, { useEffect, useState, useRef } from 'react';
-import End_Point from '../../img/Multi End Point.svg'; // Import your custom End Point icon
-import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
+import End_Point from '../../assets/images/multi_end_point.svg'; // Import your custom End Point icon
+import Start_Point from '../../assets/images/multi_start_point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css';
 
 const colors = [

@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import KOR_Flags from '../../img/KOR_Flags.svg';
-import ENG_Flags from '../../img/ENG_Flags.svg';
 import korflag from '../../assets/images/flag_kor.png';
 import usaflag from '../../assets/images/flag_usa.png';
 
