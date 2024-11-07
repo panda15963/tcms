@@ -1293,7 +1293,33 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                 )}
 
                 {/* 탭 버튼 */}
-                <div className="m-2 flex space-x-2 ">
+                <div className="m-2 flex space-x-2">
+                  <button
+                    className={`h-9 px-4 py-2 text-sm rounded-t-lg transition-all duration-300 ease-in-out flex-1 shadow-md ${
+                      activeTab === 'route'
+                        ? 'bg-blue-400 text-white border-b-2 border-blue-300 shadow'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                    onClick={() => handleTabChange('route')}
+                  >
+                    {/* 경로탭 버튼*/}
+                    {t('LogModal.Route')}
+                  </button>
+
+                  <button
+                    className={`h-9 px-4 py-2 text-sm rounded-t-lg transition-all duration-300 ease-in-out flex-1 shadow-md ${
+                      activeTab === 'batch'
+                        ? 'bg-blue-400 text-white border-b-2 border-blue-300 shadow'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                    onClick={() => handleTabChange('batch')}
+                  >
+                    {/* 화면정보탭 버튼*/}
+                    {t('LogModal.Configuration')}
+                  </button>
+                </div>
+
+                {/* <div className="m-2 flex space-x-2 ">
                   <button
                     className={`h-8 px-2 py-1 text-sm rounded-lg border transition duration-300 ease-in-out min-w-[80px] ${
                       activeTab === 'route'
@@ -1302,7 +1328,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                     }`}
                     onClick={() => handleTabChange('route')}
                   >
-                    {/* 경로탭 버튼*/}
                     {t('LogModal.Route')}
                   </button>
                   <button
@@ -1313,10 +1338,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                     }`}
                     onClick={() => handleTabChange('batch')}
                   >
-                    {/* 배치탭 버튼*/}
                     {t('LogModal.Configuration')}
                   </button>
-                </div>
+                </div> */}
 
                 {/* 탭 내용 */}
                 <div className="mt-0">
