@@ -186,6 +186,13 @@ const TopMenuBar = ({
       return (
         <HereMapHandler
           key="here"
+          selectedCoords={selectedCoords}
+          hereLocation={setClickedCoords}
+          routeFullCoords={routeFullCoords}
+          spaceFullCoords={spaceFullCoords}
+          checkedNode={checkedNodes}
+          clickedNode={clickedNode}
+          routeColors={routeColors}
         />
       );
     }

@@ -3,32 +3,23 @@ import { FaLongArrowAltLeft, FaLongArrowAltRight } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 
 // 컴포넌트 정의
-export default function StoreTable({ stores, onDataReceive }) {
-  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태 관리
-  const [storesPerPage] = useState(5); // 페이지당 표시할 지점 수 설정
-  const { t } = useTranslation(); // 다국어 처리를 위한 useTranslation 훅 사용
+export default function StoreTable({ stores = [], onDataReceive }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [storesPerPage] = useState(5);
+  const { t } = useTranslation();
 
-  // 테이블 헤더를 t 함수로 렌더링
   const TableHeader = [
     { id: 1, name: t('StoreTable.StoreNames') },
     { id: 2, name: t('Common.Latitude') },
     { id: 3, name: t('Common.Longitude') },
   ];
 
-  // 현재 페이지에 표시할 지점 범위를 계산하는 부분
-  const indexOfLastStore = currentPage * storesPerPage; // 현재 페이지의 마지막 지점 인덱스 계산
-  const indexOfFirstStore = indexOfLastStore - storesPerPage; // 현재 페이지의 첫 번째 지점 인덱스 계산
-  const currentStores = stores.slice(indexOfFirstStore, indexOfLastStore); // 현재 페이지에 표시할 지점 목록 슬라이싱
+  const indexOfLastStore = currentPage * storesPerPage;
+  const indexOfFirstStore = indexOfLastStore - storesPerPage;
+  const currentStores = stores.slice(indexOfFirstStore, indexOfLastStore);
 
-  /**
-   * 페이지 변경을 처리하는 함수
-   * @param {number} pageNumber - 변경할 페이지 번호
-   */
-  const paginate = (pageNumber) => setCurrentPage(pageNumber); // 페이지 번호 변경
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  /**
-   * 총 페이지 수를 계산하여 페이지 번호 배열을 생성합니다.
-   */
   const pageNumbers = [];
   for (let i = 1; i <= Math.ceil(stores.length / storesPerPage); i++) {
     pageNumbers.push(i); // 페이지 번호 목록을 배열에 추가
@@ -59,7 +50,7 @@ export default function StoreTable({ stores, onDataReceive }) {
             {TableHeader.map((header) => (
               <th
                 key={header.id}
-                className="px-6 py-3 text-center text-sm font-bold text-black uppercase tracking-wider"
+                className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider text-nowrap"
               >
                 {header.name}
               </th>
@@ -70,7 +61,10 @@ export default function StoreTable({ stores, onDataReceive }) {
           {/* 검색 결과가 없을 경우 메시지 표시 */}
           {stores.length === 0 && (
             <tr>
-              <td colSpan="3" className="text-center py-4">
+              <td
+                colSpan="3"
+                className="px-3 py-2 whitespace-nowrap text-center font-bold border-2 text-xs text-black"
+              >
                 {t('StoreTable.NoStores')}
               </td>
             </tr>
@@ -79,13 +73,17 @@ export default function StoreTable({ stores, onDataReceive }) {
           {/* 테이블 데이터 렌더링 */}
           {currentStores.map((store) => {
             const storeData = [
-              store.name,
+              store.name || store.title || 'N/A',
               typeof store.latitude === 'number'
                 ? store.latitude.toFixed(6)
-                : Number(store.latitude).toFixed(6),
+                : typeof store.position?.lat === 'number'
+                ? store.position.lat.toFixed(6)
+                : 'N/A',
               typeof store.longitude === 'number'
                 ? store.longitude.toFixed(6)
-                : Number(store.longitude).toFixed(6),
+                : typeof store.position?.lng === 'number'
+                ? store.position.lng.toFixed(6)
+                : 'N/A',
             ];
             return (
               <tr
@@ -96,7 +94,7 @@ export default function StoreTable({ stores, onDataReceive }) {
                 {storeData.map((data, index) => (
                   <td
                     key={index}
-                    className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900"
+                    className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
                   >
                     {data}
                   </td>
@@ -107,7 +105,7 @@ export default function StoreTable({ stores, onDataReceive }) {
         </tbody>
       </table>
 
-      <div className="flex items-center justify-between border-gray-200 bg-white py-3 sm:px-6">
+      <div className="flex items-center font-bold justify-between border-gray-200 bg-white py-3 sm:px-6  ">
         {/* 검색된 지점 수 및 현재 페이지 정보 표시 */}
         {stores.length === 1 ? (
           <span className="text-sm px-5 text-gray-700">
@@ -124,7 +122,10 @@ export default function StoreTable({ stores, onDataReceive }) {
               last: Math.min(indexOfLastStore, stores.length),
               total: stores.length,
             }) ||
-              `Showing ${indexOfFirstStore + 1} to ${Math.min(indexOfLastStore, stores.length)} of ${stores.length} stores`}
+              `Showing ${indexOfFirstStore + 1} to ${Math.min(
+                indexOfLastStore,
+                stores.length
+              )} of ${stores.length} stores`}
           </span>
         )}
 
