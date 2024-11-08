@@ -23,6 +23,7 @@ import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
 import ConfigGridR2 from '../tables/ConfigGridR2';
 import { FaDownload } from 'react-icons/fa6';
+import axios from 'axios';
 
 /**
  * 로그 검색
@@ -717,20 +718,21 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setSelectedLogList2(initialList);
   };
 
-  /*
+  /**
+   * 경로탭 검색모아보기
    * 선택버튼 이벤트
    */
-  const handleConfigButtonClick = async () => {
+  const handleRouteButtonClick = async () => {
     console.log(
-      'handleConfigButtonClick of selectedLogList ==>',
+      'handleRouteButtonClick of selectedLogList ==>',
       selectedLogList,
     );
 
     const fileIds = selectedConfigRowsRef.current.map((route) => route.file_id);
-    console.log('handleConfigButtonClick of fileIds ==>', fileIds);
+    console.log('handleRouteButtonClick of fileIds ==>', fileIds);
 
     const routeCoords = await SPACE_INTERPOLATION(fileIds);
-    console.log('handleConfigButtonClick of routeCoords ==>', routeCoords);
+    console.log('handleRouteButtonClick of routeCoords ==>', routeCoords);
 
     routeData(selectedConfigRowsRef.current);
     routeFullCoords(routeCoords);
@@ -757,10 +759,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /*
-   * 로그검색 배치 선택 이벤트
+   * 로그검색 화면정보 선택 이벤트
    */
   const handleConfigBtnClick = async () => {
-    console.log('로그검색 배치 선택버튼 이벤트 입니다.');
+    console.log('로그검색 화면정보 선택버튼 이벤트 입니다.');
     console.log('handleConfigBtnClick of selectedLogList ==>', selectedLogList);
 
     // selectedLogList에서 meta_id 추출하여 FIND_META_ID 호출
@@ -800,8 +802,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }
   };
 
-  /*
-   * 로그검색 배치 더블클릭 선택 이벤트
+  /**
+   * 로그검색 화면정보 버전모아보기
+   * 더블클릭 선택 이벤트
    */
   const handleConfigBtn2Click = async () => {
     console.log('로그검색 배치 선택버튼 이벤트 입니다.');
@@ -971,8 +974,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * 배치탭 -> 버전 모아보기 -> 선택 이벤트
-   * 체크할때 이벤트
+   * 화면정보탭 버전 모아보기
+   * 선택 이벤트
    */
   const handleLeftSelectionChange2 = (selectedRows) => {
     console.log(
@@ -1088,14 +1091,32 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             </div>
             <div className="flex justify-end mt-1">
               <button
-                onClick={handleConfigButtonClick}
-                className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                onClick={
+                  isDirect ? handleRouteDownload : handleRouteButtonClick
+                }
+                className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
-                <FaCheck className="h-4 w-5 text-sky-500" aria-hidden="true" />
-                <span className="text-sm text-sky-500 font-bold">
-                  {/* 로그검색 -> 더블클릭 -> 선택 버튼 */}
-                  {t('LogModal.Select')}
-                </span>
+                {isDirect ? (
+                  <>
+                    <FaDownload
+                      className="h-4 w-5 text-sky-500"
+                      aria-hidden="true"
+                    />
+                    <span className="text-sm text-sky-500 font-bold">
+                      {t('LogModal.Download')}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <FaCheck
+                      className="h-4 w-5 text-sky-500"
+                      aria-hidden="true"
+                    />
+                    <span className="text-sm text-sky-500 font-bold">
+                      {t('LogModal.Select')}
+                    </span>
+                  </>
+                )}
               </button>
             </div>
             {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
@@ -1153,7 +1174,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }, [data]);
 
     /**
-     * 버전 모아보기 (배치탭)
+     * 버전 모아보기 (화면정보탭)
      */
     return (
       <Dialog open={true} onClose={onClose}>
@@ -1196,6 +1217,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               >
                 <FaCheck className="h-4 w-5 text-sky-500" aria-hidden="true" />
                 <span className="text-sm text-sky-500 font-bold">
+                  {/* 선택 */}
                   {t('LogModal.Select')}
                 </span>
               </button>
@@ -1210,23 +1232,232 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * 다운로드 기능
+   * 경로탭 다운로드
    */
-  const handleDownload = () => {
-    // Example: Generate CSV data from list or any other data you want to download
-    const dataToDownload = list.list; // Assuming 'list.list' contains the data you want to download
-    const csvContent =
-      'data:text/csv;charset=utf-8,' +
-      dataToDownload.map((e) => e.join(',')).join('\n');
+  const handleDownload = async () => {
+    const dataToDownload = list;
+    console.log('dataToDownload', dataToDownload);
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'log_data.csv');
-    document.body.appendChild(link);
+    for (const file of dataToDownload) {
+      try {
+        // sequence 0 = 로그파일
+        const logResponse = await nonAuthInstance.get(
+          `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
+          { responseType: 'blob' },
+        );
 
-    link.click();
-    document.body.removeChild(link);
+        const logBlob = new Blob([logResponse.data]);
+        const logUrl = window.URL.createObjectURL(logBlob);
+        const logLink = document.createElement('a');
+
+        console.log('logBlob', logBlob);
+        console.log('logUrl', logUrl);
+        console.log('logLink', logLink);
+
+        logLink.href = logUrl;
+        logLink.download = file.logPath.split('/').pop();
+        document.body.appendChild(logLink);
+        logLink.click();
+        document.body.removeChild(logLink);
+        window.URL.revokeObjectURL(logUrl);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(`Log file for meta_id ${file.meta_id} not found.`);
+        } else {
+          console.error(
+            `Failed to download log file for meta_id ${file.meta_id}:`,
+            error,
+          );
+        }
+      }
+
+      try {
+        // sequence 1 = 이미지파일
+        const imageResponse = await nonAuthInstance.get(
+          `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
+          { responseType: 'blob' },
+        );
+
+        const imageBlob = new Blob([imageResponse.data]);
+        const imageUrl = window.URL.createObjectURL(imageBlob);
+        const imageLink = document.createElement('a');
+        imageLink.href = imageUrl;
+        imageLink.download = file.imagePath.split('/').pop();
+        document.body.appendChild(imageLink);
+        imageLink.click();
+        document.body.removeChild(imageLink);
+        window.URL.revokeObjectURL(imageUrl);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(`Image file for meta_id ${file.meta_id} not found.`);
+        } else {
+          console.error(
+            `Failed to download image file for meta_id ${file.meta_id}:`,
+            error,
+          );
+        }
+      }
+    }
+  };
+
+  /**
+   * 경로탭 버전 모아보기 다운로드
+   */
+  const handleRouteDownload = async () => {
+    const dataToDownload = list2;
+    console.log('dataToDownload', dataToDownload);
+
+    for (const file of dataToDownload) {
+      try {
+        // sequence 0 = 로그파일
+        const logResponse = await nonAuthInstance.get(
+          `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
+          { responseType: 'blob' },
+        );
+
+        const logBlob = new Blob([logResponse.data]);
+        const logUrl = window.URL.createObjectURL(logBlob);
+        const logLink = document.createElement('a');
+        logLink.href = logUrl;
+        logLink.download = file.logPath.split('/').pop();
+        document.body.appendChild(logLink);
+        logLink.click();
+        document.body.removeChild(logLink);
+        window.URL.revokeObjectURL(logUrl);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(`Log file for meta_id ${file.meta_id} not found.`);
+        } else {
+          console.error(
+            `Failed to download log file for meta_id ${file.meta_id}:`,
+            error,
+          );
+        }
+      }
+
+      try {
+        // sequence 1 = 이미지파일
+        const imageResponse = await nonAuthInstance.get(
+          `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
+          { responseType: 'blob' },
+        );
+
+        const imageBlob = new Blob([imageResponse.data]);
+        const imageUrl = window.URL.createObjectURL(imageBlob);
+        const imageLink = document.createElement('a');
+        imageLink.href = imageUrl;
+        imageLink.download = file.imagePath.split('/').pop();
+        document.body.appendChild(imageLink);
+        imageLink.click();
+        document.body.removeChild(imageLink);
+        window.URL.revokeObjectURL(imageUrl);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(`Image file for meta_id ${file.meta_id} not found.`);
+        } else {
+          console.error(
+            `Failed to download image file for meta_id ${file.meta_id}:`,
+            error,
+          );
+        }
+      }
+    }
+  };
+
+  /**
+   * 화면정보탭 다운로드
+   */
+  const handleConfigDownload = async () => {
+    const dataToDownload = selectedLogList;
+    console.log('[화면정보탭 다운로드] dataToDownload ==>', dataToDownload);
+
+    // 각 dataToDownload에 대한 FIND_META_ID 호출을 동시에 처리
+    const resultList = await Promise.all(
+      dataToDownload.map(async (log) => {
+        const condTmp = {
+          meta_id: log.meta_id, // 각 log에서 meta_id 추출
+        };
+
+        // FIND_META_ID 실행하고 결과 반환
+        console.log('condTmp', condTmp);
+
+        const result = await FIND_META_ID(condTmp);
+        console.log('result', result);
+
+        return result; // result를 반환하여 리스트에 추가
+      }),
+    );
+
+    // resultList를 평탄화(flatten)하여 단일 배열로 변환
+    const flatResultList = resultList.flat();
+
+    console.log('결과 리스트 ==>', resultList);
+    console.log('결과 리스트 flatResultList ==>', flatResultList);
+
+    for (const file of flatResultList) {
+      try {
+        // sequence 0 = 로그파일
+        const logResponse = await nonAuthInstance.get(
+          `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
+          { responseType: 'blob' },
+        );
+
+        console.log('logResponse ==>', logResponse);
+
+        const logBlob = new Blob([logResponse.data]);
+        const logUrl = window.URL.createObjectURL(logBlob);
+        const logLink = document.createElement('a');
+
+        console.log('logBlob', logBlob);
+        console.log('logUrl', logUrl);
+        console.log('logLink', logLink);
+
+        console.log('file', file);
+
+        logLink.href = logUrl;
+        logLink.download = file.logPath.split('/').pop();
+        document.body.appendChild(logLink);
+        logLink.click();
+        document.body.removeChild(logLink);
+        window.URL.revokeObjectURL(logUrl);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(`Log file for meta_id ${file.meta_id} not found.`);
+        } else {
+          console.error(
+            `Failed to download log file for meta_id ${file.meta_id}:`,
+            error,
+          );
+        }
+      }
+
+      try {
+        // sequence 1 = 이미지파일
+        const imageResponse = await nonAuthInstance.get(
+          `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
+          { responseType: 'blob' },
+        );
+
+        const imageBlob = new Blob([imageResponse.data]);
+        const imageUrl = window.URL.createObjectURL(imageBlob);
+        const imageLink = document.createElement('a');
+        imageLink.href = imageUrl;
+        imageLink.download = file.imagePath.split('/').pop();
+        document.body.appendChild(imageLink);
+        imageLink.click();
+        document.body.removeChild(imageLink);
+        window.URL.revokeObjectURL(imageUrl);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(`Image file for meta_id ${file.meta_id} not found.`);
+        } else {
+          console.error(
+            `Failed to download image file for meta_id ${file.meta_id}:`,
+            error,
+          );
+        }
+      }
+    }
   };
 
   return (
@@ -1750,17 +1981,34 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       </div>
                       <div className="flex justify-end mt-1">
                         <button
-                          onClick={handleConfigBtnClick}
-                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          onClick={
+                            isDirect
+                              ? handleConfigDownload
+                              : handleConfigBtnClick
+                          }
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
-                          <FaCheck
-                            className="h-4 w-5 text-sky-500"
-                            aria-hidden="true"
-                          />
-                          <span className="text-sm text-sky-500 font-bold">
-                            {/* 배치탭 선택 버튼 */}
-                            {t('LogModal.Select')}
-                          </span>
+                          {isDirect ? (
+                            <>
+                              <FaDownload
+                                className="h-4 w-5 text-sky-500"
+                                aria-hidden="true"
+                              />
+                              <span className="text-sm text-sky-500 font-bold">
+                                {t('LogModal.Download')}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <FaCheck
+                                className="h-4 w-5 text-sky-500"
+                                aria-hidden="true"
+                              />
+                              <span className="text-sm text-sky-500 font-bold">
+                                {t('LogModal.Select')}
+                              </span>
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
