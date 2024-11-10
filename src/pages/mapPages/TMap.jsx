@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef } from 'react';
-import End_Point from '../../img/Multi End Point.svg'; // Import your custom End Point icon
-import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
+import React, { useEffect, useState, useRef } from 'react';
+import End_Point from '../../assets/images/multi_end_point.svg'; // Import your custom End Point icon
+import Start_Point from '../../assets/images/multi_start_point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css'; // Ensure this CSS file exists
 
 // Function to parse the coordinates string
@@ -217,7 +217,7 @@ export default function TMap({
           const polyline = new Tmapv2.Polyline({
             path: polylinePath,
             strokeColor: color, // Apply the selected color
-            strokeWeight: 4,
+            strokeWeight: 5,
             map: mapRef.current, // Add this to display the polyline on the map
           });
           polylineRef.current.push(polyline);

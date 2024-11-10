@@ -17,6 +17,7 @@ import TMapHandler from '../mapHandler/TMapHandler';
 import RoutoMapHandler from '../mapHandler/RoutoMapHandler';
 import TomTomMapHandler from '../mapHandler/TomTomMapHandler';
 import BaiduMapHandler from '../mapHandler/BaiduMapHandler';
+import HereMapHandler from '../mapHandler/HereMapHandler';
 import { DECToMMS, DECToDEC, DECToDEG } from '../calculateCoords/ConvertsDEC';
 import { MMSToDEC } from '../calculateCoords/ConvertsMMS';
 import { DEGToDEC } from '../calculateCoords/ConvertsDEG';
@@ -179,6 +180,19 @@ const TopMenuBar = ({
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
+        />
+      );
+    } else if (selectedAPI?.name === 'HERE') {
+      return (
+        <HereMapHandler
+          key="here"
+          selectedCoords={selectedCoords}
+          hereLocation={setClickedCoords}
+          routeFullCoords={routeFullCoords}
+          spaceFullCoords={spaceFullCoords}
+          checkedNode={checkedNodes}
+          clickedNode={clickedNode}
+          routeColors={routeColors}
         />
       );
     }

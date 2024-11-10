@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import End_Point from '../../img/Multi End Point.svg'; // Import your custom End Point icon
-import Start_Point from '../../img/Multi Start Point.svg'; // Import your custom Start Point icon
+import End_Point from '../../assets/images/multi_end_point.svg'; // Import your custom End Point icon
+import Start_Point from '../../assets/images/multi_start_point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css';
 
 function calculateCenterAndMarker(lat, lng) {
@@ -205,8 +205,8 @@ export default function GoogleMap({
           path: polylinePath,
           geodesic: true,
           strokeColor: polylineColor,
-          strokeOpacity: 0.8,
-          strokeWeight: 3,
+          strokeOpacity: 1.0,
+          strokeWeight: 5,
         });
 
         polyline.setMap(map);
@@ -321,7 +321,7 @@ export default function GoogleMap({
           geodesic: true,
           strokeColor: polylineColor,
           strokeOpacity: 0.8,
-          strokeWeight: 3,
+          strokeWeight: 5,
         });
 
         polyline.setMap(map);

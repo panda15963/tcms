@@ -13,6 +13,7 @@ import { TMapSearch } from '../searchResults/TMapSearch';
 import { RoutoSearch } from '../searchResults/RoutoSearch';
 import { TomTomSearch } from '../searchResults/TomTomSearch';
 import { BaiduSearch } from '../searchResults/BaiduSearch';
+import { HereSearch } from '../searchResults/HereSearch';
 import { useTranslation } from 'react-i18next';
 
 const StoreModal = forwardRef(
@@ -66,6 +67,9 @@ const StoreModal = forwardRef(
           case 'BAIDU':
             results = await BaiduSearch(query); // Baidu 검색 실행
             break;
+          case 'HERE':
+            results = await HereSearch(query); // Here 검색 실행
+            break;
         }
         setSearches(results); // 검색 결과를 상태로 저장
       }
@@ -99,10 +103,22 @@ const StoreModal = forwardRef(
      * @param {object} dataFromStoreTable - 선택된 테이블의 데이터
      */
     const handleDataSelect = (dataFromStoreTable) => {
-      onDataReceiveBack(dataFromStoreTable); // 선택된 데이터를 부모로 전달
+      let normalizedData = dataFromStoreTable;
 
-      // 테이블 초기화 (검색 결과를 비웁니다)
-      setSearches([]);
+      // Normalize HERE Maps data structure
+      if (
+        dataFromStoreTable.resultType === 'place' &&
+        dataFromStoreTable.position
+      ) {
+        normalizedData = {
+          name: dataFromStoreTable.title,
+          latitude: dataFromStoreTable.position.lat,
+          longitude: dataFromStoreTable.position.lng,
+        };
+      }
+      onDataReceiveBack(normalizedData); // Pass normalized data to the parent component
+      setSearches([]); // Clear search results
+      handleClosed(); // Close modal
     };
 
     /**
@@ -208,7 +224,7 @@ const StoreModal = forwardRef(
         </Dialog>
       </Transition>
     );
-  },
+  }
 );
 
 export default StoreModal;
