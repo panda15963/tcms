@@ -133,7 +133,7 @@
     "Select": "Select",
     "Meters": "M(Meters)",
     "Download": "Download",
-    "Alert": "Please select at least one."
+    "Alert1": "Nothing has been selected."
   },
   "SpaceTable": {
     "UploadDate": "Upload Date",

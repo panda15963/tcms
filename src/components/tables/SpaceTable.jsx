@@ -188,6 +188,8 @@ const SpaceTable = ({ list, onSelectionChange }) => {
     console.log('useEffect LIST ==>', list);
     if (list && !isEmpty(list.list)) {
       setData(list.list);
+    } else if (isEmpty(list.list)) {
+      setData([]);
     }
   }, [list]);
 
