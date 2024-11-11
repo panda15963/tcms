@@ -44,7 +44,7 @@
   },
   "LogModal": {
     "ModalName": "Log Search",
-    "Route":"Route",
+    "Route": "Route",
     "Configuration": "Configuration",
     "SearchFields": "Search Fields",
     "Find": "Find",
@@ -125,13 +125,15 @@
     "NextButton": "Next",
     "PaginationText": "Showing {{first}} to {{last}} of {{total}} stores"
   },
-  "SpaceModal":{
+  "SpaceModal": {
     "ModalSearch": "Modal Search",
     "Lon": "Longitude",
     "Lat": "Latitude",
     "Find": "Find",
     "Select": "Select",
-    "Meters": "M(Meters)"
+    "Meters": "M(Meters)",
+    "Download": "Download",
+    "Alert": "Please select at least one."
   },
   "SpaceTable": {
     "UploadDate": "Upload Date",
@@ -156,7 +158,7 @@
   "TMap": {
     "KoreaRegionOnlyError": "Only can possibly search in Korea"
   },
-  "RightSideSlide":{
+  "RightSideSlide": {
     "Name": "Name",
     "Continent": "Continent",
     "Country": "Country",
@@ -169,15 +171,15 @@
     "Target": "Target",
     "Summary": "Summary",
     "Departure": "Departure",
-    "Lon" : "Longitude",
-    "Lat" : "Latitude",
+    "Lon": "Longitude",
+    "Lat": "Latitude",
     "Destination": "Destination",
     "LonLat": "Longitude & Latitude",
     "Distance": "Distance",
-    "Way" : "Way",
-    "TripTotalTime" : "Trip Total Time",
-    "TripStartTime" : "Trip Start Time",
-    "TripEndTime" : "Trip End Time",
+    "Way": "Way",
+    "TripTotalTime": "Trip Total Time",
+    "TripStartTime": "Trip Start Time",
+    "TripEndTime": "Trip End Time",
     "Description": "Description",
     "TagList": "Tag List",
     "Tag": "Tag",
@@ -199,7 +201,7 @@
     "InputID": "Enter your ID",
     "Password": "Password",
     "InputPassword": "Enter your Password",
-    "AuthenticationMethod":"Select Authentication Method",
+    "AuthenticationMethod": "Select Authentication Method",
     "InputOTP": "Enter the OTP Number",
     "Login": "Login",
     "ToMainPage": "Go to the Main Page"

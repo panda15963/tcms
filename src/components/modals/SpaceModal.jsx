@@ -8,6 +8,10 @@ import logService from '../../service/logService';
 import MapComponent from '../mapAssist/MapComponent';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
+import { FaDownload } from 'react-icons/fa6';
+import useToast from '../../hooks/useToast';
+import AlertMessage from '../alerts/AlertMessage';
+import { nonAuthInstance } from '../../server/AxiosConfig';
 
 // Helper function to round to 5 decimal places
 const roundToFive = (value) => {
@@ -24,6 +28,7 @@ const SpaceModal = forwardRef(
   ({ spaceFullCoords, selectedLists, isDirect }, ref) => {
     const { t, i18n } = useTranslation();
     const location = useLocation(); // 현재 경로 정보를 얻기 위한 useLocation 훅 사용
+    const { showToast } = useToast();
 
     const [open, setOpen] = useState(false);
     const [latitude, setLatitude] = useState(
@@ -36,6 +41,7 @@ const SpaceModal = forwardRef(
     const [list, setList] = useState([]); // Initialize list state
     const [checkedLists, setCheckedLists] = useState([]);
     const [radius, setRadius] = useState(1000); // 기본 반경 1000m 설정
+    const [showAlert, setShowAlert] = useState(false);
 
     useEffect(() => {
       console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
@@ -58,20 +64,17 @@ const SpaceModal = forwardRef(
       setRadius(Number(e.target.value)); // 슬라이더 값으로 반경 업데이트
     };
 
-    // Use useImperativeHandle to allow parent component to call show() to open the modal
     useImperativeHandle(ref, () => ({
       show() {
         setOpen(true);
       },
     }));
 
-    // Handler for range input change
     const handleRangeChange = (e) => {
       const value = parseInt(e.target.value, 10);
       setRangeValue(isNaN(value) ? '' : value); // Set to empty string if the input is invalid
     };
 
-    // Handler for text input change
     const handleTextChange = (e) => {
       const value = e.target.value.replace(/,/g, ''); // Remove commas
       if (value === '') {
@@ -84,60 +87,56 @@ const SpaceModal = forwardRef(
       }
     };
 
-    // Handler for latitude input change
     const handleLatitudeChange = (e) => {
       setLatitude(e.target.value);
     };
 
-    // Handler for longitude input change
     const handleLongitudeChange = (e) => {
       setLongitude(e.target.value);
     };
 
-    // Handler for focus event to clear the input field
     const handleFocus = (setValue) => () => {
       setValue('');
     };
 
-    // Helper function to format numbers with commas
     const formatNumberWithCommas = (value) => {
       if (!value) return '';
       return parseInt(value, 10).toLocaleString();
     };
 
-    // Modified handler for blur event to retain current input if valid
     const handleBlur = (value, setValue, originalValue) => () => {
       const num = parseFloat(value);
       if (value === '' || isNaN(num)) {
         setValue(originalValue);
       } else {
-        setValue(roundToFive(value)); // Update with the rounded value
+        setValue(roundToFive(value));
       }
     };
 
-    // Handler for "Find" button click
+    /**
+     * 찾기
+     */
     const handleFindClick = () => {
       const condTmp = {
         group_id: -1,
         lat: parseFloat(latitude),
         lng: parseFloat(longitude),
-        range: rangeValue === '' ? 100 : rangeValue, // Use the conditional expression here
+        range: rangeValue === '' ? 100 : rangeValue,
       };
 
+      // console.log('handleFindClick of condTmp ==>', condTmp);
       FIND_SPACE(condTmp);
     };
 
     /**
-     * FIND SPACE API
+     * 찾기 API
      */
     const FIND_SPACE = async (inputCond) => {
       try {
         const res = await logService.FIND_SPACE({
           cond: inputCond,
         });
-
         console.log('FIND_SPACE of res ==>', res.findMeta);
-
         if (res.findMeta) {
           setList((prevState) => ({
             ...prevState,
@@ -195,9 +194,10 @@ const SpaceModal = forwardRef(
       }
     };
 
-    // Example function where list is expected to be an array
+    /**
+     * 선택버튼 이벤트
+     */
     const handleButtonClick = async () => {
-      // A recursive function to find the first array within the object
       const findArray = (obj) => {
         if (Array.isArray(obj)) {
           return obj;
@@ -212,32 +212,112 @@ const SpaceModal = forwardRef(
           }
         }
 
-        return null; // No array found
+        return null;
       };
 
-      // Find the array in the list object
+      console.log('checkedLists ==>', checkedLists);
+
       const arrayFromList = findArray(checkedLists);
+      console.log('arrayFromList ==>', arrayFromList.length);
 
-      if (arrayFromList) {
-        // Extract file_ids from the found array
+      if (arrayFromList.length == 0) {
+        // setShowAlert(true);
+        console.log('1개이상 선택해 주세요.');
+      } else if (arrayFromList && arrayFromList.length > 0) {
         const fileIds = arrayFromList.map((route) => route.file_id);
-
-        // Call SPACE_INTERPOLATION with the extracted fileIds
         const routeCoords = await SPACE_INTERPOLATION(fileIds);
+
+        console.log('fileIds ==>', fileIds);
+        console.log('routeCoords ==>', routeCoords);
+
         spaceFullCoords(routeCoords);
-        console.log(arrayFromList);
+        console.log('arrayFromList ==>', arrayFromList);
         selectedLists(arrayFromList);
+
+        setOpen(false);
       } else {
         console.error('No array found in list');
       }
+    };
 
-      // Close the modal
-      setOpen(false);
+    /**
+     * 다운로드
+     */
+    const handleSpaceDownload = async () => {
+      const dataToDownload = checkedLists;
+      console.log('dataToDownload', dataToDownload);
+
+      for (const file of dataToDownload) {
+        try {
+          // sequence 0 = 로그파일
+          const logResponse = await nonAuthInstance.get(
+            `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
+            { responseType: 'blob' },
+          );
+
+          const logBlob = new Blob([logResponse.data]);
+          const logUrl = window.URL.createObjectURL(logBlob);
+          const logLink = document.createElement('a');
+
+          console.log('logBlob', logBlob);
+          console.log('logUrl', logUrl);
+          console.log('logLink', logLink);
+
+          logLink.href = logUrl;
+          logLink.download = file.logPath.split('/').pop();
+          document.body.appendChild(logLink);
+          logLink.click();
+          document.body.removeChild(logLink);
+          window.URL.revokeObjectURL(logUrl);
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            console.error(`Log file for meta_id ${file.meta_id} not found.`);
+          } else {
+            console.error(
+              `Failed to download log file for meta_id ${file.meta_id}:`,
+              error,
+            );
+          }
+        }
+
+        try {
+          // sequence 1 = 이미지파일
+          const imageResponse = await nonAuthInstance.get(
+            `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
+            { responseType: 'blob' },
+          );
+
+          const imageBlob = new Blob([imageResponse.data]);
+          const imageUrl = window.URL.createObjectURL(imageBlob);
+          const imageLink = document.createElement('a');
+          imageLink.href = imageUrl;
+          imageLink.download = file.imagePath.split('/').pop();
+          document.body.appendChild(imageLink);
+          imageLink.click();
+          document.body.removeChild(imageLink);
+          window.URL.revokeObjectURL(imageUrl);
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            console.error(`Image file for meta_id ${file.meta_id} not found.`);
+          } else {
+            console.error(
+              `Failed to download image file for meta_id ${file.meta_id}:`,
+              error,
+            );
+          }
+        }
+      }
     };
 
     return (
       <Transition show={open}>
         <Dialog onClose={() => setOpen(false)} className="relative z-50">
+          {showAlert && (
+            <AlertMessage
+              message={t('SpaceModal.Alert')}
+              onClose={() => setShowAlert(false)}
+            />
+          )}
           <Transition.Child
             enter="ease-out duration-300"
             enterFrom="opacity-0"
@@ -347,17 +427,6 @@ const SpaceModal = forwardRef(
                     </div>
 
                     <div className="pb-2">
-                      {/* <h2>서울 지도 반경 조절</h2> */}
-                      {/* <input
-                      type="range"
-                      min="100" // 최소값 설정
-                      max="5000" // 최대값 설정
-                      value={rangeValue}
-                      onChange={handleRadiusChange}
-                      className="w-full"
-                    /> */}
-                      {/* <p>반경: {rangeValue}m</p> */}
-
                       <MapComponent radius={rangeValue} />
                     </div>
 
@@ -366,18 +435,37 @@ const SpaceModal = forwardRef(
                       list={list}
                       onSelectionChange={setCheckedLists}
                     />
+
                     <div className="flex justify-end mt-3">
                       <button
-                        onClick={handleButtonClick}
-                        className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                        onClick={
+                          isDirect ? handleSpaceDownload : handleButtonClick
+                        }
+                        className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                       >
-                        <FaCheck
-                          className="h-4 w-5 text-sky-500"
-                          aria-hidden="true"
-                        />
-                        <span className="text-base text-sky-500 font-bold">
-                          {t('SpaceModal.Select')}
-                        </span>
+                        {isDirect ? (
+                          <>
+                            <FaDownload
+                              className="h-4 w-5 text-sky-500"
+                              aria-hidden="true"
+                            />
+                            <span className="text-base text-sky-500 font-bold">
+                              {/* 다운로드 */}
+                              {t('SpaceModal.Download')}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <FaCheck
+                              className="h-4 w-5 text-sky-500"
+                              aria-hidden="true"
+                            />
+                            <span className="text-base text-sky-500 font-bold">
+                              {/* 선택 */}
+                              {t('SpaceModal.Select')}
+                            </span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>

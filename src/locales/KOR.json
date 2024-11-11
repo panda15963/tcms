@@ -131,7 +131,9 @@
     "Lat": "위도",
     "Find": "찾기",
     "Select": "선택",
-    "Meters": "미터"
+    "Meters": "미터",
+    "Download": "다운로드",
+    "Alert": "1개 이상 선택하여 주세요."
   },
   "SpaceTable": {
     "UploadDate": "업로드 된 날짜",
