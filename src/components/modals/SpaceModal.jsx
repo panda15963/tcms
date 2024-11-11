@@ -373,7 +373,7 @@ const SpaceModal = forwardRef(
               >
                 <DialogPanel
                   className="relative rounded-lg bg-white p-0 shadow-xl text-left transition-all sm:max-w-screen-xl"
-                  style={{ width: '1324px' }}
+                  style={{ width: '1224px' }}
                 >
                   {!isDirect && (
                     <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
@@ -401,59 +401,65 @@ const SpaceModal = forwardRef(
                     {/* flex-wrap 제거 */}
                     {/* Left Section */}
                     <div className="flex flex-col gap-1.5 w-1/3 border-r pr-4">
-                      <label className="text-xs font-semibold">
-                        {/* 위도 */}
-                        {t('SpaceModal.Lat')}:
-                      </label>
-                      <input
-                        type="text"
-                        className="border p-1 rounded w-full"
-                        value={latitude}
-                        onChange={handleLatitudeChange}
-                        onFocus={handleFocus(setLatitude)}
-                        onBlur={handleBlur(
-                          latitude,
-                          setLatitude,
-                          roundToFive(process.env.REACT_APP_LATITUDE),
-                        )}
-                      />
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-semibold flex-shrink-0 mr-2">
+                          {/* 위도 */}
+                          {t('SpaceModal.Lat')}
+                        </label>
+                        <input
+                          type="text"
+                          className="border p-1 rounded w-full text-center" // 너비를 w-24 등으로 제한
+                          value={latitude}
+                          onChange={handleLatitudeChange}
+                          onFocus={handleFocus(setLatitude)}
+                          onBlur={handleBlur(
+                            latitude,
+                            setLatitude,
+                            roundToFive(process.env.REACT_APP_LATITUDE),
+                          )}
+                        />
+                      </div>
 
-                      <label className="text-xs font-semibold">
-                        {/* 경도 */}
-                        {t('SpaceModal.Lon')}:
-                      </label>
-                      <input
-                        type="text"
-                        className="border p-1 rounded w-full"
-                        value={longitude}
-                        onChange={handleLongitudeChange}
-                        onFocus={handleFocus(setLongitude)}
-                        onBlur={handleBlur(
-                          longitude,
-                          setLongitude,
-                          roundToFive(process.env.REACT_APP_LONGITUDE),
-                        )}
-                      />
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-semibold flex-shrink-0 mr-2">
+                          {/* 경도 */}
+                          {t('SpaceModal.Lon')}
+                        </label>
+                        <input
+                          type="text"
+                          className="border p-1 rounded w-full text-center" // 너비를 w-24 등으로 제한
+                          value={latitude}
+                          onChange={handleLatitudeChange}
+                          onFocus={handleFocus(setLatitude)}
+                          onBlur={handleBlur(
+                            latitude,
+                            setLatitude,
+                            roundToFive(process.env.REACT_APP_LATITUDE),
+                          )}
+                        />
+                      </div>
 
-                      <label className="text-xs font-semibold">
-                        {/* 미터 */}
-                        {t('SpaceModal.Meters')}:
-                      </label>
-                      <input
-                        type="range"
-                        className="w-full"
-                        min="100"
-                        max="10000"
-                        value={rangeValue}
-                        onChange={handleRangeChange}
-                      />
-                      <input
-                        type="text"
-                        className="border p-1 rounded w-full"
-                        value={formatNumberWithCommas(rangeValue)}
-                        onChange={handleTextChange}
-                        placeholder="100"
-                      />
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-semibold flex-shrink-0 mr-2">
+                          {/* 미터 */}
+                          {t('SpaceModal.Meters')}
+                        </label>
+                        <input
+                          type="range"
+                          className="flex-grow" // 슬라이더 너비를 유연하게 설정
+                          min="100"
+                          max="10000"
+                          value={rangeValue}
+                          onChange={handleRangeChange}
+                        />
+                        <input
+                          type="text"
+                          className="border p-1 rounded w-20 text-center" // 적절히 너비 제한
+                          value={formatNumberWithCommas(rangeValue)}
+                          onChange={handleTextChange}
+                          placeholder="100"
+                        />
+                      </div>
                       <button
                         className="text-base px-3 py-1 bg-blue-500 text-white rounded w-full mt-0"
                         onClick={handleFindClick}
