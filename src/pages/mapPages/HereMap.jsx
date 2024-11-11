@@ -195,22 +195,9 @@ const HereMap = ({
     mapInstance.current.setCenter({ lat: midLat, lng: midLng });
     mapInstance.current.setZoom(10); 
   };
-  
-  
-  const clearData = (type) => {
-    polylineRefs.current[type].forEach((polyline) =>
-      mapInstance.current.removeObject(polyline)
-    );
-    polylineRefs.current[type] = [];
-    markerRefs.current[type].forEach((marker) =>
-      mapInstance.current.removeObject(marker)
-    );
-    markerRefs.current[type] = [];
-  };
 
   const renderEntities = (coords, type) => {
     if (!mapInstance.current || !coords) return;
-    clearData(type);
 
     coords.forEach((coord, index) => {
       if (coord && Array.isArray(coord.coords)) {
