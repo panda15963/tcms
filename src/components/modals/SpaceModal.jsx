@@ -339,7 +339,6 @@ const SpaceModal = forwardRef(
     return (
       <Transition show={open}>
         {error && <Error errorMessage={errorValue} />}
-
         <Dialog
           onClose={() => {
             setOpen(false);

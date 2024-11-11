@@ -24,6 +24,7 @@ import i18next from 'i18next';
 import ConfigGridR2 from '../tables/ConfigGridR2';
 import { FaDownload } from 'react-icons/fa6';
 import axios from 'axios';
+import Error from '../alerts/Error';
 
 /**
  * 로그 검색
@@ -127,6 +128,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     [],
   );
   const [error, setError] = useState(null);
+  const [errorValue, setErrorValue] = useState('');
   const [countryList, setCountryList] = useState(initialList);
   const [featureList, setFeatureList] = useState(initialList);
   const [targetList, setTargetList] = useState(initialList);
@@ -666,8 +668,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
   // Example function where list is expected to be an array
 
-  /*
-   * 로그검색 선택 이벤트
+  /**
+   * 로그검색 선택 이벤트 (경로)
    */
   const handleButtonClick = async () => {
     console.log('로그검색 경로 선택버튼 이벤트 입니다.');
@@ -694,7 +696,15 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     console.log('arrayFromList', arrayFromList);
     console.log('list', list);
 
-    if (arrayFromList) {
+    if (arrayFromList.length == 0) {
+      // 아무것도 선택되지 않았습니다.
+      setErrorValue(`${t('SpaceModal.Alert1')}`);
+      setError(true);
+      setTimeout(() => setError(false), 3000);
+      return;
+    }
+
+    if (arrayFromList && arrayFromList.length > 0) {
       const fileIds = arrayFromList.map((route) => route.file_id);
       const routeCoords = await SPACE_INTERPOLATION(fileIds);
       routeData(list);
@@ -799,6 +809,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
     } else {
       console.log('선택된 로그가 없습니다.');
+      // 아무것도 선택되지 않았습니다.
+      setErrorValue(`${t('SpaceModal.Alert1')}`);
+      setError(true);
+      setTimeout(() => setError(false), 3000);
+      return;
     }
   };
 
@@ -1576,6 +1591,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
   return (
     <Transition show={open}>
+      {error && <Error errorMessage={errorValue} />}
       <Dialog
         onClose={() => {
           setList(initialList); // list 초기화
@@ -1586,7 +1602,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           setSelectedLogList2(initialList);
           setOpen(false); // 모달 닫기
         }}
-        className="relative z-50"
+        className="relative z-40"
       >
         <Transition.Child
           enter="ease-out duration-300"

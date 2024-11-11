@@ -224,7 +224,9 @@ const SpaceTable = ({ list, onSelectionChange }) => {
                 <th
                   key={header.id}
                   className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider"
-                  style={{ whiteSpace: 'nowrap' }}
+                  style={{
+                    whiteSpace: 'nowrap',
+                  }}
                 >
                   {header.isPlaceholder
                     ? null
