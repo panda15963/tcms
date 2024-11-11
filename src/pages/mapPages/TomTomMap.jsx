@@ -235,8 +235,6 @@ export default function TomTomMap({
       routesWithNulls.pop();
     }
 
-    console.log(routesWithNulls, removedRoutes);
-
     // 반환된 배열과 복구 후 남은 removedRoutes를 반환
     return { routesWithNulls, removedRoutes };
   };
@@ -271,7 +269,6 @@ export default function TomTomMap({
       previousRouteRef.current,
       routeFullCoords,
     );
-    console.log('Deactivated route indices:', deactivatedRoutes);
 
     // Create a new array with nulls inserted at deactivated indices
     const { routesWithNulls } = insertNullsAtDeactivatedIndices(

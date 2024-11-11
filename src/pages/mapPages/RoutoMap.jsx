@@ -104,7 +104,6 @@ export default function RoutoMap({
         routeFullCoords,
       );
       if (removedIndex !== -1) {
-        console.log('Route removed at index:', removedIndex);
         // Create a new array with null at the removed index
         const newAdjustedCoords = [...previousRouteCoords];
         newAdjustedCoords[removedIndex] = null;
@@ -233,7 +232,6 @@ export default function RoutoMap({
         spaceFullCoords,
       );
       if (removedIndex !== -1) {
-        console.log('Space route removed at index:', removedIndex);
         // Create a new array with null at the removed index
         const newAdjustedCoords = [...previousSpaceCoords];
         newAdjustedCoords[removedIndex] = null;
@@ -271,7 +269,6 @@ export default function RoutoMap({
               } else if (coord.lat !== undefined && coord.lng !== undefined) {
                 return { lat: coord.lat, lng: coord.lng };
               } else {
-                console.warn('Unexpected coord format:', coord);
                 return null;
               }
             })
