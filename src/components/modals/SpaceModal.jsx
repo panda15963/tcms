@@ -339,6 +339,7 @@ const SpaceModal = forwardRef(
     return (
       <Transition show={open}>
         {error && <Error errorMessage={errorValue} />}
+
         <Dialog
           onClose={() => {
             setOpen(false);
@@ -395,11 +396,11 @@ const SpaceModal = forwardRef(
                   )}
 
                   {/* Main Layout */}
-                  <div className="flex gap-4 p-4">
+                  <div className="flex gap-4 p-3">
                     {' '}
                     {/* flex-wrap 제거 */}
                     {/* Left Section */}
-                    <div className="flex flex-col gap-1.5 w-1/3 border-r pr-4">
+                    <div className="flex flex-col gap-1.5 w-1/3 border-r pr-3">
                       <div className="flex items-center gap-2">
                         <label className="text-xs font-semibold flex-shrink-0 mr-2">
                           {/* 위도 */}
@@ -479,11 +480,44 @@ const SpaceModal = forwardRef(
                   </div>
 
                   {/* Bottom Section for Table */}
-                  <div className="p-4">
+                  <div className="pr-3 pl-3 pb-2">
                     <SpaceTable
                       list={list}
                       onSelectionChange={setCheckedLists}
                     />
+
+                    <div className="flex justify-end mt-3">
+                      <button
+                        onClick={
+                          isDirect ? handleSpaceDownload : handleButtonClick
+                        }
+                        className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                      >
+                        {isDirect ? (
+                          <>
+                            <FaDownload
+                              className="h-4 w-5 text-sky-500"
+                              aria-hidden="true"
+                            />
+                            <span className="text-base text-sky-500 font-bold">
+                              {/* 다운로드 */}
+                              {t('SpaceModal.Download')}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <FaCheck
+                              className="h-4 w-5 text-sky-500"
+                              aria-hidden="true"
+                            />
+                            <span className="text-base text-sky-500 font-bold">
+                              {/* 선택 */}
+                              {t('SpaceModal.Select')}
+                            </span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </DialogPanel>
               </Transition.Child>
