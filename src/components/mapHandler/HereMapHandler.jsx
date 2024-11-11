@@ -30,9 +30,9 @@ export default function HereMapHandler({
           lng={selectedCoords.lng}
           locationCoords={hereLocation}
           routeFullCoords={filteredRoutes} // Pass only filtered routes
-          // clickedNode={clickedNode}
-          // routeColors={routeColors}
-          // spaceFullCoords={filteredSpaces}
+          clickedNode={clickedNode}
+          routeColors={routeColors}
+          spaceFullCoords={filteredSpaces}
         />
       ) : selectedCoords && hereLocation ? (
         <HereMap
@@ -40,15 +40,15 @@ export default function HereMapHandler({
           lng={selectedCoords.lng}
           locationCoords={hereLocation}
           routeColors={routeColors} // Pass the color handler here too
-          // spaceFullCoords={filteredSpaces}
+          spaceFullCoords={filteredSpaces}
         />
       ) : !selectedCoords && hereLocation ? (
         <HereMap
           locationCoords={hereLocation}
           routeFullCoords={filteredRoutes} // Pass only filtered routes
-          // clickedNode={clickedNode}
-          // routeColors={routeColors} // Ensure this is passed here
-          // spaceFullCoords={filteredSpaces}
+          clickedNode={clickedNode}
+          routeColors={routeColors} // Ensure this is passed here
+          spaceFullCoords={filteredSpaces}
         />
       ) : hereLocation ? (
         <HereMap
