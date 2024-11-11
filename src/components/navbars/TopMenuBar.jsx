@@ -304,6 +304,9 @@ const TopMenuBar = ({
           : latError
             ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
             : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
+
+      console.log('combinedError ==>', combinedError);
+
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -370,6 +373,8 @@ const TopMenuBar = ({
         latValue = parseDEGToDecimal(lat);
         lngValue = parseDEGToDecimal(lng);
       } catch (error) {
+        console.log('error.message ==>', error.message);
+
         setErrorValue(error.message);
         setError(true);
         setTimeout(() => setError(false), 2000);

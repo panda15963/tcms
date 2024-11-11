@@ -3,21 +3,21 @@ import 'ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { fromLonLat } from 'ol/proj';
+import { fromLonLat, toLonLat } from 'ol/proj';
 import { OSM } from 'ol/source';
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 import { Feature } from 'ol';
-import { Point } from 'ol/geom';
 import VectorSource from 'ol/source/Vector';
 import { Circle as CircleGeom } from 'ol/geom';
 
-const MapComponent = ({ radius }) => {
+const MapComponent = ({ latitude, longitude, radius, onMapClick }) => {
   const mapRef = useRef();
+  const vectorSourceRef = useRef(new VectorSource());
+  const mapInstance = useRef(null);
 
   useEffect(() => {
-    const center = fromLonLat([126.978, 37.5665]); // 서울 중심 좌표
+    const center = fromLonLat([longitude, latitude]);
 
-    const vectorSource = new VectorSource();
     const circleFeature = new Feature({
       geometry: new CircleGeom(center, radius),
     });
@@ -34,28 +34,45 @@ const MapComponent = ({ radius }) => {
       }),
     );
 
-    vectorSource.addFeature(circleFeature);
+    vectorSourceRef.current.clear();
+    vectorSourceRef.current.addFeature(circleFeature);
 
-    const map = new Map({
-      target: mapRef.current,
-      layers: [
-        new TileLayer({
-          source: new OSM(),
+    if (!mapInstance.current) {
+      mapInstance.current = new Map({
+        target: mapRef.current,
+        layers: [
+          new TileLayer({
+            source: new OSM(),
+          }),
+          new VectorLayer({
+            source: vectorSourceRef.current,
+          }),
+        ],
+        view: new View({
+          center: center,
+          zoom: 11,
         }),
-        new VectorLayer({
-          source: vectorSource,
-        }),
-      ],
-      view: new View({
-        center: center,
-        zoom: 11,
-      }),
-    });
+      });
 
-    return () => map.setTarget(null); // 컴포넌트 언마운트 시 메모리 해제
-  }, [radius]);
+      // Map click event listener
+      mapInstance.current.on('click', (event) => {
+        const clickedCoordinate = toLonLat(event.coordinate);
+        const [lon, lat] = clickedCoordinate;
+        onMapClick && onMapClick({ latitude: lat, longitude: lon });
+      });
+    } else {
+      mapInstance.current.getView().setCenter(center);
+    }
+  }, [latitude, longitude, radius, onMapClick]);
 
-  return <div ref={mapRef} style={{ width: '100%', height: '130px' }} />;
+  return (
+    <div
+      style={{ width: '100%', height: '100%' }}
+      className="rounded-lg overflow-hidden border border-gray-300"
+    >
+      <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+    </div>
+  );
 };
 
 export default MapComponent;
