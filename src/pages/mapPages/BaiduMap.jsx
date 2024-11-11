@@ -65,7 +65,6 @@ export default function BaiduMap({
   const [center, setCenter] = useState(initialCoords); // Manage center state
   const mapRef = useRef({ mapInstance: null, marker: null, driving: null }); // Store map, marker, and driving route instance
 
-  console.log('checkedNodes ==>', checkedNodes);
   // Update center when lat or lng changes
   useEffect(() => {
     const newCenter = calculateCenterAndMarker(lat, lng);
@@ -102,8 +101,6 @@ export default function BaiduMap({
           },
           onSearchComplete: function (results) {
             if (driving.getStatus() === window.BMAP_STATUS_SUCCESS) {
-              console.log('Route search successful!');
-
               // Extract the polyline from the results
               const plan = results.getPlan(0);
               if (plan) {
@@ -112,10 +109,6 @@ export default function BaiduMap({
                 if (polyline) {
                   const path = polyline.getPath();
                   const distance = Math.round(polyline.getDistance());
-
-                  // Log the distance and path of the polyline
-                  console.log('Distance:', distance, 'meters');
-                  console.log('Path:', path);
                 }
               }
             } else {
@@ -130,8 +123,6 @@ export default function BaiduMap({
 
       // Perform the search with the start and end points
       driving.search(start, end);
-
-      console.log(start, end);
 
       // Save the `driving` instance to `mapRef`
       mapRef.current.driving = driving;

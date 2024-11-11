@@ -151,7 +151,6 @@ export default function GoogleMap({
         spaceFullCoords,
       );
       if (removedIndex !== -1) {
-        console.log('Space route removed at index:', removedIndex);
         // Create a new array with null at the removed index
         const newAdjustedCoords = [...previousSpaceCoords];
         newAdjustedCoords[removedIndex] = null;
@@ -253,7 +252,6 @@ export default function GoogleMap({
         routeFullCoords,
       );
       if (removedIndex !== -1) {
-        console.log('Route removed at index:', removedIndex);
         // Create a new array with null at the removed index
         const newAdjustedCoords = [...previousRouteCoords];
         newAdjustedCoords[removedIndex] = null;
@@ -270,7 +268,6 @@ export default function GoogleMap({
 
   useEffect(() => {
     console.log('Adjusted Route Coords:', adjustedRouteCoords);
-    // Do something with adjustedRouteCoords if needed
   }, [adjustedRouteCoords]);
 
   // Draw routeFullCoords on the map

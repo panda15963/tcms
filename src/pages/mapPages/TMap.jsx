@@ -19,7 +19,6 @@ function handleCoordinateInput(input) {
         } else if (typeof coord === 'string') {
           return parseCoordinates(coord);
         } else {
-          console.log('Invalid coordinate format:', coord);
           return coord;
         }
       })
@@ -281,7 +280,6 @@ export default function TMap({
       }
 
       if (spaceFullCoords && Array.isArray(spaceFullCoords)) {
-        console.log(spaceFullCoords);
         // Parse and add start, finish markers, and polylines for each space
         spaceFullCoords.forEach((space, index) => {
           const spaceChecked = checkedNodes.some(
