@@ -428,12 +428,12 @@ const SpaceModal = forwardRef(
                         <input
                           type="text"
                           className="border p-1 rounded w-full text-center" // 너비를 w-24 등으로 제한
-                          value={latitude}
-                          onChange={handleLatitudeChange}
-                          onFocus={handleFocus(setLatitude)}
+                          value={longitude}
+                          onChange={handleLongitudeChange}
+                          onFocus={handleFocus(setLongitude)}
                           onBlur={handleBlur(
-                            latitude,
-                            setLatitude,
+                            longitude,
+                            setLongitude,
                             roundToFive(process.env.REACT_APP_LATITUDE),
                           )}
                         />
