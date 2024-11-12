@@ -274,6 +274,33 @@ const SpaceModal = forwardRef(
       const dataToDownload = checkedLists;
       console.log('dataToDownload', dataToDownload);
 
+      // JSON 파일 다운로드 추가
+      for (const item of dataToDownload) {
+        try {
+          // 각 item의 filename 속성에 따라 파일명 지정
+          const filename = item.file_name
+            ? `${item.file_name}.meta`
+            : 'dataToDownload.meta';
+          const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
+            type: 'application/json',
+          });
+          const jsonUrl = window.URL.createObjectURL(jsonBlob);
+          const jsonLink = document.createElement('a');
+
+          jsonLink.href = jsonUrl;
+          jsonLink.download = filename; // 지정된 파일명으로 다운로드
+          document.body.appendChild(jsonLink);
+          jsonLink.click();
+          document.body.removeChild(jsonLink);
+          window.URL.revokeObjectURL(jsonUrl);
+        } catch (error) {
+          console.error(
+            `Failed to download JSON file for ${item.filename || 'dataToDownload'}:`,
+            error,
+          );
+        }
+      }
+
       for (const file of dataToDownload) {
         try {
           // sequence 0 = 로그파일

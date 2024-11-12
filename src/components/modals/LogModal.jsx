@@ -1269,7 +1269,34 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const handleRouteDownload = async () => {
     const dataToDownload = list;
-    console.log('dataToDownload', dataToDownload);
+    console.log('dataToDownload ==>', dataToDownload);
+
+    // JSON 파일 다운로드 추가
+    for (const item of dataToDownload) {
+      try {
+        // 각 item의 filename 속성에 따라 파일명 지정
+        const filename = item.file_name
+          ? `${item.file_name}.meta`
+          : 'dataToDownload.meta';
+        const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
+          type: 'application/json',
+        });
+        const jsonUrl = window.URL.createObjectURL(jsonBlob);
+        const jsonLink = document.createElement('a');
+
+        jsonLink.href = jsonUrl;
+        jsonLink.download = filename; // 지정된 파일명으로 다운로드
+        document.body.appendChild(jsonLink);
+        jsonLink.click();
+        document.body.removeChild(jsonLink);
+        window.URL.revokeObjectURL(jsonUrl);
+      } catch (error) {
+        console.error(
+          `Failed to download JSON file for ${item.filename || 'dataToDownload'}:`,
+          error,
+        );
+      }
+    }
 
     for (const file of dataToDownload) {
       try {
@@ -1339,6 +1366,33 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const handleRouteDetailDownload = async () => {
     const dataToDownload = list2;
     console.log('dataToDownload', dataToDownload);
+
+    // JSON 파일 다운로드 추가
+    for (const item of dataToDownload) {
+      try {
+        // 각 item의 filename 속성에 따라 파일명 지정
+        const filename = item.file_name
+          ? `${item.file_name}.meta`
+          : 'dataToDownload.meta';
+        const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
+          type: 'application/json',
+        });
+        const jsonUrl = window.URL.createObjectURL(jsonBlob);
+        const jsonLink = document.createElement('a');
+
+        jsonLink.href = jsonUrl;
+        jsonLink.download = filename; // 지정된 파일명으로 다운로드
+        document.body.appendChild(jsonLink);
+        jsonLink.click();
+        document.body.removeChild(jsonLink);
+        window.URL.revokeObjectURL(jsonUrl);
+      } catch (error) {
+        console.error(
+          `Failed to download JSON file for ${item.filename || 'dataToDownload'}:`,
+          error,
+        );
+      }
+    }
 
     for (const file of dataToDownload) {
       try {
@@ -1426,6 +1480,33 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
     console.log('결과 리스트 ==>', resultList);
     console.log('결과 리스트 flatResultList ==>', flatResultList);
+
+    // JSON 파일 다운로드 추가
+    for (const item of flatResultList) {
+      try {
+        // 각 item의 filename 속성에 따라 파일명 지정
+        const filename = item.file_name
+          ? `${item.file_name}.meta`
+          : 'flatResultList.meta';
+        const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
+          type: 'application/json',
+        });
+        const jsonUrl = window.URL.createObjectURL(jsonBlob);
+        const jsonLink = document.createElement('a');
+
+        jsonLink.href = jsonUrl;
+        jsonLink.download = filename; // 지정된 파일명으로 다운로드
+        document.body.appendChild(jsonLink);
+        jsonLink.click();
+        document.body.removeChild(jsonLink);
+        window.URL.revokeObjectURL(jsonUrl);
+      } catch (error) {
+        console.error(
+          `Failed to download JSON file for ${item.filename || 'flatResultList'}:`,
+          error,
+        );
+      }
+    }
 
     for (const file of flatResultList) {
       try {
@@ -1522,6 +1603,33 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
     console.log('결과 리스트 ==>', resultList);
     console.log('결과 리스트 flatResultList ==>', flatResultList);
+
+    // JSON 파일 다운로드 추가
+    for (const item of flatResultList) {
+      try {
+        // 각 item의 filename 속성에 따라 파일명 지정
+        const filename = item.file_name
+          ? `${item.file_name}.meta`
+          : 'flatResultList.meta';
+        const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
+          type: 'application/json',
+        });
+        const jsonUrl = window.URL.createObjectURL(jsonBlob);
+        const jsonLink = document.createElement('a');
+
+        jsonLink.href = jsonUrl;
+        jsonLink.download = filename; // 지정된 파일명으로 다운로드
+        document.body.appendChild(jsonLink);
+        jsonLink.click();
+        document.body.removeChild(jsonLink);
+        window.URL.revokeObjectURL(jsonUrl);
+      } catch (error) {
+        console.error(
+          `Failed to download JSON file for ${item.filename || 'flatResultList'}:`,
+          error,
+        );
+      }
+    }
 
     for (const file of flatResultList) {
       try {
@@ -1628,6 +1736,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               <DialogPanel
                 className="relative rounded-lg bg-white shadow-xl text-left transition-all sm:max-w-screen-xl"
                 style={{ width: '1324px' }}
+                static
               >
                 {/* 모달 헤더 */}
                 {!isDirect && (
