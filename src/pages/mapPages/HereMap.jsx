@@ -18,6 +18,7 @@ const HereMap = ({
   routeColors,
   clickedNode,
   spaceFullCoords,
+  checkedNode,
 }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -163,22 +164,42 @@ const HereMap = ({
 
   const fitMapToEntities = (coords) => {
     if (!coords || coords.length === 0 || !mapInstance.current) return;
-  
+
+    // Filter out null entries and log the valid coordinates
+    const validCoords = coords.filter((coord) => coord !== null);
+    console.log('Valid coords for fitMapToEntities:', validCoords);
+
+    // If no valid coordinates remain, clear the map and exit
+    if (validCoords.length === 0) {
+      clearEntities('routes');
+      clearEntities('spaces');
+      return;
+    }
+
     let bounds = null;
     let totalLat = 0;
     let totalLng = 0;
     let pointCount = 0;
-  
-    coords.forEach((coord) => {
-      if (coord && Array.isArray(coord.coords)) {
+
+    validCoords.forEach((coord) => {
+      if (Array.isArray(coord.coords)) {
         coord.coords.forEach((point) => {
-          if (point && typeof point.lat === 'number' && typeof point.lng === 'number') {
+          if (
+            point &&
+            typeof point.lat === 'number' &&
+            typeof point.lng === 'number'
+          ) {
             totalLat += point.lat;
             totalLng += point.lng;
             pointCount += 1;
-  
+
             if (!bounds) {
-              bounds = new H.geo.Rect(point.lat, point.lng, point.lat, point.lng);
+              bounds = new H.geo.Rect(
+                point.lat,
+                point.lng,
+                point.lat,
+                point.lng
+              );
             } else {
               bounds.mergePoint({ lat: point.lat, lng: point.lng });
             }
@@ -186,65 +207,84 @@ const HereMap = ({
         });
       }
     });
-  
+
     // Calculate the midpoint
     const midLat = pointCount > 0 ? totalLat / pointCount : 0;
     const midLng = pointCount > 0 ? totalLng / pointCount : 0;
-  
+
     // Set the map center to the midpoint and adjust zoom
     mapInstance.current.setCenter({ lat: midLat, lng: midLng });
-    mapInstance.current.setZoom(10); 
+    mapInstance.current.setZoom(10);
   };
 
   const renderEntities = (coords, type) => {
+    console.log('Rendering entities:', type);
+    clearEntities(type); // Clear previous entities
+
     if (!mapInstance.current || !coords) return;
 
-    coords.forEach((coord, index) => {
-      if (coord && Array.isArray(coord.coords)) {
-        const lineString = new H.geo.LineString();
-        coord.coords.forEach((point) =>
-          lineString.pushPoint({ lat: point.lat, lng: point.lng })
-        );
+    coords
+      .filter((coord) => coord && checkedNode[coord.file_id] !== false) // Render if checked or undefined in `checkedNode`
+      .forEach((coord, index) => {
+        if (Array.isArray(coord.coords)) {
+          const lineString = new H.geo.LineString();
+          coord.coords.forEach((point) =>
+            lineString.pushPoint({ lat: point.lat, lng: point.lng })
+          );
 
-        const color =
-          routeColors && routeColors[index % routeColors.length]
-            ? routeColors[index % routeColors.length]
-            : '#0000FF';
-        const polyline = new H.map.Polyline(lineString, {
-          style: { lineWidth: 5, strokeColor: color },
-        });
-        mapInstance.current.addObject(polyline);
-        polylineRefs.current[type].push(polyline);
+          const color =
+            routeColors && routeColors[index % routeColors.length]
+              ? routeColors[index % routeColors.length]
+              : '#0000FF';
 
-        const startIcon = new H.map.Icon(Start_Point, {
-          size: { w: 32, h: 32 },
-        });
-        const endIcon = new H.map.Icon(End_Point, { size: { w: 32, h: 32 } });
-        const startMarker = new H.map.Marker(coord.coords[0], {
-          icon: startIcon,
-        });
-        const endMarker = new H.map.Marker(
-          coord.coords[coord.coords.length - 1],
-          { icon: endIcon }
-        );
+          const polyline = new H.map.Polyline(lineString, {
+            style: { lineWidth: 5, strokeColor: color },
+          });
+          mapInstance.current.addObject(polyline);
+          polylineRefs.current[type].push(polyline);
 
-        mapInstance.current.addObject(startMarker);
-        mapInstance.current.addObject(endMarker);
+          const startIcon = new H.map.Icon(Start_Point, {
+            size: { w: 32, h: 32 },
+          });
+          const endIcon = new H.map.Icon(End_Point, { size: { w: 32, h: 32 } });
+          const startMarker = new H.map.Marker(coord.coords[0], {
+            icon: startIcon,
+          });
+          const endMarker = new H.map.Marker(
+            coord.coords[coord.coords.length - 1],
+            { icon: endIcon }
+          );
 
-        markerRefs.current[type].push(startMarker, endMarker);
-      }
-    });
+          mapInstance.current.addObject(startMarker);
+          mapInstance.current.addObject(endMarker);
+
+          markerRefs.current[type].push(startMarker, endMarker);
+        }
+      });
 
     fitMapToEntities(coords);
   };
 
+  // Ensure `clearEntities` removes both polylines and markers effectively
+  const clearEntities = (type) => {
+    polylineRefs.current[type].forEach((polyline) =>
+      mapInstance.current.removeObject(polyline)
+    );
+    markerRefs.current[type].forEach((marker) =>
+      mapInstance.current.removeObject(marker)
+    );
+    polylineRefs.current[type] = [];
+    markerRefs.current[type] = [];
+  };
+
+  // Update entities when adjusted coordinates or checkedNode changes
   useEffect(() => {
     renderEntities(adjustedRouteCoords, 'routes');
-  }, [adjustedRouteCoords, routeColors]);
+  }, [adjustedRouteCoords, routeColors, checkedNode]);
 
   useEffect(() => {
     renderEntities(adjustedSpaceCoords, 'spaces');
-  }, [adjustedSpaceCoords, routeColors]);
+  }, [adjustedSpaceCoords, routeColors, checkedNode]);
 
   useEffect(() => {
     const initialCoords = calculateCenterAndMarker(lat, lng);
