@@ -502,7 +502,7 @@ const TopMenuBar = ({
             <div className="mx-auto inset-x-0">
               <div className="flex h-[52px] justify-between">
                 <div className="flex items-center lg:px-0">
-                  <div className="hidden lg:block transform scale-90">
+                  <div className="hidden lg:ml-5 lg:block scale-90">
                     <div className="flex">
                       <label className="px-3 py-2 text-sm font-bold text-white">
                         {/* 지도 선택 */}
