@@ -143,11 +143,11 @@ export default function Login() {
             alt="background"
             className="absolute top-0 left-0 w-full h-full object-cover"
           />
-          <div className="relative flex h-full w-full">
+          <div className="relative flex h-full w-full ">
             <div className="flex-[7]" />
             <div className="flex-[3] flex justify-center items-center bg-white">
               <div className="w-full">
-                <div className="w-full justify-center py-12 ">
+                <div className="w-full justify-center py-12 transform scale-90">
                   <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                     {/* TestCourse ManagementSystem */}
                     <h1 className="text-5xl font-bold tracking-tight text-gray-900">

@@ -34,12 +34,12 @@ export default function SwitchLanguages({ onClick }) {
       <button
         type="button"
         onClick={handleLanguageChange}
-        className="focus:outline-none"
+        className="focus:outline-none transform scale-95"
       >
         <img
           src={isEnglish ? usaflag : korflag}
           alt={isEnglish ? 'English Flag' : 'Korean Flag'}
-          className="inline-block h-10 w-10 rounded-full"
+          className="inline-block h-10 w-10 rounded-full "
         />
       </button>
     </div>
