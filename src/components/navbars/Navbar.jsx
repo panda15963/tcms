@@ -58,7 +58,7 @@ const NavBar = () => {
   };
 
   return (
-    <header className="bg-white py-2 z-30 relative">
+    <header className="bg-white pt-1 pb-1 z-30 relative">
       <nav
         className="mx-auto max-w-full lg:px-8 flex justify-between items-center"
         aria-label="Global"
