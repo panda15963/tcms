@@ -183,7 +183,7 @@
     "Description": "설명",
     "MCOLS": "MCOLS",
     "TC": "TC",
-    "TagList": "태그 목록",
+    "TAGS": "태그 목록",
     "Tag": "태그",
     "Memo": "메모",
     "FileName": "파일 이름",

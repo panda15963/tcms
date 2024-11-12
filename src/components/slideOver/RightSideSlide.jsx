@@ -91,116 +91,135 @@ export default function RightSideSlide({ data, onMapChange }) {
             },
             {
               id: `${index + 1}-10`,
-              col1: t('RightSideSlide.TagList'),
-              col2: '',
+              col1: t('RightSideSlide.MCOLS'),
               children: [
                 {
                   id: `${index + 1}-10-1`,
                   col1: '-',
-                  col2: 'None',
+                  col2: item?.mcolslist?.[0]?.name || 'N/A',
                 },
               ],
             },
             {
               id: `${index + 1}-11`,
+              col1: t('RightSideSlide.TC'),
+              children: [
+                {
+                  id: `${index + 1}-11-1`,
+                  col1: '-',
+                  col2: 'N/A',
+                },
+              ],
+            },
+            {
+              id: `${index + 1}-12`,
+              col1: t('RightSideSlide.Memo'),
+              children: [
+                {
+                  id: `${index + 1}-12-1`,
+                  col1: '-',
+                  col2: 'N/A',
+                },
+              ],
+            },
+            {
+              id: `${index + 1}-13`,
               col1: t('RightSideSlide.Target'),
               col2: item?.target_str || 'N/A',
             },
             {
-              id: `${index + 1}-12`,
+              id: `${index + 1}-14`,
               col1: t('RightSideSlide.Summary'),
               col2: item?.summary_str || 'N/A',
             },
             {
-              id: `${index + 1}-13`,
+              id: `${index + 1}-15`,
               col1: t('RightSideSlide.Departure'),
               col2: item?.start_name || 'Unknown',
               children: [
                 {
-                  id: `${index + 1}-13-1`,
+                  id: `${index + 1}-15-1`,
                   col1: t('RightSideSlide.Lon'),
                   col2: item?.start_coord?.split(',')[0] || 'N/A',
                 },
                 {
-                  id: `${index + 1}-13-2`,
+                  id: `${index + 1}-15-2`,
                   col1: t('RightSideSlide.Lat'),
                   col2: item?.start_coord?.split(',')[1] || 'N/A',
                 },
               ],
             },
             {
-              id: `${index + 1}-14`,
+              id: `${index + 1}-16`,
               col1: t('RightSideSlide.Destination'),
               col2: item?.goal_name || 'Unknown',
               children: [
                 {
-                  id: `${index + 1}-14-1`,
+                  id: `${index + 1}-16-1`,
                   col1: t('RightSideSlide.Lon'),
                   col2: item?.goal_coord?.split(',')[0] || 'N/A',
                 },
                 {
-                  id: `${index + 1}-14-2`,
+                  id: `${index + 1}-16-2`,
                   col1: t('RightSideSlide.Lat'),
                   col2: item?.goal_coord?.split(',')[1] || 'N/A',
                 },
               ],
             },
             {
-              id: `${index + 1}-15`,
+              id: `${index + 1}-17`,
               col1: t('RightSideSlide.Distance'),
               col2: item?.distance_str
                 ? `${(item.distance_str / 1000).toFixed(2)} km`
                 : 'N/A',
             },
             {
-              id: `${index + 1}-16`,
+              id: `${index + 1}-18`,
               col1: t('RightSideSlide.TripTotalTime'),
               col2: item?.triptime_total || 'N/A',
             },
             {
-              id: `${index + 1}-17`,
+              id: `${index + 1}-19`,
               col1: t('RightSideSlide.TripStartTime'),
               col2: item?.triptime_start || 'N/A',
             },
             {
-              id: `${index + 1}-18`,
+              id: `${index + 1}-20`,
               col1: t('RightSideSlide.TripEndTime'),
               col2: item?.triptime_end || 'N/A',
             },
             {
-              id: `${index + 1}-19`,
+              id: `${index + 1}-21`,
               col1: t('RightSideSlide.Description'),
               col2: item?.summary_str || 'N/A',
             },
             {
-              id: `${index + 1}-20`,
-              col1: t('RightSideSlide.TagList'),
-              col2: item?.tags?.[0] || 'None',
+              id: `${index + 1}-22`,
+              col1: t('RightSideSlide.TAGS'),
               children: [
                 {
-                  id: `${index + 1}-20-1`,
+                  id: `${index + 1}-22-1`,
                   col1: t('RightSideSlide.Tag'),
                   col2: item?.tags?.[0] || 'None',
                 },
               ],
             },
             {
-              id: `${index + 1}-21`,
+              id: `${index + 1}-23`,
               col1: t('RightSideSlide.FileName'),
               col2: item?.file_name || 'N/A',
             },
             {
-              id: `${index + 1}-22`,
+              id: `${index + 1}-24`,
               col1: t('RightSideSlide.PassingPoint'),
-              col2: item?.passing_point || 'N/A',
               children: [
                 {
-                  id: `${index + 1}-22-1`,
+                  id: `${index + 1}-24-1`,
                   col1: t('RightSideSlide.Address'),
                   col2: item?.passingpts?.[0]?.address || 'N/A',
                 },
                 {
-                  id: `${index + 1}-22-2`,
+                  id: `${index + 1}-24-2`,
                   col1: t('RightSideSlide.Lon'),
                   col2: item?.passingpts?.[1]?.address || 'N/A',
                 },
