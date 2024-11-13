@@ -59,10 +59,10 @@ export default function StatSideBar() {
         leaveFrom="translate-x-0"
         leaveTo="-translate-x-full"
       >
-        <div className="fixed inset-y-0 top-32 left-0 w-auto bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
+        <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
           <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
             <div className="flex items-center justify-between">
-              <label className="flex text-sm font-semibold leading-6 text-white">
+              <label className="flex font-semibold leading-6 text-white">
                 {t('StatSideBar.StatMenu')}
               </label>
               <div className="ml-3 flex h-7 items-center">
@@ -82,7 +82,7 @@ export default function StatSideBar() {
                 <li key={item.id} className="w-full">
                   <button
                     onClick={() => handleItemClick(item.id, item.link)}
-                    className={`block w-full px-4 py-2 rounded-md text-sm
+                    className={`block w-full px-4 py-2 rounded-md
           ${
             selectedItem?.id === item.id // Compare selectedItem.id with item.id
               ? 'bg-black text-white font-bold'
