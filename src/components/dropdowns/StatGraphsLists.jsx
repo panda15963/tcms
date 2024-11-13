@@ -9,16 +9,8 @@ import {
 import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-
-const menuItems = (t) => [
-  { id: 1, name: t('StatNavBar.TECT'), link: '#' },
-  { id: 2, name: t('StatNavBar.TECV'), link: '#' },
-  { id: 3, name: t('StatNavBar.TUCF'), link: '#' },
-  { id: 4, name: t('StatNavBar.TUSRT'), link: '#' },
-  { id: 5, name: t('StatNavBar.RTTUI'), link: '#' },
-  { id: 6, name: t('StatNavBar.CTL'), link: '#' },
-  { id: 7, name: t('StatNavBar.TCIC'), link: '#' },
-];
+import { menuItems } from './StatMenuItems';
+import { useSelectedItem } from '../../context/SelectedItemContext';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -26,28 +18,33 @@ function classNames(...classes) {
 
 export default function StatGraphsLists() {
   const { t } = useTranslation();
+  const { selectedItem, setSelectedItem } = useSelectedItem();
   const navigate = useNavigate();
   const location = useLocation();
+  const items = menuItems(t);
+
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    const path = location.pathname.split('/').pop().toUpperCase();
-    const initialSelected =
-      menuItems(t).find((api) => api.name === path) || menuItems(t)[0];
-    setSelected(initialSelected);
-  }, [location.pathname, t]);
+    const currentSelected = items.find((item) => `/main/dashboard${item.link}` === location.pathname);
+
+    if (currentSelected) {
+      if (selected?.id !== currentSelected.id) {
+        setSelected(currentSelected);
+        setSelectedItem(currentSelected); // Sync global state as well
+      }
+    } else if (items[0]) {
+      setSelected(items[0]);
+      setSelectedItem(items[0]);
+      navigate(`/main/dashboard${items[0].link}`);
+    }
+  }, [location.pathname, items, selected, setSelectedItem, navigate]);
 
   const handleOnSelectMap = (selectedMap) => {
     setSelected(selectedMap);
+    setSelectedItem(selectedMap);
+    navigate(`/main/dashboard${selectedMap.link}`);
   };
-
-  useEffect(() => {
-    if (selected) {
-      // Perform actions with the selected map API if needed
-    }
-  }, [selected, navigate]);
-
-  if (!selected) return null;
 
   return (
     <Listbox value={selected} onChange={handleOnSelectMap}>
@@ -55,7 +52,9 @@ export default function StatGraphsLists() {
         <>
           <div className="relative min-w-32">
             <ListboxButton className="relative w-64 cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-              <span className="block truncate font-bold">{selected.name}</span>
+              <span className="block truncate font-bold">
+                {selected ? selected.name : ''}
+              </span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <FaAngleDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
               </span>
@@ -68,7 +67,7 @@ export default function StatGraphsLists() {
               leaveTo="opacity-0"
             >
               <ListboxOptions className="absolute z-50 mt-1 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                {menuItems(t).map((mapAPI) => (
+                {items.map((mapAPI) => (
                   <ListboxOption
                     key={mapAPI.id}
                     className={({ selected, active }) =>

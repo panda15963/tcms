@@ -1,34 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Transition } from '@headlessui/react';
 import { FaXmark } from 'react-icons/fa6';
 import { FaArrowCircleRight } from 'react-icons/fa';
-import { GoDotFill } from 'react-icons/go';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-
-const menuItems = (t) => [
-  { id: 1, name: t('StatSideBar.TECT'), link: '#' },
-  { id: 2, name: t('StatSideBar.TECV'), link: '#' },
-  { id: 3, name: t('StatSideBar.TUCF'), link: '#' },
-  { id: 4, name: t('StatSideBar.TUSRT'), link: '#' },
-  { id: 5, name: t('StatSideBar.RTTUI'), link: '#' },
-  { id: 6, name: t('StatSideBar.CTL'), link: '#' },
-  { id: 7, name: t('StatSideBar.TCIC'), link: '#' },
-];
+import { useLocation, useNavigate } from 'react-router-dom';
+import { menuItems } from '../dropdowns/StatMenuItems';
+import { useSelectedItem } from '../../context/SelectedItemContext';
 
 export default function StatSideBar() {
   const { t } = useTranslation();
-  const items = menuItems(t); // Get items by calling menuItems(t)
+  const { selectedItem, setSelectedItem } = useSelectedItem();
+  const items = menuItems(t);
+  const location = useLocation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(items[0].id); // Use items[0].id
+
+  useEffect(() => {
+    const currentItem = items.find(
+      (item) => `/main/dashboard${item.link}` === location.pathname
+    );
+    if (currentItem && currentItem.id !== selectedItem?.id) {
+      setSelectedItem(currentItem);
+    } else if (!currentItem) {
+      navigate(`/main/dashboard${items[0].link}`);
+      setSelectedItem(items[0]);
+    }
+  }, [location.pathname, items, selectedItem, navigate, setSelectedItem]);
 
   const togglePanel = () => {
     setOpen(!open);
   };
 
-  const handleItemClick = (id) => {
-    setSelectedItem(id);
-    togglePanel(); // Close the sidebar after selecting if desired
+  const handleItemClick = (id, link) => {
+    const item = items.find((i) => i.id === id);
+    setSelectedItem(item);
+    navigate(`/main/dashboard${link}`);
   };
 
   return (
@@ -53,10 +59,10 @@ export default function StatSideBar() {
         leaveFrom="translate-x-0"
         leaveTo="-translate-x-full"
       >
-        <div className="fixed inset-y-0 top-14 left-0 w-auto bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[1000px] rounded-tr-lg">
+        <div className="fixed inset-y-0 top-32 left-0 w-auto bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
           <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
             <div className="flex items-center justify-between">
-              <label className="flex text-base font-semibold leading-6 text-white">
+              <label className="flex text-sm font-semibold leading-6 text-white">
                 {t('StatSideBar.StatMenu')}
               </label>
               <div className="ml-3 flex h-7 items-center">
@@ -73,20 +79,18 @@ export default function StatSideBar() {
           <div className="px-2 overflow-x-auto pb-5 scroll-smooth overflow-auto">
             <ul className="space-y-2">
               {items.map((item) => (
-                <li key={item.id}>
-                  <Link
-                    href={item.link}
-                    onClick={() => handleItemClick(item.id)}
-                    className={`block px-4 py-2 rounded-md text-md font-bold 
-                      ${
-                        selectedItem === item.id
-                          ? 'bg-black text-white'
-                          : 'text-black hover:bg-black hover:text-white'
-                      }`}
+                <li key={item.id} className="w-full">
+                  <button
+                    onClick={() => handleItemClick(item.id, item.link)}
+                    className={`block w-full px-4 py-2 rounded-md text-sm
+          ${
+            selectedItem?.id === item.id // Compare selectedItem.id with item.id
+              ? 'bg-black text-white font-bold'
+              : 'text-black hover:bg-black hover:text-white'
+          }`}
                   >
-                    <GoDotFill className="inline-block mr-2" />
                     {item.name}
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>
