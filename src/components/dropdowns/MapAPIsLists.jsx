@@ -67,7 +67,7 @@ export default function MapAPIsLists({ setSelectedAPI }) {
           <div className="relative min-w-32">
             {/* ListboxButton: 사용자가 선택한 항목을 보여주는 버튼 */}
             <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-              <span className="block truncate">{selected.name}</span>{' '}
+              <span className="block truncate font-bold">{selected.name}</span>{' '}
               {/* 선택된 API 이름 표시 */}
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <FaAngleDown
@@ -85,40 +85,37 @@ export default function MapAPIsLists({ setSelectedAPI }) {
             >
               {/* ListboxOptions는 드롭다운의 옵션들을 표시하는 컴포넌트 */}
               <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                {mapAPIs.map((mapAPI) => (
+                {mapAPIs.map((api) => (
                   <ListboxOption
-                    key={mapAPI.id} // 각 옵션의 고유 ID로 key 설정
-                    className={({ focus }) =>
+                    key={api.id}
+                    className={({ selected, focus }) =>
                       classNames(
-                        focus ? 'bg-indigo-600 text-white' : '', // 포커스된 항목 스타일
-                        !focus ? 'text-gray-900' : '', // 포커스되지 않은 항목 스타일
-                        'relative cursor-default select-none py-2 pl-8 pr-4',
+                        selected ? 'bg-indigo-600 text-white' : '', // Set background color and text color for selected item
+                        focus && !selected ? 'bg-gray-200' : '', // Optional: highlight on focus if not selected
+                        'relative cursor-default select-none py-2 pl-8 pr-4'
                       )
                     }
-                    value={mapAPI} // 선택할 때 사용되는 값
+                    value={api}
                   >
-                    {({ selected, focus }) => (
+                    {({ selected }) => (
                       <>
-                        {/* API 이름 표시 */}
                         <span
                           className={classNames(
-                            selected ? 'font-semibold' : 'font-normal', // 선택된 항목은 굵은 글꼴로 표시
-                            'block truncate',
+                            selected
+                              ? 'font-bold text-white'
+                              : 'font-bold text-gray-900', // Set font-bold and white text for selected item
+                            'block truncate'
                           )}
                         >
-                          {mapAPI.name}
+                          {api.name}
                         </span>
-                        {/* 선택된 항목에 체크 아이콘을 표시 */}
-                        {selected ? (
+                        {selected && (
                           <span
-                            className={classNames(
-                              focus ? 'text-white' : 'text-indigo-600', // 포커스 상태에 따라 아이콘 색상 변경
-                              'absolute inset-y-0 left-0 flex items-center pl-1.5',
-                            )}
+                            className="absolute inset-y-0 left-0 flex items-center pl-1.5 text-white" // Checkmark is also white
                           >
                             <FaCheck className="h-5 w-5" aria-hidden="true" />
                           </span>
-                        ) : null}
+                        )}
                       </>
                     )}
                   </ListboxOption>
