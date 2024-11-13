@@ -58,14 +58,14 @@ const NavBar = () => {
   };
 
   return (
-    <header className="bg-white py-2 z-30 relative">
+    <header className="bg-white pt-1 pb-1 z-30 relative border-b-2">
       <nav
         className="mx-auto max-w-full lg:px-8 flex justify-between items-center"
         aria-label="Global"
       >
         <div className="flex lg:flex-1">
-          <Link to="/main/map" className="-m-1.5 p-1.5">
-            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+          <Link to="/main/map" className="-m-1.5 p-1.5 ">
+            <div className="sm:mx-auto sm:w-full sm:max-w-sm transform scale-95">
               <div className="flex items-center space-x-1">
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                   TestCourse
@@ -90,7 +90,7 @@ const NavBar = () => {
             )}
           </button>
         </div>
-        <div className="hidden lg:flex lg:gap-x-12 text-center">
+        <div className="hidden lg:flex lg:gap-x-12 text-center transform scale-95">
           <Link
             to="/main/map"
             className="text-sm font-semibold flex items-center"
@@ -126,7 +126,7 @@ const NavBar = () => {
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
             >
-              <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40">
+              <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40 ">
                 <MenuItem>
                   {({ active }) => (
                     <>
@@ -149,7 +149,7 @@ const NavBar = () => {
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end py">
           <SwitchLanguages onClick={changeLanguage} />
-          <Menu as="div" className="relative ml-3">
+          <Menu as="div" className="relative ml-3 transform scale-95">
             <MenuButton className="flex items-center">
               <img
                 className="h-10 w-10 rounded-full"

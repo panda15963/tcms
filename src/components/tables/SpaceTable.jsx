@@ -188,6 +188,8 @@ const SpaceTable = ({ list, onSelectionChange }) => {
     console.log('useEffect LIST ==>', list);
     if (list && !isEmpty(list.list)) {
       setData(list.list);
+    } else if (isEmpty(list.list)) {
+      setData([]);
     }
   }, [list]);
 
@@ -222,7 +224,9 @@ const SpaceTable = ({ list, onSelectionChange }) => {
                 <th
                   key={header.id}
                   className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider"
-                  style={{ whiteSpace: 'nowrap' }}
+                  style={{
+                    whiteSpace: 'nowrap',
+                  }}
                 >
                   {header.isPlaceholder
                     ? null

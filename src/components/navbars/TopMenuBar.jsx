@@ -304,6 +304,9 @@ const TopMenuBar = ({
           : latError
             ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
             : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
+
+      console.log('combinedError ==>', combinedError);
+
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -370,6 +373,8 @@ const TopMenuBar = ({
         latValue = parseDEGToDecimal(lat);
         lngValue = parseDEGToDecimal(lng);
       } catch (error) {
+        console.log('error.message ==>', error.message);
+
         setErrorValue(error.message);
         setError(true);
         setTimeout(() => setError(false), 2000);
@@ -497,7 +502,7 @@ const TopMenuBar = ({
             <div className="mx-auto inset-x-0">
               <div className="flex h-[52px] justify-between">
                 <div className="flex items-center lg:px-0">
-                  <div className="hidden lg:ml-5 lg:block">
+                  <div className="hidden lg:block scale-90 z-50">
                     <div className="flex">
                       <label className="px-3 py-2 text-sm font-bold text-white">
                         {/* 지도 선택 */}
