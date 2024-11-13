@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Transition } from '@headlessui/react';
-import { FaXmark, FaArrowRightLong } from 'react-icons/fa6';
+import { FaXmark } from 'react-icons/fa6';
+import { FaArrowCircleRight } from 'react-icons/fa';
 import { GoDotFill } from 'react-icons/go';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -38,7 +39,7 @@ export default function StatSideBar() {
             className="text-white px-2 py-3 rounded-r-full bg-blue-600 hover:bg-blue-700"
             onClick={togglePanel}
           >
-            <FaArrowRightLong size={30} />
+            <FaArrowCircleRight size={30} />
           </button>
         </div>
       )}
