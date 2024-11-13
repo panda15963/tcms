@@ -1,0 +1,97 @@
+import { useState } from 'react';
+import { Transition } from '@headlessui/react';
+import { FaXmark, FaArrowRightLong } from 'react-icons/fa6';
+import { GoDotFill } from 'react-icons/go';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+
+const menuItems = (t) => [
+  { id: 1, name: t('StatSideBar.TECT'), link: '#' },
+  { id: 2, name: t('StatSideBar.TECV'), link: '#' },
+  { id: 3, name: t('StatSideBar.TUCF'), link: '#' },
+  { id: 4, name: t('StatSideBar.TUSRT'), link: '#' },
+  { id: 5, name: t('StatSideBar.RTTUI'), link: '#' },
+  { id: 6, name: t('StatSideBar.CTL'), link: '#' },
+  { id: 7, name: t('StatSideBar.TCIC'), link: '#' },
+];
+
+export default function StatSideBar() {
+  const { t } = useTranslation();
+  const items = menuItems(t); // Get items by calling menuItems(t)
+  const [open, setOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(items[0].id); // Use items[0].id
+
+  const togglePanel = () => {
+    setOpen(!open);
+  };
+
+  const handleItemClick = (id) => {
+    setSelectedItem(id);
+    togglePanel(); // Close the sidebar after selecting if desired
+  };
+
+  return (
+    <div className="flex">
+      {!open && (
+        <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-10">
+          <button
+            className="text-white px-2 py-3 rounded-r-full bg-blue-600 hover:bg-blue-700"
+            onClick={togglePanel}
+          >
+            <FaArrowRightLong size={30} />
+          </button>
+        </div>
+      )}
+
+      <Transition
+        show={open}
+        enter="transform transition ease-in-out duration-500 sm:duration-700"
+        enterFrom="-translate-x-full"
+        enterTo="translate-x-0"
+        leave="transform transition ease-in-out duration-500 sm:duration-700"
+        leaveFrom="translate-x-0"
+        leaveTo="-translate-x-full"
+      >
+        <div className="fixed inset-y-0 top-14 left-0 w-auto bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[1000px] rounded-tr-lg">
+          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
+            <div className="flex items-center justify-between">
+              <label className="flex text-base font-semibold leading-6 text-white">
+                {t('StatSideBar.StatMenu')}
+              </label>
+              <div className="ml-3 flex h-7 items-center">
+                <button
+                  type="button"
+                  className="relative rounded-md text-indigo-200 hover:text-white focus:outline-none"
+                  onClick={togglePanel}
+                >
+                  <FaXmark className="h-6 w-6" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="px-2 overflow-x-auto pb-5 scroll-smooth overflow-auto">
+            <ul className="space-y-2">
+              {items.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={item.link}
+                    onClick={() => handleItemClick(item.id)}
+                    className={`block px-4 py-2 rounded-md text-md font-bold 
+                      ${
+                        selectedItem === item.id
+                          ? 'bg-black text-white'
+                          : 'text-black hover:bg-black hover:text-white'
+                      }`}
+                  >
+                    <GoDotFill className="inline-block mr-2" />
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </Transition>
+    </div>
+  );
+}
