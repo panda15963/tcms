@@ -198,60 +198,76 @@ const defaultData = [
   },
 ];
 
+const ITEMS_PER_PAGE = 5; // 한 번에 로드할 아이템 개수
+
 // MainGrid 컴포넌트 정의
 const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
-  const { t } = useTranslation(); // Get the translation function
-  const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
+  const { t } = useTranslation();
+  const columns = useMemo(() => defaultColumns(t), [t]);
 
-  const [data, setData] = useState(list ?? defaultData);
+  const [displayedData, setDisplayedData] = useState([]); // 표시할 데이터
+  const [page, setPage] = useState(1); // 현재 페이지 번호
   const [selectedRows, setSelectedRows] = useState([]);
 
+  // list가 배열인지 확인하고, 아니면 빈 배열로 초기화
+  const validList = Array.isArray(list?.list) ? list.list : [];
+
+  // list 변경 시 초기 데이터를 설정
   useEffect(() => {
-    console.log('useEffect LIST ==>', list);
-    if (list && !isEmpty(list.list)) {
-      setData(list.list);
+    if (validList.length > 0) {
+      setDisplayedData(validList.slice(0, ITEMS_PER_PAGE)); // 초기 데이터 설정
+      setPage(1); // 페이지 초기화
+    } else {
+      setDisplayedData([]);
     }
-  }, [list]);
+  }, [validList]);
+
+  // 페이지 변경 시 더 많은 데이터를 로드하여 기존 데이터에 추가
+  useEffect(() => {
+    if (page > 1) {
+      const newItems = validList.slice(
+        (page - 1) * ITEMS_PER_PAGE,
+        page * ITEMS_PER_PAGE,
+      );
+      setDisplayedData((prevDisplayedData) => [
+        ...prevDisplayedData,
+        ...newItems,
+      ]);
+    }
+  }, [page, validList]);
+
+  // 더 많은 항목 보기 버튼 핸들러
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
 
   const table = useReactTable({
-    data, // 테이블에 사용할 데이터
-    columns, // 테이블에 사용할 컬럼
-    getCoreRowModel: getCoreRowModel(), // 기본 행 모델을 가져오는 함수 사용
-    state: {}, // 테이블의 상태
+    data: displayedData, // 표시할 데이터만 전달
+    columns,
+    getCoreRowModel: getCoreRowModel(),
   });
-
-  // 선택된 행의 데이터 추출
-  // useEffect(() => {
-  //   const selectedRows = table
-  //     .getSelectedRowModel()
-  //     .rows.map((row) => row.original);
-  //   onSelectionChange(selectedRows);
-  // }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
   useEffect(() => {
     const currentSelectedRows = table
       .getSelectedRowModel()
       .rows.map((row) => row.original);
 
-    // 선택된 행이 변경될 때만 상태 업데이트
     if (JSON.stringify(currentSelectedRows) !== JSON.stringify(selectedRows)) {
       setSelectedRows(currentSelectedRows);
-      onSelectionChange(currentSelectedRows); // 부모 컴포넌트로 업데이트된 선택된 행 전달
+      onSelectionChange(currentSelectedRows); // 선택된 행을 부모 컴포넌트로 전달
     }
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
-  // 셀 클릭 이벤트 핸들러 (더블클릭 시 모달 열기)
   const handleCellDoubleClick = (rowData) => {
     console.log('Row double clicked:', rowData);
     if (onCellDoubleClick) {
-      onCellDoubleClick(rowData); // 더블클릭 시 부모 컴포넌트로 데이터를 전달해 모달 열기
+      onCellDoubleClick(rowData); // 셀 더블클릭 시 부모 컴포넌트로 데이터 전달
     }
   };
 
   return (
-    // <div className="my-2 h-96 block overflow-x-auto">
-    <div className="my-2 h-[400px] block overflow-x-auto">
-      <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
+    <div className="my-2 h-[400px] block overflow-x-auto text-center">
+      <table className="min-w-full divide-y divide-gray-200 border-gray-300">
         <thead className="bg-gray-50 border-2 sticky top-0 ">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
@@ -260,12 +276,11 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
                   key={header.id}
                   className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider text-nowrap"
                 >
-                  {/* 헤더 렌더링 */}
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header, // 컬럼 헤더 렌더링
-                        header.getContext(), // 헤더의 컨텍스트
+                        header.column.columnDef.header,
+                        header.getContext(),
                       )}
                 </th>
               ))}
@@ -277,14 +292,13 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
             <tr
               key={row.id}
               className={row.getIsSelected() ? 'bg-gray-100' : ''}
-              onDoubleClick={() => handleCellDoubleClick(row.original)} // 셀 더블클릭 이벤트 추가
+              onDoubleClick={() => handleCellDoubleClick(row.original)}
             >
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
                   className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
                 >
-                  {/* 셀 렌더링 */}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
@@ -292,6 +306,16 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
           ))}
         </tbody>
       </table>
+
+      {/* 더 많은 항목 보기 버튼 */}
+      {displayedData.length < validList.length && (
+        <button
+          onClick={handleLoadMore}
+          className="mt-1 px-2 py-1 bg-blue-500 text-white rounded"
+        >
+          {t('SpaceTable.LoadMore', '더 많은 항목 보기')}
+        </button>
+      )}
     </div>
   );
 };

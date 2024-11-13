@@ -146,7 +146,9 @@
     "LogType": "로그 종류",
     "Target": "대상",
     "Summary": "요약",
-    "NoResults": "검색된 결과가 없습니다."
+    "NoResults": "검색된 결과가 없습니다.",
+    "LoadingMore": "더 많은 항목을 로드 중...",
+    "LoadMore": "더 많은 항목 보기"
   },
   "GoogleMap": {
     "RouteZeroResults": "경로를 찾을 수 없습니다.",

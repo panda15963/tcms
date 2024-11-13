@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   flexRender,
@@ -177,60 +177,45 @@ const defaultData = [
   },
 ];
 
-const ITEMS_PER_PAGE = 5; // 한 번에 로드할 아이템 개수
-
 const SpaceTable = ({ list, onSelectionChange }) => {
   const { t } = useTranslation();
-  const [displayedData, setDisplayedData] = useState([]); // 화면에 표시할 데이터
-  const [page, setPage] = useState(1); // 현재 페이지 번호
+  const [data, setData] = useState(list ?? defaultData);
+  const [selectedRows, setSelectedRows] = useState([]);
+
   const columns = useMemo(() => SpaceTableHeaderList(t), [t]);
 
-  // list.list가 배열인지 확인하고, 아니면 빈 배열로 초기화
-  const validList = Array.isArray(list.list) ? list.list : [];
-
-  // 초기 및 리스트 변경 시 데이터를 설정하는 useEffect
   useEffect(() => {
-    if (validList.length > 0) {
-      setDisplayedData(validList.slice(0, ITEMS_PER_PAGE)); // 초기 데이터만 설정
-      setPage(1); // 페이지를 초기화
-    } else {
-      setDisplayedData([]); // 리스트가 없으면 빈 배열 설정
+    console.log('useEffect LIST ==>', list);
+    if (list && !isEmpty(list.list)) {
+      setData(list.list);
+    } else if (isEmpty(list.list)) {
+      setData([]);
     }
-  }, [validList]);
-
-  // 페이지 변경 시 더 많은 데이터를 로드하여 기존 데이터에 추가
-  useEffect(() => {
-    if (page > 1) {
-      const newItems = validList.slice(
-        (page - 1) * ITEMS_PER_PAGE,
-        page * ITEMS_PER_PAGE,
-      );
-      setDisplayedData((prevDisplayedData) => [
-        ...prevDisplayedData,
-        ...newItems,
-      ]);
-    }
-  }, [page, validList]);
-
-  // 더 많은 항목 보기 버튼 핸들러
-  const handleLoadMore = () => {
-    setPage((prevPage) => prevPage + 1);
-  };
+  }, [list]);
 
   const table = useReactTable({
-    data: displayedData, // 보여줄 데이터만 전달
+    data: data ?? [], // Ensure data is always an array
     columns,
     getCoreRowModel: getCoreRowModel(),
+    state: {},
   });
 
   useEffect(() => {
     const rows = table.getSelectedRowModel().rows;
+    if (!rows || !Array.isArray(rows)) return;
+
     const currentSelectedRows = rows.map((row) => row.original);
-    onSelectionChange(currentSelectedRows);
+    if (JSON.stringify(currentSelectedRows) !== JSON.stringify(selectedRows)) {
+      setSelectedRows(currentSelectedRows);
+      onSelectionChange(currentSelectedRows);
+    }
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
   return (
-    <div className="overflow-auto text-center" style={{ maxHeight: '500px' }}>
+    <div
+      className="overflow-auto text-center"
+      style={{ maxHeight: '500px' }} // Set a maximum height to make the table scrollable
+    >
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -239,7 +224,9 @@ const SpaceTable = ({ list, onSelectionChange }) => {
                 <th
                   key={header.id}
                   className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider"
-                  style={{ whiteSpace: 'nowrap' }}
+                  style={{
+                    whiteSpace: 'nowrap',
+                  }}
                 >
                   {header.isPlaceholder
                     ? null
@@ -253,33 +240,36 @@ const SpaceTable = ({ list, onSelectionChange }) => {
           ))}
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
-          {table.getRowModel().rows.map((row) => (
-            <tr
-              key={row.id}
-              className={row.getIsSelected() ? 'bg-gray-100' : ''}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <td
-                  key={cell.id}
-                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
+          {table.getRowModel().rows.length === 0 ? (
+            // If there are no rows, display the "No Results" message
+            <tr>
+              <td
+                colSpan={columns.length}
+                className="p-4 text-center text-gray-900"
+              >
+                {t('SpaceTable.NoResults')}
+              </td>
             </tr>
-          ))}
+          ) : (
+            // If there are rows, render them as usual
+            table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className={row.getIsSelected() ? 'bg-gray-100' : ''}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
-
-      {/* 더 많은 항목 보기 버튼 */}
-      {displayedData.length < validList.length && (
-        <button
-          onClick={handleLoadMore}
-          className="mt-1 px-2 py-1 bg-blue-500 text-white rounded "
-        >
-          {t('SpaceTable.LoadMore')}
-        </button>
-      )}
     </div>
   );
 };

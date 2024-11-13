@@ -77,13 +77,13 @@ export default function StoreTable({ stores = [], onDataReceive }) {
               typeof store.latitude === 'number'
                 ? store.latitude.toFixed(6)
                 : typeof store.position?.lat === 'number'
-                ? store.position.lat.toFixed(6)
-                : 'N/A',
+                  ? store.position.lat.toFixed(6)
+                  : 'N/A',
               typeof store.longitude === 'number'
                 ? store.longitude.toFixed(6)
                 : typeof store.position?.lng === 'number'
-                ? store.position.lng.toFixed(6)
-                : 'N/A',
+                  ? store.position.lng.toFixed(6)
+                  : 'N/A',
             ];
             return (
               <tr
@@ -124,7 +124,7 @@ export default function StoreTable({ stores = [], onDataReceive }) {
             }) ||
               `Showing ${indexOfFirstStore + 1} to ${Math.min(
                 indexOfLastStore,
-                stores.length
+                stores.length,
               )} of ${stores.length} stores`}
           </span>
         )}
