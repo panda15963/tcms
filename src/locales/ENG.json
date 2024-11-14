@@ -228,5 +228,8 @@
     "RTTUI": "Real-Time Tool Usage Information",
     "CTL": "Check Tool Logs",
     "TCIC": "Tool Configuration Information Change"
+  },
+  "AlertMessage": {
+    "Check": "Check"
   }
 }
