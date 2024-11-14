@@ -4,7 +4,7 @@ import {
   DisclosurePanel,
 } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import StatGraphsLists from '../dropdowns/StatGraphsLists';
+import StatGraphsLists from '../dropdowns/statMenus/StatGraphsLists';
 import { useTranslation } from 'react-i18next';
 
 export default function StatTopMenuBar() {
