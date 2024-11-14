@@ -193,7 +193,7 @@ const SpaceTable = ({ list, onSelectionChange }) => {
     if (validList.length > 0) {
       setDisplayedData(validList.slice(0, ITEMS_PER_PAGE)); // 초기 데이터만 설정
       setPage(1); // 페이지를 초기화
-    } else {
+    } else if (displayedData.length > 0) {
       setDisplayedData([]); // 리스트가 없으면 빈 배열 설정
     }
   }, [validList]);
