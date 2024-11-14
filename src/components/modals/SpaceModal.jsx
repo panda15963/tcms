@@ -400,7 +400,7 @@ const SpaceModal = forwardRef(
               >
                 <DialogPanel
                   className="relative rounded-lg bg-white p-0 shadow-xl text-left transition-all sm:max-w-screen-xl"
-                  style={{ width: '1224px' }}
+                  style={{ width: '1324px' }}
                 >
                   {!isDirect && (
                     <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">

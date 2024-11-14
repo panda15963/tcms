@@ -222,6 +222,12 @@ const TopMenuBar = ({
 
   const handleCoordsChange = (e) => {
     const { name, value } = e.target;
+
+    // 숫자와 소수점만 입력할 수 있도록 제한
+    if (!/^[\d.]*$/.test(value)) {
+      return; // 숫자와 소수점 외의 입력을 무시
+    }
+
     setConvertedCoords((prevCoords) => ({
       ...prevCoords,
       [name]: value,
@@ -230,6 +236,7 @@ const TopMenuBar = ({
 
   const handleCoordsClick = (e) => {
     const { name } = e.target;
+
     setConvertedCoords((prevCoords) => ({
       ...prevCoords,
       [name]: '',
