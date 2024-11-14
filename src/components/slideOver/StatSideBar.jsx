@@ -4,7 +4,7 @@ import { FaXmark } from 'react-icons/fa6';
 import { FaArrowCircleRight } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { menuItems } from '../dropdowns/StatMenuItems';
+import { menuItems } from '../dropdowns/statMenus/StatMenuItems';
 import { useSelectedItem } from '../../context/SelectedItemContext';
 
 export default function StatSideBar() {
@@ -35,6 +35,7 @@ export default function StatSideBar() {
     const item = items.find((i) => i.id === id);
     setSelectedItem(item);
     navigate(`/main/dashboard${link}`);
+    setOpen(false); // Close the sidebar when an item is selected
   };
 
   return (

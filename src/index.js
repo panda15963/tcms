@@ -58,10 +58,10 @@ root.render(
                     />
                     <Route path="logs" element={<Logs />} />
                     <Route path="realTimeStatus" element={<RealTime />} />
-                    <Route path="realTimeUsageInfo" element={<UsageCounts />} />
+                    <Route path="realTimeUsageInfo" element={<UsageStatus />} />
                     <Route
                       path="usageFunctionCounts"
-                      element={<UsageStatus />}
+                      element={<UsageCounts />}UsageCounts
                     />
                   </Route>
                 </Route>
