@@ -3,7 +3,7 @@ import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-import SpaceTable from '../tables/SpaceTable';
+import SpaceTable from '../tables/mapTables/SpaceTable';
 import logService from '../../service/logService';
 import MapComponent from '../mapAssist/MapComponent';
 import { useLocation } from 'react-router-dom';

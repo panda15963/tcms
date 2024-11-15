@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaExclamationTriangle } from 'react-icons/fa';
 
 const AlertMessage = ({ message, onClose }) => {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
@@ -15,7 +16,7 @@ const AlertMessage = ({ message, onClose }) => {
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-white bg-sky-500 rounded-md hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500"
           >
-            확인
+            {t('AlertMessage.Check')}
           </button>
         </div>
       </div>

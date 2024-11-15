@@ -7,7 +7,7 @@ import {
   TransitionChild,
 } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
-import StoreTable from '../tables/StoreTable';
+import StoreTable from '../tables/mapTables/StoreTable';
 import { GoogleSearch } from '../searchResults/GoogleSearch';
 import { TMapSearch } from '../searchResults/TMapSearch';
 import { RoutoSearch } from '../searchResults/RoutoSearch';

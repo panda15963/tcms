@@ -10,8 +10,8 @@ import {
 import LogModal from '../modals/LogModal';
 import StoreModal from '../modals/StoreModal';
 import SpaceModal from '../modals/SpaceModal';
-import MapAPIsLists from '../dropdowns/MapAPIsLists';
-import MapCoordLists from '../dropdowns/MapCoordLists';
+import MapAPIsLists from '../dropdowns/mapMenus/MapAPIsLists';
+import MapCoordLists from '../dropdowns/mapMenus/MapCoordLists';
 import GoogleMapHandler from '../mapHandler/GoogleMapHandler';
 import TMapHandler from '../mapHandler/TMapHandler';
 import RoutoMapHandler from '../mapHandler/RoutoMapHandler';

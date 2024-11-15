@@ -208,5 +208,28 @@
     "InputOTP": "Enter the OTP Number",
     "Login": "Login",
     "ToMainPage": "Go to the Main Page"
+  },
+  "StatNavBar":{
+    "StatMenu": "Tool Usage Status Menu",
+    "TECT": "Tool Execution Counts (By Tool)",
+    "TECV": "Tool Execution Counts (By Version)",
+    "TUCF": "Tool Usage Counts By Function",
+    "TUSRT": "Tool Usage Status in Real-Time Based on TC",
+    "RTTUI": "Real-Time Tool Usage Information",
+    "CTL": "Check Tool Logs",
+    "TCIC": "Tool Configuration Information Change"
+  },
+  "StatSideBar":{
+    "StatMenu": "Tool Usage Status Menu",
+    "TECT": "Tool Execution Counts (By Tool)",
+    "TECV": "Tool Execution Counts (By Version)",
+    "TUCF": "Tool Usage Counts By Function",
+    "TUSRT": "Tool Usage Status in Real-Time Based on TC",
+    "RTTUI": "Real-Time Tool Usage Information",
+    "CTL": "Check Tool Logs",
+    "TCIC": "Tool Configuration Information Change"
+  },
+  "AlertMessage": {
+    "Check": "Check"
   }
 }

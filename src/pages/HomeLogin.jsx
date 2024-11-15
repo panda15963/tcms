@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Background from '../assets/images/background.jpg';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useLoadingBar from '../hooks/useLoading';
 import useAuth from '../hooks/useAuth';
 import useToast from '../hooks/useToast';

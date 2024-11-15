@@ -79,7 +79,7 @@ export default function MapCoordLists({ chosenDisplayCoords = () => {} }) {
                           {/* 좌표 유형 이름 표시 */}
                           <span
                             className={classNames(
-                              selected ? 'font-semibold' : 'font-normal', // 선택된 항목은 굵은 글꼴로 표시
+                              selected ? 'font-bold' : '', // 선택된 항목은 굵은 글꼴로 표시
                               'block truncate',
                             )}
                           >
