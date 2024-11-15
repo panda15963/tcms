@@ -5,7 +5,7 @@ import View from 'ol/View';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { OSM } from 'ol/source';
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
+import { Fill, Stroke, Style } from 'ol/style';
 import { Feature } from 'ol';
 import VectorSource from 'ol/source/Vector';
 import { Circle as CircleGeom } from 'ol/geom';
