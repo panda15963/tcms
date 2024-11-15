@@ -5,8 +5,8 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { isEmpty } from 'lodash';
 
+// 테이블의 기본 컬럼 정의
 const SpaceTableHeaderList = (t) => [
   {
     accessorKey: 'select',
@@ -153,27 +153,6 @@ const SpaceTableHeaderList = (t) => [
         'No Map Available'
       );
     },
-  },
-];
-
-const defaultData = [
-  {
-    upload_date: '2023-12-25',
-    file_name: 'HippoLog',
-    version_id: '1',
-    country_str: 'KOR',
-    b_virtual: 0,
-    summary_str: 'Real Log',
-    map: '',
-  },
-  {
-    upload_date: '2023-12-30',
-    file_name: 'HippoLog1',
-    version_id: '2',
-    country_str: 'KOR',
-    b_virtual: 1,
-    summary_str: 'Real Log',
-    map: '',
   },
 ];
 
