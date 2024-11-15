@@ -29,7 +29,7 @@ export default function countsByVersion() {
       <h1 className="text-3xl font-bold text-center pb-4 text-gray-900">
         도구 실행 횟수(버전 별)
       </h1>
-      <div className="w-full max-w-full bg-white shadow-md rounded-lg p-6 border-2 border-black">
+      <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
         <div className="my-4 flex justify-center items-center gap-4">
           <DateTerms />
           <CustomDatePicker />
@@ -37,7 +37,7 @@ export default function countsByVersion() {
         </div>
 
         {/* Center the graph */}
-        <div className="mx-auto max-w-7xl flex justify-center items-center border-2 border-black rounded-lg">
+        <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
           <div className="mx-auto max-w-7xl">
             <LineChart
               data={sampleData}

@@ -9,7 +9,7 @@ export default function UsageStatus() {
       <h1 className="text-3xl font-bold text-center pb-4 text-gray-900">
         실시간 도구 사용 정보
       </h1>
-      <div className="w-full max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
+      <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
         <div className="border border-black rounded-lg">
           <UsageStatusTable />
         </div>

@@ -17,7 +17,7 @@ export default function Logs() {
       <h1 className="text-3xl font-bold text-center pb-4 text-gray-900">
         도구 로그 확인
       </h1>
-      <div className="w-full max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
+      <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
         <div className="my-4 flex justify-center items-center gap-4">
           <DateTerms />
           <CustomDatePicker
@@ -26,7 +26,9 @@ export default function Logs() {
           />
           <ToolLists setSelectedTool={setSelectedTool} />
         </div>
-        <LogTable />
+        <div className="border border-black rounded-lg">
+          <LogTable />
+        </div>
       </div>
     </div>
   );
