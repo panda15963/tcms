@@ -86,31 +86,6 @@ const LineChart = ({ data, type }) => {
       .style('font-size', '12px')
       .style('opacity', 0);
 
-    // Add circles (dots) for each data point with tooltip on hover
-    svg
-      .selectAll('.dot')
-      .data(data)
-      .enter()
-      .append('circle')
-      .attr('class', 'dot')
-      .attr('cx', (d) => xScale(d.date))
-      .attr('cy', (d) => yScale(d.value))
-      .attr('r', 4)
-      .attr('fill', 'rgba(255, 99, 132, 1)')
-      .on('mouseenter', (event, d) => {
-        tooltip
-          .style('opacity', 1)
-          .html(`Date: ${d3.timeFormat('%Y-%m-%d')(d.date)}<br>Value: ${d.value}`);
-      })
-      .on('mousemove', (event) => {
-        tooltip
-          .style('left', event.pageX + 10 + 'px')
-          .style('top', event.pageY - 20 + 'px');
-      })
-      .on('mouseleave', () => {
-        tooltip.style('opacity', 0);
-      });
-
     // Add X axis with date labels
     svg
       .append('g')
