@@ -187,7 +187,7 @@ const defaultData = [
   },
 ];
 
-const ITEMS_PER_PAGE = 8; // 한 번에 로드할 아이템 개수
+const ITEMS_PER_PAGE = 10; // 한 번에 로드할 아이템 개수
 
 // ConfigGridL 컴포넌트 정의
 const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
@@ -216,7 +216,7 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
     if (page > 1) {
       const newItems = validList.slice(
         (page - 1) * ITEMS_PER_PAGE,
-        page * ITEMS_PER_PAGE,
+        page * ITEMS_PER_PAGE
       );
       setDisplayedData((prevDisplayedData) => [
         ...prevDisplayedData,
@@ -277,7 +277,7 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext(),
+                        header.getContext()
                       )}
                 </th>
               ))}
