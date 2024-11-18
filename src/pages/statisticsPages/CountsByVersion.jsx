@@ -122,9 +122,7 @@ export default function CountsByTool() {
           </div>
         </div>
         <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
-          <div className="w-full max-w-7xl">
-            <LineChart data={sampleData} />
-          </div>
+          <LineChart data={sampleData} />
         </div>
       </div>
     </div>
