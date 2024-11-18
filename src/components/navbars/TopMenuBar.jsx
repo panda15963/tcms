@@ -32,6 +32,7 @@ const TopMenuBar = ({
   handleSpaceData,
   routeColors = () => {},
 }) => {
+
   const [inputValue, setInputValue] = useState('');
   const [keyPressed, setKeyPressed] = useState('');
   const [selectedCoords, setSelectedCoords] = useState(null);
@@ -501,6 +502,21 @@ const TopMenuBar = ({
     setConvertedCoords(result);
   }, [clickedCoords, selectedMapList]);
 
+  const handleMapClear = () => {
+    setSelectedCoords(null); // Clear selected coordinates
+    setClickedCoords(null); // Clear clicked coordinates
+    setRouteFullCoords(null); // Clear route coordinates
+    setSpaceFullCoords(null); // Clear space coordinates
+    setConvertedCoords({ lat: '', lng: '' }); // Reset converted coordinates
+    setDisplayCoords(null); // Clear display coordinates
+    setOrigins([]); // Clear origins
+    setDestinations([]); // Clear destinations
+    setCountry(null); // Reset country selection
+    if (typeof routeColors === 'function') {
+      routeColors([]); // Reset route colors if it's a function
+    }
+  };
+
   return (
     <>
       {success && <Completion successfulMessage={successValue} />}
@@ -513,12 +529,12 @@ const TopMenuBar = ({
                 <div className="flex items-center lg:px-0">
                   <div className="hidden lg:block scale-90 z-40">
                     <div className="flex">
-                      <label className="px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
+                      <label className="px-3 py-2 text-sm font-bold text-white">
                         {/* 지도 선택 */}
                         {t('TopMenuBar.MapSelection')}
                       </label>
                       <MapAPIsLists setSelectedAPI={setSelectedAPI} />
-                      <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3 whitespace-nowrap">
+                      <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3 ">
                         {/* 지점 검색 */}
                         {t('TopMenuBar.StoreSearch')}
                       </label>
@@ -555,7 +571,7 @@ const TopMenuBar = ({
                         chosenMapAPIs={selectedAPI}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
+                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
                           {/* 로그 검색 */}
                           {t('TopMenuBar.LogSearch')}
                         </label>
@@ -598,12 +614,12 @@ const TopMenuBar = ({
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
-                          {/* 지도 초기화 */}
+                          {/* 지도 초기회*/}
                           {t('TopMenuBar.MapClear')}
                         </label>
                         <button
                           type="button"
-                          onClick={() => window.location.reload()}
+                          onClick={handleMapClear}
                           className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
                         >
                           <HiOutlineRefresh
@@ -612,7 +628,7 @@ const TopMenuBar = ({
                           />
                         </button>
                       </div>
-                      <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10 whitespace-nowrap">
+                      <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
                         {/* 입력 좌표 출력 */}
                         {t('TopMenuBar.CoordsOutput')}
                       </label>
@@ -700,7 +716,7 @@ const TopMenuBar = ({
                 </div>
               </div>
             </div>
-            {/* <DisclosurePanel className="lg:hidden">
+            <DisclosurePanel className="lg:hidden">
               <div className="space-y-1 px-2 pb-3 pt-2">
                 <div className="flex flex-1 justify-center lg:justify-end">
                   <label className="block rounded-md px-3 py-2 text-base font-medium text-white">
@@ -827,12 +843,12 @@ const TopMenuBar = ({
                       className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                       onClick={handleCopy}
                     >
-                      {t('TopMenuBar.CopyButton')}
+                      {t('TopMenuBar.Copy')}
                     </button>
                   </div>
                 </div>
               </div>
-            </DisclosurePanel> */}
+            </DisclosurePanel>
           </>
         )}
       </Disclosure>
