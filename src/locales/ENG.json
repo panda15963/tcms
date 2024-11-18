@@ -40,7 +40,8 @@
     "RangeError": "Out of range.",
     "WrongCoords": "Incorrect coordinates.",
     "EmptyCoords": "No coordinates found.",
-    "SelectedAPI": "Selected Map"
+    "SelectedAPI": "Selected Map",
+    "MapClear": "Map Clear"
   },
   "LogModal": {
     "ModalName": "Log Search",
@@ -209,7 +210,7 @@
     "Login": "Login",
     "ToMainPage": "Go to the Main Page"
   },
-  "StatNavBar":{
+  "StatNavBar": {
     "StatMenu": "Tool Usage Status Menu",
     "TECT": "Tool Execution Counts (By Tool)",
     "TECV": "Tool Execution Counts (By Version)",
@@ -219,7 +220,7 @@
     "CTL": "Check Tool Logs",
     "TCIC": "Tool Configuration Information Change"
   },
-  "StatSideBar":{
+  "StatSideBar": {
     "StatMenu": "Tool Usage Status Menu",
     "TECT": "Tool Execution Counts (By Tool)",
     "TECV": "Tool Execution Counts (By Version)",
