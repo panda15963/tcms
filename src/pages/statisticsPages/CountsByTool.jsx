@@ -96,7 +96,7 @@ export default function CountsByTool() {
         </h1>
         <button
           onClick={handleReload}
-          className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600"
+          className="flex items-center px-4 py-2 border border-black bg-white text-gray-900 rounded-lg shadow"
         >
           <IoReloadSharp className="mr-2" />
           새로 고침
