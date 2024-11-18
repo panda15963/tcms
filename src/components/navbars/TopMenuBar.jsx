@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { HiOutlineDocumentSearch } from 'react-icons/hi';
+import { HiOutlineDocumentSearch, HiOutlineRefresh } from 'react-icons/hi';
 import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
 import { FaMagnifyingGlass, FaXmark, FaBars } from 'react-icons/fa6';
 import {
@@ -10,8 +10,8 @@ import {
 import LogModal from '../modals/LogModal';
 import StoreModal from '../modals/StoreModal';
 import SpaceModal from '../modals/SpaceModal';
-import MapAPIsLists from '../dropdowns/MapAPIsLists';
-import MapCoordLists from '../dropdowns/MapCoordLists';
+import MapAPIsLists from '../dropdowns/mapMenus/MapAPIsLists';
+import MapCoordLists from '../dropdowns/mapMenus/MapCoordLists';
 import GoogleMapHandler from '../mapHandler/GoogleMapHandler';
 import TMapHandler from '../mapHandler/TMapHandler';
 import RoutoMapHandler from '../mapHandler/RoutoMapHandler';
@@ -107,7 +107,7 @@ const TopMenuBar = ({
 
       // Display success message
       setSuccessValue(
-        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`,
+        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`
       );
     }
     setRouteFullCoords(null);
@@ -215,13 +215,19 @@ const TopMenuBar = ({
 
       // Display success message
       setSuccessValue(
-        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`,
+        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`
       );
     }
   }, [selectedAPI, setCurrentApi]);
 
   const handleCoordsChange = (e) => {
     const { name, value } = e.target;
+
+    // 숫자와 소수점만 입력할 수 있도록 제한
+    if (!/^[\d.]*$/.test(value)) {
+      return; // 숫자와 소수점 외의 입력을 무시
+    }
+
     setConvertedCoords((prevCoords) => ({
       ...prevCoords,
       [name]: value,
@@ -230,6 +236,7 @@ const TopMenuBar = ({
 
   const handleCoordsClick = (e) => {
     const { name } = e.target;
+
     setConvertedCoords((prevCoords) => ({
       ...prevCoords,
       [name]: '',
@@ -238,7 +245,9 @@ const TopMenuBar = ({
 
   const handleCopy = () => {
     if (convertedCoords.lat && convertedCoords.lng) {
-      const coordsText = `${t('Common.Latitude')}: ${convertedCoords.lat}, ${t('Common.Longitude')}: ${convertedCoords.lng}`;
+      const coordsText = `${t('Common.Latitude')}: ${convertedCoords.lat}, ${t(
+        'Common.Longitude'
+      )}: ${convertedCoords.lng}`;
       navigator.clipboard
         .writeText(coordsText)
         .then(() => {
@@ -302,8 +311,8 @@ const TopMenuBar = ({
         latError && lngError
           ? `${t('TopMenuBar.CombinedError')}: ${latError} & ${lngError}.`
           : latError
-            ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
-            : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
+          ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
+          : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
 
       console.log('combinedError ==>', combinedError);
 
@@ -358,8 +367,8 @@ const TopMenuBar = ({
         latError && lngError
           ? `${t('TopMenuBar.CombinedError')}: ${latError} & ${lngError}`
           : latError
-            ? `${t('TopMenuBar.ErrorInLat')}: ${latError}`
-            : `${t('TopMenuBar.ErrorInLon')}: ${lngError}`;
+          ? `${t('TopMenuBar.ErrorInLat')}: ${latError}`
+          : `${t('TopMenuBar.ErrorInLon')}: ${lngError}`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -502,7 +511,7 @@ const TopMenuBar = ({
             <div className="mx-auto inset-x-0">
               <div className="flex h-[52px] justify-between">
                 <div className="flex items-center lg:px-0">
-                  <div className="hidden lg:block scale-90 z-50">
+                  <div className="hidden lg:block scale-90 z-40">
                     <div className="flex">
                       <label className="px-3 py-2 text-sm font-bold text-white">
                         {/* 지도 선택 */}
@@ -587,6 +596,22 @@ const TopMenuBar = ({
                         spaceFullCoords={setSpaceFullCoords}
                         selectedLists={handleSpaceData}
                       />
+                      <div className="flex flex-1 justify-center lg:ml-3">
+                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
+                          {/* 공간 검색 */}
+                          {t('TopMenuBar.MapClear')}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => window.location.reload()}
+                          className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                        >
+                          <HiOutlineRefresh
+                            className="h-5 w-5 text-white"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      </div>
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
                         {/* 입력 좌표 출력 */}
                         {t('TopMenuBar.CoordsOutput')}

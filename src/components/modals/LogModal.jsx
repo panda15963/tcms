@@ -8,22 +8,21 @@ import {
 import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck, FaSearch } from 'react-icons/fa';
-import MainGrid from '../tables/MainGrid';
+import MainGrid from '../tables/mapTables/MainGrid';
 import { nonAuthInstance } from '../../server/AxiosConfig';
 import logService from '../../service/logService';
-import MultipleSelectDropDown from '../dropdowns/MultipleSelectDropDown';
+import MultipleSelectDropDown from '../dropdowns/mapMenus/MultipleSelectDropDown';
 import { isEmpty } from 'lodash';
-import SingleSelectDropDown from '../dropdowns/SingleSelectDropDown';
+import SingleSelectDropDown from '../dropdowns/mapMenus/SingleSelectDropDown';
 import { useTranslation } from 'react-i18next';
-import ConfigGridL from '../tables/ConfigGridL';
-import ConfigGridR from '../tables/ConfigGridR';
-import ConfigGridL2 from '../tables/ConfigGridL2';
-import MainGrid2 from '../tables/MainGrid2';
+import ConfigGridL from '../tables/mapTables/ConfigGridL';
+import ConfigGridR from '../tables/mapTables/ConfigGridR';
+import ConfigGridL2 from '../tables/mapTables/ConfigGridL2';
+import MainGrid2 from '../tables/mapTables/MainGrid2';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
-import ConfigGridR2 from '../tables/ConfigGridR2';
+import ConfigGridR2 from '../tables/mapTables/ConfigGridR2';
 import { FaDownload } from 'react-icons/fa6';
-import axios from 'axios';
 import Error from '../alerts/Error';
 
 /**
@@ -32,7 +31,7 @@ import Error from '../alerts/Error';
  * http://localhost:3000/log/en
  */
 const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const location = useLocation(); // 현재 경로 정보를 얻기 위한 useLocation 훅 사용
 
   const initialCond = {

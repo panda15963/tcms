@@ -3,7 +3,7 @@ import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-import SpaceTable from '../tables/SpaceTable';
+import SpaceTable from '../tables/mapTables/SpaceTable';
 import logService from '../../service/logService';
 import MapComponent from '../mapAssist/MapComponent';
 import { useLocation } from 'react-router-dom';
@@ -400,7 +400,7 @@ const SpaceModal = forwardRef(
               >
                 <DialogPanel
                   className="relative rounded-lg bg-white p-0 shadow-xl text-left transition-all sm:max-w-screen-xl"
-                  style={{ width: '1224px' }}
+                  style={{ width: '1324px' }}
                 >
                   {!isDirect && (
                     <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">

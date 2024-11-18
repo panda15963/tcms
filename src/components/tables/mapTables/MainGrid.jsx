@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 // 테이블의 기본 컬럼 정의
+
 const defaultColumns = (t) => [
   {
     accessorKey: 'select',
@@ -18,6 +19,7 @@ const defaultColumns = (t) => [
         onChange={table.getToggleAllRowsSelectedHandler()}
       />
     ),
+
     cell: ({ row }) => (
       <input
         type="checkbox"
@@ -38,10 +40,10 @@ const defaultColumns = (t) => [
         {t('MainGrid.UploadedDate')}
       </div>
     ),
+
     cell: ({ getValue }) => {
       const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
       const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
-
       return (
         <span title={fullDate} className="cursor-pointer text-xs">
           {shortDate}
@@ -59,7 +61,6 @@ const defaultColumns = (t) => [
         fullText.length > maxLength
           ? fullText.slice(0, maxLength) + '...'
           : fullText;
-
       return (
         <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
@@ -99,7 +100,6 @@ const defaultColumns = (t) => [
         fullText.length > maxLength
           ? fullText.slice(0, maxLength) + '...'
           : fullText;
-
       return (
         <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
@@ -114,9 +114,7 @@ const defaultColumns = (t) => [
       const imagePath = row.original.imagePath;
       // 모디엠개발 : /testcourse/image/DESKTOP-6A267SH/20231214/HIP/20231124_083827_S_KOR_서울특별시_E_KOR_서울특별시.hip.png
       // 오토검증계 : /home/wasadmin/testcourse/image/DESKTOP-6A267SH/20231214/HIP/20231124_083827_S_KOR_서울특별시_E_KOR_서울특별시.hip.png
-
       const [showModal, setShowModal] = useState(false);
-
       // 현재 baseURL의 패턴을 보고 서버에 맞는 경로로 바꾸는 함수
       const adjustImagePath = (baseURL, imagePath) => {
         if (baseURL.includes('192.168.0.88')) {
@@ -130,13 +128,11 @@ const defaultColumns = (t) => [
         // 기본값 반환 (필요시 추가 설정 가능)
         return imagePath;
       };
-
       // 포트 번호(:8080)와 '/api' 제거
       const baseURL = process.env.REACT_APP_BASEURL.replace(
         /:(8080|8090)\/api/,
         '',
       );
-
       const adjustedImagePath = adjustImagePath(baseURL, imagePath);
       // console.log('adjustedImagePath', adjustedImagePath);
 
@@ -187,6 +183,7 @@ const defaultData = [
     summary: 'Real Log',
     map: '',
   },
+
   {
     upload_date: '2023-12-30',
     name: 'HippoLog1',
@@ -202,12 +199,12 @@ const defaultData = [
 const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const { t } = useTranslation(); // Get the translation function
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
-
   const [data, setData] = useState(list ?? defaultData);
   const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
     console.log('useEffect LIST ==>', list);
+
     if (list && !isEmpty(list.list)) {
       setData(list.list);
     }
@@ -220,20 +217,12 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
     state: {}, // 테이블의 상태
   });
 
-  // 선택된 행의 데이터 추출
-  // useEffect(() => {
-  //   const selectedRows = table
-  //     .getSelectedRowModel()
-  //     .rows.map((row) => row.original);
-  //   onSelectionChange(selectedRows);
-  // }, [table.getSelectedRowModel().rows, onSelectionChange]);
-
   useEffect(() => {
     const currentSelectedRows = table
       .getSelectedRowModel()
       .rows.map((row) => row.original);
-
     // 선택된 행이 변경될 때만 상태 업데이트
+
     if (JSON.stringify(currentSelectedRows) !== JSON.stringify(selectedRows)) {
       setSelectedRows(currentSelectedRows);
       onSelectionChange(currentSelectedRows); // 부모 컴포넌트로 업데이트된 선택된 행 전달
@@ -241,6 +230,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
   // 셀 클릭 이벤트 핸들러 (더블클릭 시 모달 열기)
+
   const handleCellDoubleClick = (rowData) => {
     console.log('Row double clicked:', rowData);
     if (onCellDoubleClick) {
@@ -261,10 +251,12 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
                   className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider text-nowrap"
                 >
                   {/* 헤더 렌더링 */}
+
                   {header.isPlaceholder
                     ? null
                     : flexRender(
                         header.column.columnDef.header, // 컬럼 헤더 렌더링
+
                         header.getContext(), // 헤더의 컨텍스트
                       )}
                 </th>
@@ -272,6 +264,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
             </tr>
           ))}
         </thead>
+
         <tbody className="bg-white divide-y divide-gray-100">
           {table.getRowModel().rows.map((row) => (
             <tr

@@ -126,7 +126,7 @@ const NavBar = () => {
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
             >
-              <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40 ">
+              <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ">
                 <MenuItem>
                   {({ active }) => (
                     <>
@@ -134,7 +134,7 @@ const NavBar = () => {
                         <Link
                           key={page.id}
                           to={page.link}
-                          className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
+                          className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50 "
                           onClick={() => handleLinkClick(page.link)}
                         >
                           {page.name}

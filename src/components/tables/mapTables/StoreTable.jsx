@@ -1,18 +1,19 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { FaLongArrowAltLeft, FaLongArrowAltRight } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
+
+const TableHeader = (t) => [
+  { id: 1, name: t('StoreTable.StoreNames') },
+  { id: 2, name: t('Common.Latitude') },
+  { id: 3, name: t('Common.Longitude') },
+];
 
 // 컴포넌트 정의
 export default function StoreTable({ stores = [], onDataReceive }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [storesPerPage] = useState(5);
   const { t } = useTranslation();
-
-  const TableHeader = [
-    { id: 1, name: t('StoreTable.StoreNames') },
-    { id: 2, name: t('Common.Latitude') },
-    { id: 3, name: t('Common.Longitude') },
-  ];
+  const columns = useMemo(() => TableHeader(t), [t]);
 
   const indexOfLastStore = currentPage * storesPerPage;
   const indexOfFirstStore = indexOfLastStore - storesPerPage;
@@ -47,10 +48,10 @@ export default function StoreTable({ stores = [], onDataReceive }) {
         <thead className="bg-gray-100 border-2">
           <tr>
             {/* 테이블 헤더 렌더링 */}
-            {TableHeader.map((header) => (
+            {columns.map((header) => (
               <th
                 key={header.id}
-                className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider text-nowrap"
+                className="px-4 py-3 border-2 text-center text-sm font-semibold text-black uppercase tracking-wider whitespace-nowrap"
               >
                 {header.name}
               </th>
@@ -77,13 +78,13 @@ export default function StoreTable({ stores = [], onDataReceive }) {
               typeof store.latitude === 'number'
                 ? store.latitude.toFixed(6)
                 : typeof store.position?.lat === 'number'
-                ? store.position.lat.toFixed(6)
-                : 'N/A',
+                  ? store.position.lat.toFixed(6)
+                  : 'N/A',
               typeof store.longitude === 'number'
                 ? store.longitude.toFixed(6)
                 : typeof store.position?.lng === 'number'
-                ? store.position.lng.toFixed(6)
-                : 'N/A',
+                  ? store.position.lng.toFixed(6)
+                  : 'N/A',
             ];
             return (
               <tr
@@ -124,7 +125,7 @@ export default function StoreTable({ stores = [], onDataReceive }) {
             }) ||
               `Showing ${indexOfFirstStore + 1} to ${Math.min(
                 indexOfLastStore,
-                stores.length
+                stores.length,
               )} of ${stores.length} stores`}
           </span>
         )}

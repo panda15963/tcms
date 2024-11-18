@@ -10,7 +10,7 @@ import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { menuItems } from './StatMenuItems';
-import { useSelectedItem } from '../../context/SelectedItemContext';
+import { useSelectedItem } from '../../../context/SelectedItemContext';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -18,7 +18,7 @@ function classNames(...classes) {
 
 export default function StatGraphsLists() {
   const { t } = useTranslation();
-  const { selectedItem, setSelectedItem } = useSelectedItem();
+  const { setSelectedItem } = useSelectedItem();
   const navigate = useNavigate();
   const location = useLocation();
   const items = menuItems(t);
@@ -52,7 +52,7 @@ export default function StatGraphsLists() {
         <>
           <div className="relative min-w-32">
             <ListboxButton className="relative w-64 cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-              <span className="block truncate font-bold">
+              <span className="block truncate">
                 {selected ? selected.name : ''}
               </span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -72,7 +72,7 @@ export default function StatGraphsLists() {
                     key={mapAPI.id}
                     className={({ selected, active }) =>
                       classNames(
-                        selected ? 'bg-indigo-600 text-white' : 'font-bold text-gray-900',
+                        selected ? 'bg-indigo-600 text-white' : 'text-gray-900',
                         active && !selected ? 'bg-gray-100' : '',
                         'relative cursor-default select-none py-2 pl-8 pr-4'
                       )
@@ -83,7 +83,7 @@ export default function StatGraphsLists() {
                       <>
                         <span
                           className={classNames(
-                            selected ? 'font-bold text-white' : 'font-bold',
+                            selected ? 'font-bold text-white' : '',
                             'block truncate'
                           )}
                         >
