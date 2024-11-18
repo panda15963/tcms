@@ -72,6 +72,27 @@ export default function CountsByTool() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [dateTerm, setDateTerm] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false); // New state for search tracking
+
+  const filteredDate = sampleData.map((data) => {
+    if (startDate && endDate) {
+      const adjustedStartDate = new Date(startDate.setHours(0, 0, 0, 0)); // Start of the day
+      const adjustedEndDate = new Date(endDate.setHours(23, 59, 59, 999)); // End of the day
+
+      return {
+        ...data,
+        data: data.data.filter(
+          (item) =>
+            item.date >= adjustedStartDate && item.date <= adjustedEndDate
+        ),
+      };
+    }
+    return data;
+  });
+
+  const hasResults = filteredDate.some(
+    (data) => data.data && data.data.length > 0
+  );
 
   function handleOnSelectTerm(selectedTerm) {
     setDateTerm(selectedTerm);
@@ -82,7 +103,7 @@ export default function CountsByTool() {
   }
 
   function handleSearch() {
-    console.log('search');
+    setHasSearched(true); // Set the search state to true
   }
 
   return (
@@ -119,9 +140,15 @@ export default function CountsByTool() {
             </button>
           </div>
         </div>
-        <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
-          <LineChart data={sampleData} />
-        </div>
+        {hasSearched && hasResults ? ( // Check if searched and has results
+          <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
+            <LineChart data={filteredDate} />
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">
+            {hasSearched ? '검색되지 않음' : '조건을 설정한 후 조회 버튼을 눌러주세요.'}
+          </p>
+        )}
       </div>
     </div>
   );
