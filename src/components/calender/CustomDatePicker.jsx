@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useTranslation } from 'react-i18next';
 
 const DateRangePicker = ({ startsDate, endsDate }) => {
+  const { t } = useTranslation();
   // Initialize startDate and endDate to today's date if no date is selected
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -24,7 +26,8 @@ const DateRangePicker = ({ startsDate, endsDate }) => {
       {/* Start Date Picker */}
       <div className="pl-2 flex items-center gap-2">
         <label className="text-sm font-semibold whitespace-nowrap">
-          시작 날짜 :{' '}
+          {/* 시작 날짜 */}
+          {t('DateRangePicker.StartDate')} :{' '}
         </label>
         <div className="w-48">
           <DatePicker
@@ -44,7 +47,8 @@ const DateRangePicker = ({ startsDate, endsDate }) => {
       {/* End Date Picker */}
       <div className="pl-2 flex items-center gap-2">
         <label className="text-sm font-semibold whitespace-nowrap">
-          종료 날짜 :{' '}
+          {/* 종료 날짜 */}
+          {t('DateRangePicker.EndDate')} :{' '}
         </label>
         <div className="w-48">
           <DatePicker

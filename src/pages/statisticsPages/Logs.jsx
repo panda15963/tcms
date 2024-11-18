@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import CustomDatePicker from '../../components/calender/CustomDatePicker';
 import DateTerms from '../../components/calender/DateTerms';
 import ToolLists from '../../components/dropdowns/statMenus/ToolLists';
+import PCLists from '../../components/dropdowns/statMenus/PCLists';
 import LogTable from '../../components/tables/statTables/LogsTable';
 
 export default function Logs() {
-  const [selectedTool, setSelectedTool] = useState(null); // State for selected tool
   const [startDate, setStartDate] = useState(null); // State for start date
   const [endDate, setEndDate] = useState(null); // State for end date
 
@@ -24,7 +24,10 @@ export default function Logs() {
             setStartDate={setStartDate}
             setEndDate={setEndDate}
           />
-          <ToolLists setSelectedTool={setSelectedTool} />
+          <label className="text-sm font-bold">도구 선택 : </label>
+          <ToolLists />
+          <label className="text-sm font-bold">PC 선택 : </label>
+          <PCLists />
         </div>
         <div className="border border-black rounded-lg">
           <LogTable />

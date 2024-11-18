@@ -214,7 +214,7 @@
     "TECT": "Tool Execution Counts (By Tool)",
     "TECV": "Tool Execution Counts (By Version)",
     "TUCF": "Tool Usage Counts By Function",
-    "TUSRT": "Tool Usage Status in Real-Time Based on TC",
+    "TUSRT": "Real-Time Tool Usage Status Based on TC",
     "RTTUI": "Real-Time Tool Usage Information",
     "CTL": "Check Tool Logs",
     "TCIC": "Tool Configuration Information Change"
@@ -224,12 +224,21 @@
     "TECT": "Tool Execution Counts (By Tool)",
     "TECV": "Tool Execution Counts (By Version)",
     "TUCF": "Tool Usage Counts By Function",
-    "TUSRT": "Tool Usage Status in Real-Time Based on TC",
+    "TUSRT": "Real-Time Tool Usage Status Based on TC",
     "RTTUI": "Real-Time Tool Usage Information",
     "CTL": "Check Tool Logs",
     "TCIC": "Tool Configuration Information Change"
   },
   "AlertMessage": {
     "Check": "Check"
+  },
+  "DateTerms": {
+    "Day": "Day",
+    "Week": "Week",
+    "Month": "Month"
+  },
+  "DateRangePicker": {
+    "StartDate": "Start Date",
+    "EndDate": "End Date"
   }
 }

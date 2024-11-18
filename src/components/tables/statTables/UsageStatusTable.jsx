@@ -52,7 +52,7 @@ const TableData = [
     duration: '00:00:00',
     progress: 90,
     status: 'Not Responded',
-    note: '',
+    note: 'Exception 1회 발생',
   },
   {
     id: 4,
@@ -96,7 +96,7 @@ const TableData = [
     duration: '00:25:00',
     progress: 80,
     status: 'Not Responded',
-    note: '',
+    note: 'Exception 2회 발생',
   },
   {
     id: 8,
@@ -157,18 +157,12 @@ export default function UsageStatusTable() {
         <tbody className="bg-white divide-y divide-gray-100">
           {TableData.map((data) => (
             <tr key={data.id}>
-              {[
-                'pc',
-                'tool',
-                'version',
-                'startTime',
-                'duration',
-                'status',
-                'note',
-              ].map((field) => (
+              {['pc', 'tool', 'version', 'startTime', 'duration', 'status', 'note'].map((field) => (
                 <td
                   key={`${data.id}-${field}`}
-                  className="px-6 py-4 border-2 text-center text-base font-medium text-gray-700 tracking-wide whitespace-nowrap"
+                  className={`px-6 py-4 border-2 ${
+                    field === 'status' ? 'text-left' : 'text-center'
+                  } text-base font-medium text-gray-700 tracking-wide whitespace-nowrap`}
                 >
                   {field === 'status' ? (
                     <>
@@ -186,3 +180,4 @@ export default function UsageStatusTable() {
     </div>
   );
 }
+

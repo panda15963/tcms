@@ -1,40 +1,24 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-const LineChart = ({ data, type }) => {
-  // State to hold values and dates for the chart
-  const [values, setValues] = useState([]);
-  const [dates, setDates] = useState([]);
-  
-  // Ref to access the SVG element for D3 manipulation
+const LineChart = ({ data }) => {
   const svgRef = useRef();
-  
-  // Define margins for the chart
+
   const margin = { top: 60, right: 20, bottom: 50, left: 70 };
-  
-  // Calculate width and height for the chart area (excluding margins)
   const width = 1200 - margin.left - margin.right;
   const height = 500 - margin.top - margin.bottom;
 
-  // Legend position variables
-  const legendX = width - 60; // Adjust for label position
-  const legendY = -10; // Adjust for label position
-
-  // Update values and dates when data changes
   useEffect(() => {
-    setValues(data.map((d) => d.value));
-    setDates(data.map((d) => d.date));
-  }, [data]);
+    if (!data || data.length === 0) {
+      // Clear SVG content if no data
+      d3.select(svgRef.current).selectAll('*').remove();
+      return;
+    }
 
-  // Main D3 chart rendering logic
-  useEffect(() => {
-    // If no data, return early
-    if (values.length === 0 || dates.length === 0) return;
-
-    // Clear previous SVG content
+    // Clear previous content
     d3.select(svgRef.current).selectAll('*').remove();
 
-    // Create SVG and apply transformations for margins
+    // Create SVG container
     const svg = d3
       .select(svgRef.current)
       .attr('width', width + margin.left + margin.right)
@@ -42,57 +26,83 @@ const LineChart = ({ data, type }) => {
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Define X scale as a time scale with padding on both sides
-    const xScale = d3
-      .scaleTime()
-      .domain([
-        d3.timeDay.offset(d3.extent(dates)[0], -10), // Offset to add padding
-        d3.timeDay.offset(d3.extent(dates)[1], 10),
-      ])
-      .range([0, width]);
+    // Flatten all dates and values to determine global x and y scales
+    const allDates = data.flatMap((tool) =>
+      tool.data.map((d) => new Date(d.date))
+    );
+    const allValues = data.flatMap((tool) => tool.data.map((d) => d.value));
 
-    // Define Y scale as a linear scale
+    // Scales
+    const xScale = d3.scaleTime().domain(d3.extent(allDates)).range([0, width]);
+
     const yScale = d3
       .scaleLinear()
-      .domain([0, d3.max(values)]) // Domain from 0 to max value
+      .domain([0, d3.max(allValues)])
       .range([height, 0]);
 
-    // Define line generator function for the chart line
+    // Line generator
     const line = d3
       .line()
-      .x((d, i) => xScale(dates[i]))
-      .y((d, i) => yScale(values[i]))
-      .curve(d3.curveMonotoneX); // Apply smooth curve
+      .x((d) => xScale(new Date(d.date)))
+      .y((d) => yScale(d.value))
+      .curve(d3.curveMonotoneX);
 
-    // Draw the line on the chart
-    svg
-      .append('path')
-      .datum(values)
-      .attr('fill', 'none')
-      .attr('stroke', 'rgba(255, 99, 132, 1)')
-      .attr('stroke-width', 1.5)
-      .attr('d', line);
+    // Colors for multiple lines
+    const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
-    // Create tooltip for displaying data on hover
-    const tooltip = d3
-      .select('body')
-      .append('div')
-      .style('position', 'absolute')
-      .style('background', 'white')
-      .style('padding', '5px')
-      .style('border', '1px solid #ccc')
-      .style('border-radius', '4px')
-      .style('pointer-events', 'none')
-      .style('font-size', '12px')
-      .style('opacity', 0);
+    // Plot each tool's data
+    data.forEach((tool, index) => {
+      if (tool.data.length === 1) {
+        // If only one data point, draw a circle
+        svg
+          .append('circle')
+          .attr('cx', xScale(new Date(tool.data[0].date)))
+          .attr('cy', yScale(tool.data[0].value))
+          .attr('r', 5) // Circle radius
+          .attr('fill', colorScale(index))
+          .attr('stroke', 'black') // Optional stroke for better visibility
+          .attr('stroke-width', 1);
+      } else {
+        // Draw a line for multiple data points
+        svg
+          .append('path')
+          .datum(tool.data)
+          .attr('fill', 'none')
+          .attr('stroke', colorScale(index))
+          .attr('stroke-width', 2)
+          .attr('d', line);
+      }
 
-    // Add X axis with date labels
+      // Add legend line
+      svg
+        .append('line')
+        .attr('x1', width - 150)
+        .attr('y1', index * 15 - 30)
+        .attr('x2', width - 120)
+        .attr('y2', index * 15 - 30)
+        .attr('stroke', colorScale(index))
+        .attr('stroke-width', 2);
+
+      // Add legend text
+      svg
+        .append('text')
+        .attr('x', width - 110)
+        .attr('y', index * 15 - 30)
+        .attr('text-anchor', 'start')
+        .style('fill', 'black')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .text(tool.type);
+    });
+
+    // X-axis
     svg
       .append('g')
       .attr('transform', `translate(0, ${height})`)
       .call(
-        d3.axisBottom(xScale)
-          .ticks(d3.timeMonth) // Monthly ticks
+        d3
+          .axisBottom(xScale)
+          .ticks(d3.timeMonth)
           .tickFormat(d3.timeFormat('%Y-%m-%d'))
       )
       .append('text')
@@ -103,10 +113,10 @@ const LineChart = ({ data, type }) => {
       .text('Date')
       .style('font-size', '16px');
 
-    // Add Y axis with value labels
+    // Y-axis
     svg
       .append('g')
-      .call(d3.axisLeft(yScale).ticks(5)) // Adjust tick number as needed
+      .call(d3.axisLeft(yScale).ticks(5))
       .append('text')
       .attr('x', -height / 2)
       .attr('y', -50)
@@ -115,38 +125,16 @@ const LineChart = ({ data, type }) => {
       .attr('transform', 'rotate(-90)')
       .text('Value')
       .style('font-size', '16px');
+  }, [data]);
 
-    // Add a title to the chart
-    svg
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', -margin.top / 2)
-      .attr('text-anchor', 'middle')
-      .style('font-size', '16px')
-      .style('font-weight', 'bold')
-      .text(`${type} Line Chart`);
-
-    // Add legend line and label
-    svg
-      .append('line')
-      .attr('x1', legendX - 20)
-      .attr('y1', legendY - 25) // Adjust vertically if needed
-      .attr('x2', legendX + 10) // Line length
-      .attr('y2', legendY - 25)
-      .attr('stroke', 'rgba(255, 99, 132, 1)') // Match the line color
-      .attr('stroke-width', 2);
-
-    // Add legend label next to the line
-    svg
-      .append('text')
-      .attr('x', legendX + 20) // Position text after the line
-      .attr('y', legendY - 20)
-      .attr('text-anchor', 'start')
-      .style('fill', 'black') // Adjust color to match your preference
-      .style('font-size', '14px')
-      .style('font-weight', 'bold')
-      .text(type); // Use the type prop to label the line
-  }, [values, dates, width, height, type]);
+  // Render message if no data
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '18px' }}>
+        검색 결과가 없습니다.
+      </div>
+    );
+  }
 
   return <svg ref={svgRef} />;
 };

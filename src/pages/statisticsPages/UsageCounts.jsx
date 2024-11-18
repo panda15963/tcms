@@ -3,6 +3,7 @@ import BarChart from '../../components/D3Charts/BarChart';
 import CustomDatePicker from '../../components/calender/CustomDatePicker';
 import DateTerms from '../../components/calender/DateTerms';
 import ToolLists from '../../components/dropdowns/statMenus/ToolLists';
+import PCLists from '../../components/dropdowns/statMenus/PCLists';
 
 const sampleData = [
   { date: new Date('2023-01-01'), value: 100 },
@@ -19,9 +20,7 @@ const sampleData = [
 ];
 
 export default function UsageCounts() {
-  const [selectedTool, setSelectedTool] = useState(null); // Ensure this state and function exist
-
-  return (
+    return (
     <div
       className="flex flex-col items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8"
       style={{ height: '87.6vh' }}
@@ -33,8 +32,10 @@ export default function UsageCounts() {
         <div className="my-4 flex justify-center items-center gap-4">
           <DateTerms />
           <CustomDatePicker />
-          <ToolLists setSelectedTool={setSelectedTool} />{' '}
-          {/* Pass the prop here */}
+          <label className="text-sm font-bold">도구 선택 : </label>
+          <ToolLists />
+          <label className="text-sm font-bold">PC 선택 : </label>
+          <PCLists />
         </div>
         <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
           <div className="w-full max-w-7xl">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   Listbox,
   ListboxButton,
@@ -8,14 +8,12 @@ import {
 } from '@headlessui/react';
 import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
-const dateTerms = [
-  { id: 1, name: '1 day' },
-  { id: 2, name: '1 week' },
-  { id: 3, name: '1 month' },
-  { id: 4, name: '3 month' },
-  { id: 5, name: '6 month' },
-  { id: 6, name: '1 year' },
+const dateTerms = (t) => [
+  { id: 1, name: t('DateTerms.Day') }, // 일별
+  { id: 2, name: t('DateTerms.Week') }, // 주별
+  { id: 3, name: t('DateTerms.Month') }, // 월별
 ];
 
 // classNames function to combine multiple classes
@@ -24,17 +22,21 @@ function classNames(...classes) {
 }
 
 export default function DateTerms({ terms = () => {} }) {
+  const { t } = useTranslation();
   const location = useLocation();
-  const [selected, setSelected] = useState(dateTerms[0]); // 기본 값을 dateTerms[0]으로 설정
+  
+  // Memoize termsList to prevent re-creation on every render
+  const termsList = useMemo(() => dateTerms(t), [t]);
+  const [selected, setSelected] = useState(termsList[0]);
 
   useEffect(() => {
     const path = location.pathname.split('/').pop().toUpperCase();
-    const initialSelected = dateTerms.find((api) => api.name === path) || dateTerms[0];
+    const initialSelected = termsList.find((api) => api.name === path) || termsList[0];
     setSelected(initialSelected);
-  }, [location.pathname]);
+  }, [location.pathname, termsList]);
 
   useEffect(() => {
-    terms(selected); // selected가 변경될 때마다 terms 함수 호출
+    terms(selected);
   }, [selected, terms]);
 
   const handleOnSelectMap = (selectedTerm) => {
@@ -66,7 +68,7 @@ export default function DateTerms({ terms = () => {} }) {
                 leaveTo="opacity-0"
               >
                 <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                  {dateTerms.map((api) => (
+                  {termsList.map((api) => (
                     <ListboxOption
                       key={api.id}
                       className={({ selected, focus }) =>

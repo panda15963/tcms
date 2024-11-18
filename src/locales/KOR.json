@@ -233,5 +233,14 @@
   },
   "AlertMessage": {
     "Check": "확인"
+  },
+  "DateTerms": {
+    "Day": "일",
+    "Week": "주",
+    "Month": "달"
+  },  
+  "DateRangePicker": {
+    "StartDate": "시작 날짜",
+    "EndDate": "종료 날짜"
   }
 }

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import ToolLists from '../../components/dropdowns/statMenus/ToolLists';
+import PCLists from '../../components/dropdowns/statMenus/PCLists';
 import ConfigurationTable from '../../components/tables/statTables/ConfigurationTable';
 import DateTerms from '../../components/calender/DateTerms';
 import CustomDatePicker from '../../components/calender/CustomDatePicker';
 
 export default function Configuration() {
-  const [selectedTool, setSelectedTool] = useState(null);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [dateTerm, setDateTerm] = useState(null);
@@ -29,7 +29,10 @@ export default function Configuration() {
             setStartDate={setStartDate}
             setEndDate={setEndDate}
           />
-          <ToolLists setSelectedTool={setSelectedTool} />
+          <label className="text-sm font-bold">도구 선택 : </label>
+          <ToolLists />
+          <label className="text-sm font-bold">PC 선택 : </label>
+          <PCLists />
         </div>
         <div className="border border-black rounded-lg">
           <ConfigurationTable />

@@ -9,28 +9,31 @@ import {
 import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 import { useLocation } from 'react-router-dom';
 
-const versions = [
-  { id: 1, name: 'Version' },
+const VersionList = [
+  { id: 1, name: 'PC 1' },
+  { id: 2, name: 'PC 2' },
+  { id: 3, name: 'PC 3' },
+  { id: 4, name: 'PC 4' },
+  { id: 5, name: 'PC 5' },
 ];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function VersionList({ setSelectedTool = () => {} }) {
+export default function VersionLists() {
   const location = useLocation();
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
     const path = location.pathname.split('/').pop().toUpperCase();
-    const initialSelected = versions.find((api) => api.name === path) || versions[0];
+    const initialSelected =
+      VersionList.find((api) => api.name === path) || VersionList[0];
     setSelected(initialSelected);
-    if (setSelectedTool) setSelectedTool(initialSelected); // Safely call setSelectedTool if provided
-  }, [location.pathname, setSelectedTool]);
+  }, [location.pathname]);
 
   const handleOnSelectMap = (selectedMap) => {
     setSelected(selectedMap);
-    if (setSelectedTool) setSelectedTool(selectedMap); // Safely call setSelectedTool if provided
   };
 
   if (!selected) return null;
@@ -39,9 +42,9 @@ export default function VersionList({ setSelectedTool = () => {} }) {
     <Listbox value={selected} onChange={handleOnSelectMap}>
       {({ open }) => (
         <>
-          <div className="relative w-48">
-            <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none border border-black sm:text-sm sm:leading-6">
-              <span className="block truncate old">{selected.name}</span>
+          <div className="relative min-w-32 border border-black rounded-lg">
+            <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              <span className="block truncate">{selected.name}</span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <FaAngleDown
                   className="h-5 w-5 text-gray-400"
@@ -56,13 +59,13 @@ export default function VersionList({ setSelectedTool = () => {} }) {
               leaveTo="opacity-0"
             >
               <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                {versions.map((api) => (
+                {VersionList.map((api) => (
                   <ListboxOption
                     key={api.id}
-                    className={({ selected, active }) =>
+                    className={({ selected, focus }) =>
                       classNames(
-                        selected ? 'bg-indigo-600 text-white font-bold' : '',
-                        active && !selected ? 'bg-gray-200' : '',
+                        selected ? 'bg-indigo-600 text-white' : '',
+                        focus && !selected ? 'bg-gray-200' : '',
                         'relative cursor-default select-none py-2 pl-8 pr-4'
                       )
                     }
@@ -73,8 +76,8 @@ export default function VersionList({ setSelectedTool = () => {} }) {
                         <span
                           className={classNames(
                             selected
-                              ? 'old text-white'
-                              : 'old text-gray-900',
+                              ? 'font-bold text-white'
+                              : 'text-gray-900',
                             'block truncate'
                           )}
                         >
