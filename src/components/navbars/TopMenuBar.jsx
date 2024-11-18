@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { HiOutlineDocumentSearch } from 'react-icons/hi';
+import { HiOutlineDocumentSearch, HiOutlineRefresh } from 'react-icons/hi';
 import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
 import { FaMagnifyingGlass, FaXmark, FaBars } from 'react-icons/fa6';
 import {
@@ -107,7 +107,7 @@ const TopMenuBar = ({
 
       // Display success message
       setSuccessValue(
-        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`,
+        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`
       );
     }
     setRouteFullCoords(null);
@@ -215,7 +215,7 @@ const TopMenuBar = ({
 
       // Display success message
       setSuccessValue(
-        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`,
+        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`
       );
     }
   }, [selectedAPI, setCurrentApi]);
@@ -245,7 +245,9 @@ const TopMenuBar = ({
 
   const handleCopy = () => {
     if (convertedCoords.lat && convertedCoords.lng) {
-      const coordsText = `${t('Common.Latitude')}: ${convertedCoords.lat}, ${t('Common.Longitude')}: ${convertedCoords.lng}`;
+      const coordsText = `${t('Common.Latitude')}: ${convertedCoords.lat}, ${t(
+        'Common.Longitude'
+      )}: ${convertedCoords.lng}`;
       navigator.clipboard
         .writeText(coordsText)
         .then(() => {
@@ -309,8 +311,8 @@ const TopMenuBar = ({
         latError && lngError
           ? `${t('TopMenuBar.CombinedError')}: ${latError} & ${lngError}.`
           : latError
-            ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
-            : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
+          ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
+          : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
 
       console.log('combinedError ==>', combinedError);
 
@@ -365,8 +367,8 @@ const TopMenuBar = ({
         latError && lngError
           ? `${t('TopMenuBar.CombinedError')}: ${latError} & ${lngError}`
           : latError
-            ? `${t('TopMenuBar.ErrorInLat')}: ${latError}`
-            : `${t('TopMenuBar.ErrorInLon')}: ${lngError}`;
+          ? `${t('TopMenuBar.ErrorInLat')}: ${latError}`
+          : `${t('TopMenuBar.ErrorInLon')}: ${lngError}`;
       setErrorValue(combinedError);
       setError(true);
       setTimeout(() => setError(false), 2000);
@@ -594,6 +596,22 @@ const TopMenuBar = ({
                         spaceFullCoords={setSpaceFullCoords}
                         selectedLists={handleSpaceData}
                       />
+                      <div className="flex flex-1 justify-center lg:ml-3">
+                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
+                          {/* 공간 검색 */}
+                          {t('TopMenuBar.MapClear')}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => window.location.reload()}
+                          className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                        >
+                          <HiOutlineRefresh
+                            className="h-5 w-5 text-white"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      </div>
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">
                         {/* 입력 좌표 출력 */}
                         {t('TopMenuBar.CoordsOutput')}
