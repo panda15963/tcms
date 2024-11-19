@@ -97,7 +97,8 @@
     "Version": "버전",
     "Country": "국가",
     "LogType": "로그 종류",
-    "Summary": "요약"
+    "Summary": "요약",
+    "LoadMore": "더 많은 항목 보기"
   },
   "ConfigGridR": {
     "CFG_name": "CFG 이름",

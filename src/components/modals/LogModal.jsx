@@ -124,7 +124,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [activeTab, setActiveTab] = useState('route'); // "route" 탭을 기본값으로 설정
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
   const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
-    [],
+    []
   );
   const [error, setError] = useState(null);
   const [errorValue, setErrorValue] = useState('');
@@ -142,6 +142,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [selectedLogList, setSelectedLogList] = useState(initialList);
   const [selectedLogList2, setSelectedLogList2] = useState(initialList);
   const selectedConfigRowsRef = useRef([]); // useRef instead of useState
+  const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
     console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
@@ -200,7 +201,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   useEffect(() => {
     console.log(
       'useEffect of selectedSearchFieldsConfig ==>',
-      selectedSearchFieldsConfig,
+      selectedSearchFieldsConfig
     );
     // selectedOptions는 선택된 필드의 객체 리스트로 가정합니다.
     const ids = selectedSearchFieldsConfig.map((option) => option.id);
@@ -405,10 +406,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         console.log('MAIN_FEATURE of res ==>', res.feature);
 
         const withHyphen = res.feature.filter((item) =>
-          item.str.startsWith('-'),
+          item.str.startsWith('-')
         );
         const withoutHyphen = res.feature.filter(
-          (item) => !item.str.startsWith('-'),
+          (item) => !item.str.startsWith('-')
         );
 
         console.log('With Hyphen:', withHyphen);
@@ -630,7 +631,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               if (typeof res === 'string') {
                 const preprocessedRes = res.replace(
                   /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                  '{"lat":$1,"lng":$2}',
+                  '{"lat":$1,"lng":$2}'
                 );
                 return JSON.parse(preprocessedRes); // Parse the preprocessed string into JSON
               } else {
@@ -640,7 +641,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             } catch (error) {
               console.error(
                 `Error parsing response for fileId ${fileId}:`,
-                error,
+                error
               );
               return null; // Return null if parsing fails
             }
@@ -672,6 +673,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const handleButtonClick = async () => {
     console.log('로그검색 경로 선택버튼 이벤트 입니다.');
+    console.log('selectedRows ==>', selectedRows);
 
     const findArray = (obj) => {
       if (Array.isArray(obj)) {
@@ -690,10 +692,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       return null;
     };
 
-    const arrayFromList = findArray(list);
+    const arrayFromList = findArray(selectedRows);
 
     console.log('arrayFromList', arrayFromList);
-    console.log('list', list);
+    console.log('selectedRows', selectedRows);
 
     if (arrayFromList.length == 0) {
       // 아무것도 선택되지 않았습니다.
@@ -706,7 +708,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     if (arrayFromList && arrayFromList.length > 0) {
       const fileIds = arrayFromList.map((route) => route.file_id);
       const routeCoords = await SPACE_INTERPOLATION(fileIds);
-      routeData(list);
+      routeData(selectedRows);
       routeFullCoords(routeCoords);
     } else {
       console.error('No array found in list');
@@ -734,7 +736,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const handleRouteButtonClick = async () => {
     console.log(
       'handleRouteButtonClick of selectedLogList ==>',
-      selectedLogList,
+      selectedLogList
     );
 
     const fileIds = selectedConfigRowsRef.current.map((route) => route.file_id);
@@ -790,7 +792,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           console.log('result', result);
 
           return result; // result를 반환하여 리스트에 추가
-        }),
+        })
       );
 
       // resultList를 평탄화(flatten)하여 단일 배열로 변환
@@ -799,7 +801,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       console.log('FIND_META_ID 결과 리스트 ==>', resultList);
       console.log(
         'FIND_META_ID 결과 리스트 flatResultList ==>',
-        flatResultList,
+        flatResultList
       );
 
       handleConfigBtnClickConfirm(flatResultList);
@@ -840,7 +842,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           console.log('result', result);
 
           return result; // result를 반환하여 리스트에 추가
-        }),
+        })
       );
 
       // resultList를 평탄화(flatten)하여 단일 배열로 변환
@@ -849,7 +851,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       console.log('FIND_META_ID 결과 리스트 ==>', resultList);
       console.log(
         'FIND_META_ID 결과 리스트 flatResultList ==>',
-        flatResultList,
+        flatResultList
       );
 
       handleConfigBtnClickConfirm(flatResultList);
@@ -974,7 +976,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
       console.log(
         'handleLeftSelectionChange of combinedLogList ==>',
-        combinedLogList,
+        combinedLogList
       );
 
       setSelectedLogList(combinedLogList); // 전체 합쳐진 loglist 설정
@@ -994,7 +996,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const handleLeftSelectionChange2 = (selectedRows) => {
     console.log(
       'handleLeftSelectionChange2 of selectedRows2 ==>',
-      selectedRows,
+      selectedRows
     );
 
     if (selectedRows && selectedRows.length > 0) {
@@ -1048,7 +1050,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           if (data && data.meta_id) {
             // API 호출 (data.id 또는 적절한 키로 조회)
             const response = await nonAuthInstance.get(
-              `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`,
+              `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`
             );
             console.log('RouteModalComponent of response1', response);
             console.log('RouteModalComponent of response2', response.data);
@@ -1146,7 +1148,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     console.log(
       'handleSelectionChangeRoute of selectedRows ==>',
       selectedRows,
-      selectedConfigRowsRef,
+      selectedConfigRowsRef
     );
     if (selectedRows && selectedRows.length > 0) {
       selectedConfigRowsRef.current = selectedRows;
@@ -1164,7 +1166,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             // API 호출 (data.id 또는 적절한 키로 조회)
             const response = await nonAuthInstance.get(
               // `/find/sameorigin/tccfg?group_id=${-1}&tccfg_id=${data.tccfg_id}`,
-              `/find/sameorigin/tccfg?group_id=${data.group_id}&tccfg_id=${data.origin_tccfg_id}`,
+              `/find/sameorigin/tccfg?group_id=${data.group_id}&tccfg_id=${data.origin_tccfg_id}`
             );
             console.log('response', response);
             console.log('response', response.data);
@@ -1291,8 +1293,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         window.URL.revokeObjectURL(jsonUrl);
       } catch (error) {
         console.error(
-          `Failed to download JSON file for ${item.filename || 'dataToDownload'}:`,
-          error,
+          `Failed to download JSON file for ${
+            item.filename || 'dataToDownload'
+          }:`,
+          error
         );
       }
     }
@@ -1302,7 +1306,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 0 = 로그파일
         const logResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const logBlob = new Blob([logResponse.data]);
@@ -1325,7 +1329,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download log file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1334,7 +1338,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 1 = 이미지파일
         const imageResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const imageBlob = new Blob([imageResponse.data]);
@@ -1352,7 +1356,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download image file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1387,8 +1391,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         window.URL.revokeObjectURL(jsonUrl);
       } catch (error) {
         console.error(
-          `Failed to download JSON file for ${item.filename || 'dataToDownload'}:`,
-          error,
+          `Failed to download JSON file for ${
+            item.filename || 'dataToDownload'
+          }:`,
+          error
         );
       }
     }
@@ -1398,7 +1404,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 0 = 로그파일
         const logResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const logBlob = new Blob([logResponse.data]);
@@ -1416,7 +1422,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download log file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1425,7 +1431,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 1 = 이미지파일
         const imageResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const imageBlob = new Blob([imageResponse.data]);
@@ -1443,7 +1449,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download image file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1471,7 +1477,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         console.log('result', result);
 
         return result; // result를 반환하여 리스트에 추가
-      }),
+      })
     );
 
     // resultList를 평탄화(flatten)하여 단일 배열로 변환
@@ -1501,8 +1507,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         window.URL.revokeObjectURL(jsonUrl);
       } catch (error) {
         console.error(
-          `Failed to download JSON file for ${item.filename || 'flatResultList'}:`,
-          error,
+          `Failed to download JSON file for ${
+            item.filename || 'flatResultList'
+          }:`,
+          error
         );
       }
     }
@@ -1512,7 +1520,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 0 = 로그파일
         const logResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         console.log('logResponse ==>', logResponse);
@@ -1539,7 +1547,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download log file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1548,7 +1556,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 1 = 이미지파일
         const imageResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const imageBlob = new Blob([imageResponse.data]);
@@ -1566,7 +1574,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download image file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1594,7 +1602,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         console.log('result', result);
 
         return result; // result를 반환하여 리스트에 추가
-      }),
+      })
     );
 
     // resultList를 평탄화(flatten)하여 단일 배열로 변환
@@ -1624,8 +1632,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         window.URL.revokeObjectURL(jsonUrl);
       } catch (error) {
         console.error(
-          `Failed to download JSON file for ${item.filename || 'flatResultList'}:`,
-          error,
+          `Failed to download JSON file for ${
+            item.filename || 'flatResultList'
+          }:`,
+          error
         );
       }
     }
@@ -1635,7 +1645,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 0 = 로그파일
         const logResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         console.log('logResponse ==>', logResponse);
@@ -1662,7 +1672,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download log file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1671,7 +1681,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 1 = 이미지파일
         const imageResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const imageBlob = new Blob([imageResponse.data]);
@@ -1689,11 +1699,16 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download image file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
     }
+  };
+
+  const handleSelectionChange = (selectedRows) => {
+    console.log('선택된 행:', selectedRows);
+    setSelectedRows(selectedRows); // 선택된 행 관리
   };
 
   return (
@@ -2001,9 +2016,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       {error && <p className="text-red-500">{error}</p>}
                       <MainGrid
                         list={list}
-                        onSelectionChange={(selectedRows) =>
-                          setList(selectedRows)
-                        }
+                        onSelectionChange={handleSelectionChange}
                         onCellDoubleClick={openRouteModal} // 더블클릭 이벤트 추가
                       />
 
