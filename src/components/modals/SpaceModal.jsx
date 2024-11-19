@@ -41,6 +41,7 @@ const SpaceModal = forwardRef(
     const [checkedLists, setCheckedLists] = useState([]);
     const [radius, setRadius] = useState(1000); // 기본 반경 1000m 설정
     const [showAlert, setShowAlert] = useState(false);
+    const [listCount, setListCount] = useState(0); // 검색 결과 개수
 
     useEffect(() => {
       console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
@@ -161,13 +162,16 @@ const SpaceModal = forwardRef(
             ...prevState,
             list: res.findMeta,
           }));
+          setListCount(res.findMeta.length);
         } else {
           console.log('No data found');
           setList([]);
+          setListCount(0);
         }
       } catch (e) {
         console.log('FIND_SPACE of error ==>', e);
         setList([]);
+        setListCount(0);
       }
     };
 
@@ -191,7 +195,7 @@ const SpaceModal = forwardRef(
                 if (typeof res === 'string') {
                   const preprocessedRes = res.replace(
                     /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                    '{"lat":$1,"lng":$2}',
+                    '{"lat":$1,"lng":$2}'
                   );
                   return JSON.parse(preprocessedRes); // Parse the preprocessed string into JSON
                 } else {
@@ -201,7 +205,7 @@ const SpaceModal = forwardRef(
               } catch (error) {
                 console.error(
                   `Error parsing response for fileId ${fileId}:`,
-                  error,
+                  error
                 );
                 return null; // Return null if parsing fails
               }
@@ -295,8 +299,10 @@ const SpaceModal = forwardRef(
           window.URL.revokeObjectURL(jsonUrl);
         } catch (error) {
           console.error(
-            `Failed to download JSON file for ${item.filename || 'dataToDownload'}:`,
-            error,
+            `Failed to download JSON file for ${
+              item.filename || 'dataToDownload'
+            }:`,
+            error
           );
         }
       }
@@ -306,7 +312,7 @@ const SpaceModal = forwardRef(
           // sequence 0 = 로그파일
           const logResponse = await nonAuthInstance.get(
             `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
-            { responseType: 'blob' },
+            { responseType: 'blob' }
           );
 
           const logBlob = new Blob([logResponse.data]);
@@ -329,7 +335,7 @@ const SpaceModal = forwardRef(
           } else {
             console.error(
               `Failed to download log file for meta_id ${file.meta_id}:`,
-              error,
+              error
             );
           }
         }
@@ -338,7 +344,7 @@ const SpaceModal = forwardRef(
           // sequence 1 = 이미지파일
           const imageResponse = await nonAuthInstance.get(
             `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
-            { responseType: 'blob' },
+            { responseType: 'blob' }
           );
 
           const imageBlob = new Blob([imageResponse.data]);
@@ -356,7 +362,7 @@ const SpaceModal = forwardRef(
           } else {
             console.error(
               `Failed to download image file for meta_id ${file.meta_id}:`,
-              error,
+              error
             );
           }
         }
@@ -442,7 +448,7 @@ const SpaceModal = forwardRef(
                           onBlur={handleBlur(
                             latitude,
                             setLatitude,
-                            roundToFive(process.env.REACT_APP_LATITUDE),
+                            roundToFive(process.env.REACT_APP_LATITUDE)
                           )}
                         />
                       </div>
@@ -461,7 +467,7 @@ const SpaceModal = forwardRef(
                           onBlur={handleBlur(
                             longitude,
                             setLongitude,
-                            roundToFive(process.env.REACT_APP_LATITUDE),
+                            roundToFive(process.env.REACT_APP_LATITUDE)
                           )}
                         />
                       </div>
@@ -487,13 +493,18 @@ const SpaceModal = forwardRef(
                           placeholder="100"
                         />
                       </div>
-                      <button
-                        className="text-base px-3 py-1 bg-blue-500 text-white rounded w-full mt-0"
-                        onClick={handleFindClick}
-                      >
-                        {/* 찾기 */}
-                        {t('SpaceModal.Find')}
-                      </button>
+                      {/* 찾기 버튼과 결과 개수 */}
+                      <div className="flex items-center justify-start mt-1">
+                        <button
+                          className="text-base w-[100px] py-1 bg-blue-500 text-white rounded"
+                          onClick={handleFindClick}
+                        >
+                          {t('SpaceModal.Find')}
+                        </button>
+                        <span className="text-sm ml-4 text-gray-600">
+                          {t('LogModal.TotalResults')}: {listCount}
+                        </span>
+                      </div>
                     </div>
                     {/* Right Section for Map */}
                     <div className="w-2/3 ">
@@ -553,7 +564,7 @@ const SpaceModal = forwardRef(
         </Dialog>
       </Transition>
     );
-  },
+  }
 );
 
 export default SpaceModal;

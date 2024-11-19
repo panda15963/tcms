@@ -143,7 +143,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [selectedLogList2, setSelectedLogList2] = useState(initialList);
   const selectedConfigRowsRef = useRef([]); // useRef instead of useState
   const [selectedRows, setSelectedRows] = useState([]);
-  const [listCount, setListCount] = useState(0); // 검색 결과 개수
+  const [listRouteCount, setListRouteCount] = useState(0); // 검색 결과 개수 (경로)
+  const [listConfigCount, setListConfigCount] = useState(0); // 검색 결과 개수 (화면정보)
 
   useEffect(() => {
     console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
@@ -289,11 +290,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               list: res.findMeta,
             };
           });
-          setListCount(res.findMeta.length);
+          setListRouteCount(res.findMeta.length);
         });
     } catch (e) {
       console.log('FIND_META of error ==>', e);
-      setListCount(0); // 결과가 없으면 0으로 설정
+      setListRouteCount(0); // 결과가 없으면 0으로 설정
     }
   };
 
@@ -826,7 +827,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 더블클릭 선택 이벤트
    */
   const handleConfigBtn2Click = async () => {
-    console.log('로그검색 배치 선택버튼 이벤트 입니다.');
+    console.log('로그검색 화면정보 선택버튼 이벤트 입니다.');
     console.log('handleConfigBtnClick of selectedLogList ==>', selectedLogList);
 
     // selectedLogList에서 meta_id 추출하여 FIND_META_ID 호출
@@ -867,7 +868,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /*
-   * 로그검색 배치 선택 이벤트
+   * 로그검색 화면정보 선택 이벤트
    */
   const handleConfigBtnClickConfirm = async (confirmList) => {
     console.log('confirmList', confirmList);
@@ -958,9 +959,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               list: res.findTccfg,
             };
           });
+          setListConfigCount(res.findTccfg.length);
         });
     } catch (e) {
       console.log('FIND_TCCFG_10003 of error ==>', e);
+      setListConfigCount(0);
     }
   };
 
@@ -1015,7 +1018,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [isRouteModalOpen, setIsRouteModalOpen] = useState(false);
   const [selectedRouteCellData, setSelectedRouteCellData] = useState(null);
 
-  // 배치 모달 상태 관리
+  // 화면정보 모달 상태 관리
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [selectedConfigCellData, setSelectedConfigCellData] = useState(null);
 
@@ -1158,7 +1161,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }
   };
 
-  // 배치 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
+  // 화면정보 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
   const ConfigModalComponent = ({ data, onClose }) => {
     console.log('ConfigModalComponent of data ==>', data);
 
@@ -2002,7 +2005,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       </div>
                       <div className="flex justify-end items-center space-x-4">
                         <span className="text-sm text-gray-600">
-                          {t('LogModal.TotalResults')}: {listCount}
+                          {t('LogModal.TotalResults')}: {listRouteCount}
                         </span>
                         <button
                           className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
@@ -2189,21 +2192,26 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                             </div>
                           ))}
                       </div>
-                      <div className="flex justify-end">
+
+                      <div className="flex justify-end items-center space-x-4">
+                        <span className="text-sm text-gray-600">
+                          {t('LogModal.TotalResults')}: {listConfigCount}
+                        </span>
                         <button
-                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={onFindTccfg}
                         >
                           <FaSearch
                             className="h-4 w-5 text-sky-500"
                             aria-hidden="true"
                           />
+                          {/* 로그검색 -> 검색 버튼 */}
                           <span className="text-sm text-sky-500 font-bold">
-                            {/* 배치탭 검색버튼 */}
                             {t('LogModal.Find')}
                           </span>
                         </button>
                       </div>
+
                       {/* {loading && <p>로딩 중...</p>} */}
                       {error && <p className="text-red-500">{error}</p>}
                       {/* 그리드를 2개로 나누어 왼쪽과 오른쪽에 표시 */}
