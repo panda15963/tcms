@@ -9,8 +9,8 @@ import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck, FaSearch } from 'react-icons/fa';
 import MainGrid from '../tables/mapTables/MainGrid';
-import { nonAuthInstance } from '../../server/AxiosConfig';
-import logService from '../../service/logService';
+import { nonAuthInstance } from '../../server/MapAxiosConfig';
+import MapLogService from '../../service/MapLogService';
 import MultipleSelectDropDown from '../dropdowns/mapMenus/MultipleSelectDropDown';
 import { isEmpty } from 'lodash';
 import SingleSelectDropDown from '../dropdowns/mapMenus/SingleSelectDropDown';
@@ -275,7 +275,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const FIND_META = async (inputCond) => {
     try {
-      await logService
+      await MapLogService
         .FIND_META_10100({
           cond: inputCond,
         })
@@ -341,7 +341,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const MAIN_COUNTRY = async () => {
     try {
-      await logService.MAIN_COUNTRY({}).then((res) => {
+      await MapLogService.MAIN_COUNTRY({}).then((res) => {
         console.log('MAIN_COUNTRY of res ==>', res.country);
 
         // [Continent]
@@ -401,7 +401,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const MAIN_FEATURE = async () => {
     try {
-      await logService.MAIN_FEATURE({}).then((res) => {
+      await MapLogService.MAIN_FEATURE({}).then((res) => {
         console.log('MAIN_FEATURE of res ==>', res.feature);
 
         const withHyphen = res.feature.filter((item) =>
@@ -491,7 +491,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const MAIN_TARGET = async () => {
     try {
-      await logService.MAIN_TARGET({}).then((res) => {
+      await MapLogService.MAIN_TARGET({}).then((res) => {
         console.log('MAIN_TARGET of res ==>', res.target);
 
         // [Target] 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
@@ -528,7 +528,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const MAIN_TAG = async () => {
     try {
-      await logService.MAIN_TAG({}).then((res) => {
+      await MapLogService.MAIN_TAG({}).then((res) => {
         console.log('MAIN_TAG of res ==>', res.tag);
 
         // [Tag] 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
@@ -620,7 +620,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
 
       const promises = fileIds.map((fileId) => {
-        return logService
+        return MapLogService
           .SPACE_INTERPOLATION({
             cond: { file_id: fileId },
           })
@@ -903,7 +903,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const FIND_META_ID = async (inputCond) => {
     try {
-      const res = await logService.FIND_META_ID({
+      const res = await MapLogService.FIND_META_ID({
         cond: inputCond,
       });
 
@@ -941,7 +941,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const FIND_TCCFG = async (inputCond) => {
     try {
-      await logService
+      await MapLogService
         .FIND_TCCFG_10003({
           cond: inputCond,
         })
