@@ -54,7 +54,8 @@
     "Select": "Select",
     "Loading": "Loading...",
     "FetchedData": "Fetched Data",
-    "AllVersions": "All Versions"
+    "AllVersions": "All Versions",
+    "TotalResults": "Total Results"
   },
   "Fields": {
     "FindDescription": "Find Description",
@@ -97,7 +98,8 @@
     "Version": "Version",
     "Country": "Country",
     "LogType": "Log Type",
-    "Summary": "Summary"
+    "Summary": "Summary",
+    "LoadMore": "Load More"
   },
   "ConfigGridR": {
     "CFG_name": "CFG Name",

@@ -143,6 +143,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [selectedLogList2, setSelectedLogList2] = useState(initialList);
   const selectedConfigRowsRef = useRef([]); // useRef instead of useState
   const [selectedRows, setSelectedRows] = useState([]);
+  const [listCount, setListCount] = useState(0); // 검색 결과 개수
 
   useEffect(() => {
     console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
@@ -288,9 +289,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               list: res.findMeta,
             };
           });
+          setListCount(res.findMeta.length);
         });
     } catch (e) {
       console.log('FIND_META of error ==>', e);
+      setListCount(0); // 결과가 없으면 0으로 설정
     }
   };
 
@@ -1997,17 +2000,20 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                             </div>
                           ))}
                       </div>
-                      <div className="flex justify-end">
+                      <div className="flex justify-end items-center space-x-4">
+                        <span className="text-sm text-gray-600">
+                          {t('LogModal.TotalResults')}: {listCount}
+                        </span>
                         <button
-                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={onFindMeta}
                         >
                           <FaSearch
                             className="h-4 w-5 text-sky-500"
                             aria-hidden="true"
                           />
+                          {/* 로그검색 -> 검색 버튼 */}
                           <span className="text-sm text-sky-500 font-bold">
-                            {/* 로그검색 -> 검색 버튼 */}
                             {t('LogModal.Find')}
                           </span>
                         </button>

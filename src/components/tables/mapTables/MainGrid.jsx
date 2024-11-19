@@ -306,7 +306,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
         <div className="flex justify-center mt-1">
           <button
             onClick={handleLoadMore}
-            className="px-4 py-2 bg-blue-500 text-white rounded shadow-lg"
+            className="px-4 py-1 bg-blue-500 text-white rounded shadow-lg"
           >
             {/* 더 많은 항목 보기 */}
             {t('MainGrid.LoadMore')}
