@@ -64,9 +64,7 @@ export default function UsageCounts() {
           </div>
         </div>
         <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
-          <div className="w-full max-w-7xl">
-            <BarChart data={sampleData} />
-          </div>
+          <BarChart data={sampleData} />
         </div>
       </div>
     </div>

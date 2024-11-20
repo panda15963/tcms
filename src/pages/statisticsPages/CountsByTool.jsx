@@ -4,6 +4,7 @@ import LineChart from '../../components/D3Charts/LineChart';
 import CustomDatePicker from '../../components/calender/CustomDatePicker';
 import DateTerms from '../../components/calender/DateTerms';
 import PCLists from '../../components/dropdowns/statMenus/PCLists';
+import StatLogService from '../../service/StatLogService';
 
 const sampleData = [
   {
@@ -72,6 +73,59 @@ export default function CountsByTool() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [dateTerm, setDateTerm] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false); // New state for search tracking
+
+  const formatDateToLocalISO = (date) => {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+    const day = String(date.getDate()).padStart(2, '0'); // 일자를 2자리로 맞춤
+    return `${year}-${month}-${day}`;
+  };
+
+  const requestData = {
+    interval: dateTerm?.value || '',
+    starttime: startDate ? formatDateToLocalISO(startDate) : '',
+    endtime: endDate ? formatDateToLocalISO(endDate) : '',
+    by: 'tool',
+    toolname: '',
+  };
+
+  /**
+   * EXECUTION COUNT API
+   */
+  const EXECUTION_COUNT = async (inputCond) => {
+    const result = await StatLogService.EXECUTION_COUNT({
+      inputCond,
+    }).then((res) => {
+      console.log(res);
+      return res;
+    }).catch((error) => {
+      console.log(error);
+      return error;
+    });
+    return result;
+  };
+
+  const filteredDate = sampleData.map((data) => {
+    if (startDate && endDate) {
+      const adjustedStartDate = new Date(startDate.setHours(0, 0, 0, 0)); // Start of the day
+      const adjustedEndDate = new Date(endDate.setHours(23, 59, 59, 999)); // End of the day
+
+      return {
+        ...data,
+        data: data.data.filter(
+          (item) =>
+            item.date >= adjustedStartDate && item.date <= adjustedEndDate
+        ),
+      };
+    }
+    return data;
+  });
+
+  const hasResults = filteredDate.some(
+    (data) => data.data && data.data.length > 0
+  );
 
   function handleOnSelectTerm(selectedTerm) {
     setDateTerm(selectedTerm);
@@ -82,7 +136,8 @@ export default function CountsByTool() {
   }
 
   function handleSearch() {
-    console.log('search');
+    setHasSearched(true);
+    EXECUTION_COUNT(requestData);
   }
 
   return (
@@ -113,17 +168,23 @@ export default function CountsByTool() {
             <button
               type="button"
               onClick={handleSearch}
-              className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300"
             >
               조회
             </button>
           </div>
         </div>
-        <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
-          <div className="w-full max-w-7xl">
-            <LineChart data={sampleData} />
+        {hasSearched && hasResults ? ( // Check if searched and has results
+          <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
+            <LineChart />
           </div>
-        </div>
+        ) : (
+          <p className="text-center text-gray-500">
+            {hasSearched
+              ? '검색되지 않음'
+              : '조건을 설정한 후 조회 버튼을 눌러주세요.'}
+          </p>
+        )}
       </div>
     </div>
   );

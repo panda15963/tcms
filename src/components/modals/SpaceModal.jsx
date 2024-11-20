@@ -4,14 +4,14 @@ import { MdClose } from 'react-icons/md';
 import { FaCheck } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import SpaceTable from '../tables/mapTables/SpaceTable';
-import logService from '../../service/logService';
+import MapLogService from '../../service/MapLogService';
 import MapComponent from '../mapAssist/MapComponent';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
 import { FaDownload } from 'react-icons/fa6';
 import useToast from '../../hooks/useToast';
 import AlertMessage from '../alerts/AlertMessage';
-import { nonAuthInstance } from '../../server/AxiosConfig';
+import { nonAuthInstance } from '../../server/MapAxiosConfig';
 import Error from '../alerts/Error';
 import { isEmpty } from 'lodash';
 
@@ -153,7 +153,7 @@ const SpaceModal = forwardRef(
      */
     const FIND_SPACE = async (inputCond) => {
       try {
-        const res = await logService.FIND_SPACE({
+        const res = await MapLogService.FIND_SPACE({
           cond: inputCond,
         });
         console.log('FIND_SPACE of res ==>', res.findMeta);
@@ -185,7 +185,7 @@ const SpaceModal = forwardRef(
         }
 
         const promises = fileIds.map((fileId) => {
-          return logService
+          return MapLogService
             .SPACE_INTERPOLATION({
               cond: { file_id: fileId },
             })

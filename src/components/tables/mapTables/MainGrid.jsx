@@ -132,7 +132,7 @@ const defaultColumns = (t) => [
         return imagePath;
       };
       // 포트 번호(:8080)와 '/api' 제거
-      const baseURL = process.env.REACT_APP_BASEURL.replace(
+      const baseURL = process.env.REACT_APP_MAPBASEURL.replace(
         /:(8080|8090)\/api/,
         ''
       );

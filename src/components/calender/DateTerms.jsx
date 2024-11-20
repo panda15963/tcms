@@ -11,9 +11,9 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const dateTerms = (t) => [
-  { id: 1, name: t('DateTerms.Day') }, // 일별
-  { id: 2, name: t('DateTerms.Week') }, // 주별
-  { id: 3, name: t('DateTerms.Month') }, // 월별
+  { id: 1, name: t('DateTerms.Day'), value: 'day' }, // 일별
+  { id: 2, name: t('DateTerms.Week'), value: 'week' }, // 주별
+  { id: 3, name: t('DateTerms.Month'), value: 'month' }, // 월별
 ];
 
 // classNames function to combine multiple classes

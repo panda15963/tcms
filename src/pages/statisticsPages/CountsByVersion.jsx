@@ -74,6 +74,22 @@ export default function CountsByTool() {
   const [endDate, setEndDate] = useState(null);
   const [dateTerm, setDateTerm] = useState(null);
 
+  const filteredDate = sampleData.map((data) => {
+    if (startDate && endDate) {
+      const adjustedStartDate = new Date(startDate.setHours(0, 0, 0, 0)); // Start of the day
+      const adjustedEndDate = new Date(endDate.setHours(23, 59, 59, 999)); // End of the day
+
+      return {
+        ...data,
+        data: data.data.filter(
+          (item) =>
+            item.date >= adjustedStartDate && item.date <= adjustedEndDate
+        ),
+      };
+    }
+    return data; // Return the original data if startDate or endDate is not set
+  });
+
   function handleOnSelectTerm(selectedTerm) {
     setDateTerm(selectedTerm);
   }
@@ -122,9 +138,7 @@ export default function CountsByTool() {
           </div>
         </div>
         <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
-          <div className="w-full max-w-7xl">
-            <LineChart data={sampleData} />
-          </div>
+          <LineChart data={filteredDate} />
         </div>
       </div>
     </div>

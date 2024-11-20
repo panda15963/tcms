@@ -1,7 +1,6 @@
-import { Download } from 'heroicons-react';
-import { axiosInstance, nonAuthInstance } from '../server/AxiosConfig';
+import { axiosInstance, nonAuthInstance } from '../server/MapAxiosConfig';
 
-const logService = {
+const MapLogService = {
   MAIN_COUNTRY: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -352,4 +351,4 @@ const logService = {
   },
 };
 
-export default logService;
+export default MapLogService;

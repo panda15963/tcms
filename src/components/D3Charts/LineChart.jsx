@@ -26,6 +26,19 @@ const LineChart = ({ data }) => {
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
+    // Create tooltip
+    const tooltip = d3
+      .select('body')
+      .append('div')
+      .style('position', 'absolute')
+      .style('background', '#fff')
+      .style('border', '1px solid #ccc')
+      .style('border-radius', '4px')
+      .style('padding', '5px 10px')
+      .style('font-size', '12px')
+      .style('pointer-events', 'none')
+      .style('opacity', 0);
+
     // Flatten all dates and values to determine global x and y scales
     const allDates = data.flatMap((tool) =>
       tool.data.map((d) => new Date(d.date))
@@ -52,18 +65,8 @@ const LineChart = ({ data }) => {
 
     // Plot each tool's data
     data.forEach((tool, index) => {
-      if (tool.data.length === 1) {
-        // If only one data point, draw a circle
-        svg
-          .append('circle')
-          .attr('cx', xScale(new Date(tool.data[0].date)))
-          .attr('cy', yScale(tool.data[0].value))
-          .attr('r', 5) // Circle radius
-          .attr('fill', colorScale(index))
-          .attr('stroke', 'black') // Optional stroke for better visibility
-          .attr('stroke-width', 1);
-      } else {
-        // Draw a line for multiple data points
+      // Draw a line for multiple data points
+      if (tool.data.length > 1) {
         svg
           .append('path')
           .datum(tool.data)
@@ -72,6 +75,33 @@ const LineChart = ({ data }) => {
           .attr('stroke-width', 2)
           .attr('d', line);
       }
+
+      // Add circles for each data point
+      tool.data.forEach((point) => {
+        svg
+          .append('circle')
+          .attr('cx', xScale(new Date(point.date)))
+          .attr('cy', yScale(point.value))
+          .attr('r', 5) // Circle radius
+          .attr('fill', colorScale(index))
+          .attr('stroke', 'black') // Optional stroke for better visibility
+          .attr('stroke-width', 1)
+          .on('mouseover', (event) => {
+            tooltip
+              .style('opacity', 1)
+              .html(
+                `<strong>${tool.type}</strong><br>Date: ${point.date}<br>Value: ${point.value}`
+              );
+          })
+          .on('mousemove', (event) => {
+            tooltip
+              .style('left', event.pageX + 10 + 'px')
+              .style('top', event.pageY - 30 + 'px');
+          })
+          .on('mouseout', () => {
+            tooltip.style('opacity', 0);
+          });
+      });
 
       // Add legend line
       svg
@@ -102,15 +132,22 @@ const LineChart = ({ data }) => {
       .call(
         d3
           .axisBottom(xScale)
-          .ticks(d3.timeMonth)
-          .tickFormat(d3.timeFormat('%Y-%m-%d'))
+          .tickValues(allDates) // Use all dates in the data
+          .tickFormat((d) => d3.timeFormat('%Y-%m-%d')(d)) // Format dates as 'YYYY-MM-DD'
       )
+      .selectAll('text') // Select all tick labels
+      .style('text-anchor', 'end') // Align text to the end
+      .attr('dx', '-0.8em') // Adjust horizontal positioning
+      .attr('dy', '0.15em') // Adjust vertical positioning
+      .attr('transform', 'rotate(-45)'); // Rotate labels for readability
+
+    // Add X-axis label
+    svg
       .append('text')
-      .attr('x', width / 2)
-      .attr('y', 40)
+      .attr('x', width / 2) // Center the label
+      .attr('y', height + margin.bottom - 10) // Position below the axis
       .attr('fill', 'black')
       .style('text-anchor', 'middle')
-      .text('Date')
       .style('font-size', '16px');
 
     // Y-axis
@@ -125,6 +162,11 @@ const LineChart = ({ data }) => {
       .attr('transform', 'rotate(-90)')
       .text('Value')
       .style('font-size', '16px');
+
+    // Cleanup tooltip on unmount
+    return () => {
+      tooltip.remove();
+    };
   }, [data]);
 
   // Render message if no data
