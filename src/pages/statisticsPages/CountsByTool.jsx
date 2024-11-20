@@ -96,7 +96,7 @@ export default function CountsByTool() {
    */
   const EXECUTION_COUNT = async (inputCond) => {
     const result = await StatLogService.EXECUTION_COUNT({
-      inputCond,
+      cond: inputCond,
     }).then((res) => {
       console.log(res);
       return res;
