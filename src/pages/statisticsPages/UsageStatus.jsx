@@ -1,11 +1,34 @@
+import React, { useState, useEffect } from 'react';
 import UsageStatusTable from '../../components/tables/statTables/UsageStatusTable';
 import { IoReloadSharp } from 'react-icons/io5';
+import StatLogService from '../../service/StatLogService';
 
 export default function UsageStatus() {
-  function handleReload() {
-    console.log('reload');
-    // 새로 고침 로직을 여기에 추가하세요.
-  }
+  const [data, setData] = useState(null); // State to store the API response
+  const [loading, setLoading] = useState(false); // State to manage loading indicator
+
+  // Fetch data function
+  const LIVE_TOOL = async () => {
+    setLoading(true); // Start loading
+    try {
+      const result = await StatLogService.LIVE_TOOL();
+      setData(result.result);
+    } catch (error) {
+      console.error('Error fetching live TC data:', error);
+    } finally {
+      setLoading(false); // End loading
+    }
+  };
+
+  // UseEffect to fetch data on component mount
+  useEffect(() => {
+    LIVE_TOOL(); // Automatically fetch data on initial render
+  }, []);
+
+  // Manual reload handler
+  const handleReload = () => {
+    LIVE_TOOL();
+  };
 
   return (
     <div
@@ -25,9 +48,13 @@ export default function UsageStatus() {
         </button>
       </div>
       <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
+      {loading ? (
+        <p className="text-gray-500">Loading...</p> // Show loading indicator
+      ) : (
         <div className="border border-black rounded-lg">
-          <UsageStatusTable />
+          <UsageStatusTable data={data} /> {/* Pass data as a prop */}
         </div>
+      )}
       </div>
     </div>
   );

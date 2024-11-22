@@ -5,102 +5,92 @@ import CustomDatePicker from '../../components/calender/CustomDatePicker';
 import DateTerms from '../../components/calender/DateTerms';
 import ToolLists from '../../components/dropdowns/statMenus/ToolLists';
 import PCLists from '../../components/dropdowns/statMenus/PCLists';
+import StatLogService from '../../service/StatLogService';
 
-const sampleData = [
-  {
-    id: 1,
-    type: 'Version 1',
-    data: [
-      { date: new Date('2024-01-01'), value: 120 },
-      { date: new Date('2024-01-15'), value: 90 },
-      { date: new Date('2024-02-01'), value: 160 },
-      { date: new Date('2024-02-15'), value: 130 },
-      { date: new Date('2024-03-01'), value: 210 },
-      { date: new Date('2024-03-15'), value: 170 },
-      { date: new Date('2024-04-01'), value: 240 },
-      { date: new Date('2024-04-15'), value: 200 },
-      { date: new Date('2024-05-01'), value: 260 },
-      { date: new Date('2024-05-15'), value: 230 },
-      { date: new Date('2024-06-01'), value: 190 },
-      { date: new Date('2024-06-15'), value: 250 },
-      { date: new Date('2024-07-01'), value: 280 },
-      { date: new Date('2024-07-15'), value: 260 },
-      { date: new Date('2024-08-01'), value: 300 },
-      { date: new Date('2024-08-15'), value: 270 },
-      { date: new Date('2024-09-01'), value: 320 },
-      { date: new Date('2024-09-15'), value: 290 },
-      { date: new Date('2024-10-01'), value: 340 },
-      { date: new Date('2024-10-15'), value: 310 },
-      { date: new Date('2024-11-01'), value: 360 },
-      { date: new Date('2024-11-15'), value: 330 },
-      { date: new Date('2024-12-01'), value: 380 },
-      { date: new Date('2024-12-15'), value: 350 },
-    ],
-  },
-  {
-    id: 2,
-    type: 'Version 2',
-    data: [
-      { date: new Date('2024-01-01'), value: 100 },
-      { date: new Date('2024-01-15'), value: 80 },
-      { date: new Date('2024-02-01'), value: 140 },
-      { date: new Date('2024-02-15'), value: 120 },
-      { date: new Date('2024-03-01'), value: 190 },
-      { date: new Date('2024-03-15'), value: 150 },
-      { date: new Date('2024-04-01'), value: 220 },
-      { date: new Date('2024-04-15'), value: 180 },
-      { date: new Date('2024-05-01'), value: 250 },
-      { date: new Date('2024-05-15'), value: 210 },
-      { date: new Date('2024-06-01'), value: 170 },
-      { date: new Date('2024-06-15'), value: 230 },
-      { date: new Date('2024-07-01'), value: 260 },
-      { date: new Date('2024-07-15'), value: 240 },
-      { date: new Date('2024-08-01'), value: 290 },
-      { date: new Date('2024-08-15'), value: 260 },
-      { date: new Date('2024-09-01'), value: 310 },
-      { date: new Date('2024-09-15'), value: 280 },
-      { date: new Date('2024-10-01'), value: 330 },
-      { date: new Date('2024-10-15'), value: 300 },
-      { date: new Date('2024-11-01'), value: 350 },
-      { date: new Date('2024-11-15'), value: 320 },
-      { date: new Date('2024-12-01'), value: 370 },
-      { date: new Date('2024-12-15'), value: 340 },
-    ],
-  },
-];
-
-export default function CountsByTool() {
+export default function CountsByVersion() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [dateTerm, setDateTerm] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
 
-  const filteredDate = sampleData.map((data) => {
-    if (startDate && endDate) {
-      const adjustedStartDate = new Date(startDate.setHours(0, 0, 0, 0)); // Start of the day
-      const adjustedEndDate = new Date(endDate.setHours(23, 59, 59, 999)); // End of the day
+  const formatDateToLocalISO = (date) => {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-      return {
-        ...data,
-        data: data.data.filter(
-          (item) =>
-            item.date >= adjustedStartDate && item.date <= adjustedEndDate
-        ),
-      };
+  const requestData = {
+    interval: dateTerm?.value || '',
+    starttime: startDate ? formatDateToLocalISO(startDate) : '',
+    endtime: endDate ? formatDateToLocalISO(endDate) : '',
+    by: 'version',
+    toolname: 'TestCourseManagementSystem',
+  };
+
+  const EXECUTION_COUNT = async (inputCond) => {
+    try {
+      const result = await StatLogService.EXECUTION_COUNT({ cond: inputCond });
+
+      if (typeof result === 'string') {
+        const formattedResponse = result.replace(
+          /ToolExecCountResponse\((.*?)\)/g,
+          (_, content) =>
+            `{${content
+              .split(', ')
+              .map((pair) => {
+                const [key, value] = pair.split('=');
+                const formattedValue =
+                  value === 'null' || !isNaN(value) ? value : `"${value}"`;
+                return `"${key}":${formattedValue}`;
+              })
+              .join(', ')}}`
+        );
+        return JSON.parse(formattedResponse);
+      }
+      return result;
+    } catch (error) {
+      console.error('Error in EXECUTION_COUNT:', error);
+      return null;
     }
-    return data; // Return the original data if startDate or endDate is not set
-  });
+  };
 
-  function handleOnSelectTerm(selectedTerm) {
+  const handleOnSelectTerm = (selectedTerm) => {
     setDateTerm(selectedTerm);
-  }
+  };
 
-  function handleReload() {
-    console.log('reload');
-  }
+  const handleReload = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setDateTerm(null);
+    setHasSearched(false);
+    setSearchResults([]);
+  };
 
-  function handleSearch() {
-    console.log('search');
-  }
+  const handleSearch = async () => {
+    try {
+      setHasSearched(true);
+
+      // Fetch execution count data
+      const { result: searchedResult } = await EXECUTION_COUNT(requestData);
+      if (searchedResult && Array.isArray(searchedResult)) {
+        // Combine searchedResult with dateTerm
+        const combinedResults = searchedResult.map((item) => ({
+          ...item,
+          dateTerm: dateTerm?.value || '', // Add dateTerm to each result item
+        }));
+        setSearchResults(combinedResults);
+      } else {
+        console.log('No results found.');
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Error fetching execution count:', error);
+      setSearchResults([]);
+    }
+  };
 
   return (
     <div
@@ -137,9 +127,17 @@ export default function CountsByTool() {
             </button>
           </div>
         </div>
-        <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
-          <LineChart data={filteredDate} />
-        </div>
+        {hasSearched && searchResults.length > 0 ? (
+          <div className="mx-auto max-w-7xl flex justify-center p-7 items-center border border-black rounded-lg">
+            <LineChart data={searchResults} groupBy={'toolver'} />
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">
+            {hasSearched
+              ? '검색되지 않음'
+              : '조건을 설정한 후 조회 버튼을 눌러주세요.'}
+          </p>
+        )}
       </div>
     </div>
   );

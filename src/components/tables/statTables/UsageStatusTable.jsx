@@ -19,125 +19,23 @@ const TableHeader = (t) => [
   { id: 7, name: '비고' },
 ];
 
-// Table data
-const TableData = [
-  {
-    id: 1,
-    pc: '100',
-    tool: 'A',
-    version: '1.0',
-    startTime: '2021-09-01 00:00:00',
-    duration: '00:00:00',
-    progress: 50,
-    status: 'Idle',
-    note: '',
-  },
-  {
-    id: 2,
-    pc: '200',
-    tool: 'A',
-    version: '2.0',
-    startTime: '2021-09-01 00:00:00',
-    duration: '00:00:00',
-    progress: 70,
-    status: 'Running',
-    note: '',
-  },
-  {
-    id: 3,
-    pc: '300',
-    tool: 'A',
-    version: '3.0',
-    startTime: '2021-09-01 00:00:00',
-    duration: '00:00:00',
-    progress: 90,
-    status: 'Not Responded',
-    note: 'Exception 1회 발생',
-  },
-  {
-    id: 4,
-    pc: '400',
-    tool: 'B',
-    version: '1.1',
-    startTime: '2021-09-01 01:00:00',
-    duration: '00:10:00',
-    progress: 20,
-    status: 'Running',
-    note: '',
-  },
-  {
-    id: 5,
-    pc: '500',
-    tool: 'B',
-    version: '2.1',
-    startTime: '2021-09-01 02:00:00',
-    duration: '00:15:00',
-    progress: 40,
-    status: 'Idle',
-    note: '',
-  },
-  {
-    id: 6,
-    pc: '600',
-    tool: 'B',
-    version: '3.1',
-    startTime: '2021-09-01 03:00:00',
-    duration: '00:20:00',
-    progress: 60,
-    status: 'Running',
-    note: '',
-  },
-  {
-    id: 7,
-    pc: '700',
-    tool: 'C',
-    version: '1.2',
-    startTime: '2021-09-01 04:00:00',
-    duration: '00:25:00',
-    progress: 80,
-    status: 'Not Responded',
-    note: 'Exception 2회 발생',
-  },
-  {
-    id: 8,
-    pc: '800',
-    tool: 'C',
-    version: '2.2',
-    startTime: '2021-09-01 05:00:00',
-    duration: '00:30:00',
-    progress: 100,
-    status: 'Completed',
-    note: '',
-  },
-  {
-    id: 9,
-    pc: '900',
-    tool: 'C',
-    version: '3.2',
-    startTime: '2021-09-01 06:00:00',
-    duration: '00:35:00',
-    progress: 45,
-    status: 'Running',
-    note: '',
-  },
-  {
-    id: 10,
-    pc: '1000',
-    tool: 'C',
-    version: '1.3',
-    startTime: '2021-09-01 07:00:00',
-    duration: '00:40:00',
-    progress: 75,
-    status: 'Idle',
-    note: '',
-  },
-];
-
+// Helper function to format runstatus values
+const formatRunStatus = (status) => {
+  if (status.toLowerCase() === 'not responded') {
+    return status
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }
+  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+};
 
 // Component Definition
-export default function UsageStatusTable() {
+export default function UsageStatusTable({ data }) {
   const { t } = useTranslation();
   const columns = useMemo(() => TableHeader(t), [t]);
+
+  const sanitizedData = Array.isArray(data) ? data : [];
 
   return (
     <div className="flow-root h-full">
@@ -155,29 +53,40 @@ export default function UsageStatusTable() {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
-          {TableData.map((data) => (
-            <tr key={data.id}>
-              {['pc', 'tool', 'version', 'startTime', 'duration', 'status', 'note'].map((field) => (
-                <td
-                  key={`${data.id}-${field}`}
-                  className={`px-6 py-4 border-2 ${
-                    field === 'status' ? 'text-left' : 'text-center'
-                  } text-base font-medium text-gray-700 tracking-wide whitespace-nowrap`}
-                >
-                  {field === 'status' ? (
-                    <>
-                      {statusIcons[data.status]} {data.status}
-                    </>
-                  ) : (
-                    data[field]
-                  )}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {sanitizedData.map((data) => {
+            const normalizedStatus = formatRunStatus(data.runstatus.trim());
+            return (
+              <tr key={data.id}>
+                {[
+                  'PC',
+                  'toolname',
+                  'toolver',
+                  'starttime',
+                  'runtime',
+                  'runstatus',
+                  'runmessage',
+                ].map((field) => (
+                  <td
+                    key={`${data.id}-${field}`}
+                    className={`px-6 py-4 border-2 ${
+                      field === 'runstatus' ? 'text-left' : 'text-center'
+                    } text-base font-medium text-gray-700 tracking-wide whitespace-nowrap`}
+                  >
+                    {field === 'runstatus' ? (
+                      <>
+                        {statusIcons[normalizedStatus] || '❓'}{' '}
+                        {normalizedStatus}
+                      </>
+                    ) : (
+                      data[field]
+                    )}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
   );
 }
-

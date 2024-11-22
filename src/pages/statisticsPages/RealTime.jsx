@@ -1,11 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { IoReloadSharp } from 'react-icons/io5';
 import RealTimeUsageTable from '../../components/tables/statTables/RealTimeUsageTable';
+import StatLogService from '../../service/StatLogService';
 
 export default function RealTime() {
-  function handleReload() {
-    console.log('reload');
-  }
+  const [data, setData] = useState(null); // State to store the API response
+  const [loading, setLoading] = useState(false); // State to manage loading indicator
+
+  // Fetch data function
+  const LIVE_TC = async () => {
+    setLoading(true); // Start loading
+    try {
+      const result = await StatLogService.LIVE_TC();
+      setData(result.result);
+    } catch (error) {
+      console.error('Error fetching live TC data:', error);
+    } finally {
+      setLoading(false); // End loading
+    }
+  };
+
+  // UseEffect to fetch data on component mount
+  useEffect(() => {
+    LIVE_TC(); // Automatically fetch data on initial render
+  }, []);
+
+  // Manual reload handler
+  const handleReload = () => {
+    LIVE_TC(); // Fetch data only on reload
+  };
 
   return (
     <div
@@ -25,9 +48,13 @@ export default function RealTime() {
         </button>
       </div>
       <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
-        <div className="border border-black rounded-lg">
-          <RealTimeUsageTable />
-        </div>
+        {loading ? (
+          <p className="text-gray-500">Loading...</p> // Show loading indicator
+        ) : (
+          <div className="border border-black rounded-lg">
+            <RealTimeUsageTable data={data} /> {/* Pass data as a prop */}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ const ProgressBar = ({ data, barHeight = 20, barWidth = 200, gap = 0 }) => {
       .attr('ry', 5)
       .attr('width', barWidth) // Set to full width (100%)
       .attr('height', barHeight)
-      .attr('fill', '#D3D3D3'); // Light gray color for the 100% background
+      .attr('fill', '#808080'); // Light gray color for the 100% background
 
     // Set up initial progress bar state
     select(node)
@@ -46,7 +46,7 @@ const ProgressBar = ({ data, barHeight = 20, barWidth = 200, gap = 0 }) => {
       .attr('ry', 5)
       .attr('width', 0)
       .attr('height', barHeight)
-      .attr('fill', '#4CAF50'); // Progress bar color
+      .attr('fill', '#0000FF'); // Progress bar color
 
     // Add text label to show percentage
     select(node)
@@ -80,7 +80,7 @@ const ProgressBar = ({ data, barHeight = 20, barWidth = 200, gap = 0 }) => {
 
   return (
     <svg width={barWidth} height={(barHeight + gap) * safeData.length}>
-      {safeData.map((value, index) => (
+      {safeData.map((_value, index) => (
         <g
           key={index}
           ref={(el) => (refs.current[index] = el)}

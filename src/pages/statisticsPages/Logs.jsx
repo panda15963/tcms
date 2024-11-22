@@ -5,18 +5,98 @@ import DateTerms from '../../components/calender/DateTerms';
 import ToolLists from '../../components/dropdowns/statMenus/ToolLists';
 import PCLists from '../../components/dropdowns/statMenus/PCLists';
 import LogTable from '../../components/tables/statTables/LogsTable';
+import StatLogService from '../../service/StatLogService';
 
 export default function Logs() {
-  const [startDate, setStartDate] = useState(null); // State for start date
-  const [endDate, setEndDate] = useState(null); // State for end date
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [dateTerm, setDateTerm] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(false); // State to manage loading indicator
+  
+  const formatDateToLocalISO = (date) => {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-  function handleReload() {
-    console.log('reload');
+  const requestData = {
+    interval: dateTerm?.value || '',
+    starttime: startDate ? formatDateToLocalISO(startDate) : '',
+    endtime: endDate ? formatDateToLocalISO(endDate) : '',
+    by: '',
+    toolname: '',
+  };
+
+  // Fetch data function
+  const TOOL_LOGS = async (inputCond) => {
+    setLoading(true); // Start loading
+    try {
+      return await StatLogService.TOOL_LOGS({ cond: inputCond });
+    } catch (error) {
+      console.error('Error in TOOL_LOGS:', error);
+      return null;
+    } finally {
+      setLoading(false); // End loading
+    }
+  };
+
+  const handleOnSelectTerm = (selectedTerm) => {
+    setDateTerm(selectedTerm);
+  };
+
+  const handleReload = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setDateTerm(null);
+    setSearchResults([]);
   }
 
-  function handleSearch() {
-    console.log('search');
-  }
+  const handleSearch = async () => {
+    try {
+      // Fetch execution count data
+      const result = await TOOL_LOGS(requestData);
+
+      if (!result || !result.result) {
+        setSearchResults([]);
+        return;
+      }
+
+      const { result: searchedResult } = result;
+
+      if (Array.isArray(searchedResult)) {
+        // Combine searchedResult with dateTerm
+        const filteredResults = searchedResult.filter((item) => {
+          // Extract only the date part from logtime (e.g., "2024-11-19")
+          const logDate = item.logtime.split(' ')[0];
+          const logDateObj = new Date(logDate);
+
+          // Check if logDate falls within the selected startDate and endDate range
+          if (startDate && logDateObj < new Date(startDate)) return false;
+          if (endDate && logDateObj > new Date(endDate)) return false;
+
+          return true;
+        });
+
+        console.log('Filtered results:', filteredResults);
+
+        const combinedResults = filteredResults.map((item) => ({
+          ...item,
+          dateTerm: dateTerm?.value || '', // Add dateTerm to each result item
+        }));
+
+        setSearchResults(combinedResults);
+      } else {
+        console.log('No results found.');
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Error fetching execution count:', error);
+      setSearchResults([]);
+    }
+  };
 
   return (
     <div
@@ -37,11 +117,8 @@ export default function Logs() {
       </div>
       <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
         <div className="my-4 flex justify-center items-center gap-4">
-          <DateTerms />
-          <CustomDatePicker
-            setStartDate={setStartDate}
-            setEndDate={setEndDate}
-          />
+          <DateTerms terms={handleOnSelectTerm} />
+          <CustomDatePicker startsDate={setStartDate} endsDate={setEndDate} />
           <label className="text-sm font-bold">도구 선택 : </label>
           <ToolLists />
           <label className="text-sm font-bold">PC 선택 : </label>
@@ -50,14 +127,20 @@ export default function Logs() {
             <button
               type="button"
               onClick={handleSearch}
-              className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300"
             >
               조회
             </button>
           </div>
         </div>
-        <div className="border border-black rounded-lg">
-          <LogTable />
+        <div className="w-full max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
+          {loading ? (
+            <p className="text-gray-500">Loading...</p> // Show loading indicator
+          ) : (
+            <div className="border border-black rounded-lg">
+              <LogTable data={searchResults} />
+            </div>
+          )}
         </div>
       </div>
     </div>
