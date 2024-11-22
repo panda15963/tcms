@@ -36,7 +36,6 @@ const LineChart = ({ data, groupBy }) => {
   useEffect(() => {
     const dateTerm =
       data.length > 0 && data[0].dateTerm ? data[0].dateTerm : 'day';
-    console.log('Updated dateTerm inside useEffect:', dateTerm);
 
     if (!groupedData || groupedData.length === 0) {
       d3.select(svgRef.current).selectAll('*').remove();
@@ -121,26 +120,15 @@ const LineChart = ({ data, groupBy }) => {
             tooltip.style('opacity', 0);
           });
       });
-
-      svg
-        .append('line')
-        .attr('x1', width - 150)
-        .attr('y1', index * 15 - 45)
-        .attr('x2', width - 120)
-        .attr('y2', index * 15 - 45)
-        .attr('stroke', colorScale(index))
-        .attr('stroke-width', 2);
-
-      svg
-        .append('text')
-        .attr('x', width - 110)
-        .attr('y', index * 15 - 40)
-        .attr('text-anchor', 'start')
-        .style('fill', 'black')
-        .style('font-size', '14px')
-        .style('font-weight', 'bold')
-        .text(group.type);
     });
+
+    // X-Axis with custom tick interval and ISO format
+    const tickInterval =
+      dateTerm === 'week'
+        ? d3.timeWeek.every(1)
+        : dateTerm === 'month'
+        ? d3.timeMonth.every(1)
+        : d3.timeDay.every(1);
 
     svg
       .append('g')
@@ -148,13 +136,8 @@ const LineChart = ({ data, groupBy }) => {
       .call(
         d3
           .axisBottom(xScale)
-          .ticks(20)
-          .tickFormat(
-            (d) =>
-            dateTerm === 'month'
-              ? d3.timeFormat('%Y-%m')(d)
-              : d3.timeFormat('%Y-%m-%d')(d)
-          )
+          .ticks(tickInterval)
+          .tickFormat((d) => formatMonthDateToLocalISO(d))
       )
       .selectAll('text')
       .style('text-anchor', 'end')
