@@ -70,21 +70,7 @@ const LineChart = ({ data, groupBy }) => {
       group.data.map((d) => d.value)
     );
 
-    const minDate = d3.min(allDates);
-    const maxDate = d3.max(allDates);
-
-    // Add padding (e.g., subtract/add a day for the scale)
-    const paddedMinDate = new Date(minDate);
-    paddedMinDate.setDate(minDate.getDate() - 1);
-
-    const paddedMaxDate = new Date(maxDate);
-    paddedMaxDate.setDate(maxDate.getDate() + 1);
-
-    const xScale = d3
-      .scaleTime()
-      .domain([paddedMinDate, paddedMaxDate])
-      .range([0, width]);
-
+    const xScale = d3.scaleTime().domain(d3.extent(allDates)).range([0, width]);
     const yScale = d3
       .scaleLinear()
       .domain([0, d3.max(allValues)])
@@ -106,8 +92,7 @@ const LineChart = ({ data, groupBy }) => {
           .attr('fill', 'none')
           .attr('stroke', colorScale(index))
           .attr('stroke-width', 2)
-          .attr('d', line)
-          .attr('transform', 'translate(-20, 0)');
+          .attr('d', line);
       }
 
       group.data.forEach((point) => {
@@ -133,8 +118,7 @@ const LineChart = ({ data, groupBy }) => {
           })
           .on('mouseout', () => {
             tooltip.style('opacity', 0);
-          })
-          .attr('transform', 'translate(-20, 0)');
+          });
       });
     });
 
