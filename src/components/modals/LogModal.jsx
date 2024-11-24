@@ -9,8 +9,8 @@ import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck, FaSearch } from 'react-icons/fa';
 import MainGrid from '../tables/mapTables/MainGrid';
-import { nonAuthInstance } from '../../server/AxiosConfig';
-import logService from '../../service/logService';
+import { nonAuthInstance } from '../../server/MapAxiosConfig';
+import MapLogService from '../../service/MapLogService';
 import MultipleSelectDropDown from '../dropdowns/mapMenus/MultipleSelectDropDown';
 import { isEmpty } from 'lodash';
 import SingleSelectDropDown from '../dropdowns/mapMenus/SingleSelectDropDown';
@@ -124,7 +124,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [activeTab, setActiveTab] = useState('route'); // "route" 탭을 기본값으로 설정
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
   const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
-    [],
+    []
   );
   const [error, setError] = useState(null);
   const [errorValue, setErrorValue] = useState('');
@@ -142,6 +142,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [selectedLogList, setSelectedLogList] = useState(initialList);
   const [selectedLogList2, setSelectedLogList2] = useState(initialList);
   const selectedConfigRowsRef = useRef([]); // useRef instead of useState
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [listRouteCount, setListRouteCount] = useState(0); // 검색 결과 개수 (경로)
+  const [listConfigCount, setListConfigCount] = useState(0); // 검색 결과 개수 (화면정보)
 
   useEffect(() => {
     console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
@@ -200,7 +203,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   useEffect(() => {
     console.log(
       'useEffect of selectedSearchFieldsConfig ==>',
-      selectedSearchFieldsConfig,
+      selectedSearchFieldsConfig
     );
     // selectedOptions는 선택된 필드의 객체 리스트로 가정합니다.
     const ids = selectedSearchFieldsConfig.map((option) => option.id);
@@ -275,7 +278,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const FIND_META = async (inputCond) => {
     try {
-      await logService
+      await MapLogService
         .FIND_META_10100({
           cond: inputCond,
         })
@@ -287,9 +290,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               list: res.findMeta,
             };
           });
+          setListRouteCount(res.findMeta.length);
         });
     } catch (e) {
       console.log('FIND_META of error ==>', e);
+      setListRouteCount(0); // 결과가 없으면 0으로 설정
     }
   };
 
@@ -341,7 +346,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const MAIN_COUNTRY = async () => {
     try {
-      await logService.MAIN_COUNTRY({}).then((res) => {
+      await MapLogService.MAIN_COUNTRY({}).then((res) => {
         console.log('MAIN_COUNTRY of res ==>', res.country);
 
         // [Continent]
@@ -401,14 +406,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const MAIN_FEATURE = async () => {
     try {
-      await logService.MAIN_FEATURE({}).then((res) => {
+      await MapLogService.MAIN_FEATURE({}).then((res) => {
         console.log('MAIN_FEATURE of res ==>', res.feature);
 
         const withHyphen = res.feature.filter((item) =>
-          item.str.startsWith('-'),
+          item.str.startsWith('-')
         );
         const withoutHyphen = res.feature.filter(
-          (item) => !item.str.startsWith('-'),
+          (item) => !item.str.startsWith('-')
         );
 
         console.log('With Hyphen:', withHyphen);
@@ -491,7 +496,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const MAIN_TARGET = async () => {
     try {
-      await logService.MAIN_TARGET({}).then((res) => {
+      await MapLogService.MAIN_TARGET({}).then((res) => {
         console.log('MAIN_TARGET of res ==>', res.target);
 
         // [Target] 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
@@ -528,7 +533,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const MAIN_TAG = async () => {
     try {
-      await logService.MAIN_TAG({}).then((res) => {
+      await MapLogService.MAIN_TAG({}).then((res) => {
         console.log('MAIN_TAG of res ==>', res.tag);
 
         // [Tag] 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
@@ -620,7 +625,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
 
       const promises = fileIds.map((fileId) => {
-        return logService
+        return MapLogService
           .SPACE_INTERPOLATION({
             cond: { file_id: fileId },
           })
@@ -630,7 +635,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               if (typeof res === 'string') {
                 const preprocessedRes = res.replace(
                   /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                  '{"lat":$1,"lng":$2}',
+                  '{"lat":$1,"lng":$2}'
                 );
                 return JSON.parse(preprocessedRes); // Parse the preprocessed string into JSON
               } else {
@@ -640,7 +645,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             } catch (error) {
               console.error(
                 `Error parsing response for fileId ${fileId}:`,
-                error,
+                error
               );
               return null; // Return null if parsing fails
             }
@@ -672,6 +677,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const handleButtonClick = async () => {
     console.log('로그검색 경로 선택버튼 이벤트 입니다.');
+    console.log('selectedRows ==>', selectedRows);
 
     const findArray = (obj) => {
       if (Array.isArray(obj)) {
@@ -690,10 +696,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       return null;
     };
 
-    const arrayFromList = findArray(list);
+    const arrayFromList = findArray(selectedRows);
 
     console.log('arrayFromList', arrayFromList);
-    console.log('list', list);
+    console.log('selectedRows', selectedRows);
 
     if (arrayFromList.length == 0) {
       // 아무것도 선택되지 않았습니다.
@@ -706,7 +712,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     if (arrayFromList && arrayFromList.length > 0) {
       const fileIds = arrayFromList.map((route) => route.file_id);
       const routeCoords = await SPACE_INTERPOLATION(fileIds);
-      routeData(list);
+      routeData(selectedRows);
       routeFullCoords(routeCoords);
     } else {
       console.error('No array found in list');
@@ -734,7 +740,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const handleRouteButtonClick = async () => {
     console.log(
       'handleRouteButtonClick of selectedLogList ==>',
-      selectedLogList,
+      selectedLogList
     );
 
     const fileIds = selectedConfigRowsRef.current.map((route) => route.file_id);
@@ -790,7 +796,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           console.log('result', result);
 
           return result; // result를 반환하여 리스트에 추가
-        }),
+        })
       );
 
       // resultList를 평탄화(flatten)하여 단일 배열로 변환
@@ -799,7 +805,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       console.log('FIND_META_ID 결과 리스트 ==>', resultList);
       console.log(
         'FIND_META_ID 결과 리스트 flatResultList ==>',
-        flatResultList,
+        flatResultList
       );
 
       handleConfigBtnClickConfirm(flatResultList);
@@ -821,7 +827,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 더블클릭 선택 이벤트
    */
   const handleConfigBtn2Click = async () => {
-    console.log('로그검색 배치 선택버튼 이벤트 입니다.');
+    console.log('로그검색 화면정보 선택버튼 이벤트 입니다.');
     console.log('handleConfigBtnClick of selectedLogList ==>', selectedLogList);
 
     // selectedLogList에서 meta_id 추출하여 FIND_META_ID 호출
@@ -840,7 +846,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           console.log('result', result);
 
           return result; // result를 반환하여 리스트에 추가
-        }),
+        })
       );
 
       // resultList를 평탄화(flatten)하여 단일 배열로 변환
@@ -849,7 +855,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       console.log('FIND_META_ID 결과 리스트 ==>', resultList);
       console.log(
         'FIND_META_ID 결과 리스트 flatResultList ==>',
-        flatResultList,
+        flatResultList
       );
 
       handleConfigBtnClickConfirm(flatResultList);
@@ -862,7 +868,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /*
-   * 로그검색 배치 선택 이벤트
+   * 로그검색 화면정보 선택 이벤트
    */
   const handleConfigBtnClickConfirm = async (confirmList) => {
     console.log('confirmList', confirmList);
@@ -903,7 +909,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const FIND_META_ID = async (inputCond) => {
     try {
-      const res = await logService.FIND_META_ID({
+      const res = await MapLogService.FIND_META_ID({
         cond: inputCond,
       });
 
@@ -941,7 +947,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const FIND_TCCFG = async (inputCond) => {
     try {
-      await logService
+      await MapLogService
         .FIND_TCCFG_10003({
           cond: inputCond,
         })
@@ -953,9 +959,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               list: res.findTccfg,
             };
           });
+          setListConfigCount(res.findTccfg.length);
         });
     } catch (e) {
       console.log('FIND_TCCFG_10003 of error ==>', e);
+      setListConfigCount(0);
     }
   };
 
@@ -974,7 +982,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
       console.log(
         'handleLeftSelectionChange of combinedLogList ==>',
-        combinedLogList,
+        combinedLogList
       );
 
       setSelectedLogList(combinedLogList); // 전체 합쳐진 loglist 설정
@@ -994,7 +1002,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const handleLeftSelectionChange2 = (selectedRows) => {
     console.log(
       'handleLeftSelectionChange2 of selectedRows2 ==>',
-      selectedRows,
+      selectedRows
     );
 
     if (selectedRows && selectedRows.length > 0) {
@@ -1010,7 +1018,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [isRouteModalOpen, setIsRouteModalOpen] = useState(false);
   const [selectedRouteCellData, setSelectedRouteCellData] = useState(null);
 
-  // 배치 모달 상태 관리
+  // 화면정보 모달 상태 관리
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [selectedConfigCellData, setSelectedConfigCellData] = useState(null);
 
@@ -1048,7 +1056,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           if (data && data.meta_id) {
             // API 호출 (data.id 또는 적절한 키로 조회)
             const response = await nonAuthInstance.get(
-              `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`,
+              `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`
             );
             console.log('RouteModalComponent of response1', response);
             console.log('RouteModalComponent of response2', response.data);
@@ -1146,14 +1154,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     console.log(
       'handleSelectionChangeRoute of selectedRows ==>',
       selectedRows,
-      selectedConfigRowsRef,
+      selectedConfigRowsRef
     );
     if (selectedRows && selectedRows.length > 0) {
       selectedConfigRowsRef.current = selectedRows;
     }
   };
 
-  // 배치 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
+  // 화면정보 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
   const ConfigModalComponent = ({ data, onClose }) => {
     console.log('ConfigModalComponent of data ==>', data);
 
@@ -1164,7 +1172,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             // API 호출 (data.id 또는 적절한 키로 조회)
             const response = await nonAuthInstance.get(
               // `/find/sameorigin/tccfg?group_id=${-1}&tccfg_id=${data.tccfg_id}`,
-              `/find/sameorigin/tccfg?group_id=${data.group_id}&tccfg_id=${data.origin_tccfg_id}`,
+              `/find/sameorigin/tccfg?group_id=${data.group_id}&tccfg_id=${data.origin_tccfg_id}`
             );
             console.log('response', response);
             console.log('response', response.data);
@@ -1291,8 +1299,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         window.URL.revokeObjectURL(jsonUrl);
       } catch (error) {
         console.error(
-          `Failed to download JSON file for ${item.filename || 'dataToDownload'}:`,
-          error,
+          `Failed to download JSON file for ${
+            item.filename || 'dataToDownload'
+          }:`,
+          error
         );
       }
     }
@@ -1302,7 +1312,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 0 = 로그파일
         const logResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const logBlob = new Blob([logResponse.data]);
@@ -1325,7 +1335,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download log file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1334,7 +1344,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 1 = 이미지파일
         const imageResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const imageBlob = new Blob([imageResponse.data]);
@@ -1352,7 +1362,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download image file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1387,8 +1397,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         window.URL.revokeObjectURL(jsonUrl);
       } catch (error) {
         console.error(
-          `Failed to download JSON file for ${item.filename || 'dataToDownload'}:`,
-          error,
+          `Failed to download JSON file for ${
+            item.filename || 'dataToDownload'
+          }:`,
+          error
         );
       }
     }
@@ -1398,7 +1410,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 0 = 로그파일
         const logResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const logBlob = new Blob([logResponse.data]);
@@ -1416,7 +1428,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download log file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1425,7 +1437,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 1 = 이미지파일
         const imageResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const imageBlob = new Blob([imageResponse.data]);
@@ -1443,7 +1455,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download image file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1471,7 +1483,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         console.log('result', result);
 
         return result; // result를 반환하여 리스트에 추가
-      }),
+      })
     );
 
     // resultList를 평탄화(flatten)하여 단일 배열로 변환
@@ -1501,8 +1513,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         window.URL.revokeObjectURL(jsonUrl);
       } catch (error) {
         console.error(
-          `Failed to download JSON file for ${item.filename || 'flatResultList'}:`,
-          error,
+          `Failed to download JSON file for ${
+            item.filename || 'flatResultList'
+          }:`,
+          error
         );
       }
     }
@@ -1512,7 +1526,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 0 = 로그파일
         const logResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         console.log('logResponse ==>', logResponse);
@@ -1539,7 +1553,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download log file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1548,7 +1562,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 1 = 이미지파일
         const imageResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const imageBlob = new Blob([imageResponse.data]);
@@ -1566,7 +1580,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download image file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1594,7 +1608,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         console.log('result', result);
 
         return result; // result를 반환하여 리스트에 추가
-      }),
+      })
     );
 
     // resultList를 평탄화(flatten)하여 단일 배열로 변환
@@ -1624,8 +1638,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         window.URL.revokeObjectURL(jsonUrl);
       } catch (error) {
         console.error(
-          `Failed to download JSON file for ${item.filename || 'flatResultList'}:`,
-          error,
+          `Failed to download JSON file for ${
+            item.filename || 'flatResultList'
+          }:`,
+          error
         );
       }
     }
@@ -1635,7 +1651,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 0 = 로그파일
         const logResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         console.log('logResponse ==>', logResponse);
@@ -1662,7 +1678,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download log file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
@@ -1671,7 +1687,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         // sequence 1 = 이미지파일
         const imageResponse = await nonAuthInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
-          { responseType: 'blob' },
+          { responseType: 'blob' }
         );
 
         const imageBlob = new Blob([imageResponse.data]);
@@ -1689,11 +1705,16 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         } else {
           console.error(
             `Failed to download image file for meta_id ${file.meta_id}:`,
-            error,
+            error
           );
         }
       }
     }
+  };
+
+  const handleSelectionChange = (selectedRows) => {
+    console.log('선택된 행:', selectedRows);
+    setSelectedRows(selectedRows); // 선택된 행 관리
   };
 
   return (
@@ -1982,17 +2003,20 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                             </div>
                           ))}
                       </div>
-                      <div className="flex justify-end">
+                      <div className="flex justify-end items-center space-x-4">
+                        <span className="text-sm text-gray-600">
+                          {t('LogModal.TotalResults')}: {listRouteCount}
+                        </span>
                         <button
-                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={onFindMeta}
                         >
                           <FaSearch
                             className="h-4 w-5 text-sky-500"
                             aria-hidden="true"
                           />
+                          {/* 로그검색 -> 검색 버튼 */}
                           <span className="text-sm text-sky-500 font-bold">
-                            {/* 로그검색 -> 검색 버튼 */}
                             {t('LogModal.Find')}
                           </span>
                         </button>
@@ -2001,9 +2025,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       {error && <p className="text-red-500">{error}</p>}
                       <MainGrid
                         list={list}
-                        onSelectionChange={(selectedRows) =>
-                          setList(selectedRows)
-                        }
+                        onSelectionChange={handleSelectionChange}
                         onCellDoubleClick={openRouteModal} // 더블클릭 이벤트 추가
                       />
 
@@ -2170,21 +2192,26 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                             </div>
                           ))}
                       </div>
-                      <div className="flex justify-end">
+
+                      <div className="flex justify-end items-center space-x-4">
+                        <span className="text-sm text-gray-600">
+                          {t('LogModal.TotalResults')}: {listConfigCount}
+                        </span>
                         <button
-                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={onFindTccfg}
                         >
                           <FaSearch
                             className="h-4 w-5 text-sky-500"
                             aria-hidden="true"
                           />
+                          {/* 로그검색 -> 검색 버튼 */}
                           <span className="text-sm text-sky-500 font-bold">
-                            {/* 배치탭 검색버튼 */}
                             {t('LogModal.Find')}
                           </span>
                         </button>
                       </div>
+
                       {/* {loading && <p>로딩 중...</p>} */}
                       {error && <p className="text-red-500">{error}</p>}
                       {/* 그리드를 2개로 나누어 왼쪽과 오른쪽에 표시 */}

@@ -1,33 +1,95 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { IoReloadSharp } from 'react-icons/io5';
 import BarChart from '../../components/D3Charts/BarChart';
 import CustomDatePicker from '../../components/calender/CustomDatePicker';
 import DateTerms from '../../components/calender/DateTerms';
 import ToolLists from '../../components/dropdowns/statMenus/ToolLists';
 import PCLists from '../../components/dropdowns/statMenus/PCLists';
-
-const sampleData = [
-  { date: new Date('2023-01-01'), value: 100 },
-  { date: new Date('2023-01-15'), value: 150 },
-  { date: new Date('2023-02-01'), value: 200 },
-  { date: new Date('2023-02-15'), value: 250 },
-  { date: new Date('2023-03-01'), value: 180 },
-  { date: new Date('2023-03-15'), value: 220 },
-  { date: new Date('2023-04-01'), value: 300 },
-  { date: new Date('2023-04-15'), value: 260 },
-  { date: new Date('2023-05-01'), value: 310 },
-  { date: new Date('2023-05-15'), value: 290 },
-  { date: new Date('2023-06-01'), value: 330 },
-];
+import StatLogService from '../../service/StatLogService';
 
 export default function UsageCounts() {
-  function handleReload() {
-    console.log('reload');
-  }
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [dateTerm, setDateTerm] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
 
-  function handleSearch() {
-    console.log('search');
-  }
+  const formatDateToLocalISO = (date) => {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const requestData = {
+    interval: dateTerm?.value || '',
+    starttime: startDate ? formatDateToLocalISO(startDate) : '',
+    endtime: endDate ? formatDateToLocalISO(endDate) : '',
+    by: '',
+    toolname: 'TestCourseManagementSystem',
+  };
+
+  const FUNCTION_COUNT = async (inputCond) => {
+    try {
+      const result = await StatLogService.FUNCTION_COUNT({ cond: inputCond });
+      if (typeof result === 'string') {
+        const formattedResponse = result.replace(
+          /ToolExecCountResponse\((.*?)\)/g,
+          (_, content) =>
+            `{${content
+              .split(', ')
+              .map((pair) => {
+                const [key, value] = pair.split('=');
+                const formattedValue =
+                  value === 'null' || !isNaN(value) ? value : `"${value}"`;
+                return `"${key}":${formattedValue}`;
+              })
+              .join(', ')}}`
+        );
+        return JSON.parse(formattedResponse);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      return null;
+    }
+  };
+
+  const handleOnSelectTerm = (selectedTerm) => {
+    setDateTerm(selectedTerm);
+  };
+
+  const handleReload = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setDateTerm(null);
+    setHasSearched(false);
+    setSearchResults([]);
+  };
+
+  const handleSearch = async () => {
+    try {
+      setHasSearched(true);
+
+      // Fetch execution count data
+      const { result: searchedResult } = await FUNCTION_COUNT(requestData);
+      if (searchedResult && Array.isArray(searchedResult)) {
+        // Combine searchedResult with dateTerm
+        const combinedResults = searchedResult.map((item) => ({
+          ...item,
+          dateTerm: dateTerm?.value || '', // Add dateTerm to each result item
+        }));
+        setSearchResults(combinedResults);
+      } else {
+        console.log('No results found.');
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Error fetching execution count:', error);
+      setSearchResults([]);
+    }
+  };
+
   return (
     <div
       className="flex flex-col items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8"
@@ -47,8 +109,8 @@ export default function UsageCounts() {
       </div>
       <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
         <div className="my-4 flex justify-center items-center gap-4">
-          <DateTerms />
-          <CustomDatePicker />
+          <DateTerms terms={handleOnSelectTerm} />
+          <CustomDatePicker startsDate={setStartDate} endsDate={setEndDate} />
           <label className="text-sm font-bold">도구 선택 : </label>
           <ToolLists />
           <label className="text-sm font-bold">PC 선택 : </label>
@@ -63,9 +125,17 @@ export default function UsageCounts() {
             </button>
           </div>
         </div>
-        <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
-          <BarChart data={sampleData} />
-        </div>
+        {hasSearched && searchResults.length > 0 ? (
+          <div className="mx-auto max-w-7xl flex justify-center items-center border border-black rounded-lg">
+            <BarChart data={searchResults} />
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">
+            {hasSearched
+              ? '검색되지 않음'
+              : '조건을 설정한 후 조회 버튼을 눌러주세요.'}
+          </p>
+        )}
       </div>
     </div>
   );

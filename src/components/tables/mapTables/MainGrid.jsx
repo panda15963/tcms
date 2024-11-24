@@ -123,15 +123,18 @@ const defaultColumns = (t) => [
         } else if (baseURL.includes('10.5.35.121')) {
           // 서버가 10.5.35.121인 경우
           // return imagePath.replace('/home/wasadmin', '');
-          return `/images${imagePath.replace('/home/wasadmin/testcourse/image', '')}`;
+          return `/images${imagePath.replace(
+            '/home/wasadmin/testcourse/image',
+            ''
+          )}`;
         }
         // 기본값 반환 (필요시 추가 설정 가능)
         return imagePath;
       };
       // 포트 번호(:8080)와 '/api' 제거
-      const baseURL = process.env.REACT_APP_BASEURL.replace(
+      const baseURL = process.env.REACT_APP_MAPBASEURL.replace(
         /:(8080|8090)\/api/,
-        '',
+        ''
       );
       const adjustedImagePath = adjustImagePath(baseURL, imagePath);
       // console.log('adjustedImagePath', adjustedImagePath);
@@ -195,47 +198,59 @@ const defaultData = [
   },
 ];
 
+const ITEMS_PER_PAGE = 10; // 한 번에 로드할 아이템 개수
+
 // MainGrid 컴포넌트 정의
 const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const { t } = useTranslation(); // Get the translation function
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
+
   const [data, setData] = useState(list ?? defaultData);
+
+  const [page, setPage] = useState(1); // 현재 페이지 번호
   const [selectedRows, setSelectedRows] = useState([]);
 
-  useEffect(() => {
-    console.log('useEffect LIST ==>', list);
+  // list.list가 배열인지 확인하고, 아니면 빈 배열로 초기화
+  const validList = useMemo(
+    () => (Array.isArray(list?.list) ? list.list : []),
+    [list]
+  );
 
-    if (list && !isEmpty(list.list)) {
-      setData(list.list);
-    }
-  }, [list]);
+  // 현재 페이지에 표시할 데이터
+  const displayedData = useMemo(() => {
+    return validList.slice(0, page * ITEMS_PER_PAGE);
+  }, [page, validList]);
 
   const table = useReactTable({
-    data, // 테이블에 사용할 데이터
-    columns, // 테이블에 사용할 컬럼
-    getCoreRowModel: getCoreRowModel(), // 기본 행 모델을 가져오는 함수 사용
-    state: {}, // 테이블의 상태
+    data: displayedData, // 페이징된 데이터
+    columns,
+    getCoreRowModel: getCoreRowModel(),
   });
 
+  // 선택된 행 상태 관리
   useEffect(() => {
     const currentSelectedRows = table
       .getSelectedRowModel()
       .rows.map((row) => row.original);
-    // 선택된 행이 변경될 때만 상태 업데이트
 
+    // 이전 선택 상태와 비교
     if (JSON.stringify(currentSelectedRows) !== JSON.stringify(selectedRows)) {
       setSelectedRows(currentSelectedRows);
-      onSelectionChange(currentSelectedRows); // 부모 컴포넌트로 업데이트된 선택된 행 전달
+      onSelectionChange(currentSelectedRows); // 부모 컴포넌트로 선택된 행 전달
     }
-  }, [table.getSelectedRowModel().rows, onSelectionChange]);
+  }, [table.getSelectedRowModel().rows, onSelectionChange, selectedRows]);
 
   // 셀 클릭 이벤트 핸들러 (더블클릭 시 모달 열기)
-
   const handleCellDoubleClick = (rowData) => {
     console.log('Row double clicked:', rowData);
     if (onCellDoubleClick) {
       onCellDoubleClick(rowData); // 더블클릭 시 부모 컴포넌트로 데이터를 전달해 모달 열기
     }
+  };
+
+  // 더 많은 항목 보기 버튼 핸들러
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
   };
 
   return (
@@ -257,7 +272,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
                     : flexRender(
                         header.column.columnDef.header, // 컬럼 헤더 렌더링
 
-                        header.getContext(), // 헤더의 컨텍스트
+                        header.getContext() // 헤더의 컨텍스트
                       )}
                 </th>
               ))}
@@ -285,6 +300,19 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
           ))}
         </tbody>
       </table>
+
+      {/* 더 많은 항목 보기 버튼 */}
+      {displayedData.length < validList.length && (
+        <div className="flex justify-center mt-1">
+          <button
+            onClick={handleLoadMore}
+            className="px-4 py-1 bg-blue-500 text-white rounded shadow-lg"
+          >
+            {/* 더 많은 항목 보기 */}
+            {t('MainGrid.LoadMore')}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

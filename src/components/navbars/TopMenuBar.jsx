@@ -32,6 +32,7 @@ const TopMenuBar = ({
   handleSpaceData,
   routeColors = () => {},
 }) => {
+
   const [inputValue, setInputValue] = useState('');
   const [keyPressed, setKeyPressed] = useState('');
   const [selectedCoords, setSelectedCoords] = useState(null);
@@ -501,6 +502,21 @@ const TopMenuBar = ({
     setConvertedCoords(result);
   }, [clickedCoords, selectedMapList]);
 
+  const handleMapClear = () => {
+    setSelectedCoords(null); // Clear selected coordinates
+    setClickedCoords(null); // Clear clicked coordinates
+    setRouteFullCoords(null); // Clear route coordinates
+    setSpaceFullCoords(null); // Clear space coordinates
+    setConvertedCoords({ lat: '', lng: '' }); // Reset converted coordinates
+    setDisplayCoords(null); // Clear display coordinates
+    setOrigins([]); // Clear origins
+    setDestinations([]); // Clear destinations
+    setCountry(null); // Reset country selection
+    if (typeof routeColors === 'function') {
+      routeColors([]); // Reset route colors if it's a function
+    }
+  };
+
   return (
     <>
       {success && <Completion successfulMessage={successValue} />}
@@ -598,12 +614,12 @@ const TopMenuBar = ({
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
-                          {/* 공간 검색 */}
+                          {/* 지도 초기회*/}
                           {t('TopMenuBar.MapClear')}
                         </label>
                         <button
                           type="button"
-                          onClick={() => window.location.reload()}
+                          onClick={handleMapClear}
                           className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
                         >
                           <HiOutlineRefresh

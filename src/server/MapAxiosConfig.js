@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const baseURL = process.env.REACT_APP_BASEURL; // 환경 변수에서 API 서버의 기본 URL 가져오기
+const mapBaseURL = process.env.REACT_APP_MAPBASEURL; // 환경 변수에서 API 서버의 기본 URL 가져오기
 const timeout = process.env.REACT_APP_TIMEOUT; // 환경 변수에서 요청 타임아웃 설정 가져오기
 
 // 인증이 필요한 요청을 위한 Axios 인스턴스 생성
@@ -10,7 +10,7 @@ export const axiosInstance = axios.create({
    * [Swagger API Server]
    * 이 인스턴스는 기본적으로 인증 토큰을 포함한 요청에 사용됩니다.
    */
-  baseURL: baseURL, // API 서버의 기본 URL
+  baseURL: mapBaseURL, // API 서버의 기본 URL
   timeout: timeout, // 요청 타임아웃 설정
   headers: {
     Authorization: `Bearer ${Cookies.get('access-token')}`, // 쿠키에서 토큰을 가져와 인증 헤더에 포함
@@ -28,7 +28,7 @@ export const nonAuthInstance = axios.create({
    * [Swagger API Server]
    * 이 인스턴스는 인증이 필요 없는 요청에 사용됩니다.
    */
-  baseURL: baseURL, // API 서버의 기본 URL
+  baseURL: mapBaseURL, // API 서버의 기본 URL
   timeout: timeout, // 요청 타임아웃 설정
   headers: {
     'Content-Type': 'application/json', // JSON 요청을 위한 Content-Type 헤더
@@ -46,7 +46,7 @@ export const axiosMultipartInstance = axios.create({
    * [Swagger API Server]
    * 이 인스턴스는 파일 업로드와 같이 multipart/form-data 형식의 요청에 사용됩니다.
    */
-  baseURL: baseURL, // API 서버의 기본 URL
+  baseURL: mapBaseURL, // API 서버의 기본 URL
   timeout: timeout, // 요청 타임아웃 설정
   headers: {
     Authorization: `Bearer ${Cookies.get('access-token')}`, // 쿠키에서 토큰을 가져와 인증 헤더에 포함

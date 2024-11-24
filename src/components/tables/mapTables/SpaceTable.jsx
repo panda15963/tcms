@@ -113,7 +113,7 @@ const SpaceTableHeaderList = (t) => [
         return imagePath;
       };
 
-      const baseURL = process.env.REACT_APP_BASEURL.replace(
+      const baseURL = process.env.REACT_APP_MAPBASEURL.replace(
         /:(8080|8090)\/api/,
         '',
       );

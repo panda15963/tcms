@@ -40,7 +40,8 @@
     "RangeError": "Out of range.",
     "WrongCoords": "Incorrect coordinates.",
     "EmptyCoords": "No coordinates found.",
-    "SelectedAPI": "Selected Map"
+    "SelectedAPI": "Selected Map",
+    "MapClear": "Map Clear"
   },
   "LogModal": {
     "ModalName": "Log Search",
@@ -53,7 +54,8 @@
     "Select": "Select",
     "Loading": "Loading...",
     "FetchedData": "Fetched Data",
-    "AllVersions": "All Versions"
+    "AllVersions": "All Versions",
+    "TotalResults": "Total Results"
   },
   "Fields": {
     "FindDescription": "Find Description",
@@ -96,7 +98,8 @@
     "Version": "Version",
     "Country": "Country",
     "LogType": "Log Type",
-    "Summary": "Summary"
+    "Summary": "Summary",
+    "LoadMore": "Load More"
   },
   "ConfigGridR": {
     "CFG_name": "CFG Name",
@@ -209,7 +212,7 @@
     "Login": "Login",
     "ToMainPage": "Go to the Main Page"
   },
-  "StatNavBar":{
+  "StatNavBar": {
     "StatMenu": "Tool Usage Status Menu",
     "TECT": "Tool Execution Counts (By Tool)",
     "TECV": "Tool Execution Counts (By Version)",
@@ -219,7 +222,7 @@
     "CTL": "Check Tool Logs",
     "TCIC": "Tool Configuration Information Change"
   },
-  "StatSideBar":{
+  "StatSideBar": {
     "StatMenu": "Tool Usage Status Menu",
     "TECT": "Tool Execution Counts (By Tool)",
     "TECV": "Tool Execution Counts (By Version)",
