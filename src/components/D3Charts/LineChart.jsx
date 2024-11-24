@@ -36,21 +36,21 @@ const LineChart = ({ data, groupBy }) => {
   useEffect(() => {
     const dateTerm =
       data.length > 0 && data[0].dateTerm ? data[0].dateTerm : 'day';
-
+  
     if (!groupedData || groupedData.length === 0) {
       d3.select(svgRef.current).selectAll('*').remove();
       return;
     }
-
+  
     d3.select(svgRef.current).selectAll('*').remove();
-
+  
     const svg = d3
       .select(svgRef.current)
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
-
+  
     const tooltip = d3
       .select('body')
       .append('div')
@@ -62,46 +62,46 @@ const LineChart = ({ data, groupBy }) => {
       .style('font-size', '12px')
       .style('pointer-events', 'none')
       .style('opacity', 0);
-
+  
     const allDates = groupedData.flatMap((group) =>
       group.data.map((d) => new Date(d.date))
     );
     const allValues = groupedData.flatMap((group) =>
       group.data.map((d) => d.value)
     );
-
+  
     const xScale = d3.scaleTime().domain(d3.extent(allDates)).range([0, width]);
     const yScale = d3
       .scaleLinear()
       .domain([0, d3.max(allValues)])
       .range([height, 0]);
-
+  
     const line = d3
       .line()
       .x((d) => xScale(new Date(d.date)))
       .y((d) => yScale(d.value))
       .curve(d3.curveMonotoneX);
-
+  
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-
-    groupedData.forEach((group, index) => {
+  
+    groupedData.forEach((group, idx) => {
       if (group.data.length > 1) {
         svg
           .append('path')
           .datum(group.data)
           .attr('fill', 'none')
-          .attr('stroke', colorScale(index))
+          .attr('stroke', colorScale(idx)) // Use idx here
           .attr('stroke-width', 2)
           .attr('d', line);
       }
-
+  
       group.data.forEach((point) => {
         svg
           .append('circle')
           .attr('cx', xScale(new Date(point.date)))
           .attr('cy', yScale(point.value))
           .attr('r', 5)
-          .attr('fill', colorScale(index))
+          .attr('fill', colorScale(idx)) // Use idx here
           .attr('stroke', 'black')
           .attr('stroke-width', 1)
           .on('mouseover', (event) => {
@@ -120,8 +120,28 @@ const LineChart = ({ data, groupBy }) => {
             tooltip.style('opacity', 0);
           });
       });
+  
+      // Add legend for each group
+      svg
+        .append('line')
+        .attr('x1', width - 150)
+        .attr('y1', idx * 15 - 45)
+        .attr('x2', width - 120)
+        .attr('y2', idx * 15 - 45)
+        .attr('stroke', colorScale(idx))
+        .attr('stroke-width', 2);
+  
+      svg
+        .append('text')
+        .attr('x', width - 110)
+        .attr('y', idx * 15 - 40)
+        .attr('text-anchor', 'start')
+        .style('fill', 'black')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .text(group.type);
     });
-
+  
     // X-Axis with custom tick interval and ISO format
     const tickInterval =
       dateTerm === 'week'
@@ -129,7 +149,7 @@ const LineChart = ({ data, groupBy }) => {
         : dateTerm === 'month'
         ? d3.timeMonth.every(1)
         : d3.timeDay.every(1);
-
+  
     svg
       .append('g')
       .attr('transform', `translate(0, ${height})`)
@@ -144,7 +164,7 @@ const LineChart = ({ data, groupBy }) => {
       .attr('dx', '-0.8em')
       .attr('dy', '0.15em')
       .attr('transform', 'rotate(-45)');
-
+  
     svg
       .append('g')
       .call(d3.axisLeft(yScale).ticks(5))
@@ -156,11 +176,12 @@ const LineChart = ({ data, groupBy }) => {
       .attr('transform', 'rotate(-90)')
       .text('Value')
       .style('font-size', '16px');
-
+  
     return () => {
       tooltip.remove();
     };
   }, [data, groupedData]);
+  
 
   if (!groupedData || groupedData.length === 0) {
     return (

@@ -113,7 +113,7 @@ export default function Configuration() {
           새로 고침
         </button>
       </div>
-      <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
+      <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black">
         <div className="my-4 flex justify-center items-center gap-4">
           <DateTerms terms={handleOnSelectTerm} />
           <CustomDatePicker startsDate={setStartDate} endsDate={setEndDate} />
