@@ -57,7 +57,7 @@ export default function CountsByVersion() {
     } catch (error) {
       console.error('Error in EXECUTION_COUNT:', error);
       return null;
-    }finally {
+    } finally {
       setLoading(false); // End loading
     }
   };
@@ -75,8 +75,6 @@ export default function CountsByVersion() {
 
   const handleSearch = async () => {
     try {
-      setHasSearched(true);
-
       // Fetch execution count data
       const { result: searchedResult } = await EXECUTION_COUNT(requestData);
       if (searchedResult && Array.isArray(searchedResult)) {
@@ -133,7 +131,7 @@ export default function CountsByVersion() {
             <button
               type="button"
               onClick={handleSearch}
-              className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset"
             >
               {/** 조회 */}
               {t('CountsByVersion.Search')}
@@ -146,7 +144,9 @@ export default function CountsByVersion() {
           </div>
         ) : (
           <p className="text-center text-gray-500">
-            {loading ? t('CountsByVersion.Search') : t('CountsByVersion.NoDataFound')}
+            {loading
+              ? t('CountsByVersion.Search')
+              : t('CountsByVersion.NoDataFound')}
           </p>
         )}
       </div>
