@@ -49,7 +49,7 @@ const NavBar = () => {
         i18n.changeLanguage(newLanguage);
       }
     },
-    [i18n.language, i18n],
+    [i18n.language, i18n]
   );
 
   const handleLinkClick = (link) => {
@@ -58,7 +58,7 @@ const NavBar = () => {
   };
 
   return (
-    <header className="bg-white pt-1 pb-1 z-30 relative border-b-2">
+    <header className="bg-white pt-1 pb-1 z-50 relative border-b-2">
       <nav
         className="mx-auto max-w-full lg:px-8 flex justify-between items-center"
         aria-label="Global"
@@ -126,7 +126,7 @@ const NavBar = () => {
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
             >
-              <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ">
+              <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <MenuItem>
                   {({ active }) => (
                     <>

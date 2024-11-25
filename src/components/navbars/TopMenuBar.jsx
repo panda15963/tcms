@@ -32,7 +32,6 @@ const TopMenuBar = ({
   handleSpaceData,
   routeColors = () => {},
 }) => {
-
   const [inputValue, setInputValue] = useState('');
   const [keyPressed, setKeyPressed] = useState('');
   const [selectedCoords, setSelectedCoords] = useState(null);

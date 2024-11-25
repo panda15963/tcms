@@ -61,7 +61,7 @@ export default function MapCoordLists({ chosenDisplayCoords = () => {} }) {
                 leaveTo="opacity-0"
               >
                 {/* ListboxOptions는 드롭다운의 옵션들을 표시하는 컴포넌트 */}
-                <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                   {mapCoords.map((mapCoord) => (
                     <ListboxOption
                       key={mapCoord.id} // 각 옵션의 고유 ID로 key 설정
@@ -69,7 +69,7 @@ export default function MapCoordLists({ chosenDisplayCoords = () => {} }) {
                         classNames(
                           focus ? 'bg-indigo-600 text-white' : '', // 포커스된 항목 스타일
                           !focus ? 'text-gray-900' : '', // 포커스되지 않은 항목 스타일
-                          'relative cursor-default select-none py-2 pl-8 pr-4',
+                          'relative cursor-default select-none py-2 pl-8 pr-4'
                         )
                       }
                       value={mapCoord} // 선택할 때 사용되는 값
@@ -80,7 +80,7 @@ export default function MapCoordLists({ chosenDisplayCoords = () => {} }) {
                           <span
                             className={classNames(
                               selected ? 'font-bold' : '', // 선택된 항목은 굵은 글꼴로 표시
-                              'block truncate',
+                              'block truncate'
                             )}
                           >
                             {mapCoord.name}
@@ -90,7 +90,7 @@ export default function MapCoordLists({ chosenDisplayCoords = () => {} }) {
                             <span
                               className={classNames(
                                 focus ? 'text-white' : 'text-indigo-600', // 포커스 상태에 따라 아이콘 색상 변경
-                                'absolute inset-y-0 left-0 flex items-center pl-1.5',
+                                'absolute inset-y-0 left-0 flex items-center pl-1.5'
                               )}
                             >
                               <FaCheck className="h-5 w-3" aria-hidden="true" />

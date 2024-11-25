@@ -84,7 +84,7 @@ export default function RoutoMap({
     for (let i = 0; i < prevCoords.length; i++) {
       const prevRoute = prevCoords[i];
       const isRouteRemoved = !currentCoords.some(
-        (route) => route.file_id === prevRoute.file_id,
+        (route) => route.file_id === prevRoute.file_id
       );
       if (isRouteRemoved) {
         return i; // Index of the removed route
@@ -101,7 +101,7 @@ export default function RoutoMap({
     ) {
       const removedIndex = findRemovedRouteIndex(
         previousRouteCoords,
-        routeFullCoords,
+        routeFullCoords
       );
       if (removedIndex !== -1) {
         // Create a new array with null at the removed index
@@ -192,7 +192,7 @@ export default function RoutoMap({
           }
         } else {
           console.warn(
-            `route.coords for route ${index} is not in the expected format.`,
+            `route.coords for route ${index} is not in the expected format.`
           );
         }
       });
@@ -213,7 +213,7 @@ export default function RoutoMap({
     for (let i = 0; i < prevCoords.length; i++) {
       const prevRoute = prevCoords[i];
       const isRouteRemoved = !currentCoords.some(
-        (route) => route.file_id === prevRoute.file_id,
+        (route) => route.file_id === prevRoute.file_id
       );
       if (isRouteRemoved) {
         return i; // Index of the removed route
@@ -229,7 +229,7 @@ export default function RoutoMap({
     ) {
       const removedIndex = findRemovedSpaceIndex(
         previousSpaceCoords,
-        spaceFullCoords,
+        spaceFullCoords
       );
       if (removedIndex !== -1) {
         // Create a new array with null at the removed index
@@ -314,7 +314,7 @@ export default function RoutoMap({
           }
         } else {
           console.warn(
-            `space.coords for space ${index} is not in the expected format.`,
+            `space.coords for space ${index} is not in the expected format.`
           );
         }
       });
