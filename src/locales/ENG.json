@@ -243,5 +243,93 @@
   "DateRangePicker": {
     "StartDate": "Start Date",
     "EndDate": "End Date"
+  },
+  "Configuration": {
+    "TSIM": "Tool Setting Information Modification",
+    "SelectTool": "Select Tool",
+    "SelectPC": "Select PC",
+    "Refresh": "Refresh",
+    "Search": "Search",
+    "Loading": "Loading...",
+    "NoDataFound": "No Data Found.",
+    "ToolName": "Tool Name",
+    "VersionName": "Version Name",
+    "ReceivedTime": "Received Time",
+    "Item": "Item",
+    "PrevValue": "Previous Setting Value",
+    "NewValue": "New Setting Value"
+  },
+  "CountsByTool": {
+    "CBT": "Counts By Tool",
+    "SelectPC": "Select PC",
+    "Refresh": "Refresh",
+    "Search": "Search",
+    "Loading": "Loading...",
+    "NoDataFound": "No Data Found."
+  },
+  "CountsByVersion": {
+    "CBV": "Counts By Version",
+    "SelectTool": "Select Tool",
+    "SelectPC": "Select PC",
+    "Refresh": "Refresh",
+    "Search": "Search",
+    "Loading": "Loading...",
+    "NoDataFound": "No Data Found."
+  },
+  "Logs": {
+    "ToolLogs": "Check Tool Logs",
+    "SelectTool": "Select Tool",
+    "SelectPC": "Select PC",
+    "Refresh": "Refresh",
+    "Search": "Search",
+    "Loading": "Loading...",
+    "NoDataFound": "No Data Found.",    
+    "ToolName": "Tool Name",
+    "VersionName": "Version Name",
+    "LogReceivedTime": "Log Received Time",
+    "LogLevel": "Log Level",
+    "LogDetail": "Log Detail"
+  },
+  "RealTime": {
+    "RealTimes": "Real-Time Tool Usage Status Based on TC",
+    "Refresh": "Refresh",
+    "Loading": "Loading...",
+    "NoDataFound": "No Data Found.",
+    "ToolName": "Tool Name",
+    "VersionName": "Version Name",
+    "StartTestingTime": "Start Testing Time",
+    "ExecutedTime": "Executed Time",
+    "OperationStatus": "Operation Status"
+  },
+  "UsageCounts":{
+    "UsageCounts": "Tool Usage Counts By Function",
+    "SelectTool": "Select Tool",
+    "SelectPC": "Select PC",
+    "Refresh": "Refresh",
+    "Search": "Search",
+    "Loading": "Loading...",
+    "NoDataFound": "No Data Found."
+  },
+  "UsageInformation": {
+    "ToolUsageInformation": "Real-Time Tool Usage Information",
+    "Refresh": "Refresh",
+    "Loading": "Loading...",
+    "NoDataFound": "No Data Found.",
+    "ToolName": "Tool Name",
+    "VersionName": "Version Name",
+    "StartTestingTime": "Start Testing Time",
+    "ExecutedTime": "Executed Time",
+    "OperationStatus": "Operation Status",
+    "Details": "Details"
+  },
+  "LineChart": {
+    "NoDataFound": "No Data Found.",
+    "Value": "Data Value",
+    "Date": "Date"
+  },
+  "BarChart": {
+    "NoDataFound": "No Data Found.",
+    "Value": "Data Value",
+    "Date": "Date"
   }
 }

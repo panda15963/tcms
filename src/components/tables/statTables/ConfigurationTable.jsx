@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 // Table headers
 const TableHeader = (t) => [
   { id: 1, name: 'PC' },
-  { id: 2, name: '도구명' },
-  { id: 3, name: '버전명' },
-  { id: 4, name: '수신 시간' },
-  { id: 5, name: '항목' },
-  { id: 6, name: '이전 설정 값' },
-  { id: 7, name: '신규 설정 값' },
+  { id: 2, name: t('Configuration.ToolName') },
+  { id: 3, name: t('Configuration.VersionName') },
+  { id: 4, name: t('Configuration.ReceivedTime') },
+  { id: 5, name: t('Configuration.Item') },
+  { id: 6, name: t('Configuration.PrevValue') },
+  { id: 7, name: t('Configuration.NewValue') },
 ];
 
 // Component Definition

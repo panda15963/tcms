@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IoReloadSharp } from 'react-icons/io5';
 import CustomDatePicker from '../../components/calender/CustomDatePicker';
 import DateTerms from '../../components/calender/DateTerms';
@@ -7,10 +8,11 @@ import StatLogService from '../../service/StatLogService';
 import LineChart from '../../components/D3Charts/LineChart';
 
 export default function CountsByTool() {
+  const { t } = useTranslation();
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [dateTerm, setDateTerm] = useState(null);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
 
   const formatDateToLocalISO = (date) => {
@@ -30,6 +32,7 @@ export default function CountsByTool() {
   };
 
   const EXECUTION_COUNT = async (inputCond) => {
+    setLoading(true); // Start loading
     try {
       const result = await StatLogService.EXECUTION_COUNT({ cond: inputCond });
 
@@ -53,6 +56,8 @@ export default function CountsByTool() {
     } catch (error) {
       console.error('Error in EXECUTION_COUNT:', error);
       return null;
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -64,14 +69,11 @@ export default function CountsByTool() {
     setStartDate(null);
     setEndDate(null);
     setDateTerm(null);
-    setHasSearched(false);
     setSearchResults([]);
   };
 
   const handleSearch = async () => {
     try {
-      setHasSearched(true);
-
       // Fetch execution count data
       const { result: searchedResult } = await EXECUTION_COUNT(requestData);
 
@@ -83,11 +85,9 @@ export default function CountsByTool() {
         }));
         setSearchResults(combinedResults);
       } else {
-        console.log('No results found.');
         setSearchResults([]);
       }
     } catch (error) {
-      console.error('Error fetching execution count:', error);
       setSearchResults([]);
     }
   };
@@ -99,14 +99,16 @@ export default function CountsByTool() {
     >
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-3xl font-bold text-center pb-4 text-gray-900">
-          도구 실행 횟수(도구 별)
+          {/** 도구 실행 횟수(도구 별)  */}
+          {t('CountsByTool.CBT')}
         </h1>
         <button
           onClick={handleReload}
           className="flex items-center px-4 py-2 border border-black bg-white text-gray-900 rounded-lg shadow"
         >
           <IoReloadSharp className="mr-2" />
-          새로 고침
+          {/** 새로 고침  */}
+          {t('CountsByTool.Refresh')}
         </button>
       </div>
 
@@ -114,7 +116,10 @@ export default function CountsByTool() {
         <div className="my-4 flex justify-center items-center gap-4">
           <DateTerms terms={handleOnSelectTerm} />
           <CustomDatePicker startsDate={setStartDate} endsDate={setEndDate} />
-          <label className="text-sm font-bold">PC 선택 : </label>
+          <label className="text-sm font-bold">
+            {/** PC 선택  */}
+            {t('CountsByTool.SelectPC')} :{' '}
+          </label>
           <PCLists />
           <div className="relative border border-black rounded-lg">
             <button
@@ -122,19 +127,18 @@ export default function CountsByTool() {
               onClick={handleSearch}
               className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300"
             >
-              조회
+              {/** 조회  */}
+              {t('CountsByTool.Search')}
             </button>
           </div>
         </div>
-        {hasSearched && searchResults.length > 0 ? (
+        {searchResults.length > 0 ? (
           <div className="mx-auto max-w-7xl flex justify-center p-7 items-center border border-black rounded-lg">
-            <LineChart  data={searchResults} groupBy={'toolname'} />
+            <LineChart data={searchResults} groupBy={'toolname'} />
           </div>
         ) : (
           <p className="text-center text-gray-500">
-            {hasSearched
-              ? '검색되지 않음'
-              : '조건을 설정한 후 조회 버튼을 눌러주세요.'}
+            {loading ? t('CountsByTool.Loading') : t('CountsByTool.NoDataFound')}
           </p>
         )}
       </div>

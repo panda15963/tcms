@@ -245,5 +245,93 @@
   "DateRangePicker": {
     "StartDate": "시작 날짜",
     "EndDate": "종료 날짜"
+  },
+  "Configuration": {
+    "TSIM": "도구 설정 정보 변경 사항",
+    "SelectTool": "도구 선택",
+    "SelectPC": "PC 선택",
+    "Refresh": "새로 고침",
+    "Search": "조회",
+    "Loading": "로딩중...",
+    "NoDataFound": "조회된 데이터가 없습니다.",
+    "ToolName": "도구명",
+    "VersionName": "버전명",
+    "ReceivedTime": "수신 시간",
+    "Item": "항목",
+    "PrevValue": "이전 설정 값",
+    "NewValue": "신규 설정 값"
+  },
+  "CountsByTool": {
+    "CBT": "도구 실행 횟수(도구 별)",
+    "SelectPC": "PC 선택",
+    "Refresh": "새로 고침",
+    "Search": "조회",
+    "Loading": "로딩중...",
+    "NoDataFound": "조회된 데이터가 없습니다."
+  },
+  "CountsByVersion": {
+    "CBV": "도구 실행 횟수(버전 별)",
+    "SelectTool": "도구 선택",
+    "SelectPC": "PC 선택",
+    "Refresh": "새로 고침",
+    "Search": "조회",
+    "Loading": "로딩중...",
+    "NoDataFound": "조회된 데이터가 없습니다."
+  },
+  "Logs": {
+    "ToolLogs": "도구 로그 확인",
+    "SelectTool": "도구 선택",
+    "SelectPC": "PC 선택",
+    "Refresh": "새로 고침",
+    "Search": "조회",
+    "Loading": "로딩중...",
+    "NoDataFound": "조회된 데이터가 없습니다.",
+    "ToolName": "도구명",
+    "VersionName": "버전명",
+    "LogReceivedTime": "로그 수신 시간",
+    "LogLevel": "로그 레벨",
+    "LogDetail": "상세 로그"
+  },
+  "RealTime": {
+    "RealTimes": "TC 기반 도구 실시간 사용 현황",
+    "Refresh": "새로 고침",
+    "Loading": "로딩중...",
+    "NoDataFound": "조회된 데이터가 없습니다.",
+    "ToolName": "도구명",
+    "VersionName": "버전명",
+    "StartTestingTime": "TC 평가 시작 시간",
+    "ExecutedTime": "실행 시간",
+    "OperationStatus": "동작 상태"
+  },
+  "UsageCounts":{
+    "UsageCounts": "도구 기능별 사용 횟수",
+    "SelectTool": "도구 선택",
+    "SelectPC": "PC 선택",
+    "Refresh": "새로 고침",
+    "Search": "조회",
+    "Loading": "로딩중...",
+    "NoDataFound": "조회된 데이터가 없습니다."
+  },
+  "UsageInformation": {
+    "ToolUsageInformation": "실시간 도구 사용 정보",
+    "Refresh": "새로 고침",
+    "Loading": "로딩중...",
+    "NoDataFound": "조회된 데이터가 없습니다.",
+    "ToolName": "도구명",
+    "VersionName": "버전명",
+    "StartTestingTime": "TC 평가 시작 시간",
+    "ExecutedTime": "실행 시간",
+    "OperationStatus": "동작 상태",
+    "Details" : "비고"
+  },
+  "LineChart": {
+    "NoDataFound": "조회된 데이터가 없습니다.",
+    "Value": "데이터 값",
+    "Date": "날짜"
+  },
+  "BarChart": {
+    "NoDataFound": "조회된 데이터가 없습니다.",
+    "Value": "데이터 값",
+    "Date": "날짜"
   }
 }

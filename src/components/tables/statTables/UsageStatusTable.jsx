@@ -11,12 +11,12 @@ const statusIcons = {
 // Table headers
 const TableHeader = (t) => [
   { id: 1, name: 'PC' },
-  { id: 2, name: '도구명' },
-  { id: 3, name: '버전명' },
-  { id: 4, name: 'TC 평가 시작 시간' },
-  { id: 5, name: '실행 시간' },
-  { id: 6, name: '동작 상태' },
-  { id: 7, name: '비고' },
+  { id: 2, name: t('UsageInformation.ToolName') },
+  { id: 3, name: t('UsageInformation.VersionName') },
+  { id: 4, name: t('UsageInformation.StartTestingTime') },
+  { id: 5, name: t('UsageInformation.ExecutedTime') },
+  { id: 6, name: t('UsageInformation.OperationStatus') },
+  { id: 7, name: t('UsageInformation.Details') },
 ];
 
 // Helper function to format runstatus values

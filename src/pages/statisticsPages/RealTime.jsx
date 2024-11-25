@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IoReloadSharp } from 'react-icons/io5';
 import RealTimeUsageTable from '../../components/tables/statTables/RealTimeUsageTable';
 import StatLogService from '../../service/StatLogService';
 
 export default function RealTime() {
+  const { t } = useTranslation();
   const [data, setData] = useState(null); // State to store the API response
   const [loading, setLoading] = useState(false); // State to manage loading indicator
 
@@ -37,19 +39,23 @@ export default function RealTime() {
     >
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-3xl font-bold text-gray-900">
-          TC 기반 도구 실시간 사용 현황
+          {/** TC 기반 도구 실시간 사용 현황  */}
+          {t('RealTime.RealTimes')}
         </h1>
         <button
           onClick={handleReload}
           className="flex items-center px-4 py-2 border border-black bg-white text-gray-900 rounded-lg shadow"
         >
           <IoReloadSharp className="mr-2" />
-          새로 고침
+          {/** 새로 고침  */}
+          {t('RealTime.Refresh')}
         </button>
       </div>
       <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
         {loading ? (
-          <p className="text-gray-500">Loading...</p> // Show loading indicator
+          <p className="text-gray-500">
+            {loading ? t('RealTime.Loading') : t('RealTime.NoDataFound')}
+          </p> // Show loading indicator
         ) : (
           <div className="border border-black rounded-lg">
             <RealTimeUsageTable data={data} /> {/* Pass data as a prop */}

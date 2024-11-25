@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as d3 from 'd3';
 
 const formatMonthDateToLocalISO = (date) => {
@@ -10,6 +11,7 @@ const formatMonthDateToLocalISO = (date) => {
 };
 
 const LineChart = ({ data, groupBy }) => {
+  const { t } = useTranslation();
   const svgRef = useRef();
 
   const margin = { top: 60, right: 20, bottom: 50, left: 70 };
@@ -36,21 +38,21 @@ const LineChart = ({ data, groupBy }) => {
   useEffect(() => {
     const dateTerm =
       data.length > 0 && data[0].dateTerm ? data[0].dateTerm : 'day';
-  
+
     if (!groupedData || groupedData.length === 0) {
       d3.select(svgRef.current).selectAll('*').remove();
       return;
     }
-  
+
     d3.select(svgRef.current).selectAll('*').remove();
-  
+
     const svg = d3
       .select(svgRef.current)
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
-  
+
     const tooltip = d3
       .select('body')
       .append('div')
@@ -62,28 +64,28 @@ const LineChart = ({ data, groupBy }) => {
       .style('font-size', '12px')
       .style('pointer-events', 'none')
       .style('opacity', 0);
-  
+
     const allDates = groupedData.flatMap((group) =>
       group.data.map((d) => new Date(d.date))
     );
     const allValues = groupedData.flatMap((group) =>
       group.data.map((d) => d.value)
     );
-  
+
     const xScale = d3.scaleTime().domain(d3.extent(allDates)).range([0, width]);
     const yScale = d3
       .scaleLinear()
       .domain([0, d3.max(allValues)])
       .range([height, 0]);
-  
+
     const line = d3
       .line()
       .x((d) => xScale(new Date(d.date)))
       .y((d) => yScale(d.value))
       .curve(d3.curveMonotoneX);
-  
+
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-  
+
     groupedData.forEach((group, idx) => {
       if (group.data.length > 1) {
         svg
@@ -94,7 +96,7 @@ const LineChart = ({ data, groupBy }) => {
           .attr('stroke-width', 2)
           .attr('d', line);
       }
-  
+
       group.data.forEach((point) => {
         svg
           .append('circle')
@@ -108,7 +110,7 @@ const LineChart = ({ data, groupBy }) => {
             tooltip
               .style('opacity', 1)
               .html(
-                `<strong>${group.type}</strong><br>Date: ${point.date}<br>Value: ${point.value}`
+                `<strong>${group.type}</strong><br>${t('LineChart.Date')}: ${point.date}<br>${t('LineChart.Value')}: ${point.value}`
               );
           })
           .on('mousemove', (event) => {
@@ -120,7 +122,7 @@ const LineChart = ({ data, groupBy }) => {
             tooltip.style('opacity', 0);
           });
       });
-  
+
       // Add legend for each group
       svg
         .append('line')
@@ -130,7 +132,7 @@ const LineChart = ({ data, groupBy }) => {
         .attr('y2', idx * 15 - 45)
         .attr('stroke', colorScale(idx))
         .attr('stroke-width', 2);
-  
+
       svg
         .append('text')
         .attr('x', width - 110)
@@ -141,7 +143,7 @@ const LineChart = ({ data, groupBy }) => {
         .style('font-weight', 'bold')
         .text(group.type);
     });
-  
+
     // X-Axis with custom tick interval and ISO format
     const tickInterval =
       dateTerm === 'week'
@@ -149,7 +151,7 @@ const LineChart = ({ data, groupBy }) => {
         : dateTerm === 'month'
         ? d3.timeMonth.every(1)
         : d3.timeDay.every(1);
-  
+
     svg
       .append('g')
       .attr('transform', `translate(0, ${height})`)
@@ -164,7 +166,7 @@ const LineChart = ({ data, groupBy }) => {
       .attr('dx', '-0.8em')
       .attr('dy', '0.15em')
       .attr('transform', 'rotate(-45)');
-  
+
     svg
       .append('g')
       .call(d3.axisLeft(yScale).ticks(5))
@@ -174,19 +176,18 @@ const LineChart = ({ data, groupBy }) => {
       .attr('fill', 'black')
       .style('text-anchor', 'middle')
       .attr('transform', 'rotate(-90)')
-      .text('Value')
+      .text(t('LineChart.Value'))
       .style('font-size', '16px');
-  
+
     return () => {
       tooltip.remove();
     };
   }, [data, groupedData]);
-  
 
   if (!groupedData || groupedData.length === 0) {
     return (
       <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '20px' }}>
-        검색 결과가 없습니다.
+        {t('LineChart.NoDataFound')}
       </div>
     );
   }

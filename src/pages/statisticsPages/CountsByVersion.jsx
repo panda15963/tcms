@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IoReloadSharp } from 'react-icons/io5';
 import LineChart from '../../components/D3Charts/LineChart';
 import CustomDatePicker from '../../components/calender/CustomDatePicker';
@@ -8,10 +9,11 @@ import PCLists from '../../components/dropdowns/statMenus/PCLists';
 import StatLogService from '../../service/StatLogService';
 
 export default function CountsByVersion() {
+  const { t } = useTranslation();
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [dateTerm, setDateTerm] = useState(null);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
 
   const formatDateToLocalISO = (date) => {
@@ -31,6 +33,7 @@ export default function CountsByVersion() {
   };
 
   const EXECUTION_COUNT = async (inputCond) => {
+    setLoading(true); // Start loading
     try {
       const result = await StatLogService.EXECUTION_COUNT({ cond: inputCond });
 
@@ -54,6 +57,8 @@ export default function CountsByVersion() {
     } catch (error) {
       console.error('Error in EXECUTION_COUNT:', error);
       return null;
+    }finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -65,7 +70,6 @@ export default function CountsByVersion() {
     setStartDate(null);
     setEndDate(null);
     setDateTerm(null);
-    setHasSearched(false);
     setSearchResults([]);
   };
 
@@ -99,23 +103,31 @@ export default function CountsByVersion() {
     >
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-3xl font-bold text-center pb-4 text-gray-900">
-          도구 실행 횟수(버전 별)
+          {/** 도구 실행 횟수(버전 별) */}
+          {t('CountsByVersion.CBV')}
         </h1>
         <button
           onClick={handleReload}
           className="flex items-center px-4 py-2 border border-black bg-white text-gray-900 rounded-lg shadow"
         >
           <IoReloadSharp className="mr-2" />
-          새로 고침
+          {/** 새로 고침 */}
+          {t('CountsByVersion.Refresh')}
         </button>
       </div>
       <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black">
         <div className="my-4 flex justify-center items-center gap-4">
           <DateTerms terms={handleOnSelectTerm} />
           <CustomDatePicker startsDate={setStartDate} endsDate={setEndDate} />
-          <label className="text-sm font-bold">도구 선택 : </label>
+          <label className="text-sm font-bold">
+            {/** 도구 선택 */}
+            {t('CountsByVersion.SelectTool')}
+          </label>
           <ToolLists />
-          <label className="text-sm font-bold">PC 선택 : </label>
+          <label className="text-sm font-bold">
+            {/** PC 선택 */}
+            {t('CountsByVersion.SelectPC')}
+          </label>
           <PCLists />
           <div className="relative border border-black rounded-lg">
             <button
@@ -123,19 +135,18 @@ export default function CountsByVersion() {
               onClick={handleSearch}
               className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600"
             >
-              조회
+              {/** 조회 */}
+              {t('CountsByVersion.Search')}
             </button>
           </div>
         </div>
-        {hasSearched && searchResults.length > 0 ? (
+        {searchResults.length > 0 ? (
           <div className="mx-auto max-w-7xl flex justify-center p-7 items-center border border-black rounded-lg">
             <LineChart data={searchResults} groupBy={'toolver'} />
           </div>
         ) : (
           <p className="text-center text-gray-500">
-            {hasSearched
-              ? '검색되지 않음'
-              : '조건을 설정한 후 조회 버튼을 눌러주세요.'}
+            {loading ? t('CountsByVersion.Search') : t('CountsByVersion.NoDataFound')}
           </p>
         )}
       </div>
