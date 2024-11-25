@@ -50,12 +50,6 @@ export default function LeftSideSlide({
     }
   }, [onMapChange]);
 
-  useEffect(() => {
-    if (!open) {
-      setTreeData([]); // Clear treeData when the panel closes
-    }
-  }, [open]);
-
   return (
     <div className="flex">
       {/* Panel open button */}
