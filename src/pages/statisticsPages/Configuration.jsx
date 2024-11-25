@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IoReloadSharp } from 'react-icons/io5';
 import CustomDatePicker from '../../components/calender/CustomDatePicker';
 import DateTerms from '../../components/calender/DateTerms';
@@ -8,6 +9,7 @@ import ConfigurationTable from '../../components/tables/statTables/Configuration
 import StatLogService from '../../service/StatLogService';
 
 export default function Configuration() {
+  const { t } = useTranslation();
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [dateTerm, setDateTerm] = useState(null);
@@ -103,23 +105,31 @@ export default function Configuration() {
     >
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-3xl font-bold text-center pb-4 text-gray-900">
-          도구 설정 정보 변경 사항
+          {/** 도구 설정 정보 변경 사항  */}
+          {t('Configuration.TSIM')}
         </h1>
         <button
           onClick={handleReload}
           className="flex items-center px-4 py-2 border border-black bg-white text-gray-900 rounded-lg shadow"
         >
           <IoReloadSharp className="mr-2" />
-          새로 고침
+          {/** 새로 고침  */}
+          {t('Configuration.Refresh')}
         </button>
       </div>
-      <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
+      <div className="w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black">
         <div className="my-4 flex justify-center items-center gap-4">
           <DateTerms terms={handleOnSelectTerm} />
           <CustomDatePicker startsDate={setStartDate} endsDate={setEndDate} />
-          <label className="text-sm font-bold">도구 선택 : </label>
+          <label className="text-sm font-bold">
+            {/** 도구 선택  */}
+            {t('Configuration.SelectTool')} :{' '}
+          </label>
           <ToolLists />
-          <label className="text-sm font-bold">PC 선택 : </label>
+          <label className="text-sm font-bold">
+            {/** PC 선택  */}
+            {t('Configuration.SelectPC')} :{' '}
+          </label>
           <PCLists />
           <div className="relative border border-black rounded-lg">
             <button
@@ -127,13 +137,16 @@ export default function Configuration() {
               onClick={handleSearch}
               className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300"
             >
-              조회
+              {/** 조회  */}
+              {t('Configuration.Search')}
             </button>
           </div>
         </div>
         <div className="w-full max-w-full bg-white shadow-md rounded-lg p-6 border border-black">
           {loading ? (
-            <p className="text-gray-500">Loading...</p> // Show loading indicator
+            <p className="text-gray-500">
+              {loading ? t('CountsByTool.Search') : t('CountsByTool.NoDataFound')}
+            </p> // Show loading indicator
           ) : (
             <div className="border border-black rounded-lg">
               <ConfigurationTable data={searchResults} />

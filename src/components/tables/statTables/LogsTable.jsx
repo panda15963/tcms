@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 // Table headers
 const TableHeader = (t) => [
   { id: 1, name: 'PC' },
-  { id: 2, name: '도구명' },
-  { id: 3, name: '버전명' },
-  { id: 4, name: '로그 수신 시간' },
-  { id: 5, name: '로그 레벨' },
-  { id: 6, name: '상세 로그' },
+  { id: 2, name: t('Logs.ToolName') },
+  { id: 3, name: t('Logs.VersionName') },
+  { id: 4, name: t('Logs.LogReceivedTime') },
+  { id: 5, name: t('Logs.LogLevel') },
+  { id: 6, name: t('Logs.LogDetail') },
 ];
 
 // Component Definition

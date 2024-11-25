@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as d3 from 'd3';
 
 const formatMonthDateToLocalISO = (date) => {
@@ -10,6 +11,7 @@ const formatMonthDateToLocalISO = (date) => {
 };
 
 const LineChart = ({ data, groupBy }) => {
+  const { t } = useTranslation();
   const svgRef = useRef();
 
   const margin = { top: 60, right: 20, bottom: 50, left: 70 };
@@ -84,13 +86,13 @@ const LineChart = ({ data, groupBy }) => {
 
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
-    groupedData.forEach((group, index) => {
+    groupedData.forEach((group, idx) => {
       if (group.data.length > 1) {
         svg
           .append('path')
           .datum(group.data)
           .attr('fill', 'none')
-          .attr('stroke', colorScale(index))
+          .attr('stroke', colorScale(idx)) // Use idx here
           .attr('stroke-width', 2)
           .attr('d', line);
       }
@@ -101,14 +103,14 @@ const LineChart = ({ data, groupBy }) => {
           .attr('cx', xScale(new Date(point.date)))
           .attr('cy', yScale(point.value))
           .attr('r', 5)
-          .attr('fill', colorScale(index))
+          .attr('fill', colorScale(idx)) // Use idx here
           .attr('stroke', 'black')
           .attr('stroke-width', 1)
           .on('mouseover', (event) => {
             tooltip
               .style('opacity', 1)
               .html(
-                `<strong>${group.type}</strong><br>Date: ${point.date}<br>Value: ${point.value}`
+                `<strong>${group.type}</strong><br>${t('LineChart.Date')}: ${point.date}<br>${t('LineChart.Value')}: ${point.value}`
               );
           })
           .on('mousemove', (event) => {
@@ -120,6 +122,26 @@ const LineChart = ({ data, groupBy }) => {
             tooltip.style('opacity', 0);
           });
       });
+
+      // Add legend for each group
+      svg
+        .append('line')
+        .attr('x1', width - 150)
+        .attr('y1', idx * 15 - 45)
+        .attr('x2', width - 120)
+        .attr('y2', idx * 15 - 45)
+        .attr('stroke', colorScale(idx))
+        .attr('stroke-width', 2);
+
+      svg
+        .append('text')
+        .attr('x', width - 110)
+        .attr('y', idx * 15 - 40)
+        .attr('text-anchor', 'start')
+        .style('fill', 'black')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .text(group.type);
     });
 
     // X-Axis with custom tick interval and ISO format
@@ -154,7 +176,7 @@ const LineChart = ({ data, groupBy }) => {
       .attr('fill', 'black')
       .style('text-anchor', 'middle')
       .attr('transform', 'rotate(-90)')
-      .text('Value')
+      .text(t('LineChart.Value'))
       .style('font-size', '16px');
 
     return () => {
@@ -165,7 +187,7 @@ const LineChart = ({ data, groupBy }) => {
   if (!groupedData || groupedData.length === 0) {
     return (
       <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '20px' }}>
-        검색 결과가 없습니다.
+        {t('LineChart.NoDataFound')}
       </div>
     );
   }

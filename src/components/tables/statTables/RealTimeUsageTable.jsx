@@ -5,11 +5,11 @@ import ProgressBar from '../../D3Charts/ProgressBar';
 // Table headers
 const TableHeader = (t) => [
   { id: 1, name: 'PC' },
-  { id: 2, name: '도구명' },
-  { id: 3, name: '버전명' },
-  { id: 4, name: 'TC 평가 시작 시간' },
-  { id: 5, name: '실행 시간' },
-  { id: 6, name: '동작 상태' },
+  { id: 2, name: t('RealTime.ToolName') },
+  { id: 3, name: t('RealTime.VersionName') },
+  { id: 4, name: t('RealTime.StartTestingTime') },
+  { id: 5, name: t('RealTime.ExecutedTime') },
+  { id: 6, name: t('RealTime.OperationStatus') },
 ];
 
 // Component Definition
@@ -61,4 +61,3 @@ export default function RealTimeUsageTable({ data = [] }) {
     </div>
   );
 }
-

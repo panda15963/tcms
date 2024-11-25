@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as d3 from 'd3';
 
 const BarChart = ({ data }) => {
+  const { t } = useTranslation();
   const svgRef = useRef();
 
   useEffect(() => {
@@ -51,7 +53,7 @@ const BarChart = ({ data }) => {
       .attr("text-anchor", "end")
       .attr("x", width / 2)
       .attr("y", height + margin.bottom - 10)
-      .text("Date");
+      .text(t('BarChart.Date'));
 
     // Y-axis: Scale and axis
     const y = d3.scaleLinear()
@@ -66,7 +68,7 @@ const BarChart = ({ data }) => {
       .attr("transform", "rotate(-90)")
       .attr("x", -height / 2)
       .attr("y", -margin.left + 20)
-      .text("Count");
+      .text(t('BarChart.Value'));
 
     // Bars
     chart.selectAll("rect")
@@ -80,7 +82,7 @@ const BarChart = ({ data }) => {
       .attr("height", 0)
       .on("mouseover", (event, d) => {
         tooltip.style("visibility", "visible")
-          .text(`Date: ${d.date.toLocaleDateString()} - Count: ${d.count}`);
+          .text(`${t('BarChart.Date')}: ${d.date.toLocaleDateString()} - ${t('BarChart.Value')}: ${d.count}`);
       })
       .on("mousemove", (event) => {
         tooltip.style("top", (event.pageY - 10) + "px")
