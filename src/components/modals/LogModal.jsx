@@ -118,6 +118,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     SA: t('Continents.SouthAmerica'),
   };
 
+  const selectedConfigRowsRef = useRef([]); // useRef instead of useState
+
   const [cond, setCond] = useState(initialCond);
   const [configCond, setConfigCond] = useState(initialConfigCond);
   const [open, setOpen] = useState(false);
@@ -141,7 +143,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [selectedConfigIds, setSelectedConfigIds] = useState([]);
   const [selectedLogList, setSelectedLogList] = useState(initialList);
   const [selectedLogList2, setSelectedLogList2] = useState(initialList);
-  const selectedConfigRowsRef = useRef([]); // useRef instead of useState
   const [selectedRows, setSelectedRows] = useState([]);
   const [listRouteCount, setListRouteCount] = useState(0); // 검색 결과 개수 (경로)
   const [listConfigCount, setListConfigCount] = useState(0); // 검색 결과 개수 (화면정보)
@@ -278,20 +279,18 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const FIND_META = async (inputCond) => {
     try {
-      await MapLogService
-        .FIND_META_10100({
-          cond: inputCond,
-        })
-        .then((res) => {
-          console.log('FIND_META_10100 of res ==>', res.findMeta);
-          setList((prevState) => {
-            return {
-              ...prevState,
-              list: res.findMeta,
-            };
-          });
-          setListRouteCount(res.findMeta.length);
+      await MapLogService.FIND_META_10100({
+        cond: inputCond,
+      }).then((res) => {
+        console.log('FIND_META_10100 of res ==>', res.findMeta);
+        setList((prevState) => {
+          return {
+            ...prevState,
+            list: res.findMeta,
+          };
         });
+        setListRouteCount(res.findMeta.length);
+      });
     } catch (e) {
       console.log('FIND_META of error ==>', e);
       setListRouteCount(0); // 결과가 없으면 0으로 설정
@@ -625,31 +624,29 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }
 
       const promises = fileIds.map((fileId) => {
-        return MapLogService
-          .SPACE_INTERPOLATION({
-            cond: { file_id: fileId },
-          })
-          .then((res) => {
-            try {
-              // Check if `res` is a string before applying `replace()`
-              if (typeof res === 'string') {
-                const preprocessedRes = res.replace(
-                  /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                  '{"lat":$1,"lng":$2}'
-                );
-                return JSON.parse(preprocessedRes); // Parse the preprocessed string into JSON
-              } else {
-                console.warn('Response is not a string:', res);
-                return res; // If it's an object, return it as is
-              }
-            } catch (error) {
-              console.error(
-                `Error parsing response for fileId ${fileId}:`,
-                error
+        return MapLogService.SPACE_INTERPOLATION({
+          cond: { file_id: fileId },
+        }).then((res) => {
+          try {
+            // Check if `res` is a string before applying `replace()`
+            if (typeof res === 'string') {
+              const preprocessedRes = res.replace(
+                /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
+                '{"lat":$1,"lng":$2}'
               );
-              return null; // Return null if parsing fails
+              return JSON.parse(preprocessedRes); // Parse the preprocessed string into JSON
+            } else {
+              console.warn('Response is not a string:', res);
+              return res; // If it's an object, return it as is
             }
-          });
+          } catch (error) {
+            console.error(
+              `Error parsing response for fileId ${fileId}:`,
+              error
+            );
+            return null; // Return null if parsing fails
+          }
+        });
       });
 
       const results = await Promise.all(promises);
@@ -947,20 +944,18 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const FIND_TCCFG = async (inputCond) => {
     try {
-      await MapLogService
-        .FIND_TCCFG_10003({
-          cond: inputCond,
-        })
-        .then((res) => {
-          console.log('FIND_TCCFG_10003 of res ==>', res);
-          setConfigList((prevState) => {
-            return {
-              ...prevState,
-              list: res.findTccfg,
-            };
-          });
-          setListConfigCount(res.findTccfg.length);
+      await MapLogService.FIND_TCCFG_10003({
+        cond: inputCond,
+      }).then((res) => {
+        console.log('FIND_TCCFG_10003 of res ==>', res);
+        setConfigList((prevState) => {
+          return {
+            ...prevState,
+            list: res.findTccfg,
+          };
         });
+        setListConfigCount(res.findTccfg.length);
+      });
     } catch (e) {
       console.log('FIND_TCCFG_10003 of error ==>', e);
       setListConfigCount(0);
@@ -1275,7 +1270,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 경로탭 다운로드
    */
   const handleRouteDownload = async () => {
-    const dataToDownload = list;
+    const dataToDownload = selectedRows;
     console.log('dataToDownload ==>', dataToDownload);
 
     // JSON 파일 다운로드 추가

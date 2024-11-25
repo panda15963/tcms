@@ -108,14 +108,17 @@ const SpaceTableHeaderList = (t) => [
         if (baseURL.includes('192.168.0.88')) {
           return `/images${imagePath.replace('/testcourse/image', '')}`;
         } else if (baseURL.includes('10.5.35.121')) {
-          return `/images${imagePath.replace('/home/wasadmin/testcourse/image', '')}`;
+          return `/images${imagePath.replace(
+            '/home/wasadmin/testcourse/image',
+            ''
+          )}`;
         }
         return imagePath;
       };
 
       const baseURL = process.env.REACT_APP_MAPBASEURL.replace(
         /:(8080|8090)\/api/,
-        '',
+        ''
       );
 
       const adjustedImagePath = adjustImagePath(baseURL, imagePath);
@@ -156,7 +159,7 @@ const SpaceTableHeaderList = (t) => [
   },
 ];
 
-const ITEMS_PER_PAGE = 5; // 한 번에 로드할 아이템 개수
+const ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 개수
 
 const SpaceTable = ({ list, onSelectionChange }) => {
   const { t } = useTranslation();
@@ -182,7 +185,7 @@ const SpaceTable = ({ list, onSelectionChange }) => {
     if (page > 1) {
       const newItems = validList.slice(
         (page - 1) * ITEMS_PER_PAGE,
-        page * ITEMS_PER_PAGE,
+        page * ITEMS_PER_PAGE
       );
       setDisplayedData((prevDisplayedData) => [
         ...prevDisplayedData,
@@ -224,7 +227,7 @@ const SpaceTable = ({ list, onSelectionChange }) => {
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext(),
+                        header.getContext()
                       )}
                 </th>
               ))}

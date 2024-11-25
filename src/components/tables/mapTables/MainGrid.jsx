@@ -198,7 +198,7 @@ const defaultData = [
   },
 ];
 
-const ITEMS_PER_PAGE = 10; // 한 번에 로드할 아이템 개수
+const ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 개수
 
 // MainGrid 컴포넌트 정의
 const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
