@@ -27,7 +27,7 @@ const roundToFive = (value) => {
  * http://localhost:3000/space/en
  */
 const SpaceModal = forwardRef(
-  ({ spaceFullCoords, selectedLists, isDirect }, ref) => {
+  ({ spaceFullCoords, selectedLists, isDirect, selectedCoords }, ref) => {
     const { t, i18n } = useTranslation();
 
     const location = useLocation(); // 현재 경로 정보를 얻기 위한 useLocation 훅 사용
@@ -42,6 +42,13 @@ const SpaceModal = forwardRef(
     const [radius, setRadius] = useState(1000); // 기본 반경 1000m 설정
     const [showAlert, setShowAlert] = useState(false);
     const [listCount, setListCount] = useState(0); // 검색 결과 개수
+
+    useEffect(() => {
+      if (selectedCoords) {
+        setLatitude(selectedCoords.lat || 37.5665); // 값이 없으면 기본값 유지
+        setLongitude(selectedCoords.lng || 126.978); // 값이 없으면 기본값 유지
+      }
+    }, [selectedCoords]);
 
     useEffect(() => {
       console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
@@ -185,31 +192,29 @@ const SpaceModal = forwardRef(
         }
 
         const promises = fileIds.map((fileId) => {
-          return MapLogService
-            .SPACE_INTERPOLATION({
-              cond: { file_id: fileId },
-            })
-            .then((res) => {
-              try {
-                // Check if `res` is a string before applying `replace()`
-                if (typeof res === 'string') {
-                  const preprocessedRes = res.replace(
-                    /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                    '{"lat":$1,"lng":$2}'
-                  );
-                  return JSON.parse(preprocessedRes); // Parse the preprocessed string into JSON
-                } else {
-                  console.warn('Response is not a string:', res);
-                  return res; // If it's an object, return it as is
-                }
-              } catch (error) {
-                console.error(
-                  `Error parsing response for fileId ${fileId}:`,
-                  error
+          return MapLogService.SPACE_INTERPOLATION({
+            cond: { file_id: fileId },
+          }).then((res) => {
+            try {
+              // Check if `res` is a string before applying `replace()`
+              if (typeof res === 'string') {
+                const preprocessedRes = res.replace(
+                  /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
+                  '{"lat":$1,"lng":$2}'
                 );
-                return null; // Return null if parsing fails
+                return JSON.parse(preprocessedRes); // Parse the preprocessed string into JSON
+              } else {
+                console.warn('Response is not a string:', res);
+                return res; // If it's an object, return it as is
               }
-            });
+            } catch (error) {
+              console.error(
+                `Error parsing response for fileId ${fileId}:`,
+                error
+              );
+              return null; // Return null if parsing fails
+            }
+          });
         });
 
         const results = await Promise.all(promises);
@@ -442,7 +447,7 @@ const SpaceModal = forwardRef(
                         <input
                           type="text"
                           className="border p-1 rounded w-full text-center" // 너비를 w-24 등으로 제한
-                          value={latitude}
+                          value={selectedCoords?.lat || latitude} // selectedCoords.lat 값이 있으면 사용, 없으면 latitude 사용
                           onChange={handleLatitudeChange}
                           onFocus={handleFocus(setLatitude)}
                           onBlur={handleBlur(
@@ -461,7 +466,7 @@ const SpaceModal = forwardRef(
                         <input
                           type="text"
                           className="border p-1 rounded w-full text-center" // 너비를 w-24 등으로 제한
-                          value={longitude}
+                          value={selectedCoords?.lng || longitude} // selectedCoords.lng 값이 있으면 사용, 없으면 longitude 사용
                           onChange={handleLongitudeChange}
                           onFocus={handleFocus(setLongitude)}
                           onBlur={handleBlur(

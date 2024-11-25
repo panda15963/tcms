@@ -610,6 +610,7 @@ const TopMenuBar = ({
                         ref={spaceModalRef}
                         spaceFullCoords={setSpaceFullCoords}
                         selectedLists={handleSpaceData}
+                        selectedCoords={convertedCoords}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
