@@ -183,9 +183,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }
   }, []);
 
+  /**
+   * 검색 필드 API 최초 호출
+   */
   useDidMount(() => {
-    console.log('몇번 실행되냐?');
-
     MAIN_COUNTRY();
     MAIN_FEATURE();
     MAIN_TARGET();
@@ -197,36 +198,36 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }
   });
 
+  /**
+   * 경로탭 검색 필드 리스트 선택
+   */
   useEffect(() => {
     console.log('useEffect of selectedSearchFields ==>', selectedSearchFields);
     // selectedOptions는 선택된 필드의 객체 리스트로 가정합니다.
     const ids = selectedSearchFields.map((option) => option.id);
 
-    console.log('ids ==>', ids);
+    console.log('useEffect of selectedSearchFields ids ==>', ids);
     setSelectedIds(ids); // 선택된 ID 리스트를 업데이트
   }, [selectedSearchFields]);
 
+  /**
+   * 화면정보탭 검색 필드 리스트 선택
+   */
   useEffect(() => {
     console.log(
       'useEffect of selectedSearchFieldsConfig ==>',
       selectedSearchFieldsConfig
     );
+
     // selectedOptions는 선택된 필드의 객체 리스트로 가정합니다.
     const ids = selectedSearchFieldsConfig.map((option) => option.id);
 
-    console.log('ids ==>', ids);
+    console.log('useEffect of selectedSearchFieldsConfig ids ==>', ids);
     setSelectedConfigIds(ids); // 선택된 ID 리스트를 업데이트
   }, [selectedSearchFieldsConfig]);
 
   /**
-   * 로그모달 탭핸들러
-   */
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-  };
-
-  /**
-   * ESC키 이벤트
+   * ESC KEY 입력 시 모달 창 안닫히게
    */
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -244,6 +245,13 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+
+  /**
+   * 로그모달 탭핸들러
+   */
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
 
   /**
    * Find 클릭 이벤트
