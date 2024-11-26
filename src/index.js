@@ -2,7 +2,6 @@ import i18n from './i18n';
 import './style/Index.css';
 import HomeLogin from './pages/HomeLogin';
 import Layout from './layout/Layout';
-import ManagementAdmins from './pages/ManagementAdmins';
 import DashboardLayout from './layout/DashboardLayout';
 import ManagementUsers from './pages/ManagementUsers';
 import MapLayout from './layout/MapLayout';
@@ -23,6 +22,7 @@ import { I18nextProvider } from 'react-i18next';
 import { LoadingBarProvider } from './context/LoadingContextProvider';
 import { ToastProvider } from './context/ToastProvider';
 import { SelectedItemProvider } from './context/SelectedItemContext';
+import ManagementAdmins from './pages/admins/ManagementAdmins';
 
 const root = createRoot(document.getElementById('root'));
 root.render(
@@ -61,7 +61,8 @@ root.render(
                     <Route path="realTimeUsageInfo" element={<UsageStatus />} />
                     <Route
                       path="usageFunctionCounts"
-                      element={<UsageCounts />}UsageCounts
+                      element={<UsageCounts />}
+                      UsageCounts
                     />
                   </Route>
                 </Route>
