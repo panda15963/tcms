@@ -24,15 +24,17 @@ import i18next from 'i18next';
 import ConfigGridR2 from '../tables/mapTables/ConfigGridR2';
 import { FaDownload } from 'react-icons/fa6';
 import Error from '../alerts/Error';
+import useDidMount from '../../hooks/useDidMount';
 
 /**
  * 로그 검색
- * http://localhost:3000/log/kr
- * http://localhost:3000/log/en
+ * 다운로드 가능 별도 모달 : http://localhost:3000/log/kr, http://localhost:3000/log/en
  */
 const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const { t } = useTranslation();
-  const location = useLocation(); // 현재 경로 정보를 얻기 위한 useLocation 훅 사용
+  const location = useLocation(); // 현재 경로 정보를 얻기 위한 훅 사용
+
+  const selectedConfigRowsRef = useRef([]);
 
   const initialCond = {
     searchWord: '',
@@ -62,28 +64,33 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     list: [],
   };
 
-  // 검색 필드 옵션 정의
-  const fields = [
+  // 경로 검색 필드 옵션
+  const searchFields = [
+    // 검색 설명
     { id: 'description', name: t('Fields.FindDescription') },
+    // 대륙
     { id: 'continent', name: t('Fields.Continent') },
+    // 지역
     { id: 'region', name: t('Fields.Region') },
+    // 우선순위
     { id: 'priority', name: t('Fields.Priority') },
+    // 특징
     { id: 'feature', name: t('Fields.Feature') },
+    // 대상
     { id: 'target', name: t('Fields.Target') },
+    // 가상
     { id: 'virtual', name: t('Fields.Virtual') },
+    // 형식
     { id: 'format', name: t('Fields.Format') },
+    // 태그
     { id: 'tag', name: t('Fields.Tag') },
   ];
 
-  const fieldsCinfiguration = [
+  // 화면정보 검색 필드 옵션
+  const configFields = [
+    // 검색 설명
     { id: 'description', name: t('Fields.FindDescription') },
-    // { id: 'continent', name: t('Fields.Continent') },
-    // { id: 'region', name: t('Fields.Region') },
-    // { id: 'priority', name: t('Fields.Priority') },
-    // { id: 'feature', name: t('Fields.Feature') },
-    // { id: 'target', name: t('Fields.Target') },
-    // { id: 'virtual', name: t('Fields.Virtual') },
-    // { id: 'format', name: t('Fields.Format') },
+    // 태그
     { id: 'tag', name: t('Fields.Tag') },
   ];
 
@@ -118,12 +125,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     SA: t('Continents.SouthAmerica'),
   };
 
-  const selectedConfigRowsRef = useRef([]); // useRef instead of useState
-
   const [cond, setCond] = useState(initialCond);
   const [configCond, setConfigCond] = useState(initialConfigCond);
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('route'); // "route" 탭을 기본값으로 설정
+  const [activeTab, setActiveTab] = useState('route');
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
   const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
     []
@@ -147,6 +152,20 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [listRouteCount, setListRouteCount] = useState(0); // 검색 결과 개수 (경로)
   const [listConfigCount, setListConfigCount] = useState(0); // 검색 결과 개수 (화면정보)
 
+  /**
+   * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
+   * useImperativeHandle을 사용하여 ref를 설정
+   */
+  useImperativeHandle(ref, () => ({
+    show() {
+      setOpen(true);
+    },
+  }));
+
+  /**
+   * 다운로드 모달창
+   * isDirect true/false 실행 감지
+   */
   useEffect(() => {
     console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
     console.log('🚀 ~ useEffect ~ location:', location);
@@ -164,33 +183,19 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }
   }, []);
 
-  /**
-   * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
-   * useImperativeHandle을 사용하여 ref를 설정
-   */
-  useImperativeHandle(ref, () => ({
-    show() {
-      setOpen(true);
-    },
-  }));
+  useDidMount(() => {
+    console.log('몇번 실행되냐?');
 
-  /**
-   * 로그모달 탭핸들러
-   */
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-  };
-
-  useEffect(() => {
     MAIN_COUNTRY();
     MAIN_FEATURE();
     MAIN_TARGET();
     MAIN_TAG();
 
+    // 검색 필드 특징 관련 처리
     if (featureList.featureTop && featureList.featureTop.length > 0) {
       handleTopFeatureChange(featureList.featureTop[0]);
     }
-  }, []);
+  });
 
   useEffect(() => {
     console.log('useEffect of selectedSearchFields ==>', selectedSearchFields);
@@ -212,6 +217,13 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     console.log('ids ==>', ids);
     setSelectedConfigIds(ids); // 선택된 ID 리스트를 업데이트
   }, [selectedSearchFieldsConfig]);
+
+  /**
+   * 로그모달 탭핸들러
+   */
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
 
   /**
    * ESC키 이벤트
@@ -457,7 +469,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * handleTopFeatureChange
+   * 검색 필드 `특징` 1셀렉트박스 핸들러
    */
   const handleTopFeatureChange = (selectedOption) => {
     console.log('handleTopFeatureChange of selectedOption ==>', selectedOption);
@@ -1841,7 +1853,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           {t('LogModal.SearchFields')}
                         </label>
                         <MultipleSelectDropDown
-                          options={fields.map((field) => ({
+                          options={searchFields.map((field) => ({
                             ...field,
                             value: field.id,
                           }))}
@@ -2073,7 +2085,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           {t('LogModal.SearchFields')}
                         </label>
                         <MultipleSelectDropDown
-                          options={fieldsCinfiguration.map((field) => ({
+                          options={configFields.map((field) => ({
                             ...field,
                             value: field.id,
                           }))}
