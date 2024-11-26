@@ -24,15 +24,18 @@ import i18next from 'i18next';
 import ConfigGridR2 from '../tables/mapTables/ConfigGridR2';
 import { FaDownload } from 'react-icons/fa6';
 import Error from '../alerts/Error';
+import useDidMount from '../../hooks/useDidMount';
+import useLoading from '../../hooks/useLoading';
 
 /**
  * 로그 검색
- * http://localhost:3000/log/kr
- * http://localhost:3000/log/en
+ * 다운로드 가능 별도 모달 : http://localhost:3000/log/kr, http://localhost:3000/log/en
  */
 const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const { t } = useTranslation();
-  const location = useLocation(); // 현재 경로 정보를 얻기 위한 useLocation 훅 사용
+  const location = useLocation(); // 현재 경로 정보를 얻기 위한 훅 사용
+
+  const selectedConfigRowsRef = useRef([]);
 
   const initialCond = {
     searchWord: '',
@@ -62,28 +65,33 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     list: [],
   };
 
-  // 검색 필드 옵션 정의
-  const fields = [
+  // 경로 검색 필드 옵션
+  const searchFields = [
+    // 검색 설명
     { id: 'description', name: t('Fields.FindDescription') },
+    // 대륙
     { id: 'continent', name: t('Fields.Continent') },
+    // 지역
     { id: 'region', name: t('Fields.Region') },
+    // 우선순위
     { id: 'priority', name: t('Fields.Priority') },
+    // 특징
     { id: 'feature', name: t('Fields.Feature') },
+    // 대상
     { id: 'target', name: t('Fields.Target') },
+    // 가상
     { id: 'virtual', name: t('Fields.Virtual') },
+    // 형식
     { id: 'format', name: t('Fields.Format') },
+    // 태그
     { id: 'tag', name: t('Fields.Tag') },
   ];
 
-  const fieldsCinfiguration = [
+  // 화면정보 검색 필드 옵션
+  const configFields = [
+    // 검색 설명
     { id: 'description', name: t('Fields.FindDescription') },
-    // { id: 'continent', name: t('Fields.Continent') },
-    // { id: 'region', name: t('Fields.Region') },
-    // { id: 'priority', name: t('Fields.Priority') },
-    // { id: 'feature', name: t('Fields.Feature') },
-    // { id: 'target', name: t('Fields.Target') },
-    // { id: 'virtual', name: t('Fields.Virtual') },
-    // { id: 'format', name: t('Fields.Format') },
+    // 태그
     { id: 'tag', name: t('Fields.Tag') },
   ];
 
@@ -118,12 +126,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     SA: t('Continents.SouthAmerica'),
   };
 
-  const selectedConfigRowsRef = useRef([]); // useRef instead of useState
-
   const [cond, setCond] = useState(initialCond);
   const [configCond, setConfigCond] = useState(initialConfigCond);
+
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('route'); // "route" 탭을 기본값으로 설정
+  const [activeTab, setActiveTab] = useState('route');
   const [selectedSearchFields, setSelectedSearchFields] = useState([]);
   const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
     []
@@ -134,19 +141,44 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [featureList, setFeatureList] = useState(initialList);
   const [targetList, setTargetList] = useState(initialList);
   const [tagList, setTagList] = useState(initialList);
-  const [list, setList] = useState(initialList);
-  const [list2, setList2] = useState(initialList);
-  const [configList, setConfigList] = useState(initialList);
-  const [configList2, setConfigList2] = useState(initialList);
+
+  // 그리드 리스트 관련
+  const [list, setList] = useState(initialList); // 경로탭 조회 리스트
+  const [listDetail, setListDetail] = useState(initialList); // 경로탭 더블클릭 조회 리스트
+  const [listConfig, setListConfig] = useState(initialList); // 화면정보탭 조회 리스트
+  const [listConfigDetail, setListConfigDetail] = useState(initialList); // 화면정보탭 더블클릭 조회 리스트
+  const [listRouteCount, setListRouteCount] = useState(0); // 경로탭 총 결과 카운트
+  const [listConfigCount, setListConfigCount] = useState(0); // 화면정보탭 총 결과 카운트
+
   const [filteredBottomOptions, setFilteredBottomOptions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedConfigIds, setSelectedConfigIds] = useState([]);
   const [selectedLogList, setSelectedLogList] = useState(initialList);
   const [selectedLogList2, setSelectedLogList2] = useState(initialList);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [listRouteCount, setListRouteCount] = useState(0); // 검색 결과 개수 (경로)
-  const [listConfigCount, setListConfigCount] = useState(0); // 검색 결과 개수 (화면정보)
 
+  const [isRouteModalOpen, setIsRouteModalOpen] = useState(false); // 경로 모달 상태 관리
+  const [selectedRouteCellData, setSelectedRouteCellData] = useState(null);
+
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false); // 화면정보 모달 상태 관리
+  const [selectedConfigCellData, setSelectedConfigCellData] = useState(null);
+
+  const { loading, setLoading } = useLoading();
+
+  /**
+   * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
+   * useImperativeHandle을 사용하여 ref를 설정
+   */
+  useImperativeHandle(ref, () => ({
+    show() {
+      setOpen(true);
+    },
+  }));
+
+  /**
+   * 다운로드 모달창
+   * isDirect true/false 실행 감지
+   */
   useEffect(() => {
     console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
     console.log('🚀 ~ useEffect ~ location:', location);
@@ -165,56 +197,50 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   }, []);
 
   /**
-   * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
-   * useImperativeHandle을 사용하여 ref를 설정
+   * 검색 필드 API 최초 호출
    */
-  useImperativeHandle(ref, () => ({
-    show() {
-      setOpen(true);
-    },
-  }));
-
-  /**
-   * 로그모달 탭핸들러
-   */
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-  };
-
-  useEffect(() => {
+  useDidMount(() => {
     MAIN_COUNTRY();
     MAIN_FEATURE();
     MAIN_TARGET();
     MAIN_TAG();
 
+    // 검색 필드 특징 관련 처리
     if (featureList.featureTop && featureList.featureTop.length > 0) {
       handleTopFeatureChange(featureList.featureTop[0]);
     }
-  }, []);
+  });
 
+  /**
+   * 경로탭 검색 필드 리스트 선택
+   */
   useEffect(() => {
     console.log('useEffect of selectedSearchFields ==>', selectedSearchFields);
     // selectedOptions는 선택된 필드의 객체 리스트로 가정합니다.
     const ids = selectedSearchFields.map((option) => option.id);
 
-    console.log('ids ==>', ids);
+    console.log('useEffect of selectedSearchFields ids ==>', ids);
     setSelectedIds(ids); // 선택된 ID 리스트를 업데이트
   }, [selectedSearchFields]);
 
+  /**
+   * 화면정보탭 검색 필드 리스트 선택
+   */
   useEffect(() => {
     console.log(
       'useEffect of selectedSearchFieldsConfig ==>',
       selectedSearchFieldsConfig
     );
+
     // selectedOptions는 선택된 필드의 객체 리스트로 가정합니다.
     const ids = selectedSearchFieldsConfig.map((option) => option.id);
 
-    console.log('ids ==>', ids);
+    console.log('useEffect of selectedSearchFieldsConfig ids ==>', ids);
     setSelectedConfigIds(ids); // 선택된 ID 리스트를 업데이트
   }, [selectedSearchFieldsConfig]);
 
   /**
-   * ESC키 이벤트
+   * ESC KEY 입력 시 모달 창 안닫히게
    */
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -234,71 +260,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   }, []);
 
   /**
-   * Find 클릭 이벤트
+   * 모달창 탭(TAB) 핸들러
    */
-  const onFindMeta = async () => {
-    setError(null);
-
-    console.log('cond.operation', cond.operation);
-    console.log('selectedIds', selectedIds);
-
-    const condTmp = {
-      searchWord: cond.searchWord,
-      continent: selectedIds.includes('continent') ? cond.continent : '',
-      region: selectedIds.includes('region') ? cond.region : '',
-      priority: selectedIds.includes('priority') ? cond.priority : '',
-      target: selectedIds.includes('target') ? cond.target : '',
-      format: selectedIds.includes('format') ? cond.format : '',
-      feature: selectedIds.includes('feature') ? cond.feature : '',
-      virtual: selectedIds.includes('virtual') ? cond.virtual : '',
-      tag: selectedIds.includes('tag') ? cond.tag : '',
-      group_id: -1,
-      operation: selectedIds.includes('tag') ? cond.operation : 0,
-    };
-
-    // const condTmp = {
-    //   searchWord: '',
-    //   continent: '',
-    //   region: '',
-    //   priority: '',
-    //   target: '',
-    //   format: '',
-    //   feature: '',
-    //   virtual: -1,
-    //   tag: '',
-    //   group_id: -1,
-    //   operation: 0,
-    // };
-
-    console.log('onFindMeta of condTmp ==>', condTmp);
-    FIND_META(condTmp);
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
   };
 
   /**
-   * FIND META API
-   */
-  const FIND_META = async (inputCond) => {
-    try {
-      await MapLogService.FIND_META_10100({
-        cond: inputCond,
-      }).then((res) => {
-        console.log('FIND_META_10100 of res ==>', res.findMeta);
-        setList((prevState) => {
-          return {
-            ...prevState,
-            list: res.findMeta,
-          };
-        });
-        setListRouteCount(res.findMeta.length);
-      });
-    } catch (e) {
-      console.log('FIND_META of error ==>', e);
-      setListRouteCount(0); // 결과가 없으면 0으로 설정
-    }
-  };
-
-  /**
-   * Search Fields 옵션 스위치
+   * 검색 필드 옵션 스위치
    */
   const getOptionsByFieldId = (fieldId) => {
     console.log('getOptionsByFieldId of fieldId ==>', fieldId);
@@ -341,48 +310,78 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * MAIN COUNTRY API
+   * 검색 API (FIND_META_10100)
+   */
+  const FIND_META = async (inputCond) => {
+    setLoading(true);
+    try {
+      await MapLogService.FIND_META_10100({
+        cond: inputCond,
+      }).then((res) => {
+        console.log('FIND_META_10100 of res ==>', res.findMeta);
+        setList((prevState) => {
+          return {
+            ...prevState,
+            list: res.findMeta,
+          };
+        });
+        setListRouteCount(res.findMeta.length);
+        setLoading(false);
+      });
+    } catch (e) {
+      console.log('FIND_META of error ==>', e);
+      setLoading(false);
+      setListRouteCount(0); // 결과가 없으면 0으로 설정
+    }
+  };
+
+  /**
+   * 대륙, 지역 API (MAIN_COUNTRY)
+   * continent, country_Iso2, country_Iso3, country_name
    */
   const MAIN_COUNTRY = async () => {
     try {
       await MapLogService.MAIN_COUNTRY({}).then((res) => {
         console.log('MAIN_COUNTRY of res ==>', res.country);
 
-        // [Continent]
+        // 대륙(Continent)
         const uniqueContinents = [
           ...new Set(res.country.map((country) => country.continent)),
         ];
 
-        // [Continent] 오름차순 정렬
+        // 대륙(Continent) 오름차순 정렬
         uniqueContinents.sort();
 
-        // [Continent] 분류
+        // 대륙(Continent) 분류
         const continentsList = uniqueContinents.map((continent) => ({
           id: continent.toLowerCase(),
           name: continentNameMap[continent] || continent, // 매핑된 이름 사용
         }));
 
-        // [Continent] ALL 항목 추가
+        // 대륙(Continent) ALL 항목 추가
         continentsList.unshift({ id: 'all', name: t('Common.All') });
 
-        // [Country] 주어진 데이터에서 country_Iso3를 name으로, id는 그대로 유지하는 새로운 리스트 생성
+        // 지역 (Country) 주어진 데이터에서 country_Iso3를 name으로, id는 그대로 유지하는 새로운 리스트 생성
         const processedList = res.country.map((country) => ({
           id: country.country_Iso3,
           // name: country.country_Iso3,
           name: country.country_name,
         }));
 
-        // [Country] ALL 항목 추가
+        // 지역 (Country) ALL 항목 추가
         processedList.unshift({ id: 'all', name: t('Common.All') });
 
-        // [Country] 정렬
+        // 지역 (Country)  정렬
         processedList.sort((a, b) => {
           if (a.name < b.name) return -1;
           if (a.name > b.name) return 1;
           return 0;
         });
 
-        console.log('continentsList ==>', continentsList);
+        console.log(
+          '🚀 ~ awaitMapLogService.MAIN_COUNTRY ~ continentsList:',
+          continentsList
+        );
 
         setCountryList((prevState) => {
           return {
@@ -392,8 +391,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             country: processedList || [], // default to empty array
           };
         });
-
-        console.log('featureList', featureList);
+        console.log(
+          '🚀 ~ awaitMapLogService.MAIN_COUNTRY ~ featureList:',
+          featureList
+        );
       });
     } catch (e) {
       console.log('MAIN_COUNTRY of error ==>', e);
@@ -401,7 +402,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * MAIN FEATURE API
+   * 특징 API (MAIN_FEATURE)
    */
   const MAIN_FEATURE = async () => {
     try {
@@ -428,17 +429,23 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           name: whn.str,
         }));
 
-        console.log('topFeatureList', topFeatureList);
-        console.log('bottomFeatureList', bottomFeatureList);
+        console.log(
+          '🚀 ~ awaitMapLogService.MAIN_FEATURE ~ bottomFeatureList:',
+          bottomFeatureList
+        );
+        console.log(
+          '🚀 ~ awaitMapLogService.MAIN_FEATURE ~ topFeatureList:',
+          topFeatureList
+        );
 
-        // [Feature] TOP 정렬
+        // 특징 (Feature) TOP 정렬
         // topFeatureList.sort((a, b) => {
         //   if (a.name < b.name) return -1;
         //   if (a.name > b.name) return 1;
         //   return 0;
         // });
 
-        // [Feature] ALL 항목 추가
+        // 특징 (Feature) ALL 항목 추가
         topFeatureList.unshift({ id: 'all', name: t('Common.All') });
         bottomFeatureList.unshift({ id: 'all', name: t('Common.All') });
 
@@ -457,7 +464,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * handleTopFeatureChange
+   * 검색 필드 `특징` 1셀렉트박스 핸들러
    */
   const handleTopFeatureChange = (selectedOption) => {
     console.log('handleTopFeatureChange of selectedOption ==>', selectedOption);
@@ -486,28 +493,31 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       });
     });
 
-    console.log('filteredOptions ==>', filteredOptions);
+    console.log(
+      '🚀 ~ handleTopFeatureChange ~ filteredOptions:',
+      filteredOptions
+    );
     setFilteredBottomOptions(filteredOptions);
   };
 
   /**
-   * MAIN TARGET API
+   * 대상 API (MAIN_TARGET)
    */
   const MAIN_TARGET = async () => {
     try {
       await MapLogService.MAIN_TARGET({}).then((res) => {
         console.log('MAIN_TARGET of res ==>', res.target);
 
-        // [Target] 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
+        // 대상 (Target) 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
         const targetList = res.target.map((target) => ({
           id: target.str,
           name: target.str,
         }));
 
-        // [Country] ALL 항목 추가
+        // 대상 (Target) ALL 항목 추가
         targetList.unshift({ id: 'all', name: t('Common.All') });
 
-        // [Country] 정렬
+        // 대상 (Target) 정렬
         // targetList.sort((a, b) => {
         //   if (a.name < b.name) return -1;
         //   if (a.name > b.name) return 1;
@@ -528,20 +538,20 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * MAIN TAG API
+   * 태그 API (MAIN_TAG)
    */
   const MAIN_TAG = async () => {
     try {
       await MapLogService.MAIN_TAG({}).then((res) => {
         console.log('MAIN_TAG of res ==>', res.tag);
 
-        // [Tag] 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
+        // 태그 (Tag) 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
         const tagList = res.tag.map((tag) => ({
           id: tag.id,
           name: tag.str,
         }));
 
-        // [Tag] ALL 항목 추가
+        // 태그 (Tag) ALL 항목 추가
         tagList.unshift({ id: 'all', name: t('Common.All') });
 
         // [] 정렬
@@ -565,10 +575,124 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * SelectedValues
+   * 경로 표출 API (SPACE_INTERPOLATION)
    */
-  const selectedValues = (value) => {
-    console.log('selectedValues of value ==>', value);
+  const SPACE_INTERPOLATION = async (fileIds) => {
+    try {
+      if (!Array.isArray(fileIds)) {
+        fileIds = [fileIds];
+      }
+
+      const promises = fileIds.map((fileId) => {
+        return MapLogService.SPACE_INTERPOLATION({
+          cond: { file_id: fileId },
+        }).then((res) => {
+          try {
+            if (typeof res === 'string') {
+              const preprocessedRes = res.replace(
+                /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
+                '{"lat":$1,"lng":$2}'
+              );
+              return JSON.parse(preprocessedRes);
+            } else {
+              console.warn('Response is not a string:', res);
+              return res;
+            }
+          } catch (error) {
+            console.error(
+              `Error parsing response for fileId ${fileId}:`,
+              error
+            );
+            return null;
+          }
+        });
+      });
+
+      const results = await Promise.all(promises);
+      return results.filter((res) => res !== null);
+    } catch (e) {
+      console.log('SPACE_INTERPOLATION of error ==>', e);
+    }
+  };
+
+  /**
+   * 메타 검색 API (FIND_META_ID)
+   */
+  const FIND_META_ID = async (inputCond) => {
+    try {
+      const res = await MapLogService.FIND_META_ID({
+        cond: inputCond,
+      });
+
+      console.log('FIND_META_ID of res ==>', res.findMeta);
+
+      // res.findMeta 값을 반환하도록 수정
+      return res.findMeta;
+    } catch (e) {
+      console.log('FIND_META_ID of error ==>', e);
+      return null; // 오류가 발생하면 null을 반환하여 처리
+    }
+  };
+
+  /**
+   * 검색 API (FIND TCCFG)
+   */
+  const FIND_TCCFG = async (inputCond) => {
+    setLoading(true);
+    try {
+      await MapLogService.FIND_TCCFG_10003({
+        cond: inputCond,
+      }).then((res) => {
+        console.log('FIND_TCCFG_10003 of res ==>', res);
+        setListConfig((prevState) => {
+          return {
+            ...prevState,
+            list: res.findTccfg,
+          };
+        });
+        setListConfigCount(res.findTccfg.length);
+        setLoading(false);
+      });
+    } catch (e) {
+      console.log('FIND_TCCFG_10003 of error ==>', e);
+      setLoading(false);
+      setListConfigCount(0);
+    }
+  };
+
+  /**
+   * 경로탭 검색
+   */
+  const onFindMeta = async () => {
+    setError(null);
+
+    console.log('onFindMeta of cond.operation ==>', cond.operation);
+    console.log('onFindMeta of selectedIds ==>', selectedIds);
+
+    const condTmp = {
+      searchWord: cond.searchWord,
+      continent: selectedIds.includes('continent') ? cond.continent : '',
+      region: selectedIds.includes('region') ? cond.region : '',
+      priority: selectedIds.includes('priority') ? cond.priority : '',
+      target: selectedIds.includes('target') ? cond.target : '',
+      format: selectedIds.includes('format') ? cond.format : '',
+      feature: selectedIds.includes('feature') ? cond.feature : '',
+      virtual: selectedIds.includes('virtual') ? cond.virtual : '',
+      tag: selectedIds.includes('tag') ? cond.tag : '',
+      group_id: -1,
+      operation: selectedIds.includes('tag') ? cond.operation : 0,
+    };
+
+    console.log('onFindMeta of condTmp ==>', condTmp);
+    FIND_META(condTmp);
+  };
+
+  /**
+   * 경로탭 검색 필드 드롭다운 선택값
+   * 우선순위, 대상, 형식, 대륙, 지역
+   */
+  const selectedFieldsValues = (value) => {
+    console.log('selectedFieldsValues of value ==>', value);
 
     return value
       .map((item) => {
@@ -589,10 +713,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * SelectedValuesFeature
+   * 경로탭 검색 필드 드롭다운 선택값
+   * 특징
    */
-  const selectedValuesFeature = (value) => {
-    console.log('selectedValuesFeature of value ==>', value);
+  const selectedFeatureValues = (value) => {
+    console.log('selectedFeatureValues of value ==>', value);
 
     return value
       .map((item) => {
@@ -602,10 +727,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * SelectedValuesTag
+   * 경로탭 검색 필드 드롭다운 선택값
+   * 태그
    */
-  const selectedValuesTag = (value) => {
-    console.log('selectedValuesTag of value ==>', value);
+  const selectedTagValues = (value) => {
+    console.log('selectedTagValues of value ==>', value);
 
     return value
       .map((item) => {
@@ -615,66 +741,25 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * SPACE_INTERPOLATION
-   */
-  const SPACE_INTERPOLATION = async (fileIds) => {
-    try {
-      if (!Array.isArray(fileIds)) {
-        fileIds = [fileIds]; // Convert single fileId to array
-      }
-
-      const promises = fileIds.map((fileId) => {
-        return MapLogService.SPACE_INTERPOLATION({
-          cond: { file_id: fileId },
-        }).then((res) => {
-          try {
-            // Check if `res` is a string before applying `replace()`
-            if (typeof res === 'string') {
-              const preprocessedRes = res.replace(
-                /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                '{"lat":$1,"lng":$2}'
-              );
-              return JSON.parse(preprocessedRes); // Parse the preprocessed string into JSON
-            } else {
-              console.warn('Response is not a string:', res);
-              return res; // If it's an object, return it as is
-            }
-          } catch (error) {
-            console.error(
-              `Error parsing response for fileId ${fileId}:`,
-              error
-            );
-            return null; // Return null if parsing fails
-          }
-        });
-      });
-
-      const results = await Promise.all(promises);
-      return results.filter((res) => res !== null); // Filter out any null values
-    } catch (e) {
-      console.log('SPACE_INTERPOLATION error ==>', e);
-    }
-  };
-
-  /**
-   * 라디오 버튼 클릭 시 호출되는 핸들러
+   * 경로탭 라디오 버튼 클릭 시 호출되는 핸들러
    */
   const handleRadioChange = (event) => {
-    console.log('event.target.value', event.target.value);
+    console.log(
+      'handleRadioChange of event.target.value ==>',
+      event.target.value
+    );
 
     const value = event.target.value === 'AND' ? 0 : 1;
     console.log('handleRadioChange of value ==>', value);
     return value;
   };
 
-  // Example function where list is expected to be an array
-
   /**
-   * 로그검색 선택 이벤트 (경로)
+   * 경로탭 선택 버튼
    */
-  const handleButtonClick = async () => {
-    console.log('로그검색 경로 선택버튼 이벤트 입니다.');
-    console.log('selectedRows ==>', selectedRows);
+  const handleRouteClick = async () => {
+    console.log('🚀 ~ handleRouteClick ~ selectedRows:', selectedRows);
+    setLoading(true);
 
     const findArray = (obj) => {
       if (Array.isArray(obj)) {
@@ -694,15 +779,15 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     };
 
     const arrayFromList = findArray(selectedRows);
-
-    console.log('arrayFromList', arrayFromList);
-    console.log('selectedRows', selectedRows);
+    console.log('🚀 ~ handleRouteClick ~ selectedRows:', selectedRows);
+    console.log('🚀 ~ handleRouteClick ~ arrayFromList:', arrayFromList);
 
     if (arrayFromList.length == 0) {
       // 아무것도 선택되지 않았습니다.
       setErrorValue(`${t('SpaceModal.Alert1')}`);
       setError(true);
       setTimeout(() => setError(false), 3000);
+      setLoading(false);
       return;
     }
 
@@ -713,6 +798,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       routeFullCoords(routeCoords);
     } else {
       console.error('No array found in list');
+      setLoading(false);
     }
 
     setOpen(false);
@@ -723,11 +809,12 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setSelectedIds([]);
     setList(initialList);
 
-    setConfigList(initialList);
-    setConfigList2(initialList);
+    setListConfig(initialList);
+    setListConfigDetail(initialList);
 
     setSelectedLogList(initialList);
     setSelectedLogList2(initialList);
+    setLoading(false);
   };
 
   /**
@@ -756,10 +843,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setSelectedIds([]);
 
     setList(initialList);
-    setList2(initialList);
+    setListDetail(initialList);
 
-    setConfigList(initialList);
-    setConfigList2(initialList);
+    setListConfig(initialList);
+    setListConfigDetail(initialList);
 
     setSelectedLogList(initialList);
     setSelectedLogList2(initialList);
@@ -771,104 +858,54 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /*
-   * 로그검색 화면정보 선택 이벤트
+   * 화면정보탭 선택 버튼
    */
-  const handleConfigBtnClick = async () => {
-    console.log('로그검색 화면정보 선택버튼 이벤트 입니다.');
-    console.log('handleConfigBtnClick of selectedLogList ==>', selectedLogList);
+  const handleConfigClick = async () => {
+    console.log('🚀 ~ handleConfigClick ~ selectedLogList:', selectedLogList);
 
-    // selectedLogList에서 meta_id 추출하여 FIND_META_ID 호출
+    setLoading(true);
+
     if (selectedLogList && selectedLogList.length > 0) {
-      // 각 selectedLogList에 대한 FIND_META_ID 호출을 동시에 처리
       const resultList = await Promise.all(
         selectedLogList.map(async (log) => {
           const condTmp = {
-            meta_id: log.meta_id, // 각 log에서 meta_id 추출
+            meta_id: log.meta_id,
           };
 
-          // FIND_META_ID 실행하고 결과 반환
-          console.log('condTmp', condTmp);
+          console.log('handleConfigClick of condTmp ==>', condTmp);
 
           const result = await FIND_META_ID(condTmp);
           console.log('result', result);
 
-          return result; // result를 반환하여 리스트에 추가
+          return result;
         })
       );
 
       // resultList를 평탄화(flatten)하여 단일 배열로 변환
       const flatResultList = resultList.flat();
 
-      console.log('FIND_META_ID 결과 리스트 ==>', resultList);
-      console.log(
-        'FIND_META_ID 결과 리스트 flatResultList ==>',
-        flatResultList
-      );
+      console.log('🚀 ~ handleConfigClick ~ resultList:', resultList);
+      console.log('🚀 ~ handleConfigClick ~ flatResultList:', flatResultList);
 
-      handleConfigBtnClickConfirm(flatResultList);
+      handleConfigConfirm(flatResultList);
 
       // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
       // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
     } else {
-      console.log('선택된 로그가 없습니다.');
       // 아무것도 선택되지 않았습니다.
       setErrorValue(`${t('SpaceModal.Alert1')}`);
       setError(true);
       setTimeout(() => setError(false), 3000);
+      setLoading(false);
       return;
     }
   };
 
-  /**
-   * 로그검색 화면정보 버전모아보기
-   * 더블클릭 선택 이벤트
-   */
-  const handleConfigBtn2Click = async () => {
-    console.log('로그검색 화면정보 선택버튼 이벤트 입니다.');
-    console.log('handleConfigBtnClick of selectedLogList ==>', selectedLogList);
-
-    // selectedLogList에서 meta_id 추출하여 FIND_META_ID 호출
-    if (selectedLogList2 && selectedLogList2.length > 0) {
-      // 각 selectedLogList에 대한 FIND_META_ID 호출을 동시에 처리
-      const resultList = await Promise.all(
-        selectedLogList.map(async (log) => {
-          const condTmp = {
-            meta_id: log.meta_id, // 각 log에서 meta_id 추출
-          };
-
-          // FIND_META_ID 실행하고 결과 반환
-          console.log('condTmp', condTmp);
-
-          const result = await FIND_META_ID(condTmp);
-          console.log('result', result);
-
-          return result; // result를 반환하여 리스트에 추가
-        })
-      );
-
-      // resultList를 평탄화(flatten)하여 단일 배열로 변환
-      const flatResultList = resultList.flat();
-
-      console.log('FIND_META_ID 결과 리스트 ==>', resultList);
-      console.log(
-        'FIND_META_ID 결과 리스트 flatResultList ==>',
-        flatResultList
-      );
-
-      handleConfigBtnClickConfirm(flatResultList);
-
-      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
-      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
-    } else {
-      console.log('선택된 로그가 없습니다.');
-    }
-  };
-
   /*
-   * 로그검색 화면정보 선택 이벤트
+   * 화면정보탭 선택 핸들러
    */
-  const handleConfigBtnClickConfirm = async (confirmList) => {
-    console.log('confirmList', confirmList);
+  const handleConfigConfirm = async (confirmList) => {
+    console.log('🚀 ~ handleConfigConfirm ~ confirmList:', confirmList);
 
     if (confirmList) {
       const fileIds = confirmList.map((route) => route.file_id);
@@ -877,11 +914,12 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       routeFullCoords(routeCoords);
     } else {
       console.error('No array found in list');
+      setLoading(false);
     }
 
     setOpen(false);
 
-    setConfigList([]);
+    setListConfig([]);
 
     setCond(initialCond);
     setSelectedSearchFields([]);
@@ -889,8 +927,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setSelectedIds([]);
     setList(initialList);
 
-    setConfigList(initialList);
-    setConfigList2(initialList);
+    setListConfig(initialList);
+    setListConfigDetail(initialList);
 
     setSelectedLogList(initialList);
     setSelectedLogList2(initialList);
@@ -899,29 +937,52 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setSelectedConfigCellData();
 
     setIsConfigModalOpen(false);
+    setLoading(false);
   };
 
   /**
-   * FIND META ID
+   * 화면정보탭 버전모아보기 (더블클릭)
+   * 선택 이벤트
    */
-  const FIND_META_ID = async (inputCond) => {
-    try {
-      const res = await MapLogService.FIND_META_ID({
-        cond: inputCond,
-      });
+  const handleConfigBtnDoubleClick = async () => {
+    console.log('handleConfigClick of selectedLogList ==>', selectedLogList);
+    console.log('handleConfigClick of selectedLogList2 ==>', selectedLogList2);
 
-      console.log('FIND_META_ID of res ==>', res.findMeta);
+    if (selectedLogList2 && selectedLogList2.length > 0) {
+      const resultList = await Promise.all(
+        selectedLogList.map(async (log) => {
+          const condTmp = {
+            meta_id: log.meta_id,
+          };
+          console.log('🚀 ~ selectedLogList.map ~ condTmp:', condTmp);
 
-      // res.findMeta 값을 반환하도록 수정
-      return res.findMeta;
-    } catch (e) {
-      console.log('FIND_META_ID of error ==>', e);
-      return null; // 오류가 발생하면 null을 반환하여 처리
+          const result = await FIND_META_ID(condTmp);
+          console.log('🚀 ~ selectedLogList.map ~ result:', result);
+
+          return result; // result를 반환하여 리스트에 추가
+        })
+      );
+
+      // resultList를 평탄화(flatten)하여 단일 배열로 변환
+      const flatResultList = resultList.flat();
+
+      console.log('🚀 ~ handleConfigBtnDoubleClick ~ resultList:', resultList);
+      console.log(
+        '🚀 ~ handleConfigBtnDoubleClick ~ flatResultList:',
+        flatResultList
+      );
+
+      handleConfigConfirm(flatResultList);
+
+      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
+      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
+    } else {
+      console.log('선택된 로그가 없습니다.');
     }
   };
 
   /**
-   * Find Tccfg 클릭 이벤트
+   * 화면정보탭 검색
    */
   const onFindTccfg = async () => {
     setError(null);
@@ -940,35 +1001,13 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * FIND TCCFG
+   * 화면정보탭 체크박스 선택 감지
    */
-  const FIND_TCCFG = async (inputCond) => {
-    try {
-      await MapLogService.FIND_TCCFG_10003({
-        cond: inputCond,
-      }).then((res) => {
-        console.log('FIND_TCCFG_10003 of res ==>', res);
-        setConfigList((prevState) => {
-          return {
-            ...prevState,
-            list: res.findTccfg,
-          };
-        });
-        setListConfigCount(res.findTccfg.length);
-      });
-    } catch (e) {
-      console.log('FIND_TCCFG_10003 of error ==>', e);
-      setListConfigCount(0);
-    }
-  };
-
-  /**
-   * 로그검색 -> 배치탭 -> 선택 이벤트
-   * 배치탭에서 선택 하였을때 발생
-   * 셀렉트Row 의 로그리스트 들 배열로 생성
-   */
-  const handleLeftSelectionChange = (selectedRows) => {
-    console.log('handleLeftSelectionChange of selectedRows ==>', selectedRows);
+  const handleLeftSelectionOnChange = (selectedRows) => {
+    console.log(
+      '🚀 ~ handleLeftSelectionOnChange ~ selectedRows:',
+      selectedRows
+    );
 
     if (selectedRows && selectedRows.length > 0) {
       const combinedLogList = selectedRows.reduce((acc, row) => {
@@ -976,27 +1015,28 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       }, []);
 
       console.log(
-        'handleLeftSelectionChange of combinedLogList ==>',
+        '🚀 ~ handleLeftSelectionOnChange ~ combinedLogList:',
         combinedLogList
       );
-
       setSelectedLogList(combinedLogList); // 전체 합쳐진 loglist 설정
     }
   };
 
+  /**
+   * 화면정보탭 왼쪽 리스트 클릭 감지
+   */
   const handleLeftCellClick = (rowData) => {
-    console.log('handleLeftCellClick of rowData ==>', rowData);
-
+    console.log('🚀 ~ handleLeftCellClick ~ rowData:', rowData);
     setSelectedLogList(rowData.loglist); // 셀 클릭 시 loglist 설정
   };
 
   /**
    * 화면정보탭 버전 모아보기
-   * 선택 이벤트
+   * 체크박스 선택 감지
    */
-  const handleLeftSelectionChange2 = (selectedRows) => {
+  const handleLeftSelectionOnChange2 = (selectedRows) => {
     console.log(
-      'handleLeftSelectionChange2 of selectedRows2 ==>',
+      '🚀 ~ handleLeftSelectionOnChange2 ~ selectedRows:',
       selectedRows
     );
 
@@ -1005,67 +1045,77 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }
   };
 
+  /**
+   * 화면정보탭 버전 모아보기
+   * 리스트 클릭 이벤트
+   */
   const handleLeftCellClick2 = (rowData) => {
     setSelectedLogList2(rowData.loglist); // 셀 클릭 시 loglist 설정
   };
 
-  // 루트 모달 상태 관리
-  const [isRouteModalOpen, setIsRouteModalOpen] = useState(false);
-  const [selectedRouteCellData, setSelectedRouteCellData] = useState(null);
-
-  // 화면정보 모달 상태 관리
-  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
-  const [selectedConfigCellData, setSelectedConfigCellData] = useState(null);
-
+  /**
+   * 경로탭 더블클릭 모달 호출
+   */
   const openRouteModal = (cellData) => {
     console.log('Opening modal with cell data:', cellData); // 디버깅 로그 추가
     setSelectedRouteCellData(cellData); // 선택된 셀의 데이터 저장
     setIsRouteModalOpen(true); // 모달 열기
   };
 
+  /**
+   * 경로탭 더블클릭 모달 닫기
+   */
   const closeRouteModal = () => {
     setIsRouteModalOpen(false); // 모달 닫기
   };
 
+  /**
+   * 화면정보탭 더블클릭 모달 호출
+   */
   const openConfigModal = (cellData) => {
     console.log('Opening modal with cell data:', cellData); // 디버깅 로그 추가
     setSelectedConfigCellData(cellData); // 선택된 셀의 데이터 저장
     setIsConfigModalOpen(true); // 모달 열기
   };
 
+  /**
+   * 화면정보탭 더블클릭 모달 닫기
+   */
   const closeConfigModal = () => {
     setIsConfigModalOpen(false); // 모달 닫기
   };
 
   /**
-   * 경로 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
-   * 경로 모달 (더블클릭)
+   * 경로탭 버전모아보기
+   * API 조회 및 데이터 출력 컴포넌트
    */
   const RouteModalComponent = ({ data, onClose }) => {
-    console.log('RouteModalComponent of data ==>', data);
-    console.log('RouteModalComponent of onClose ==>', onClose);
+    console.log('🚀 ~ RouteModalComponent ~ data:', data);
+    console.log('🚀 ~ RouteModalComponent ~ onClose:', onClose);
 
     useEffect(() => {
       const fetchData = async () => {
+        setLoading(true);
         try {
           if (data && data.meta_id) {
-            // API 호출 (data.id 또는 적절한 키로 조회)
             const response = await nonAuthInstance.get(
               `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`
             );
-            console.log('RouteModalComponent of response1', response);
-            console.log('RouteModalComponent of response2', response.data);
+            console.log('🚀 ~ fetchData ~ response:', response);
 
-            setList2((prevState) => {
+            setListDetail((prevState) => {
               const newList = response.data.findMeta;
               if (JSON.stringify(prevState) !== JSON.stringify(newList)) {
                 return newList;
               }
+
+              setLoading(false);
               return prevState;
             });
           }
         } catch (error) {
           console.error('API Error:', error);
+          setLoading(false);
         }
       };
 
@@ -1101,7 +1151,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               <div className="flex-1 border border-gray-300 p-4">
                 <h2 className="text-center text-xl font-bold mb-2"></h2>
                 <MainGrid2
-                  list={list2}
+                  list={listDetail}
                   onSelectionChange={handleSelectionChangeRoute}
                 />
               </div>
@@ -1145,43 +1195,50 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     );
   };
 
+  /**
+   * 경로탭 버전 모아보기
+   * 선택 감지
+   */
   const handleSelectionChangeRoute = (selectedRows) => {
     console.log(
-      'handleSelectionChangeRoute of selectedRows ==>',
-      selectedRows,
-      selectedConfigRowsRef
+      '🚀 ~ handleSelectionChangeRoute ~ selectedRows:',
+      selectedRows
     );
+
     if (selectedRows && selectedRows.length > 0) {
       selectedConfigRowsRef.current = selectedRows;
     }
   };
 
-  // 화면정보 모달 창에서 API 조회 및 데이터 표시하는 컴포넌트
+  /**
+   * 화면정보탭 버전모아보기
+   * API 조회 및 데이터 출력 컴포넌트
+   */
   const ConfigModalComponent = ({ data, onClose }) => {
-    console.log('ConfigModalComponent of data ==>', data);
+    console.log('🚀 ~ ConfigModalComponent ~ data:', data);
 
     useEffect(() => {
       const fetchData = async () => {
+        setLoading(true);
         try {
           if (data && data.tccfg_id) {
-            // API 호출 (data.id 또는 적절한 키로 조회)
             const response = await nonAuthInstance.get(
-              // `/find/sameorigin/tccfg?group_id=${-1}&tccfg_id=${data.tccfg_id}`,
               `/find/sameorigin/tccfg?group_id=${data.group_id}&tccfg_id=${data.origin_tccfg_id}`
             );
-            console.log('response', response);
-            console.log('response', response.data);
 
-            setConfigList2((prevState) => {
+            console.log('🚀 ~ fetchData ~ response:', response);
+            setListConfigDetail((prevState) => {
               const newList = response.data.findTccfg;
               if (JSON.stringify(prevState) !== JSON.stringify(newList)) {
                 return newList;
               }
               return prevState;
             });
+            setLoading(false);
           }
         } catch (error) {
           console.error('API Error:', error);
+          setLoading(false);
         }
       };
 
@@ -1213,8 +1270,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               <h2 className="text-center text-xl font-bold mb-2"></h2>
 
               <ConfigGridL2
-                list={configList2} // 왼쪽 그리드에 대한 데이터 리스트
-                onSelectionChange={handleLeftSelectionChange2}
+                list={listConfigDetail} // 왼쪽 그리드에 대한 데이터 리스트
+                onSelectionChange={handleLeftSelectionOnChange2}
                 onCellClick={handleLeftCellClick2} // 셀 클릭 시
               />
 
@@ -1230,7 +1287,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             <div className="flex justify-end mt-1">
               <button
                 onClick={
-                  isDirect ? handleConfigDetailDownload : handleConfigBtn2Click
+                  isDirect
+                    ? handleConfigDetailDownload
+                    : handleConfigBtnDoubleClick
                 }
                 className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
               >
@@ -1271,7 +1330,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const handleRouteDownload = async () => {
     const dataToDownload = selectedRows;
-    console.log('dataToDownload ==>', dataToDownload);
+    console.log('🚀 ~ handleRouteDownload ~ dataToDownload:', dataToDownload);
+    setLoading(true);
 
     // JSON 파일 다운로드 추가
     for (const item of dataToDownload) {
@@ -1299,6 +1359,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           }:`,
           error
         );
+        setLoading(false);
       }
     }
 
@@ -1333,6 +1394,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             error
           );
         }
+        setLoading(false);
       }
 
       try {
@@ -1360,15 +1422,18 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             error
           );
         }
+        setLoading(false);
       }
     }
+
+    setLoading(false);
   };
 
   /**
    * 경로탭 버전 모아보기 다운로드
    */
   const handleRouteDetailDownload = async () => {
-    const dataToDownload = list2;
+    const dataToDownload = listDetail;
     console.log('dataToDownload', dataToDownload);
 
     // JSON 파일 다운로드 추가
@@ -1718,9 +1783,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       <Dialog
         onClose={() => {
           setList(initialList); // list 초기화
-          setList2(initialList);
-          setConfigList(initialList);
-          setConfigList2(initialList);
+          setListDetail(initialList);
+          setListConfig(initialList);
+          setListConfigDetail(initialList);
           setSelectedLogList(initialList);
           setSelectedLogList2(initialList);
           setOpen(false); // 모달 닫기
@@ -1764,9 +1829,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       className="font-semibold"
                       onClick={() => {
                         setList(initialList);
-                        setList2(initialList);
-                        setConfigList(initialList);
-                        setConfigList2(initialList);
+                        setListDetail(initialList);
+                        setListConfig(initialList);
+                        setListConfigDetail(initialList);
                         setSelectedLogList(initialList);
                         setSelectedLogList2(initialList);
                         setOpen(false);
@@ -1841,7 +1906,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           {t('LogModal.SearchFields')}
                         </label>
                         <MultipleSelectDropDown
-                          options={fields.map((field) => ({
+                          options={searchFields.map((field) => ({
                             ...field,
                             value: field.id,
                           }))}
@@ -1896,7 +1961,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                       setCond((prevState) => {
                                         return {
                                           ...prevState,
-                                          feature: selectedValuesFeature(value),
+                                          feature: selectedFeatureValues(value),
                                         };
                                       });
                                     }}
@@ -1911,7 +1976,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                       setCond((prevState) => {
                                         return {
                                           ...prevState,
-                                          tag: selectedValuesTag(value),
+                                          tag: selectedTagValues(value),
                                         };
                                       });
                                     }}
@@ -1981,7 +2046,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                       setCond((prevState) => {
                                         return {
                                           ...prevState,
-                                          [field.id]: selectedValues(value),
+                                          [field.id]:
+                                            selectedFieldsValues(value),
                                         };
                                       });
                                     }}
@@ -2021,7 +2087,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       <MainGrid
                         list={list}
                         onSelectionChange={handleSelectionChange}
-                        onCellDoubleClick={openRouteModal} // 더블클릭 이벤트 추가
+                        onCellDoubleClick={openRouteModal}
                       />
 
                       {/* 모달 렌더링 */}
@@ -2035,7 +2101,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       <div className="flex justify-end mt-3">
                         <button
                           onClick={
-                            isDirect ? handleRouteDownload : handleButtonClick
+                            isDirect ? handleRouteDownload : handleRouteClick
                           }
                           className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
@@ -2073,7 +2139,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           {t('LogModal.SearchFields')}
                         </label>
                         <MultipleSelectDropDown
-                          options={fieldsCinfiguration.map((field) => ({
+                          options={configFields.map((field) => ({
                             ...field,
                             value: field.id,
                           }))}
@@ -2116,7 +2182,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                       setCond((prevState) => {
                                         return {
                                           ...prevState,
-                                          tag: selectedValuesTag(value),
+                                          tag: selectedTagValues(value),
                                         };
                                       });
                                     }}
@@ -2170,7 +2236,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                       setCond((prevState) => {
                                         return {
                                           ...prevState,
-                                          [field.id]: selectedValues(value),
+                                          [field.id]:
+                                            selectedFieldsValues(value),
                                         };
                                       });
                                     }}
@@ -2190,8 +2257,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
                       <div className="flex justify-end items-center space-x-4">
                         <span className="text-sm text-gray-600">
+                          {/* 총 결과 */}
                           {t('LogModal.TotalResults')}: {listConfigCount}
                         </span>
+                        {/* 화면정보탭 검색버튼 */}
                         <button
                           className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={onFindTccfg}
@@ -2200,8 +2269,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                             className="h-4 w-5 text-sky-500"
                             aria-hidden="true"
                           />
-                          {/* 로그검색 -> 검색 버튼 */}
                           <span className="text-sm text-sky-500 font-bold">
+                            {/* 화면정보탭 검색 */}
                             {t('LogModal.Find')}
                           </span>
                         </button>
@@ -2213,10 +2282,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       <div className="flex flex-row justify-between space-x-2 ">
                         {/* 왼쪽 그리드 */}
                         <ConfigGridL
-                          list={configList} // 왼쪽 그리드에 대한 데이터 리스트
+                          list={listConfig} // 왼쪽 그리드에 대한 데이터 리스트
                           onSelectionChange={
                             // (selectedRows) => setLeftList(selectedRows) // 왼쪽 그리드에서 선택된 행 업데이트
-                            handleLeftSelectionChange
+                            handleLeftSelectionOnChange
                           }
                           onCellClick={handleLeftCellClick} // 셀 클릭 시
                           onCellDoubleClick={openConfigModal} // 더블클릭 이벤트 추가
@@ -2242,9 +2311,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       <div className="flex justify-end mt-1">
                         <button
                           onClick={
-                            isDirect
-                              ? handleConfigDownload
-                              : handleConfigBtnClick
+                            isDirect ? handleConfigDownload : handleConfigClick
                           }
                           className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                         >
@@ -2282,4 +2349,5 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     </Transition>
   );
 });
+
 export default LogModal;
