@@ -31,11 +31,14 @@ export const AuthProvider = ({ children }) => {
 
   const isAuthenticated = !!auth;
 
+  const isActiveManagement = auth && auth.admin_use_yn === 'Y';
+
   const authContextValue = {
     auth,
     isAuthenticated,
     login,
     logout,
+    isActiveManagement,
   };
 
   return (

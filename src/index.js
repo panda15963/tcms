@@ -23,6 +23,7 @@ import { LoadingBarProvider } from './context/LoadingContextProvider';
 import { ToastProvider } from './context/ToastProvider';
 import { SelectedItemProvider } from './context/SelectedItemContext';
 import ManagementAdmins from './pages/admins/ManagementAdmins';
+import { AuthProvider } from './context/AuthProvider';
 
 const root = createRoot(document.getElementById('root'));
 root.render(
@@ -31,40 +32,45 @@ root.render(
     <ToastProvider>
       <SelectedItemProvider>
         <LoadingBarProvider>
-          <AppLoadingBar />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<HomeLogin />} />
-              <Route path="/log/kr" element={<LogModal isDirect={true} />} />
-              <Route path="/log/en" element={<LogModal isDirect={true} />} />
-              <Route
-                path="/space/kr"
-                element={<SpaceModal isDirect={true} />}
-              />
-              <Route
-                path="/space/en"
-                element={<SpaceModal isDirect={true} />}
-              />
-              <Route path="/main" element={<Layout />}>
-                <Route path="map" element={<MapLayout />} />
-                <Route path="admins" element={<ManagementAdmins />} />
-                <Route path="users" element={<ManagementUsers />} />
-                <Route path="dashboard" element={<DashboardLayout />}>
-                  <Route path="configuration" element={<Configuration />} />
-                  <Route path="countsByTool" element={<CountsByTool />} />
-                  <Route path="countsByVersion" element={<CountsByVersion />} />
-                  <Route path="logs" element={<Logs />} />
-                  <Route path="realTimeStatus" element={<RealTime />} />
-                  <Route path="realTimeUsageInfo" element={<UsageStatus />} />
-                  <Route
-                    path="usageFunctionCounts"
-                    element={<UsageCounts />}
-                    UsageCounts
-                  />
+          <AuthProvider>
+            <AppLoadingBar />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<HomeLogin />} />
+                <Route path="/log/kr" element={<LogModal isDirect={true} />} />
+                <Route path="/log/en" element={<LogModal isDirect={true} />} />
+                <Route
+                  path="/space/kr"
+                  element={<SpaceModal isDirect={true} />}
+                />
+                <Route
+                  path="/space/en"
+                  element={<SpaceModal isDirect={true} />}
+                />
+                <Route path="/main" element={<Layout />}>
+                  <Route path="map" element={<MapLayout />} />
+                  <Route path="admins" element={<ManagementAdmins />} />
+                  <Route path="users" element={<ManagementUsers />} />
+                  <Route path="dashboard" element={<DashboardLayout />}>
+                    <Route path="configuration" element={<Configuration />} />
+                    <Route path="countsByTool" element={<CountsByTool />} />
+                    <Route
+                      path="countsByVersion"
+                      element={<CountsByVersion />}
+                    />
+                    <Route path="logs" element={<Logs />} />
+                    <Route path="realTimeStatus" element={<RealTime />} />
+                    <Route path="realTimeUsageInfo" element={<UsageStatus />} />
+                    <Route
+                      path="usageFunctionCounts"
+                      element={<UsageCounts />}
+                      UsageCounts
+                    />
+                  </Route>
                 </Route>
-              </Route>
-            </Routes>
-          </BrowserRouter>
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
         </LoadingBarProvider>
       </SelectedItemProvider>
     </ToastProvider>

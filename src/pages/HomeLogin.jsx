@@ -7,6 +7,8 @@ import useToast from '../hooks/useToast';
 import { FaRegEyeSlash, FaRegEye } from 'react-icons/fa';
 import { ToastTypes } from '../context/ToastProvider';
 import { useTranslation } from 'react-i18next';
+import { isEmpty } from 'lodash';
+import { getAdmin } from '../service/api_services';
 
 export default function Login() {
   const { t } = useTranslation;
@@ -19,6 +21,8 @@ export default function Login() {
   const idRef = useRef();
   const passRef = useRef();
   const btnLoginRef = useRef();
+
+  let cancelconds;
 
   const initialRequest = {
     admin_id: '',
@@ -37,81 +41,134 @@ export default function Login() {
     idRef.current.focus();
   }, []);
 
+  const clearFieldValues = () => {
+    setRequest(initialRequest);
+  };
+
   const handleSubmit = async (e) => {
-    // e.preventDefault();
+    e.preventDefault();
 
-    console.log('hello');
-    setLoading(true);
-
-    try {
-      //Call api auth endpoint
-      setLoading(true);
-      console.log('[Authentication request] ', request);
-      await authenticate(request).then((response) => {
-        console.log(
-          '🚀 ~ file: Login.jsx:63 ~ handleSubmit ~ response:',
-          response,
-        );
-        if (response && response.data && response.data.resultCode === 200) {
-          if (response.data.detail && isString(response.data.detail)) {
-            const token = response.data.detail;
-            const decodedToken = jwtDecode(token);
-            console.log('🚀 ~ awaitauthenticate ~ decodedToken:', decodedToken);
-            Cookies.set('access-token', token, { expires: 1 });
-            const adminInfo = {
-              admin_seq: decodedToken.sub ?? '',
-              admin_id: decodedToken.admin_id,
-              admin_level_cd: decodedToken.admin_level_cd,
-              admin_level_nm: decodedToken.admin_level_nm,
-              admin_name: decodedToken.admin_name,
-              admin_type: decodedToken.admin_type,
-            };
-            axiosInstance.interceptors.request.use(
-              (config) => {
-                config.headers['Authorization'] = `Bearer ${token}`;
-                return config;
-              },
-              (error) => {
-                return Promise.reject(error);
-              },
-            );
-            setLoading(false);
-
-            login(adminInfo);
-            // setAuth(adminInfo);
-            if (
-              adminInfo.admin_level_cd === ROLES.Admin ||
-              adminInfo.admin_level_cd === ROLES.Volunteer
-            ) {
-              // navigate('/ad/dashboard', { replace: true });
-            } else {
-              // navigate('/user/dashboard', { replace: true });
-            }
-          }
-        } else if (response.data && response.data.resultCode === 404) {
-          setLoading(false);
-          showToast(
-            ToastTypes.ERROR,
-            '실패',
-            '아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
-          );
-        } else {
-          showToast(
-            ToastTypes.ERROR,
-            '실패',
-            '아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
-          );
-        }
-      });
-    } catch (e) {
-      setLoading(false);
-      console.log('Error complicated to login => ', e);
-      showToast(
-        ToastTypes.ERROR,
-        '실패',
-        '아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
-      );
+    console.log('[handleSubmit][START] ==> ');
+    let checkReturn = false;
+    if (isEmpty(request.admin_id)) {
+      showToast(ToastTypes.WARNING, '안내', '아이디를 입력해 주세요.');
+      checkReturn = true;
     }
+
+    if (checkReturn) return;
+
+    setLoading(true);
+    console.log('[Login][Admin id] => ', request.admin_id);
+
+    const { data, cancel, error } = await getAdmin(request.admin_id);
+    console.log('🚀 ~ handleSubmit ~ data:', data);
+    cancelconds = cancel;
+    if (data) {
+      console.log('[Login data]', data);
+      if (!isEmpty(data)) {
+        const adminInfo = {
+          seq: data.seq,
+          admin_id: data.admin_id,
+          admin_use_yn: data.admin_use_yn,
+        };
+        login(adminInfo);
+        handleGoHomeWithoutLogin();
+      }
+    } else if (error) {
+      console.log('[Login][Error] ==> ', error);
+      if (
+        error.status === 404 &&
+        error.response.data === 'Not found admin info'
+      ) {
+        showToast(
+          ToastTypes.WARNING,
+          '안내',
+          '아이디 또는 비밀번호가 맞지 않습니다. 다시 입력해 주세요.'
+        );
+        clearFieldValues();
+        if (idRef && idRef.current) {
+          idRef.current.focus();
+        }
+      } else {
+        showToast(
+          ToastTypes.ERROR,
+          '오류',
+          '로그인할때 서버에 올 났습니다. \n' + error
+        );
+      }
+    }
+
+    setLoading(false);
+
+    // try {
+    //   //Call api auth endpoint
+    //   setLoading(true);
+    //   console.log('[Authentication request] ', request);
+    //   await authenticate(request).then((response) => {
+    //     console.log(
+    //       '🚀 ~ file: Login.jsx:63 ~ handleSubmit ~ response:',
+    //       response,
+    //     );
+    //     if (response && response.data && response.data.resultCode === 200) {
+    //       if (response.data.detail && isString(response.data.detail)) {
+    //         const token = response.data.detail;
+    //         const decodedToken = jwtDecode(token);
+    //         console.log('🚀 ~ awaitauthenticate ~ decodedToken:', decodedToken);
+    //         Cookies.set('access-token', token, { expires: 1 });
+    //         const adminInfo = {
+    //           admin_seq: decodedToken.sub ?? '',
+    //           admin_id: decodedToken.admin_id,
+    //           admin_level_cd: decodedToken.admin_level_cd,
+    //           admin_level_nm: decodedToken.admin_level_nm,
+    //           admin_name: decodedToken.admin_name,
+    //           admin_type: decodedToken.admin_type,
+    //         };
+    //         axiosInstance.interceptors.request.use(
+    //           (config) => {
+    //             config.headers['Authorization'] = `Bearer ${token}`;
+    //             return config;
+    //           },
+    //           (error) => {
+    //             return Promise.reject(error);
+    //           },
+    //         );
+    //         setLoading(false);
+
+    //         login(adminInfo);
+    //         // setAuth(adminInfo);
+    //         if (
+    //           adminInfo.admin_level_cd === ROLES.Admin ||
+    //           adminInfo.admin_level_cd === ROLES.Volunteer
+    //         ) {
+    //           // navigate('/ad/dashboard', { replace: true });
+    //         } else {
+    //           // navigate('/user/dashboard', { replace: true });
+    //         }
+    //       }
+    //     } else if (response.data && response.data.resultCode === 404) {
+    //       setLoading(false);
+    //       showToast(
+    //         ToastTypes.ERROR,
+    //         '실패',
+    //         '아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
+    //       );
+    //     } else {
+    //       showToast(
+    //         ToastTypes.ERROR,
+    //         '실패',
+    //         '아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
+    //       );
+    //     }
+    //   });
+    // } catch (e) {
+    //   setLoading(false);
+    //   console.log('Error complicated to login => ', e);
+    //   showToast(
+    //     ToastTypes.ERROR,
+    //     '실패',
+    //     '아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
+    //   );
+    // }
   };
 
   const handleMouseUp = () => {
@@ -254,13 +311,21 @@ export default function Login() {
                         </label>
                         <div className="flex items-center space-x-4 mt-2">
                           <button
-                            className={`px-4 py-2 rounded-lg ${authMethod === 'FIDO' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                            className={`px-4 py-2 rounded-lg ${
+                              authMethod === 'FIDO'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-200 text-gray-600'
+                            }`}
                             onClick={() => setAuthMethod('FIDO')}
                           >
                             FIDO
                           </button>
                           <button
-                            className={`px-4 py-2 rounded-lg ${authMethod === 'OTP' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}
+                            className={`px-4 py-2 rounded-lg ${
+                              authMethod === 'OTP'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-200 text-gray-600'
+                            }`}
                             onClick={() => setAuthMethod('OTP')}
                           >
                             OTP
@@ -283,7 +348,7 @@ export default function Login() {
                         <button
                           ref={btnLoginRef}
                           className="flex w-full justify-center items-center rounded-lg bg-blue-600 px-3 py-4 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                          onClick={() => handleSubmit()}
+                          onClick={(e) => handleSubmit(e)}
                         >
                           로그인
                         </button>

@@ -9,6 +9,24 @@ const createCancelToken = () => {
   return { token, cancel };
 };
 
+export async function getAdmin(adminId) {
+  try {
+    const { token, cancel } = createCancelToken();
+    const response = await nonAuthInstance.get(`/admin/${adminId}`, {
+      cancelToken: token,
+    });
+    return { data: response.data, cancel };
+  } catch (error) {
+    // Error handling
+    if (axios.isCancel(error)) {
+      console.log('[getAdmin] Request canceled : ', error.message);
+      return { data: null, error: 'Request was canceled' };
+    }
+    console.log('[getAdmin] Request error : ', error);
+    return { data: null, error: error };
+  }
+}
+
 export async function getAdmins() {
   try {
     const { token, cancel } = createCancelToken();

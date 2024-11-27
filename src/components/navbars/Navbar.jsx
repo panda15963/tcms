@@ -11,27 +11,35 @@ import {
   DisclosurePanel,
   DialogPanel,
 } from '@headlessui/react';
-import { FaXmark, FaBars, FaAngleDown } from 'react-icons/fa6';
+import { FaXmark, FaBars, FaAngleDown, FaRegUser } from 'react-icons/fa6';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SwitchLanguages from '../toggles/SwitchLanguages';
 import profileImage from '../../assets/images/profile.png'; // 이미지 파일 경로
+import useAuth from '../../hooks/useAuth';
+import { isEmpty } from 'lodash';
+import { FaUser } from 'react-icons/fa';
 
 const NavBar = () => {
+  const { isActiveManagement, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
-  // Define the AuthPage and AccountPage arrays after t is initialized
+  // Define the AuthPage and userDropMenus arrays after t is initialized
   const AuthPage = [
     { id: 1, name: t('NavBar.AdminManagement'), link: '/main/admins' },
     { id: 2, name: t('NavBar.UserManagement'), link: '/main/users' },
   ];
 
-  const AccountPage = [
-    { id: 1, name: t('NavBar.MyPage'), link: '#' },
-    { id: 2, name: t('NavBar.SignOut') },
+  const userDropMenus = [
+    { id: 'myPage', name: t('NavBar.MyPage') },
+    { id: 'logout', name: t('NavBar.SignOut') },
   ];
+
+  useEffect(() => {
+    console.log('useEffect Navbar ===> ', isActiveManagement);
+  }, []);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language') || 'kor';
@@ -53,8 +61,15 @@ const NavBar = () => {
   );
 
   const handleLinkClick = (link) => {
-    navigate(link);
-    setMobileMenuOpen(false);
+    console.log('🚀 ~ handleLinkClick ~ link:', link);
+    if (link && !isEmpty(link) && link === 'logout') {
+      console.log('NAVIGATING MAIN ==> ');
+      logout();
+      navigate('/');
+    } else {
+      navigate(link);
+      setMobileMenuOpen(false);
+    }
   };
 
   return (
@@ -98,93 +113,98 @@ const NavBar = () => {
             {/* 지도 */}
             {t('Common.Map')}
           </Link>
-          <Menu
-            as="div"
-            className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
-          >
-            <MenuButton
-              className="text-sm font-semibold"
-              onClick={() => handleLinkClick('/main/dashboard')}
+          {isActiveManagement && (
+            <Menu
+              as="div"
+              className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
             >
-              {/* 통계 */}
-              {t('NavBar.Dashboard')}
-            </MenuButton>
-          </Menu>
-          <Menu
-            as="div"
-            className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
-          >
-            <MenuButton className="text-sm font-semibold">
-              {/* 관리 */}
-              {t('NavBar.Management')} <FaAngleDown className="inline" />
-            </MenuButton>
-            <Transition
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
+              <MenuButton
+                className="text-sm font-semibold"
+                onClick={() => handleLinkClick('/main/dashboard')}
+              >
+                {/* 통계 */}
+                {t('NavBar.Dashboard')}
+              </MenuButton>
+            </Menu>
+          )}
+          {isActiveManagement && (
+            <Menu
+              as="div"
+              className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
             >
-              <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                <MenuItem>
-                  {({ active }) => (
-                    <>
-                      {AuthPage.map((page) => (
-                        <Link
-                          key={page.id}
-                          to={page.link}
-                          className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50 "
-                          onClick={() => handleLinkClick(page.link)}
-                        >
-                          {page.name}
-                        </Link>
-                      ))}
-                    </>
-                  )}
-                </MenuItem>
-              </MenuItems>
-            </Transition>
-          </Menu>
+              <MenuButton className="text-sm font-semibold">
+                {/* 관리 */}
+                {t('NavBar.Management')} <FaAngleDown className="inline" />
+              </MenuButton>
+              <Transition
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <MenuItem>
+                    {({ active }) => (
+                      <>
+                        {AuthPage.map((page) => (
+                          <Link
+                            key={page.id}
+                            to={page.link}
+                            className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50 "
+                            onClick={() => handleLinkClick(page.link)}
+                          >
+                            {page.name}
+                          </Link>
+                        ))}
+                      </>
+                    )}
+                  </MenuItem>
+                </MenuItems>
+              </Transition>
+            </Menu>
+          )}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end py">
           <SwitchLanguages onClick={changeLanguage} />
           <Menu as="div" className="relative ml-3 transform scale-95">
             <MenuButton className="flex items-center">
-              <img
+              {/* <img
                 className="h-10 w-10 rounded-full"
                 // src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                 src={profileImage}
                 alt="Profile Picture"
-              />
+              /> */}
+              <span className="inline-block size-10 overflow-hidden rounded-full bg-gray-100">
+                <svg
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  className="size-full text-gray-300"
+                >
+                  <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </span>
             </MenuButton>
-            <Transition
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
+
+            <MenuItems
+              transition
+              className="absolute font-bold right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40"
             >
-              <MenuItems className="absolute font-bold right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40">
-                <MenuItem>
-                  {({ active }) => (
-                    <>
-                      {AccountPage.map((page) => (
-                        <Link
-                          key={page.id}
-                          to={page.link}
-                          className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 text-center hover:bg-gray-50"
-                          onClick={() => handleLinkClick(page.link)}
-                        >
-                          {page.name}
-                        </Link>
-                      ))}
-                    </>
-                  )}
-                </MenuItem>
-              </MenuItems>
-            </Transition>
+              <div className="py-1">
+                {userDropMenus.map((page) => (
+                  <MenuItem>
+                    <span
+                      key={page.id}
+                      className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 text-center hover:bg-gray-50 cursor-pointer"
+                      onClick={() => handleLinkClick(page.id)}
+                    >
+                      {page.name}
+                    </span>
+                  </MenuItem>
+                ))}
+              </div>
+            </MenuItems>
           </Menu>
         </div>
       </nav>
@@ -255,15 +275,14 @@ const NavBar = () => {
               src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
               alt="Profile Picture"
             />
-            {AccountPage.map((page) => (
-              <Link
+            {userDropMenus.map((page) => (
+              <span
                 key={page.id}
-                to={page.link}
-                className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
-                onClick={() => handleLinkClick(page.link)}
+                className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50 cursor-pointer"
+                onClick={() => handleLinkClick(page.id)}
               >
                 {page.name}
-              </Link>
+              </span>
             ))}
           </div>
         </DialogPanel>
