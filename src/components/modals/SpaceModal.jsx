@@ -14,12 +14,6 @@ import Error from '../alerts/Error';
 import { isEmpty } from 'lodash';
 import useLoading from '../../hooks/useLoading';
 
-// Helper function to round to 5 decimal places
-const roundToFive = (value) => {
-  const num = parseFloat(value);
-  return isNaN(num) ? '' : num.toFixed(5);
-};
-
 /**
  * 공간 검색
  * 다운로드 가능 별도 모달 :
@@ -167,6 +161,14 @@ const SpaceModal = forwardRef(
     };
 
     /**
+     *roundToFive
+     */
+    const roundToFive = (value) => {
+      const num = parseFloat(value);
+      return isNaN(num) ? '' : num.toFixed(5);
+    };
+
+    /**
      * 찾기 API
      */
     const FIND_SPACE = async (inputCond) => {
@@ -294,6 +296,7 @@ const SpaceModal = forwardRef(
         setLatitude(37.5665);
         setLongitude(126.978);
         setListCount(0);
+        setRangeValue(100);
       } else {
         console.error('No array found in list');
       }
