@@ -25,14 +25,16 @@ export default function RightSideSlide({ data, onMapChange }) {
     }
   }, [data]);
 
+  console.log('data:', data);
+
   // Clear rows when the map changes
-  useEffect(() => {
-    if (onMapChange) {
-      setRowsData([]); // Clear the rows when the map changes
-      setExpandedRows([]); // Clear any expanded rows as well
-      setOpen(false);
-    }
-  }, [onMapChange]);
+  // useEffect(() => {
+  //   if (onMapChange) {
+  //     setRowsData([]); // Clear the rows when the map changes
+  //     setExpandedRows([]); // Clear any expanded rows as well
+  //     setOpen(false);
+  //   }
+  // }, [onMapChange]);
 
   const rows =
     Array.isArray(rowsData) && rowsData.length > 0
@@ -47,17 +49,17 @@ export default function RightSideSlide({ data, onMapChange }) {
             {
               id: `${index + 1}-2`,
               col1: t('RightSideSlide.Name'),
-              col2: item?.file_name || 'N/A',
+              col2: item?.file_name || 'None',
             },
             {
               id: `${index + 1}-3`,
               col1: t('RightSideSlide.Continent'),
-              col2: item?.continent_str || 'N/A',
+              col2: item?.continent_str || 'None',
             },
             {
               id: `${index + 1}-4`,
               col1: t('RightSideSlide.Country'),
-              col2: item?.country_str || 'N/A',
+              col2: item?.country_str || 'None',
             },
             {
               id: `${index + 1}-5`,
@@ -77,17 +79,18 @@ export default function RightSideSlide({ data, onMapChange }) {
             {
               id: `${index + 1}-8`,
               col1: t('RightSideSlide.Priority'),
-              col2: item?.priority_str || 'N/A',
+              col2: item?.priority_str || 'None',
             },
             {
               id: `${index + 1}-9`,
               col1: t('RightSideSlide.FeatureCategory'),
-              col2: item?.feature_str || 'None',
-              children: {
-                id: `${index + 1}-9-1`,
-                col1: t('RightSideSlide.Feature'),
-                col2: item?.feature_str || 'None',
-              },
+              children: [
+                {
+                  id: `${index + 1}-9-1`,
+                  col1: t('RightSideSlide.Feature'),
+                  col2: item?.feature_str || 'None',
+                },
+              ],
             },
             {
               id: `${index + 1}-10`,
@@ -96,7 +99,7 @@ export default function RightSideSlide({ data, onMapChange }) {
                 {
                   id: `${index + 1}-10-1`,
                   col1: '-',
-                  col2: item?.mcolslist?.[0]?.name || 'N/A',
+                  col2: item?.mcolslist?.[0]?.name || '-',
                 },
               ],
             },
@@ -107,7 +110,7 @@ export default function RightSideSlide({ data, onMapChange }) {
                 {
                   id: `${index + 1}-11-1`,
                   col1: '-',
-                  col2: 'N/A',
+                  col2: item?.tc || 'None',
                 },
               ],
             },
@@ -118,19 +121,19 @@ export default function RightSideSlide({ data, onMapChange }) {
                 {
                   id: `${index + 1}-12-1`,
                   col1: '-',
-                  col2: 'N/A',
+                  col2: item?.memo?.[0] || 'None',
                 },
               ],
             },
             {
               id: `${index + 1}-13`,
               col1: t('RightSideSlide.Target'),
-              col2: item?.target_str || 'N/A',
+              col2: item?.target_str || 'None',
             },
             {
               id: `${index + 1}-14`,
               col1: t('RightSideSlide.Summary'),
-              col2: item?.summary_str || 'N/A',
+              col2: item?.summary_str || 'None',
             },
             {
               id: `${index + 1}-15`,
@@ -140,12 +143,12 @@ export default function RightSideSlide({ data, onMapChange }) {
                 {
                   id: `${index + 1}-15-1`,
                   col1: t('RightSideSlide.Lon'),
-                  col2: item?.start_coord?.split(',')[0] || 'N/A',
+                  col2: item?.start_coord?.split(',')[0] || 'None',
                 },
                 {
                   id: `${index + 1}-15-2`,
                   col1: t('RightSideSlide.Lat'),
-                  col2: item?.start_coord?.split(',')[1] || 'N/A',
+                  col2: item?.start_coord?.split(',')[1] || 'None',
                 },
               ],
             },
@@ -154,15 +157,29 @@ export default function RightSideSlide({ data, onMapChange }) {
               col1: t('RightSideSlide.Destination'),
               col2: item?.goal_name || 'Unknown',
               children: [
+                ...item.passingpts
+                  .map((pt, ptIndex) => [
+                    {
+                      id: `${index + 1}-${ptIndex + 1}-addr`,
+                      col1: t('RightSideSlide.Address'),
+                      col2: pt.addr || 'None',
+                    },
+                    {
+                      id: `${index + 1}-${ptIndex + 1}-road`,
+                      col1: t('RightSideSlide.RoadName'),
+                      col2: pt.road || 'None',
+                    },
+                  ])
+                  .flat(),
                 {
                   id: `${index + 1}-16-1`,
                   col1: t('RightSideSlide.Lon'),
-                  col2: item?.goal_coord?.split(',')[0] || 'N/A',
+                  col2: item?.goal_coord?.split(',')[0] || 'None',
                 },
                 {
                   id: `${index + 1}-16-2`,
                   col1: t('RightSideSlide.Lat'),
-                  col2: item?.goal_coord?.split(',')[1] || 'N/A',
+                  col2: item?.goal_coord?.split(',')[1] || 'None',
                 },
               ],
             },
@@ -171,27 +188,27 @@ export default function RightSideSlide({ data, onMapChange }) {
               col1: t('RightSideSlide.Distance'),
               col2: item?.distance_str
                 ? `${(item.distance_str / 1000).toFixed(2)} km`
-                : 'N/A',
+                : 'None',
             },
             {
               id: `${index + 1}-18`,
               col1: t('RightSideSlide.TripTotalTime'),
-              col2: item?.triptime_total || 'N/A',
+              col2: item?.triptime_total || 'None',
             },
             {
               id: `${index + 1}-19`,
               col1: t('RightSideSlide.TripStartTime'),
-              col2: item?.triptime_start || 'N/A',
+              col2: item?.triptime_start || 'None',
             },
             {
               id: `${index + 1}-20`,
               col1: t('RightSideSlide.TripEndTime'),
-              col2: item?.triptime_end || 'N/A',
+              col2: item?.triptime_end || 'None',
             },
             {
               id: `${index + 1}-21`,
               col1: t('RightSideSlide.Description'),
-              col2: item?.summary_str || 'N/A',
+              col2: item?.summary_str || 'None',
             },
             {
               id: `${index + 1}-22`,
@@ -207,23 +224,33 @@ export default function RightSideSlide({ data, onMapChange }) {
             {
               id: `${index + 1}-23`,
               col1: t('RightSideSlide.FileName'),
-              col2: item?.file_name || 'N/A',
+              col2: item?.file_name || 'None',
             },
             {
               id: `${index + 1}-24`,
               col1: t('RightSideSlide.PassingPoint'),
-              children: [
-                {
-                  id: `${index + 1}-24-1`,
-                  col1: t('RightSideSlide.Address'),
-                  col2: item?.passingpts?.[0]?.address || 'N/A',
-                },
-                {
-                  id: `${index + 1}-24-2`,
-                  col1: t('RightSideSlide.Lon'),
-                  col2: item?.passingpts?.[1]?.address || 'N/A',
-                },
-              ],
+              children: item.passingpts?.length
+                ? item.passingpts
+                    .map((pt, ptIndex) => [
+                      {
+                        id: `${index + 1}-${ptIndex + 1}-addr`,
+                        col1: t('RightSideSlide.Address'),
+                        col2: pt.addr || 'None',
+                      },
+                      {
+                        id: `${index + 1}-${ptIndex + 1}-road`,
+                        col1: t('RightSideSlide.RoadName'),
+                        col2: pt.road || 'None',
+                      },
+                    ])
+                    .flat() // 중첩 배열을 평탄화
+                : [
+                    {
+                      id: `${index + 1}-24-none`,
+                      col1: '-',
+                      col2: 'None',
+                    },
+                  ],
             },
           ],
         }))
@@ -231,7 +258,7 @@ export default function RightSideSlide({ data, onMapChange }) {
 
   const toggleRow = (id) => {
     setExpandedRows((pre) =>
-      pre.includes(id) ? pre.filter((rowId) => rowId !== id) : [...pre, id],
+      pre.includes(id) ? pre.filter((rowId) => rowId !== id) : [...pre, id]
     );
   };
 

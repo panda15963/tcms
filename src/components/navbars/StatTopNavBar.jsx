@@ -76,6 +76,7 @@ export default function StatTopMenuBar() {
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: 'tool',
           toolname: '',
+          pcname: '',
         };
         navigate('countsByTool', {
           state: await EXECUTION_COUNT_TOOL(countsByTool),
@@ -89,6 +90,7 @@ export default function StatTopMenuBar() {
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: 'version',
           toolname: 'TestCourseManagementSystem',
+          pcname: '',
         };
         navigate('countsByVersion', {
           state: await EXECUTION_COUNT_VERSION(CountsByVersion),
@@ -101,6 +103,7 @@ export default function StatTopMenuBar() {
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: '',
           toolname: 'TestCourseManagementSystem',
+          pcname: '',
         };
         navigate('usageFunctionCounts', {
           state: await FUNCTION_COUNT(UsageCounts),
@@ -114,6 +117,7 @@ export default function StatTopMenuBar() {
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: '',
           toolname: '',
+          pcname: '',
         };
         navigate('logs', { state: await TOOL_LOGS(Logs) });
         break;
@@ -124,6 +128,7 @@ export default function StatTopMenuBar() {
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: '',
           toolname: '',
+          pcname: '',
         };
         navigate('configuration', {
           state: await TOOL_SETTINGS(Configuration),
