@@ -38,21 +38,22 @@ export default function UsageStatusTable({ data }) {
   const sanitizedData = Array.isArray(data) ? data : [];
 
   return (
-    <div className="flow-root h-full">
-      <table className="min-w-full w-full divide-y divide-gray-200 border-gray-300">
-        <thead className="bg-gray-100 border-2">
+    <div className="h-full w-full overflow-auto">
+      <table className="w-full h-full table-auto border-collapse border border-gray-300">
+        <thead className="bg-gray-100">
           <tr>
             {columns.map((header) => (
               <th
                 key={header.id}
-                className="px-4 py-3 border-2 text-center text-sm font-semibold text-black uppercase tracking-wider whitespace-nowrap"
+                className="border border-gray-300 px-6 py-4 text-lg font-semibold text-black text-center uppercase tracking-wide"
+                style={{ fontSize: '18px' }}
               >
                 {header.name}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-100">
+        <tbody className="bg-white">
           {sanitizedData.map((data) => {
             const normalizedStatus = formatRunStatus(data.runstatus.trim());
             return (
@@ -68,9 +69,8 @@ export default function UsageStatusTable({ data }) {
                 ].map((field) => (
                   <td
                     key={`${data.id}-${field}`}
-                    className={`px-6 py-4 border-2 ${
-                      field === 'runstatus' ? 'text-left' : 'text-center'
-                    } text-base font-medium text-gray-700 tracking-wide whitespace-nowrap`}
+                    className="border border-gray-300 px-6 py-4 text-lg text-gray-700 text-center"
+                    style={{ fontSize: '16px' }}
                   >
                     {field === 'runstatus' ? (
                       <>

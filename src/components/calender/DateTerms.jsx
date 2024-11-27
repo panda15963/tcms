@@ -24,14 +24,15 @@ function classNames(...classes) {
 export default function DateTerms({ terms = () => {} }) {
   const { t } = useTranslation();
   const location = useLocation();
-  
+
   // Memoize termsList to prevent re-creation on every render
   const termsList = useMemo(() => dateTerms(t), [t]);
   const [selected, setSelected] = useState(termsList[0]);
 
   useEffect(() => {
     const path = location.pathname.split('/').pop().toUpperCase();
-    const initialSelected = termsList.find((api) => api.name === path) || termsList[0];
+    const initialSelected =
+      termsList.find((api) => api.name === path) || termsList[0];
     setSelected(initialSelected);
   }, [location.pathname, termsList]);
 
@@ -47,11 +48,13 @@ export default function DateTerms({ terms = () => {} }) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm font-semibold text-gray-700">날짜 간격 주기 :</span>
+      <span className="text-sm font-semibold text-white">
+        {t('DateTerms.DatePeriod')} : {' '}
+      </span>
       <Listbox value={selected} onChange={handleOnSelectMap}>
         {({ open }) => (
           <>
-            <div className="relative w-48">
+            <div className="relative w-20">
               <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none border border-black sm:text-sm sm:leading-6">
                 <span className="block truncate old">{selected.name}</span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -84,9 +87,7 @@ export default function DateTerms({ terms = () => {} }) {
                         <>
                           <span
                             className={classNames(
-                              selected
-                                ? 'old text-white'
-                                : 'old text-gray-900',
+                              selected ? 'old text-white' : 'old text-gray-900',
                               'block truncate'
                             )}
                           >

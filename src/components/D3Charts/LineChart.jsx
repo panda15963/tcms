@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 const formatMonthDateToLocalISO = (date) => {
   if (!date) return '';
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+  const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
@@ -18,20 +18,18 @@ const LineChart = ({ data, groupBy }) => {
   const width = 1200 - margin.left - margin.right;
   const height = 500 - margin.top - margin.bottom;
 
-  // Preprocess data based on groupBy
+  // Determine the grouping key based on groupBy prop
+  const groupKey = groupBy === 'tools' ? 'toolname' : 'toolver';
+
+  // Group data dynamically based on groupBy value
   const groupedData = Array.from(
-    d3.group(data, (d) => d[groupBy]),
-    ([group, entries]) => ({
-      type: group,
-      data: entries.map((entry) => {
-        const isMonthFormat = entry.date.length === 7; // Check if it's 'YYYY-MM'
-        return {
-          date: isMonthFormat
-            ? entry.date
-            : formatMonthDateToLocalISO(new Date(entry.date)),
-          value: entry.count,
-        };
-      }),
+    d3.group(data, (d) => d[groupKey]),
+    ([key, entries]) => ({
+      key, // Either toolname or toolver
+      data: entries.map((entry) => ({
+        date: formatMonthDateToLocalISO(new Date(entry.date)),
+        value: entry.count,
+      })),
     })
   );
 
@@ -74,11 +72,8 @@ const LineChart = ({ data, groupBy }) => {
 
     const minDate = d3.min(allDates);
     const maxDate = d3.max(allDates);
-
-    // Add padding (e.g., subtract/add a day for the scale)
     const paddedMinDate = new Date(minDate);
     paddedMinDate.setDate(minDate.getDate() - 1);
-
     const paddedMaxDate = new Date(maxDate);
     paddedMaxDate.setDate(maxDate.getDate() + 1);
 
@@ -101,31 +96,35 @@ const LineChart = ({ data, groupBy }) => {
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
     groupedData.forEach((group, idx) => {
+      const transformValue =
+        groupBy === 'tools' ? 'translate(-15, 0)' : 'translate(-20, 0)';
+
       if (group.data.length > 1) {
         svg
           .append('path')
           .datum(group.data)
           .attr('fill', 'none')
-          .attr('stroke', colorScale(idx)) // Use idx here
+          .attr('stroke', colorScale(idx))
           .attr('stroke-width', 2)
           .attr('d', line)
-          .attr('transform', 'translate(-20, 0)');
+          .attr('transform', transformValue); // transform 값 동적으로 설정
       }
 
+      // Draw points
       group.data.forEach((point) => {
         svg
           .append('circle')
           .attr('cx', xScale(new Date(point.date)))
           .attr('cy', yScale(point.value))
           .attr('r', 5)
-          .attr('fill', colorScale(idx)) // Use idx here
+          .attr('fill', colorScale(idx))
           .attr('stroke', 'black')
           .attr('stroke-width', 1)
           .on('mouseover', (event) => {
             tooltip
               .style('opacity', 1)
               .html(
-                `<strong>${group.type}</strong><br>${t('LineChart.Date')}: ${
+                `<strong>${group.key}</strong><br>${t('LineChart.Date')}: ${
                   point.date
                 }<br>${t('LineChart.Value')}: ${point.value}`
               );
@@ -138,10 +137,10 @@ const LineChart = ({ data, groupBy }) => {
           .on('mouseout', () => {
             tooltip.style('opacity', 0);
           })
-          .attr('transform', 'translate(-20, 0)');
+          .attr('transform', transformValue); // transform 값 동적으로 설정
       });
 
-      // Add legend for each group
+      // Add legend
       svg
         .append('line')
         .attr('x1', width - 150)
@@ -159,7 +158,9 @@ const LineChart = ({ data, groupBy }) => {
         .style('fill', 'black')
         .style('font-size', '14px')
         .style('font-weight', 'bold')
-        .text(group.type);
+        .text(
+          group.key.length > 10 ? `${group.key.slice(0, 10)}...` : group.key
+        );
     });
 
     // X-Axis with custom tick interval and ISO format
@@ -185,6 +186,7 @@ const LineChart = ({ data, groupBy }) => {
       .attr('dy', '0.15em')
       .attr('transform', 'rotate(-45)');
 
+    // Y-Axis
     svg
       .append('g')
       .call(d3.axisLeft(yScale).ticks(5))

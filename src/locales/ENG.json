@@ -220,7 +220,11 @@
     "TUSRT": "Real-Time Tool Usage Status Based on TC",
     "RTTUI": "Real-Time Tool Usage Information",
     "CTL": "Check Tool Logs",
-    "TCIC": "Tool Configuration Information Change"
+    "TCIC": "Tool Configuration Information Change",
+    "SelectTool": "Select Tool",
+    "SelectPC": "Select PC",
+    "Search": "Search",
+    "Reset": "Reset"
   },
   "StatSideBar": {
     "StatMenu": "Tool Usage Status Menu",
@@ -238,7 +242,8 @@
   "DateTerms": {
     "Day": "Day",
     "Week": "Week",
-    "Month": "Month"
+    "Month": "Month",
+    "DatePeriod": "Date Period"
   },
   "DateRangePicker": {
     "StartDate": "Start Date",
@@ -283,7 +288,7 @@
     "Refresh": "Refresh",
     "Search": "Search",
     "Loading": "Loading...",
-    "NoDataFound": "No Data Found.",    
+    "NoDataFound": "No Data Found.",
     "ToolName": "Tool Name",
     "VersionName": "Version Name",
     "LogReceivedTime": "Log Received Time",
@@ -301,7 +306,7 @@
     "ExecutedTime": "Executed Time",
     "OperationStatus": "Operation Status"
   },
-  "UsageCounts":{
+  "UsageCounts": {
     "UsageCounts": "Tool Usage Counts By Function",
     "SelectTool": "Select Tool",
     "SelectPC": "Select PC",

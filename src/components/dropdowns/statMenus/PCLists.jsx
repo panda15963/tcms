@@ -9,28 +9,32 @@ import {
 import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 import { useLocation } from 'react-router-dom';
 
-const VersionList = [
-  { id: 1, name: 'PC 1' },
-  { id: 2, name: 'PC 2' },
-  { id: 3, name: 'PC 3' },
-  { id: 4, name: 'PC 4' },
-  { id: 5, name: 'PC 5' },
-];
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function VersionLists() {
+export default function PCLists({ selectedPC }) {
   const location = useLocation();
   const [selected, setSelected] = useState(null);
+  const [PCList, setPCList] = useState([]);
+
+  // Convert the `selectedPC.pcname` array into the desired `PCList` format
+  useEffect(() => {
+    if (selectedPC && Array.isArray(selectedPC.pcname)) {
+      const formattedPCList = selectedPC.pcname.map((name, index) => ({
+        id: index + 1,
+        name,
+      }));
+      setPCList(formattedPCList);
+    }
+  }, [selectedPC]);
 
   useEffect(() => {
     const path = location.pathname.split('/').pop().toUpperCase();
     const initialSelected =
-      VersionList.find((api) => api.name === path) || VersionList[0];
+      PCList.find((api) => api.name === path) || PCList[0];
     setSelected(initialSelected);
-  }, [location.pathname]);
+  }, [location.pathname, PCList]);
 
   const handleOnSelectMap = (selectedMap) => {
     setSelected(selectedMap);
@@ -59,7 +63,7 @@ export default function VersionLists() {
               leaveTo="opacity-0"
             >
               <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                {VersionList.map((api) => (
+                {PCList.map((api) => (
                   <ListboxOption
                     key={api.id}
                     className={({ selected, focus }) =>

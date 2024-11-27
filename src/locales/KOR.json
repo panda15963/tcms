@@ -222,7 +222,11 @@
     "TUSRT": "TC 기반 도구 실시간 사용 현황",
     "RTTUI": "실시간 도구 사용 정보",
     "CTL": "도구 로그 확인",
-    "TCIC": "도구 설정 정보 변경 사항"
+    "TCIC": "도구 설정 정보 변경 사항",
+    "SelectTool": "도구 선택",
+    "SelectPC": "PC 선택",
+    "Search": "조회",
+    "Reset": "초기화"
   },
   "StatSideBar": {
     "StatMenu": "도구 사용 현황 메뉴",
@@ -240,7 +244,8 @@
   "DateTerms": {
     "Day": "일",
     "Week": "주",
-    "Month": "달"
+    "Month": "달",
+    "DatePeriod": "날짜 간격 주기"
   },
   "DateRangePicker": {
     "StartDate": "시작 날짜",
@@ -250,9 +255,7 @@
     "TSIM": "도구 설정 정보 변경 사항",
     "SelectTool": "도구 선택",
     "SelectPC": "PC 선택",
-    "Refresh": "새로 고침",
     "Search": "조회",
-    "Loading": "로딩중...",
     "NoDataFound": "조회된 데이터가 없습니다.",
     "ToolName": "도구명",
     "VersionName": "버전명",
@@ -264,27 +267,21 @@
   "CountsByTool": {
     "CBT": "도구 실행 횟수(도구 별)",
     "SelectPC": "PC 선택",
-    "Refresh": "새로 고침",
     "Search": "조회",
-    "Loading": "로딩중...",
     "NoDataFound": "조회된 데이터가 없습니다."
   },
   "CountsByVersion": {
     "CBV": "도구 실행 횟수(버전 별)",
     "SelectTool": "도구 선택",
     "SelectPC": "PC 선택",
-    "Refresh": "새로 고침",
     "Search": "조회",
-    "Loading": "로딩중...",
     "NoDataFound": "조회된 데이터가 없습니다."
   },
   "Logs": {
     "ToolLogs": "도구 로그 확인",
     "SelectTool": "도구 선택",
     "SelectPC": "PC 선택",
-    "Refresh": "새로 고침",
     "Search": "조회",
-    "Loading": "로딩중...",
     "NoDataFound": "조회된 데이터가 없습니다.",
     "ToolName": "도구명",
     "VersionName": "버전명",
@@ -294,8 +291,6 @@
   },
   "RealTime": {
     "RealTimes": "TC 기반 도구 실시간 사용 현황",
-    "Refresh": "새로 고침",
-    "Loading": "로딩중...",
     "NoDataFound": "조회된 데이터가 없습니다.",
     "ToolName": "도구명",
     "VersionName": "버전명",
@@ -303,26 +298,22 @@
     "ExecutedTime": "실행 시간",
     "OperationStatus": "동작 상태"
   },
-  "UsageCounts":{
+  "UsageCounts": {
     "UsageCounts": "도구 기능별 사용 횟수",
     "SelectTool": "도구 선택",
     "SelectPC": "PC 선택",
-    "Refresh": "새로 고침",
     "Search": "조회",
-    "Loading": "로딩중...",
     "NoDataFound": "조회된 데이터가 없습니다."
   },
   "UsageInformation": {
     "ToolUsageInformation": "실시간 도구 사용 정보",
-    "Refresh": "새로 고침",
-    "Loading": "로딩중...",
     "NoDataFound": "조회된 데이터가 없습니다.",
     "ToolName": "도구명",
     "VersionName": "버전명",
     "StartTestingTime": "TC 평가 시작 시간",
     "ExecutedTime": "실행 시간",
     "OperationStatus": "동작 상태",
-    "Details" : "비고"
+    "Details": "비고"
   },
   "LineChart": {
     "NoDataFound": "조회된 데이터가 없습니다.",

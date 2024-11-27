@@ -16,7 +16,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function StatGraphsLists() {
+export default function StatGraphsLists({ requestData }) {
   const { t } = useTranslation();
   const { setSelectedItem } = useSelectedItem();
   const navigate = useNavigate();
@@ -26,7 +26,17 @@ export default function StatGraphsLists() {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    const currentSelected = items.find((item) => `/main/dashboard${item.link}` === location.pathname);
+    if (typeof requestData === 'function') {
+      requestData(selected);
+    } else {
+      console.error('Expected `data` to be a function, but got:', typeof data);
+    }
+  }, [selected, requestData]);
+
+  useEffect(() => {
+    const currentSelected = items.find(
+      (item) => `/main/dashboard${item.link}` === location.pathname
+    );
 
     if (currentSelected) {
       if (selected?.id !== currentSelected.id) {
@@ -56,7 +66,10 @@ export default function StatGraphsLists() {
                 {selected ? selected.name : ''}
               </span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <FaAngleDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                <FaAngleDown
+                  className="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
               </span>
             </ListboxButton>
 
