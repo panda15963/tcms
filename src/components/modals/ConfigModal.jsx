@@ -11,8 +11,8 @@ import MapLogService from '../../service/MapLogService';
 /**
  * 화면정보탭 버전 모아보기
  * 다운로드 가능 별도 모달 :
- *     http://localhost:3000/log/kr
- *     http://localhost:3000/log/en
+ *    http://localhost:3000/log/kr
+ *    http://localhost:3000/log/en
  */
 const ConfigModal = ({
   data,

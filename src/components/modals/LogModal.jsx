@@ -23,8 +23,8 @@ import ConfigModal from './ConfigModal';
 /**
  * 로그 검색
  * 다운로드 가능 별도 모달 :
- *     http://localhost:3000/log/kr
- *     http://localhost:3000/log/en
+ *    http://localhost:3000/log/kr
+ *    http://localhost:3000/log/en
  */
 const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const { t } = useTranslation();

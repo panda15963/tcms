@@ -12,7 +12,6 @@ import { FaDownload } from 'react-icons/fa6';
 import { nonAuthInstance } from '../../server/MapAxiosConfig';
 import Error from '../alerts/Error';
 import { isEmpty } from 'lodash';
-import useLoading from '../../hooks/useLoading';
 
 // Helper function to round to 5 decimal places
 const roundToFive = (value) => {
@@ -22,16 +21,14 @@ const roundToFive = (value) => {
 
 /**
  * 공간 검색
- * 다운로드 가능 별도 모달 :
- *    http://localhost:3000/space/kr
- *    http://localhost:3000/space/en
+ * http://localhost:3000/space/kr
+ * http://localhost:3000/space/en
  */
 const SpaceModal = forwardRef(
   ({ spaceFullCoords, selectedLists, isDirect, selectedCoords }, ref) => {
-    const { t } = useTranslation();
-    const location = useLocation();
-    const { loading, setLoading } = useLoading();
+    const { t, i18n } = useTranslation();
 
+    const location = useLocation(); // 현재 경로 정보를 얻기 위한 useLocation 훅 사용
     const [error, setError] = useState(false);
     const [errorValue, setErrorValue] = useState('');
     const [open, setOpen] = useState(false);
@@ -40,24 +37,20 @@ const SpaceModal = forwardRef(
     const [rangeValue, setRangeValue] = useState(100); // Initialize rangeValue state
     const [list, setList] = useState([]); // Initialize list state
     const [checkedLists, setCheckedLists] = useState([]);
+    const [radius, setRadius] = useState(1000); // 기본 반경 1000m 설정
+    const [showAlert, setShowAlert] = useState(false);
     const [listCount, setListCount] = useState(0); // 검색 결과 개수
-
-    useImperativeHandle(ref, () => ({
-      show() {
-        setOpen(true);
-      },
-    }));
 
     useEffect(() => {
       if (selectedCoords) {
-        setLatitude(selectedCoords.lat || 37.5665);
-        setLongitude(selectedCoords.lng || 126.978);
+        setLatitude(selectedCoords.lat || 37.5665); // 값이 없으면 기본값 유지
+        setLongitude(selectedCoords.lng || 126.978); // 값이 없으면 기본값 유지
       }
     }, [selectedCoords]);
 
     useEffect(() => {
-      // console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
-      // console.log('🚀 ~ useEffect ~ location:', location);
+      console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
+      console.log('🚀 ~ useEffect ~ location:', location);
       if (isDirect) {
         const splittedPath = location.pathname.split('/');
         const selectedLang = splittedPath[2];
@@ -92,17 +85,22 @@ const SpaceModal = forwardRef(
       };
     }, []);
 
-    /**
-     * 미터 인풋박스 onChange
-     */
-    const handleRangeChange = (e) => {
-      const value = parseInt(e.target.value, 10);
-      setRangeValue(isNaN(value) ? '' : value);
+    const handleRadiusChange = (e) => {
+      setRadius(Number(e.target.value)); // 슬라이더 값으로 반경 업데이트
     };
 
-    /**
-     * 지도에서 클릭한 위치의 좌표를 입력 필드에 반영 핸들러
-     */
+    useImperativeHandle(ref, () => ({
+      show() {
+        setOpen(true);
+      },
+    }));
+
+    const handleRangeChange = (e) => {
+      const value = parseInt(e.target.value, 10);
+      setRangeValue(isNaN(value) ? '' : value); // Set to empty string if the input is invalid
+    };
+
+    // 지도에서 클릭한 위치의 좌표를 입력 필드에 반영하는 함수
     const handleMapClick = ({ latitude, longitude }) => {
       setLatitude(latitude.toFixed(5));
       setLongitude(longitude.toFixed(5));
@@ -112,10 +110,11 @@ const SpaceModal = forwardRef(
      * 미터 입력 인풋박스 제어
      */
     const handleTextChange = (e) => {
-      let value = e.target.value.replace(/,/g, '');
+      let value = e.target.value.replace(/,/g, ''); // Remove commas
       value = parseInt(value, 10);
+
       if (value === '') {
-        setRangeValue('');
+        setRangeValue(''); // Allow the text input to be cleared
       } else {
         const numericValue = parseInt(value, 10);
         if (!isNaN(numericValue)) {
@@ -125,117 +124,29 @@ const SpaceModal = forwardRef(
       }
     };
 
-    /**
-     * 위도 인풋박스 onChange
-     */
     const handleLatitudeChange = (e) => {
       setLatitude(e.target.value);
     };
 
-    /**
-     * 경도 인풋박스 onChange
-     */
     const handleLongitudeChange = (e) => {
       setLongitude(e.target.value);
     };
 
-    /**
-     * 포커스 핸들러
-     */
     const handleFocus = (setValue) => () => {
       setValue('');
     };
 
-    /**
-     *formatNumberWithCommas
-     */
     const formatNumberWithCommas = (value) => {
       if (!value) return '';
       return parseInt(value, 10).toLocaleString();
     };
 
-    /**
-     *handleBlur
-     */
     const handleBlur = (value, setValue, originalValue) => () => {
       const num = parseFloat(value);
       if (value === '' || isNaN(num)) {
         setValue(originalValue);
       } else {
         setValue(roundToFive(value));
-      }
-    };
-
-    /**
-     * 찾기 API
-     */
-    const FIND_SPACE = async (inputCond) => {
-      setLoading(true);
-      try {
-        const res = await MapLogService.FIND_SPACE({
-          cond: inputCond,
-        });
-        console.log('FIND_SPACE of res ==>', res.findMeta);
-        if (res.findMeta && res.findMeta.length > 0) {
-          setList((prevState) => ({
-            ...prevState,
-            list: res.findMeta,
-          }));
-          setListCount(res.findMeta.length);
-          setLoading(false);
-        } else {
-          console.log('No data found');
-          setList([]);
-          setListCount(0);
-          setLoading(false);
-        }
-      } catch (e) {
-        console.log('FIND_SPACE of error ==>', e);
-        setList([]);
-        setListCount(0);
-        setLoading(false);
-      }
-    };
-
-    /**
-     * 경로 표출 API
-     */
-    const SPACE_INTERPOLATION = async (fileIds) => {
-      setLoading(true);
-      try {
-        if (!Array.isArray(fileIds)) {
-          fileIds = [fileIds]; // Convert single fileId to array
-        }
-        const promises = fileIds.map((fileId) => {
-          return MapLogService.SPACE_INTERPOLATION({
-            cond: { file_id: fileId },
-          }).then((res) => {
-            try {
-              if (typeof res === 'string') {
-                const preprocessedRes = res.replace(
-                  /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                  '{"lat":$1,"lng":$2}'
-                );
-                return JSON.parse(preprocessedRes);
-              } else {
-                console.warn('Response is not a string:', res);
-                return res;
-              }
-            } catch (error) {
-              console.error(
-                `Error parsing response for fileId ${fileId}:`,
-                error
-              );
-              return null;
-            }
-          });
-        });
-        const results = await Promise.all(promises);
-        setLoading(false);
-        return results.filter((res) => res !== null); // Filter out any null values
-      } catch (e) {
-        console.log('SPACE_INTERPOLATION error ==>', e);
-        setLoading(false);
       }
     };
 
@@ -249,11 +160,90 @@ const SpaceModal = forwardRef(
         lng: parseFloat(longitude),
         range: rangeValue === '' ? 100 : rangeValue,
       };
+
+      // console.log('handleFindClick of condTmp ==>', condTmp);
       FIND_SPACE(condTmp);
     };
 
+    useEffect(() => {
+      console.log('useEffect LIST ==>', list);
+      // setList((prevState) => ({
+      //   ...prevState,
+      //   list.list: [],
+      // }));
+    }, [list]);
+
     /**
-     * 선택버튼 핸들러
+     * 찾기 API
+     */
+    const FIND_SPACE = async (inputCond) => {
+      try {
+        const res = await MapLogService.FIND_SPACE({
+          cond: inputCond,
+        });
+        console.log('FIND_SPACE of res ==>', res.findMeta);
+        if (res.findMeta && res.findMeta.length > 0) {
+          setList((prevState) => ({
+            ...prevState,
+            list: res.findMeta,
+          }));
+          setListCount(res.findMeta.length);
+        } else {
+          console.log('No data found');
+          setList([]);
+          setListCount(0);
+        }
+      } catch (e) {
+        console.log('FIND_SPACE of error ==>', e);
+        setList([]);
+        setListCount(0);
+      }
+    };
+
+    /**
+     * SPACE_INTERPOLATION
+     */
+    const SPACE_INTERPOLATION = async (fileIds) => {
+      try {
+        if (!Array.isArray(fileIds)) {
+          fileIds = [fileIds]; // Convert single fileId to array
+        }
+
+        const promises = fileIds.map((fileId) => {
+          return MapLogService.SPACE_INTERPOLATION({
+            cond: { file_id: fileId },
+          }).then((res) => {
+            try {
+              // Check if `res` is a string before applying `replace()`
+              if (typeof res === 'string') {
+                const preprocessedRes = res.replace(
+                  /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
+                  '{"lat":$1,"lng":$2}'
+                );
+                return JSON.parse(preprocessedRes); // Parse the preprocessed string into JSON
+              } else {
+                console.warn('Response is not a string:', res);
+                return res; // If it's an object, return it as is
+              }
+            } catch (error) {
+              console.error(
+                `Error parsing response for fileId ${fileId}:`,
+                error
+              );
+              return null; // Return null if parsing fails
+            }
+          });
+        });
+
+        const results = await Promise.all(promises);
+        return results.filter((res) => res !== null); // Filter out any null values
+      } catch (e) {
+        console.log('SPACE_INTERPOLATION error ==>', e);
+      }
+    };
+
+    /**
+     * 선택버튼 이벤트
      */
     const handleButtonClick = async () => {
       const findArray = (obj) => {
@@ -282,9 +272,15 @@ const SpaceModal = forwardRef(
 
       const arrayFromList = findArray(checkedLists);
 
+      // console.log('checkedLists ==>', checkedLists);
+      // console.log('arrayFromList ==>', arrayFromList.length);
+
       if (arrayFromList && arrayFromList.length > 0) {
         const fileIds = arrayFromList.map((route) => route.file_id);
         const routeCoords = await SPACE_INTERPOLATION(fileIds);
+
+        // console.log('fileIds ==>', fileIds);
+        // console.log('routeCoords ==>', routeCoords);
 
         spaceFullCoords(routeCoords);
         selectedLists(arrayFromList);
@@ -293,7 +289,6 @@ const SpaceModal = forwardRef(
         setOpen(false);
         setLatitude(37.5665);
         setLongitude(126.978);
-        setListCount(0);
       } else {
         console.error('No array found in list');
       }
@@ -303,12 +298,16 @@ const SpaceModal = forwardRef(
      * 다운로드
      */
     const handleSpaceDownload = async () => {
+      const dataToDownload = checkedLists;
+      console.log('dataToDownload', dataToDownload);
+
       // JSON 파일 다운로드 추가
-      for (const item of checkedLists) {
+      for (const item of dataToDownload) {
         try {
+          // 각 item의 filename 속성에 따라 파일명 지정
           const filename = item.file_name
             ? `${item.file_name}.lowmeta`
-            : 'checkedLists.lowmeta';
+            : 'dataToDownload.lowmeta';
           const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
             type: 'application/json',
           });
@@ -324,14 +323,14 @@ const SpaceModal = forwardRef(
         } catch (error) {
           console.error(
             `Failed to download JSON file for ${
-              item.filename || 'checkedLists'
+              item.filename || 'dataToDownload'
             }:`,
             error
           );
         }
       }
 
-      for (const file of checkedLists) {
+      for (const file of dataToDownload) {
         try {
           // sequence 0 = 로그파일
           const logResponse = await nonAuthInstance.get(
@@ -396,6 +395,7 @@ const SpaceModal = forwardRef(
     return (
       <Transition show={open}>
         {error && <Error errorMessage={errorValue} />}
+
         <Dialog
           onClose={() => {
             setOpen(false);
@@ -403,7 +403,6 @@ const SpaceModal = forwardRef(
             setRangeValue(100);
             setLatitude(37.5665);
             setLongitude(126.978);
-            setListCount(0);
           }}
           className="relative z-40"
         >
@@ -445,13 +444,13 @@ const SpaceModal = forwardRef(
                           setRangeValue(100);
                           setLatitude(37.5665);
                           setLongitude(126.978);
-                          setListCount(0);
                         }}
                       >
                         <MdClose className="text-white" size={16} />
                       </button>
                     </div>
                   )}
+
                   {/* Main Layout */}
                   <div className="flex gap-4 p-3">
                     {' '}
@@ -476,6 +475,7 @@ const SpaceModal = forwardRef(
                           )}
                         />
                       </div>
+
                       <div className="flex items-center gap-2">
                         <label className="text-xs font-semibold flex-shrink-0 mr-2">
                           {/* 경도 */}
@@ -494,6 +494,7 @@ const SpaceModal = forwardRef(
                           )}
                         />
                       </div>
+
                       <div className="flex items-center gap-2">
                         <label className="text-xs font-semibold flex-shrink-0 mr-2">
                           {/* 미터 */}
@@ -501,7 +502,7 @@ const SpaceModal = forwardRef(
                         </label>
                         <input
                           type="range"
-                          className="flex-grow"
+                          className="flex-grow" // 슬라이더 너비를 유연하게 설정
                           min="100"
                           max="10000"
                           value={rangeValue}
@@ -509,7 +510,7 @@ const SpaceModal = forwardRef(
                         />
                         <input
                           type="text"
-                          className="border p-1 rounded w-20 text-center"
+                          className="border p-1 rounded w-20 text-center" // 적절히 너비 제한
                           value={formatNumberWithCommas(rangeValue)}
                           onChange={handleTextChange}
                           placeholder="100"
@@ -538,12 +539,14 @@ const SpaceModal = forwardRef(
                       />
                     </div>
                   </div>
+
                   {/* Bottom Section for Table */}
                   <div className="pr-3 pl-3 pb-2">
                     <SpaceTable
                       list={list}
                       onSelectionChange={setCheckedLists}
                     />
+
                     <div className="flex justify-end mt-3">
                       <button
                         onClick={
