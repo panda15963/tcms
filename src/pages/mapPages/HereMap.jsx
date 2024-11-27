@@ -345,10 +345,6 @@ const HereMap = ({
           mapInstance.current.getViewPort().resize()
         );
 
-        const defaultMarker = new H.map.Marker(initialCoords);
-        mapInstance.current.addObject(defaultMarker);
-        markerRef.current = defaultMarker;
-
         mapInstance.current.addEventListener('tap', (evt) => {
           const clickedCoords = mapInstance.current.screenToGeo(
             evt.currentPointer.viewportX,

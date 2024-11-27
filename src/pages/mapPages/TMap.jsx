@@ -45,6 +45,7 @@ function calculateCenterAndMarker(lat, lng) {
   return {
     lat: !isNaN(parsedLat) ? parsedLat : defaultLat,
     lng: !isNaN(parsedLng) ? parsedLng : defaultLng,
+    isDefault: isNaN(parsedLat) && isNaN(parsedLng), // 기본 좌표 여부 확인
   };
 }
 
@@ -171,7 +172,7 @@ export default function TMap({
         // Assuming routeColors is passed as an array of colors
         routeFullCoords.forEach((route, index) => {
           const nodeChecked = checkedNodes.some(
-            (node) => node.file_id === route.file_id,
+            (node) => node.file_id === route.file_id
           ); // Check if the route is in checkedNodes
           if (!nodeChecked) return; // Skip if node is unchecked
 
@@ -211,7 +212,7 @@ export default function TMap({
 
           // Create polyline for the route
           const polylinePath = parsedCoords.map(
-            (coord) => new Tmapv2.LatLng(coord.lat, coord.lng),
+            (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
           );
           const polyline = new Tmapv2.Polyline({
             path: polylinePath,
@@ -283,7 +284,7 @@ export default function TMap({
         // Parse and add start, finish markers, and polylines for each space
         spaceFullCoords.forEach((space, index) => {
           const spaceChecked = checkedNodes.some(
-            (node) => node.file_id === space.file_id,
+            (node) => node.file_id === space.file_id
           ); // Check if the space is in checkedNodes
           if (!spaceChecked) return; // Skip if the space is unchecked
 
@@ -321,7 +322,7 @@ export default function TMap({
 
           // Draw the polyline for the route
           const polylinePath = parsedCoords.map(
-            (coord) => new Tmapv2.LatLng(coord.lat, coord.lng),
+            (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
           );
           const polyline = new Tmapv2.Polyline({
             path: polylinePath,
@@ -379,17 +380,20 @@ export default function TMap({
     if (mapRef.current && Tmapv2) {
       mapRef.current.setCenter(new Tmapv2.LatLng(center.lat, center.lng));
 
+      // Remove the marker if using default coordinates
       if (markerRef.current) {
-        markerRef.current.setMap(null); // Remove previous marker
+        markerRef.current.setMap(null);
       }
 
-      // Add a new marker at the current center
-      markerRef.current = new Tmapv2.Marker({
-        position: new Tmapv2.LatLng(center.lat, center.lng),
-        map: mapRef.current,
-        icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-        iconSize: new Tmapv2.Size(32, 32),
-      });
+      if (!center.isDefault) {
+        // Add a new marker at the current center only if not default coordinates
+        markerRef.current = new Tmapv2.Marker({
+          position: new Tmapv2.LatLng(center.lat, center.lng),
+          map: mapRef.current,
+          icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+          iconSize: new Tmapv2.Size(32, 32),
+        });
+      }
     }
   }
 

@@ -369,6 +369,25 @@ export default function RoutoMap({
     }
   }, [clickedNode]);
 
+  // Function to update or create a marker
+  const updateMarker = (newCenter) => {
+    if (markerRef.current) {
+      // Update marker position if it already exists
+      markerRef.current.setPosition(newCenter);
+    } else {
+      // Create marker if it does not exist and is not default coordinates
+      if (
+        newCenter.lat !== parseFloat(process.env.REACT_APP_LATITUDE) ||
+        newCenter.lng !== parseFloat(process.env.REACT_APP_LONGITUDE)
+      ) {
+        markerRef.current = new routo.maps.Marker({
+          position: newCenter,
+          map: mapRef.current,
+        });
+      }
+    }
+  };
+
   // Function to re-attach the click listener
   const attachClickListener = () => {
     if (mapRef.current) {
@@ -395,18 +414,13 @@ export default function RoutoMap({
             center: { lat: center.lat, lng: center.lng },
             zoom: Number(process.env.REACT_APP_ZOOM),
           });
-
-          markerRef.current = new routo.maps.Marker({
-            position: { lat: center.lat, lng: center.lng },
-            map: mapRef.current,
-          });
-
-          attachClickListener(); // Attach click listener after map is initialized
         }
+
+        updateMarker(center); // Update or create marker
+        attachClickListener(); // Attach click listener
       };
       document.body.appendChild(script);
     };
-
     if (!window.routo) {
       loadMapScript();
     } else {
@@ -417,29 +431,20 @@ export default function RoutoMap({
         });
       }
 
-      if (!markerRef.current) {
-        markerRef.current = new routo.maps.Marker({
-          position: { lat: center.lat, lng: center.lng },
-          map: mapRef.current,
-        });
-      } else {
-        markerRef.current.setPosition({ lat: center.lat, lng: center.lng });
-      }
-
-      attachClickListener(); // Re-attach click listener after map is set up
+      updateMarker(center); // Update or create marker
+      attachClickListener(); // Attach click listener
     }
 
     return () => {
       if (mapRef.current) {
         routo.maps.event.clearListeners(mapRef.current, 'click');
-        mapRef.current = null;
       }
       if (markerRef.current) {
         markerRef.current.setMap(null);
         markerRef.current = null;
       }
     };
-  }, [center.lat, center.lng, locationCoords]);
+  }, [center]);
 
   useEffect(() => {
     if (mapRef.current && Array.isArray(adjustedRouteCoords)) {
@@ -451,14 +456,14 @@ export default function RoutoMap({
     }
   }, [mapRef.current, adjustedRouteCoords]);
 
-  // Update map center based on lat and lng changes
+  // Update map center and marker when coordinates change
   useEffect(() => {
-    if (mapRef.current && markerRef.current) {
-      const newCenter = calculateCenterAndMarker(lat, lng);
-      setCenter(newCenter);
+    const newCenter = calculateCenterAndMarker(lat, lng);
+    setCenter(newCenter);
+    if (mapRef.current) {
       mapRef.current.setCenter(newCenter);
-      markerRef.current.setPosition(newCenter);
     }
+    updateMarker(newCenter);
   }, [lat, lng]);
 
   return <div id="map" className="map" style={{ height: '87.8vh' }} />;

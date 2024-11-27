@@ -28,13 +28,13 @@ export default function RightSideSlide({ data, onMapChange }) {
   console.log('data:', data);
 
   // Clear rows when the map changes
-  // useEffect(() => {
-  //   if (onMapChange) {
-  //     setRowsData([]); // Clear the rows when the map changes
-  //     setExpandedRows([]); // Clear any expanded rows as well
-  //     setOpen(false);
-  //   }
-  // }, [onMapChange]);
+  useEffect(() => {
+    if (onMapChange) {
+      setRowsData([]); // Clear the rows when the map changes
+      setExpandedRows([]); // Clear any expanded rows as well
+      setOpen(false);
+    }
+  }, [onMapChange]);
 
   const rows =
     Array.isArray(rowsData) && rowsData.length > 0
