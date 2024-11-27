@@ -17,16 +17,15 @@ import SingleSelectDropDown from '../dropdowns/mapMenus/SingleSelectDropDown';
 import { useTranslation } from 'react-i18next';
 import ConfigGridL from '../tables/mapTables/ConfigGridL';
 import ConfigGridR from '../tables/mapTables/ConfigGridR';
-import ConfigGridL2 from '../tables/mapTables/ConfigGridLDetail';
+import ConfigGridL2 from '../tables/mapTables/ConfigGridL2';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
-import ConfigGridR2 from '../tables/mapTables/ConfigGridRDetail';
+import ConfigGridR2 from '../tables/mapTables/ConfigGridR2';
 import { FaDownload } from 'react-icons/fa6';
 import Error from '../alerts/Error';
 import useDidMount from '../../hooks/useDidMount';
 import useLoading from '../../hooks/useLoading';
 import RouteModal from './RouteModal';
-import ConfigModal from './ConfigModal';
 
 /**
  * 로그 검색
@@ -851,8 +850,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       try {
         // 각 item의 filename 속성에 따라 파일명 지정
         const filename = item.file_name
-          ? `${item.file_name}.lowmeta`
-          : 'dataToDownload.lowmeta';
+          ? `${item.file_name}.meta`
+          : 'dataToDownload.meta';
         const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
           type: 'application/json',
         });
@@ -1020,10 +1019,53 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
     setSelectedRouteCellData();
     setSelectedConfigCellData();
-    setListConfigCount(0);
 
     setIsConfigModalOpen(false);
     setLoading(false);
+  };
+
+  /**
+   * 화면정보탭 버전모아보기 (더블클릭)
+   * 선택 이벤트
+   */
+  const handleConfigBtnDoubleClick = async () => {
+    console.log('handleConfigClick of selectedLogList ==>', selectedLogList);
+    console.log(
+      'handleConfigClick of selectedLogListDetail ==>',
+      selectedLogListDetail
+    );
+
+    if (selectedLogListDetail && selectedLogListDetail.length > 0) {
+      const resultList = await Promise.all(
+        selectedLogList.map(async (log) => {
+          const condTmp = {
+            meta_id: log.meta_id,
+          };
+          console.log('🚀 ~ selectedLogList.map ~ condTmp:', condTmp);
+
+          const result = await FIND_META_ID(condTmp);
+          console.log('🚀 ~ selectedLogList.map ~ result:', result);
+
+          return result; // result를 반환하여 리스트에 추가
+        })
+      );
+
+      // resultList를 평탄화(flatten)하여 단일 배열로 변환
+      const flatResultList = resultList.flat();
+
+      console.log('🚀 ~ handleConfigBtnDoubleClick ~ resultList:', resultList);
+      console.log(
+        '🚀 ~ handleConfigBtnDoubleClick ~ flatResultList:',
+        flatResultList
+      );
+
+      handleConfigConfirm(flatResultList);
+
+      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
+      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
+    } else {
+      console.log('선택된 로그가 없습니다.');
+    }
   };
 
   /**
@@ -1073,15 +1115,35 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
+   * 화면정보탭 버전 모아보기
+   * 체크박스 선택 감지
+   */
+  const handleLeftSelectionChangeDetail = (selectedRows) => {
+    console.log(
+      '🚀 ~ handleLeftSelectionChangeDetail ~ selectedRows:',
+      selectedRows
+    );
+
+    if (selectedRows && selectedRows.length > 0) {
+      setSelectedLogListDetail(selectedRows[0].loglist);
+    }
+  };
+
+  /**
+   * 화면정보탭 버전 모아보기
+   * 리스트 클릭 이벤트
+   */
+  const handleLeftCellClickDetail = (rowData) => {
+    setSelectedLogListDetail(rowData.loglist); // 셀 클릭 시 loglist 설정
+  };
+
+  /**
    * 화면정보탭 더블클릭 모달 호출
    */
   const openConfigModal = (cellData) => {
     console.log('Opening modal with cell data:', cellData); // 디버깅 로그 추가
-
-    if (cellData && cellData.tccfg_id) {
-      setIsConfigModalOpen(true);
-      setSelectedConfigCellData(cellData);
-    }
+    setSelectedConfigCellData(cellData); // 선택된 셀의 데이터 저장
+    setIsConfigModalOpen(true); // 모달 열기
   };
 
   /**
@@ -1089,6 +1151,121 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const closeConfigModal = () => {
     setIsConfigModalOpen(false); // 모달 닫기
+  };
+
+  /**
+   * 화면정보탭 버전모아보기
+   * API 조회 및 데이터 출력 컴포넌트
+   */
+  const ConfigModalComponent = ({ data, onClose }) => {
+    console.log('🚀 ~ ConfigModalComponent ~ data:', data);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          if (data && data.tccfg_id) {
+            const response = await nonAuthInstance.get(
+              `/find/sameorigin/tccfg?group_id=${data.group_id}&tccfg_id=${data.origin_tccfg_id}`
+            );
+
+            console.log('🚀 ~ fetchData ~ response:', response);
+            setListConfigDetail((prevState) => {
+              const newList = response.data.findTccfg;
+              if (JSON.stringify(prevState) !== JSON.stringify(newList)) {
+                return newList;
+              }
+              return prevState;
+            });
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error('API Error:', error);
+          setLoading(false);
+        }
+      };
+
+      if (data) {
+        fetchData();
+      }
+    }, [data]);
+
+    /**
+     * 버전 모아보기 (화면정보탭)
+     */
+    return (
+      <Dialog open={true} onClose={onClose}>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
+          <div className="bg-white p-1 rounded-md shadow-lg">
+            <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
+              <h1 className="font-semibold text-white">
+                {t('LogModal.AllVersions')}
+              </h1>
+              <button
+                className="font-semibold"
+                onClick={() => setIsConfigModalOpen(false)}
+              >
+                <MdClose className="text-white" size={16} />
+              </button>
+            </div>
+            <div className="flex flex-row justify-between space-x-2 ">
+              {/* 왼쪽 그리드 */}
+              <h2 className="text-center text-xl font-bold mb-2"></h2>
+
+              <ConfigGridL2
+                list={listConfigDetail} // 왼쪽 그리드에 대한 데이터 리스트
+                onSelectionChange={handleLeftSelectionChangeDetail}
+                onCellClick={handleLeftCellClickDetail} // 셀 클릭 시
+              />
+
+              {/* 오른쪽 그리드 */}
+              <h2 className="text-center text-xl font-bold mb-2"></h2>
+              <ConfigGridR2
+                list={selectedLogListDetail} // 오른쪽 그리드에 대한 데이터 리스트
+                // onSelectionChange={
+                //   (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
+                // }
+              />
+            </div>
+            <div className="flex justify-end mt-1">
+              <button
+                onClick={
+                  isDirect
+                    ? handleConfigDetailDownload
+                    : handleConfigBtnDoubleClick
+                }
+                className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+              >
+                {isDirect ? (
+                  <>
+                    <FaDownload
+                      className="h-4 w-5 text-sky-500"
+                      aria-hidden="true"
+                    />
+                    <span className="text-sm text-sky-500 font-bold">
+                      {t('LogModal.Download')}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <FaCheck
+                      className="h-4 w-5 text-sky-500"
+                      aria-hidden="true"
+                    />
+                    <span className="text-sm text-sky-500 font-bold">
+                      {t('LogModal.Select')}
+                    </span>
+                  </>
+                )}
+              </button>
+            </div>
+            {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
+            <p>API Result: {apiData ? JSON.stringify(apiData) : 'Loading...'}</p>
+            <button onClick={onClose} className="mt-2 p-2 bg-blue-500 text-white rounded">Close</button> */}
+          </div>
+        </div>
+      </Dialog>
+    );
   };
 
   /**
@@ -1122,8 +1299,135 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       try {
         // 각 item의 filename 속성에 따라 파일명 지정
         const filename = item.file_name
-          ? `${item.file_name}.lowmeta`
-          : 'flatResultList.lowmeta';
+          ? `${item.file_name}.meta`
+          : 'flatResultList.meta';
+        const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
+          type: 'application/json',
+        });
+        const jsonUrl = window.URL.createObjectURL(jsonBlob);
+        const jsonLink = document.createElement('a');
+
+        jsonLink.href = jsonUrl;
+        jsonLink.download = filename; // 지정된 파일명으로 다운로드
+        document.body.appendChild(jsonLink);
+        jsonLink.click();
+        document.body.removeChild(jsonLink);
+        window.URL.revokeObjectURL(jsonUrl);
+      } catch (error) {
+        console.error(
+          `Failed to download JSON file for ${
+            item.filename || 'flatResultList'
+          }:`,
+          error
+        );
+        setLoading(false);
+      }
+    }
+
+    for (const file of flatResultList) {
+      try {
+        // sequence 0 = 로그파일
+        const logResponse = await nonAuthInstance.get(
+          `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
+          { responseType: 'blob' }
+        );
+
+        console.log('logResponse ==>', logResponse);
+
+        const logBlob = new Blob([logResponse.data]);
+        const logUrl = window.URL.createObjectURL(logBlob);
+        const logLink = document.createElement('a');
+
+        console.log('logBlob', logBlob);
+        console.log('logUrl', logUrl);
+        console.log('logLink', logLink);
+
+        console.log('file', file);
+
+        logLink.href = logUrl;
+        logLink.download = file.logPath.split('/').pop();
+        document.body.appendChild(logLink);
+        logLink.click();
+        document.body.removeChild(logLink);
+        window.URL.revokeObjectURL(logUrl);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(`Log file for meta_id ${file.meta_id} not found.`);
+        } else {
+          console.error(
+            `Failed to download log file for meta_id ${file.meta_id}:`,
+            error
+          );
+        }
+        setLoading(false);
+      }
+
+      try {
+        // sequence 1 = 이미지파일
+        const imageResponse = await nonAuthInstance.get(
+          `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
+          { responseType: 'blob' }
+        );
+
+        const imageBlob = new Blob([imageResponse.data]);
+        const imageUrl = window.URL.createObjectURL(imageBlob);
+        const imageLink = document.createElement('a');
+        imageLink.href = imageUrl;
+        imageLink.download = file.imagePath.split('/').pop();
+        document.body.appendChild(imageLink);
+        imageLink.click();
+        document.body.removeChild(imageLink);
+        window.URL.revokeObjectURL(imageUrl);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(`Image file for meta_id ${file.meta_id} not found.`);
+        } else {
+          console.error(
+            `Failed to download image file for meta_id ${file.meta_id}:`,
+            error
+          );
+        }
+        setLoading(false);
+      }
+    }
+    setLoading(false);
+  };
+
+  /**
+   * 화면정보탭 버전 모아보기 다운로드
+   */
+  const handleConfigDetailDownload = async () => {
+    const dataToDownload = selectedLogListDetail;
+
+    setLoading(true);
+
+    // 각 dataToDownload에 대한 FIND_META_ID 호출을 동시에 처리
+    const resultList = await Promise.all(
+      dataToDownload.map(async (log) => {
+        const condTmp = {
+          meta_id: log.meta_id, // 각 log에서 meta_id 추출
+        };
+        console.log('🚀 ~ dataToDownload.map ~ condTmp:', condTmp);
+        const result = await FIND_META_ID(condTmp);
+        console.log('🚀 ~ dataToDownload.map ~ result:', result);
+        return result;
+      })
+    );
+
+    // resultList를 평탄화(flatten)하여 단일 배열로 변환
+    const flatResultList = resultList.flat();
+    console.log(
+      '🚀 ~ handleConfigDetailDownload ~ flatResultList:',
+      flatResultList
+    );
+
+    // JSON 파일 다운로드 추가
+    for (const item of flatResultList) {
+      try {
+        // 각 item의 filename 속성에 따라 파일명 지정
+        const filename = item.file_name
+          ? `${item.file_name}.meta`
+          : 'flatResultList.meta';
         const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
           type: 'application/json',
         });
@@ -1533,12 +1837,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           setCond={setCond}
                           setList={setList}
                           setSelectedSearchFields={setSelectedSearchFields}
-                          setSelectedSearchFieldsConfig={
-                            setSelectedSearchFieldsConfig
-                          }
+                          setSelectedIds={setSelectedIds}
                           setSelectedRouteCellData={setSelectedRouteCellData}
                           setIsRouteModalOpen={setIsRouteModalOpen}
-                          setSelectedIds={setSelectedIds}
                           setLoading={setLoading}
                           isDirect={isDirect}
                           setOpen={setOpen}
@@ -1737,27 +2038,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           onCellDoubleClick={openConfigModal} // 더블클릭 이벤트 추가
                         />
 
-                        {/* 화면정보탭 모아보기 */}
+                        {/* 모달 렌더링 */}
                         {isConfigModalOpen && (
-                          <ConfigModal
+                          <ConfigModalComponent
                             data={selectedConfigCellData}
-                            onClose={() => setIsConfigModalOpen(false)}
-                            setConfigCond={setConfigCond}
-                            setSelectedConfigCellData={
-                              setSelectedConfigCellData
-                            }
-                            setSelectedSearchFieldsConfig={
-                              setSelectedSearchFieldsConfig
-                            }
-                            setIsConfigModalOpen={setIsConfigModalOpen}
-                            setSelectedIds={setSelectedIds}
-                            setSelectedConfigIds={setSelectedConfigIds}
-                            setListConfigCount={setListConfigCount}
-                            setLoading={setLoading}
-                            isDirect={isDirect}
-                            setOpen={setOpen}
-                            routeData={routeData}
-                            routeFullCoords={routeFullCoords}
+                            onClose={closeConfigModal}
                           />
                         )}
 

@@ -67,6 +67,26 @@ const SpaceModal = forwardRef(
       }
     }, []);
 
+    /**
+     * ESC KEY 입력 시 모달 창 안닫히게
+     */
+    useEffect(() => {
+      const handleKeyDown = (event) => {
+        // ESC 키(키 코드 27)를 무시하도록 설정
+        if (event.key === 'Escape') {
+          event.stopPropagation();
+        }
+      };
+
+      // keydown 이벤트 리스너 추가
+      document.addEventListener('keydown', handleKeyDown);
+
+      // 컴포넌트 언마운트 시 이벤트 리스너 제거
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }, []);
+
     const handleRadiusChange = (e) => {
       setRadius(Number(e.target.value)); // 슬라이더 값으로 반경 업데이트
     };
@@ -288,8 +308,8 @@ const SpaceModal = forwardRef(
         try {
           // 각 item의 filename 속성에 따라 파일명 지정
           const filename = item.file_name
-            ? `${item.file_name}.meta`
-            : 'dataToDownload.meta';
+            ? `${item.file_name}.lowmeta`
+            : 'dataToDownload.lowmeta';
           const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
             type: 'application/json',
           });

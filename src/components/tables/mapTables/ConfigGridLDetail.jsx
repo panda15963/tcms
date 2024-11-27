@@ -133,18 +133,28 @@ const defaultData = [
   },
 ];
 
-// ConfigGridL2 컴포넌트 정의
-const ConfigGridL2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
+// ConfigGridLDetail 컴포넌트 정의
+const ConfigGridLDetail = ({
+  list,
+  onSelectionChange,
+  onCellDoubleClick,
+  onCellClick,
+}) => {
   const { t } = useTranslation(); // Get the translation function
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
 
   const [data, setData] = useState(list ?? defaultData);
   const [selectedRows, setSelectedRows] = useState([]);
 
+  let clickTimer = null;
+
   useEffect(() => {
-    // console.log('useEffect LIST ==>', list);
-    if (list && !isEmpty(list.list)) {
-      setData(list.list);
+    console.log('useEffect LIST ==>', list);
+    console.log('useEffect LIST ==>', list.length);
+    if (list && list.length > 0) {
+      console.log('여기안올껄?');
+
+      setData(list);
     }
   }, [list]);
 
@@ -177,7 +187,7 @@ const ConfigGridL2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
 
   // 셀 클릭 이벤트 핸들러 (셀 클릭 시 선택 상태는 변경하지 않음)
   const handleCellClick = (rowData) => {
-    console.log('Row clicked:', rowData); // 클릭된 행의 데이터
+    // console.log('Row clicked:', rowData); // 클릭된 행의 데이터
     onSelectionChange([rowData]); // 셀 클릭 시 해당 데이터를 우측에 조회하도록 부모 컴포넌트로 전달
   };
 
@@ -186,6 +196,19 @@ const ConfigGridL2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
     console.log('Row double clicked:', rowData);
     if (onCellDoubleClick) {
       onCellDoubleClick(rowData); // 더블클릭 시 부모 컴포넌트로 데이터를 전달해 모달 열기
+    }
+  };
+
+  const handleRowClick = (rowData) => {
+    if (clickTimer) {
+      clearTimeout(clickTimer); // 더블클릭 타이머 초기화
+      clickTimer = null;
+    } else {
+      clickTimer = setTimeout(() => {
+        clickTimer = null;
+        console.log('Single click executed:', rowData);
+        onCellClick(rowData); // onClick 이벤트 실행
+      }, 200); // 더블클릭 지연 시간 (ms)
     }
   };
 
@@ -209,7 +232,7 @@ const ConfigGridL2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
                     ? null
                     : flexRender(
                         header.column.columnDef.header, // 컬럼 헤더 렌더링
-                        header.getContext(), // 헤더의 컨텍스트
+                        header.getContext() // 헤더의 컨텍스트
                       )}
                 </th>
               ))}
@@ -221,8 +244,8 @@ const ConfigGridL2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
             <tr
               key={row.id}
               className={row.getIsSelected() ? 'bg-gray-100' : ''}
-              onClick={() => handleCellClick(row.original)} // 셀 클릭 시 데이터를 처리하고 선택 상태는 변경하지 않음
-              onDoubleClick={() => handleCellDoubleClick(row.original)} // 셀 더블클릭 이벤트 추가
+              onClick={() => handleRowClick(row.original)} // 셀 클릭 시 데이터를 처리하고 선택 상태는 변경하지 않음
+              // onDoubleClick={() => handleCellDoubleClick(row.original)} // 셀 더블클릭 이벤트 추가
             >
               {row.getVisibleCells().map((cell) => (
                 <td
@@ -241,4 +264,4 @@ const ConfigGridL2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
   );
 };
 
-export default ConfigGridL2;
+export default ConfigGridLDetail;

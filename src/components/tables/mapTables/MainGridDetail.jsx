@@ -167,8 +167,8 @@ const defaultData = [
   },
 ];
 
-// MainGridDetal 컴포넌트 정의
-const MainGridDetal = ({ list, onSelectionChange, onCellDoubleClick }) => {
+// MainGridDetail 컴포넌트 정의
+const MainGridDetail = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const { t } = useTranslation(); // Get the translation function
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
 
@@ -265,4 +265,4 @@ const MainGridDetal = ({ list, onSelectionChange, onCellDoubleClick }) => {
   );
 };
 
-export default MainGridDetal;
+export default MainGridDetail;

@@ -60,8 +60,8 @@ const defaultData = [
   },
 ];
 
-// ConfigGridR2 컴포넌트 정의
-const ConfigGridR2 = ({ list, onSelectionChange }) => {
+// ConfigGridRDetail 컴포넌트 정의
+const ConfigGridRDetail = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const { t } = useTranslation(); // Get the translation function
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
 
@@ -69,7 +69,7 @@ const ConfigGridR2 = ({ list, onSelectionChange }) => {
   const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
-    // console.log('useEffect LIST ==>', list);
+    console.log('RD useEffect LIST ==>', list);
     if (list && !isEmpty(list)) {
       setData(list);
     }
@@ -122,7 +122,7 @@ const ConfigGridR2 = ({ list, onSelectionChange }) => {
                     ? null
                     : flexRender(
                         header.column.columnDef.header, // 컬럼 헤더 렌더링
-                        header.getContext(), // 헤더의 컨텍스트
+                        header.getContext() // 헤더의 컨텍스트
                       )}
                 </th>
               ))}
@@ -149,4 +149,4 @@ const ConfigGridR2 = ({ list, onSelectionChange }) => {
   );
 };
 
-export default ConfigGridR2;
+export default ConfigGridRDetail;

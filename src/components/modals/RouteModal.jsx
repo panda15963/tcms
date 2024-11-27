@@ -4,14 +4,15 @@ import { MdClose } from 'react-icons/md';
 import { FaCheck, FaDownload } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { nonAuthInstance } from '../../server/MapAxiosConfig';
-import MainGridDetal from '../tables/mapTables/MainGridDetal';
+import MainGridDetal from '../tables/mapTables/MainGridDetail';
 import MapLogService from '../../service/MapLogService';
+import MainGridDetail from '../tables/mapTables/MainGridDetail';
 
 /**
  * 경로탭 버전 모아보기
  * 다운로드 가능 별도 모달 :
- *      http://localhost:3000/log/kr
- *      http://localhost:3000/log/en
+ *     http://localhost:3000/log/kr
+ *     http://localhost:3000/log/en
  */
 const RouteModal = ({
   data,
@@ -20,6 +21,7 @@ const RouteModal = ({
   routeData,
   routeFullCoords,
   setOpen,
+  setCond,
   setList,
   setSelectedSearchFields,
   setSelectedIds,
@@ -28,6 +30,20 @@ const RouteModal = ({
   onClose,
 }) => {
   const { t } = useTranslation();
+
+  const initialCond = {
+    searchWord: '',
+    continent: '',
+    region: '',
+    priority: '',
+    target: '',
+    format: '',
+    feature: '',
+    virtual: -1, // all : -1, virtual : 0, real : 1
+    tag: '',
+    group_id: -1,
+    operation: 0, // and : 0, or : 1
+  };
 
   const initialList = {
     status: 'idle',
@@ -44,7 +60,8 @@ const RouteModal = ({
   }, [data]);
 
   /**
-   * 버전 모아보기 조회 API (FIND_SAMEORIGIN_META)
+   * 버전 모아보기
+   * 조회 API (FIND_SAMEORIGIN_META)
    */
   const FIND_SAMEORIGIN_META = async () => {
     setLoading(true);
@@ -66,6 +83,7 @@ const RouteModal = ({
   };
 
   /**
+   * 버전 모아보기
    * 경로 표출 API (SPACE_INTERPOLATION)
    */
   const SPACE_INTERPOLATION = async (inputCond) => {
@@ -107,7 +125,8 @@ const RouteModal = ({
   };
 
   /**
-   * 버전 모아보기 선택 핸들러
+   * 버전 모아보기
+   * 선택 핸들러
    */
   const handleSelectionRouteDetail = (selectedRows) => {
     console.log(
@@ -119,6 +138,7 @@ const RouteModal = ({
   };
 
   /**
+   * 버전 모아보기
    * 선택버튼 이벤트
    */
   const handleRouteButtonClick = async () => {
@@ -137,33 +157,27 @@ const RouteModal = ({
     setSelectedIds([]);
     setSelectedRouteCellData();
 
+    setCond(initialCond);
     setList(initialList);
     setRouteList(initialList);
-
-    // setListConfig(initialList);
-    // setListConfigDetail(initialList);
-    // setSelectedLogList(initialList);
-    // setSelectedLogListDetail(initialList);
-    // setSelectedConfigCellData();
-    // setIsConfigModalOpen(false);
 
     setOpen(false);
     setIsRouteModalOpen(false);
   };
 
   /**
+   * 버전 모아보기
    * 다운로드
    */
   const handleRouteDetailDownload = async () => {
     setLoading(true);
 
-    // JSON 파일 다운로드 추가
     for (const item of selectRoutes) {
       try {
         // 각 item의 filename 속성에 따라 파일명 지정
         const filename = item.file_name
-          ? `${item.file_name}.meta`
-          : 'selectRoutes.meta';
+          ? `${item.file_name}.lowmeta`
+          : 'selectRoutes.lowmeta';
         const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
           type: 'application/json',
         });
@@ -187,7 +201,7 @@ const RouteModal = ({
       }
     }
 
-    for (const file of dataToDownload) {
+    for (const file of selectRoutes) {
       try {
         // sequence 0 = 로그파일
         const logResponse = await nonAuthInstance.get(
@@ -259,7 +273,7 @@ const RouteModal = ({
         setOpen(false);
       }}
     >
-      <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
+      <div className="fixed inset-0 flex items-center justify-center z-40 bg-gray-500 bg-opacity-50">
         <div className="bg-white p-1 rounded-md shadow-lg">
           <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
             <h1 className="text-sm font-semibold text-white">
@@ -276,7 +290,7 @@ const RouteModal = ({
           >
             <div className="flex-1 border border-gray-300 p-4">
               <h2 className="text-center text-xl font-bold mb-2"></h2>
-              <MainGridDetal
+              <MainGridDetail
                 list={routeList}
                 onSelectionChange={handleSelectionRouteDetail}
               />
