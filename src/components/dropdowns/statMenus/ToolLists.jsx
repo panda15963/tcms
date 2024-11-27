@@ -34,9 +34,6 @@ export default function ToolLists({ selectedTool }) {
       setToolList(uniqueToolList);
     }
   }, [selectedTool]);
-
-  console.log('ToolList:', ToolList);
-
   useEffect(() => {
     const path = location.pathname.split('/').pop().toUpperCase();
     const initialSelected =

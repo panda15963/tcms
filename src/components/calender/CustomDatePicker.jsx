@@ -5,8 +5,13 @@ import { useTranslation } from 'react-i18next';
 
 const DateRangePicker = ({ startsDate, endsDate }) => {
   const { t } = useTranslation();
-  // Initialize startDate and endDate to today's date if no date is selected
-  const [startDate, setStartDate] = useState(new Date());
+
+  // Initialize startDate to 1 week ago and endDate to today's date
+  const [startDate, setStartDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 7); // Subtract 7 days
+    return date;
+  });
   const [endDate, setEndDate] = useState(new Date());
 
   useEffect(() => {
@@ -26,16 +31,16 @@ const DateRangePicker = ({ startsDate, endsDate }) => {
       {/* Start Date Picker */}
       <div className="pl-2 flex items-center gap-2">
         <label className="text-sm font-semibold text-white whitespace-nowrap">
-          {/* 시작 날짜 */}
           {t('DateRangePicker.StartDate')}:{' '}
         </label>
         <DatePicker
           className="border py-1 border-black text-center rounded-md w-32"
           selected={startDate}
-          onSelect={(date) => setStartDate(date || new Date())} // Set to today if blank
+          onChange={(date) => setStartDate(date || new Date())} // Update startDate on change
           selectsStart
           startDate={startDate}
           endDate={endDate}
+          maxDate={startDate} // Prevent selection beyond endDate
         />
       </div>
 
@@ -45,17 +50,16 @@ const DateRangePicker = ({ startsDate, endsDate }) => {
       {/* End Date Picker */}
       <div className="pl-2 flex items-center gap-2">
         <label className="text-sm font-semibold text-white whitespace-nowrap">
-          {/* 종료 날짜 */}
           {t('DateRangePicker.EndDate')}:{' '}
         </label>
         <DatePicker
           className="border border-black py-1 text-center rounded-md w-32"
           selected={endDate}
-          onSelect={(date) => setEndDate(date || new Date())} // Set to today if blank
+          onChange={(date) => setEndDate(date || new Date())} // Update endDate on change
           selectsEnd
           startDate={startDate}
           endDate={endDate}
-          minDate={startDate}
+          maxDate={new Date()} // Prevent selection beyond today
         />
       </div>
     </div>

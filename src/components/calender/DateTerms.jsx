@@ -49,7 +49,7 @@ export default function DateTerms({ terms = () => {} }) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm font-semibold text-white">
-        {t('DateTerms.DatePeriod')} : {' '}
+        {t('DateTerms.DatePeriod')} :{' '}
       </span>
       <Listbox value={selected} onChange={handleOnSelectMap}>
         {({ open }) => (
