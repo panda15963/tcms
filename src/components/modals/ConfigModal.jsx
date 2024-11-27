@@ -158,29 +158,26 @@ const ConfigModal = ({
   };
 
   /**
-   * 화면정보탭 버전 모아보기
-   * 체크박스 선택 감지
+   * 버전 모아보기
+   * 체크박스 선택 핸들러
    */
   const handleSelectionConfigDetail = (selectedRows) => {
     console.log(
       '🚀 ~ handleSelectionConfigDetail ~ selectedRows:',
       selectedRows
     );
-
     if (selectedRows && selectedRows.length > 0) {
-      // reduce를 사용하여 loglist 합치기
       const combinedLogList = selectedRows.reduce((acc, row) => {
         return acc.concat(row.loglist || []);
       }, []);
-
       console.log('🚀 ~ combinedLogList:', combinedLogList);
       setSelectConfigs(combinedLogList);
     }
   };
 
   /**
-   * 화면정보탭 버전 모아보기
-   * 리스트 클릭 이벤트
+   * 버전 모아보기
+   * 왼쪽 리스트 클릭 핸들러
    */
   const handleLeftCellClickDetail = (rowData) => {
     console.log('🚀 ~ handleLeftCellClickDetail ~ rowData:', rowData);
@@ -188,12 +185,14 @@ const ConfigModal = ({
   };
 
   /**
-   * 화면정보탭 버전모아보기
+   * 버전 모아보기
    * 선택 이벤트
-   * selectConfigsselectConfigsselectConfigsselectConfigsselectConfigs
    */
   const handleConfigBtnDoubleClick = async () => {
-    console.log('selectConfigs ==>', selectConfigs);
+    console.log(
+      '🚀 ~ handleConfigBtnDoubleClick ~ selectConfigs:',
+      selectConfigs
+    );
 
     if (selectConfigs && selectConfigs.length > 0) {
       const resultList = await Promise.all(
@@ -206,7 +205,7 @@ const ConfigModal = ({
           const result = await FIND_META_ID(condTmp);
           console.log('🚀 ~ selectConfigs.map ~ result:', result);
 
-          return result; // result를 반환하여 리스트에 추가
+          return result;
         })
       );
 
@@ -218,11 +217,7 @@ const ConfigModal = ({
         '🚀 ~ handleConfigBtnDoubleClick ~ flatResultList:',
         flatResultList
       );
-
       handleConfigConfirm(flatResultList);
-
-      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
-      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
     } else {
       console.log('선택된 로그가 없습니다.');
     }
@@ -251,6 +246,7 @@ const ConfigModal = ({
 
     setConfigCond(initialCond);
     setConfigList(initialList);
+    setSelectConfigs(initialList);
     setSelectConfigDetail(initialList);
     setListConfigCount(0);
 
@@ -268,7 +264,7 @@ const ConfigModal = ({
     const resultList = await Promise.all(
       selectConfigs.map(async (log) => {
         const condTmp = {
-          meta_id: log.meta_id, // 각 log에서 meta_id 추출
+          meta_id: log.meta_id,
         };
         console.log('🚀 ~ selectConfigs.map ~ condTmp:', condTmp);
         const result = await FIND_META_ID(condTmp);
@@ -400,19 +396,14 @@ const ConfigModal = ({
             <h2 className="text-center text-xl font-bold mb-2"></h2>
 
             <ConfigGridLDetail
-              list={configList} // 왼쪽 그리드에 대한 데이터 리스트
+              list={configList}
               onSelectionChange={handleSelectionConfigDetail}
-              onCellClick={handleLeftCellClickDetail} // 셀 클릭 시
+              onCellClick={handleLeftCellClickDetail}
             />
 
             {/* 오른쪽 그리드 */}
             <h2 className="text-center text-xl font-bold mb-2"></h2>
-            <ConfigGridRDetail
-              list={selectConfigDetail} // 오른쪽 그리드에 대한 데이터 리스트
-              // onSelectionChange={
-              //   (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
-              // }
-            />
+            <ConfigGridRDetail list={selectConfigDetail} />
           </div>
           <div className="flex justify-end mt-1">
             <button
@@ -446,9 +437,6 @@ const ConfigModal = ({
               )}
             </button>
           </div>
-          {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
-            <p>API Result: {apiData ? JSON.stringify(apiData) : 'Loading...'}</p>
-            <button onClick={onClose} className="mt-2 p-2 bg-blue-500 text-white rounded">Close</button> */}
         </div>
       </div>
     </Dialog>

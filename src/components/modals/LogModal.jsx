@@ -28,7 +28,8 @@ import ConfigModal from './ConfigModal';
  */
 const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const { t } = useTranslation();
-  const location = useLocation(); // 현재 경로 정보를 얻기 위한 훅 사용
+  const location = useLocation();
+  const { loading, setLoading } = useLoading();
 
   const initialCond = {
     searchWord: '',
@@ -127,12 +128,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [activeTab, setActiveTab] = useState('route');
 
   // 검색필드 리스트 관련
-  // 경로탭 검색필드
-  const [selectedSearchFields, setSelectedSearchFields] = useState([]);
-  // 화면정보탭 검색필드
+  const [selectedSearchFields, setSelectedSearchFields] = useState([]); // 경로탭 검색필드
   const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
     []
-  );
+  ); // 화면정보탭 검색필드
   const [countryList, setCountryList] = useState(initialList);
   const [featureList, setFeatureList] = useState(initialList);
   const [targetList, setTargetList] = useState(initialList);
@@ -144,21 +143,18 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   // 리스트 표출 관련
   const [list, setList] = useState(initialList); // 경로탭 검색 리스트
   const [listConfig, setListConfig] = useState(initialList); // 화면정보탭 검색 리스트
-
   const [listRouteCount, setListRouteCount] = useState(0); // 경로탭 총 결과 카운트
   const [listConfigCount, setListConfigCount] = useState(0); // 화면정보탭 총 결과 카운트
-
   const [selectedRoutes, setSelectedRoutes] = useState([]); // 경로탭 체크박스 선택
   const [selectedLogList, setSelectedLogList] = useState(initialList); // 화면정보탭 체크박스 선택
 
-  const [selectedLogListDetail, setSelectedLogListDetail] =
-    useState(initialList);
-
+  // 모달창 상태 관리
   const [isRouteModalOpen, setIsRouteModalOpen] = useState(false); // 경로 모달 상태 관리
-  const [selectedRouteCellData, setSelectedRouteCellData] = useState(null);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false); // 화면정보 모달 상태 관리
+
+  // 더블클릭 관련
+  const [selectedRouteCellData, setSelectedRouteCellData] = useState(null);
   const [selectedConfigCellData, setSelectedConfigCellData] = useState(null);
-  const { loading, setLoading } = useLoading();
 
   /**
    * 부모 컴포넌트에서 show() 메서드를 통해 모달을 열 수 있도록
@@ -169,6 +165,21 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       setOpen(true);
     },
   }));
+
+  /**
+   * 검색 필드 API 최초 호출
+   */
+  useDidMount(() => {
+    MAIN_COUNTRY();
+    MAIN_FEATURE();
+    MAIN_TARGET();
+    MAIN_TAG();
+
+    // 검색 필드 특징 관련 처리
+    if (featureList.featureTop && featureList.featureTop.length > 0) {
+      handleTopFeatureChange(featureList.featureTop[0]);
+    }
+  });
 
   /**
    * 다운로드 모달창
@@ -190,21 +201,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       setOpen(true);
     }
   }, []);
-
-  /**
-   * 검색 필드 API 최초 호출
-   */
-  useDidMount(() => {
-    MAIN_COUNTRY();
-    MAIN_FEATURE();
-    MAIN_TARGET();
-    MAIN_TAG();
-
-    // 검색 필드 특징 관련 처리
-    if (featureList.featureTop && featureList.featureTop.length > 0) {
-      handleTopFeatureChange(featureList.featureTop[0]);
-    }
-  });
 
   /**
    * 경로탭 검색 필드 리스트 선택
@@ -655,7 +651,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     }
   };
 
-  /**
+  /****************************************************************************
+   * [경로탭 이벤트 시작]
    * 경로탭 검색
    */
   const onFindMeta = async () => {
@@ -750,11 +747,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * 경로탭 체크박스 선택 감지
+   * 경로탭 체크 핸들러
    */
   const handleSelectionChangeRoute = (selectedRows) => {
-    console.log('선택된 행:', selectedRows);
-    setSelectedRoutes(selectedRows); // 선택된 행 관리
+    console.log(
+      '🚀 ~ handleSelectionChangeRoute ~ selectedRows:',
+      selectedRows
+    );
+    setSelectedRoutes(selectedRows);
   };
 
   /**
@@ -806,19 +806,28 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
     setOpen(false);
 
+    setCond(initialCond);
+    setConfigCond(initialConfigCond);
+
     setListRouteCount(0);
     setListConfigCount(0);
 
-    setCond(initialCond);
+    setList(initialList);
+    setListConfig(initialList);
+
+    setSelectedRoutes();
+    setSelectedLogList();
+
     setSelectedSearchFields([]);
     setSelectedSearchFieldsConfig([]);
     setSelectedIds([]);
-    setList(initialList);
+    setSelectedConfigIds([]);
 
-    setListConfig(initialList);
+    setSelectedRouteCellData();
+    setSelectedConfigCellData();
 
-    setSelectedLogList(initialList);
-    setSelectedLogListDetail(initialList);
+    setIsRouteModalOpen(false);
+    setIsConfigModalOpen(false);
     setLoading(false);
   };
 
@@ -826,11 +835,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 경로탭 더블클릭 모달 호출
    */
   const openRouteModal = (cellData) => {
-    console.log('Opening modal with cell data:', cellData); // 디버깅 로그 추가
-
     if (cellData && cellData.meta_id) {
       setIsRouteModalOpen(true);
-      setSelectedRouteCellData(cellData); // 데이터 설정
+      setSelectedRouteCellData(cellData);
     }
   };
 
@@ -938,12 +945,12 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setLoading(false);
   };
 
-  /*
+  /****************************************************************************
+   * [화면정보탭 이벤트 시작]
    * 화면정보탭 선택 버튼
    */
   const handleConfigClick = async () => {
     console.log('🚀 ~ handleConfigClick ~ selectedLogList:', selectedLogList);
-
     setLoading(true);
 
     if (selectedLogList && selectedLogList.length > 0) {
@@ -954,7 +961,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           };
 
           console.log('handleConfigClick of condTmp ==>', condTmp);
-
           const result = await FIND_META_ID(condTmp);
           console.log('result', result);
 
@@ -969,9 +975,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       console.log('🚀 ~ handleConfigClick ~ flatResultList:', flatResultList);
 
       handleConfigConfirm(flatResultList);
-
-      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
-      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
     } else {
       // 아무것도 선택되지 않았습니다.
       setErrorValue(`${t('SpaceModal.Alert1')}`);
@@ -1000,25 +1003,27 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
     setOpen(false);
 
-    setListConfig([]);
-
     setCond(initialCond);
-    setSelectedSearchFields([]);
-    setSelectedSearchFieldsConfig([]);
-    setSelectedIds([]);
-    setList(initialList);
-
-    setListConfig(initialList);
-
-    setSelectedLogList(initialList);
-    setSelectedLogListDetail(initialList);
-
-    setSelectedRouteCellData();
-    setSelectedConfigCellData();
+    setConfigCond(initialConfigCond);
 
     setListRouteCount(0);
     setListConfigCount(0);
 
+    setList(initialList);
+    setListConfig(initialList);
+
+    setSelectedRoutes();
+    setSelectedLogList();
+
+    setSelectedSearchFields([]);
+    setSelectedSearchFieldsConfig([]);
+    setSelectedIds([]);
+    setSelectedConfigIds([]);
+
+    setSelectedRouteCellData();
+    setSelectedConfigCellData();
+
+    setIsRouteModalOpen(false);
     setIsConfigModalOpen(false);
     setLoading(false);
   };
@@ -1043,7 +1048,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * 화면정보탭 체크박스 선택 감지
+   * 화면정보탭 체크박스 선택 핸들러
    */
   const handleLeftSelectionChange = (selectedRows) => {
     console.log('🚀 ~ handleLeftSelectionChange ~ selectedRows:', selectedRows);
@@ -1062,7 +1067,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * 화면정보탭 왼쪽 리스트 클릭 감지
+   * 화면정보탭 왼쪽 리스트 클릭 핸들러
    */
   const handleLeftCellClick = (rowData) => {
     console.log('🚀 ~ handleLeftCellClick ~ rowData:', rowData);
@@ -1206,6 +1211,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setLoading(false);
   };
 
+  /*
+   * [화면정보탭 이벤트 종료]
+   *****************************************************************************/
+
   return (
     <Transition show={open}>
       {error && <Error errorMessage={errorValue} />}
@@ -1214,8 +1223,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           setList(initialList);
           setListConfig(initialList);
           setSelectedLogList(initialList);
-          setSelectedLogListDetail(initialList);
-          setOpen(false); // 모달 닫기
+          setOpen(false);
         }}
         className="relative z-40"
       >
@@ -1258,7 +1266,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                         setList(initialList);
                         setListConfig(initialList);
                         setSelectedLogList(initialList);
-                        setSelectedLogListDetail(initialList);
                         setOpen(false);
                       }}
                     >
@@ -1293,30 +1300,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                     {t('LogModal.Configuration')}
                   </button>
                 </div>
-
-                {/* <div className="m-2 flex space-x-2 ">
-                  <button
-                    className={`h-8 px-2 py-1 text-sm rounded-lg border transition duration-300 ease-in-out min-w-[80px] ${
-                      activeTab === 'route'
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
-                    }`}
-                    onClick={() => handleTabChange('route')}
-                  >
-                    {t('LogModal.Route')}
-                  </button>
-                  <button
-                    className={`h-8 px-2 py-1 text-sm rounded-lg border transition duration-300 ease-in-out min-w-[80px] ${
-                      activeTab === 'batch'
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
-                    }`}
-                    onClick={() => handleTabChange('batch')}
-                  >
-                    {t('LogModal.Configuration')}
-                  </button>
-                </div> */}
-
                 {/* 탭 내용 */}
                 <div className="mt-0">
                   {/* 경로탭 */}
@@ -1362,24 +1345,16 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                       };
                                     });
                                   }}
-                                  // onChange={(e) => {
-                                  //   const newFields = selectedSearchFields.map((f) =>
-                                  //     f.id === field.id ? { ...f, value: e.target.value } : f
-                                  //   );
-                                  //   setSelectedSearchFields(newFields);
-                                  // }}
                                 />
                               ) : field.id === 'feature' ? (
                                 // feature 기능
                                 <div className="w-3/4 flex flex-row space-x-2">
                                   <MultipleSelectDropDown
-                                    // options={getOptionsByFieldId(`${field.id}-1`)}
                                     options={featureList.featureTop}
                                     className="flex-1"
                                     onChange={handleTopFeatureChange}
                                   />
                                   <MultipleSelectDropDown
-                                    // options={getOptionsByFieldId(`${field.id}-2`)}
                                     options={filteredBottomOptions}
                                     className="flex-1"
                                     onChange={(value) => {
@@ -1413,7 +1388,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                         name={`${field.id}-option`}
                                         value="AND"
                                         className="form-radio"
-                                        checked={cond.operation === 0} // AND가 기본으로 선택됨
+                                        checked={cond.operation === 0}
                                         onChange={(value) => {
                                           setCond((prevState) => {
                                             return {
@@ -1452,8 +1427,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                   <SingleSelectDropDown
                                     options={getOptionsByFieldId(field.id)}
                                     onChange={(value) => {
-                                      console.log('value', value);
-
                                       setCond((prevState) => {
                                         return {
                                           ...prevState,
@@ -1479,13 +1452,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                   />
                                 </div>
                               )}
-                              {/* <input
-                          type="text"
-                          id={field.id}
-                          className={classNames(
-                            'w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6',
-                          )}
-                        /> */}
                             </div>
                           ))}
                       </div>
@@ -1516,7 +1482,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       {/* 경로탭 버전 모아보기 */}
                       {isRouteModalOpen && (
                         <RouteModal
-                          data={selectedRouteCellData} // 더블클릭된 데이터 전달
+                          data={selectedRouteCellData}
                           onClose={() => setIsRouteModalOpen(false)}
                           setCond={setCond}
                           setList={setList}
@@ -1630,7 +1596,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                         name={`${field.id}-option`}
                                         value="AND"
                                         className="form-radio"
-                                        checked={cond.operation === 0} // AND가 기본으로 선택됨
+                                        checked={cond.operation === 0}
                                         onChange={(value) => {
                                           setCond((prevState) => {
                                             return {
@@ -1680,13 +1646,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                                   />
                                 </div>
                               )}
-                              {/* <input
-                        type="text"
-                        id={field.id}
-                        className={classNames(
-                          'w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow ring-1 ring-inset ring-gray-400 placeholder:text-gray-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 sm:text-sm sm:leading-6',
-                        )}
-                      /> */}
                             </div>
                           ))}
                       </div>
@@ -1716,16 +1675,13 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       <div className="flex flex-row justify-between space-x-2 ">
                         {/* 왼쪽 그리드 */}
                         <ConfigGridL
-                          list={listConfig} // 왼쪽 그리드에 대한 데이터 리스트
-                          onSelectionChange={
-                            // (selectedRows) => setLeftList(selectedRows) // 왼쪽 그리드에서 선택된 행 업데이트
-                            handleLeftSelectionChange
-                          }
-                          onCellClick={handleLeftCellClick} // 셀 클릭 시
-                          onCellDoubleClick={openConfigModal} // 더블클릭 이벤트 추가
+                          list={listConfig}
+                          onSelectionChange={handleLeftSelectionChange}
+                          onCellClick={handleLeftCellClick}
+                          onCellDoubleClick={openConfigModal}
                         />
 
-                        {/* 화면정보탭 모아보기 */}
+                        {/* 화면정보탭 버전 모아보기 */}
                         {isConfigModalOpen && (
                           <ConfigModal
                             data={selectedConfigCellData}
@@ -1752,9 +1708,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                         {/* 오른쪽 그리드 */}
                         <h2 className="text-center text-xl font-bold mb-2 border"></h2>
                         <ConfigGridR
-                          list={selectedLogList} // 오른쪽 그리드에 대한 데이터 리스트
-                          onSelectionChange={
-                            (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
+                          list={selectedLogList}
+                          onSelectionChange={(selectedRows) =>
+                            setRightList(selectedRows)
                           }
                         />
                       </div>

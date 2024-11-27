@@ -4,7 +4,6 @@ import { MdClose } from 'react-icons/md';
 import { FaCheck, FaDownload } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { nonAuthInstance } from '../../server/MapAxiosConfig';
-import MainGridDetal from '../tables/mapTables/MainGridDetail';
 import MapLogService from '../../service/MapLogService';
 import MainGridDetail from '../tables/mapTables/MainGridDetail';
 

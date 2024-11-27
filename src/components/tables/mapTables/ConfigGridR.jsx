@@ -37,20 +37,20 @@ const defaultColumns = (t) => [
     // 내용
     accessorKey: 'file_name',
     header: t('ConfigGridR.Contents'),
-    cell: ({ getValue }) => {
-      const fullText = getValue();
-      const maxLength = 34; // 표시할 최대 문자 수
-      const shortText =
-        fullText.length > maxLength
-          ? fullText.slice(0, maxLength) + '...'
-          : fullText;
+    // cell: ({ getValue }) => {
+    //   const fullText = getValue();
+    //   const maxLength = 34; // 표시할 최대 문자 수
+    //   const shortText =
+    //     fullText.length > maxLength
+    //       ? fullText.slice(0, maxLength) + '...'
+    //       : fullText;
 
-      return (
-        <span title={fullText} className="cursor-pointer text-xs">
-          {shortText}
-        </span>
-      );
-    },
+    //   return (
+    //     <span title={fullText} className="cursor-pointer text-xs">
+    //       {shortText}
+    //     </span>
+    //   );
+    // },
   },
 ];
 
@@ -138,7 +138,7 @@ const ConfigGridR = ({ list, onSelectionChange }) => {
                     ? null
                     : flexRender(
                         header.column.columnDef.header, // 컬럼 헤더 렌더링
-                        header.getContext(), // 헤더의 컨텍스트
+                        header.getContext() // 헤더의 컨텍스트
                       )}
                 </th>
               ))}
