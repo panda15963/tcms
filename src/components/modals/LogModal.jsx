@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import ConfigGridL from '../tables/mapTables/ConfigGridL';
 import ConfigGridR from '../tables/mapTables/ConfigGridR';
 import ConfigGridL2 from '../tables/mapTables/ConfigGridL2';
-import MainGrid2 from '../tables/mapTables/MainGrid2';
+import MainGrid2 from '../tables/mapTables/MainGridDetal';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
 import ConfigGridR2 from '../tables/mapTables/ConfigGridR2';
@@ -26,6 +26,7 @@ import { FaDownload } from 'react-icons/fa6';
 import Error from '../alerts/Error';
 import useDidMount from '../../hooks/useDidMount';
 import useLoading from '../../hooks/useLoading';
+import RouteModal from './RouteModal';
 
 /**
  * 로그 검색
@@ -128,41 +129,42 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
   const [cond, setCond] = useState(initialCond);
   const [configCond, setConfigCond] = useState(initialConfigCond);
-
-  const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('route');
-  const [selectedSearchFields, setSelectedSearchFields] = useState([]);
-  const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
-    []
-  );
   const [error, setError] = useState(null);
   const [errorValue, setErrorValue] = useState('');
+  const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('route');
+
+  // 검색필드 리스트 관련
+  const [selectedSearchFields, setSelectedSearchFields] = useState([]); // 경로탭 검색필드
+  const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
+    []
+  ); // 화면정보탭 검색필드
   const [countryList, setCountryList] = useState(initialList);
   const [featureList, setFeatureList] = useState(initialList);
   const [targetList, setTargetList] = useState(initialList);
   const [tagList, setTagList] = useState(initialList);
+  const [filteredBottomOptions, setFilteredBottomOptions] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedConfigIds, setSelectedConfigIds] = useState([]);
 
   // 그리드 리스트 관련
   const [list, setList] = useState(initialList); // 경로탭 조회 리스트
-  const [listDetail, setListDetail] = useState(initialList); // 경로탭 더블클릭 조회 리스트
   const [listConfig, setListConfig] = useState(initialList); // 화면정보탭 조회 리스트
   const [listConfigDetail, setListConfigDetail] = useState(initialList); // 화면정보탭 더블클릭 조회 리스트
   const [listRouteCount, setListRouteCount] = useState(0); // 경로탭 총 결과 카운트
   const [listConfigCount, setListConfigCount] = useState(0); // 화면정보탭 총 결과 카운트
+  const [selectedRows, setSelectedRows] = useState([]); // 경로탭 체크박스 선택
+  const [selectedRows123, setSelectedRows123] = useState([]); // 경로탭 체크박스 선택
 
-  const [filteredBottomOptions, setFilteredBottomOptions] = useState([]);
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [selectedConfigIds, setSelectedConfigIds] = useState([]);
-  const [selectedLogList, setSelectedLogList] = useState(initialList);
-  const [selectedLogList2, setSelectedLogList2] = useState(initialList);
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedLogList, setSelectedLogList] = useState(initialList); // 화면정보탭 체크박스 선택
+
+  const [selectedLogListDetail, setSelectedLogListDetail] =
+    useState(initialList);
 
   const [isRouteModalOpen, setIsRouteModalOpen] = useState(false); // 경로 모달 상태 관리
   const [selectedRouteCellData, setSelectedRouteCellData] = useState(null);
-
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false); // 화면정보 모달 상태 관리
   const [selectedConfigCellData, setSelectedConfigCellData] = useState(null);
-
   const { loading, setLoading } = useLoading();
 
   /**
@@ -755,6 +757,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
+   * 경로탭 체크박스 선택 감지
+   */
+  const handleSelectionChangeRoute = (selectedRows) => {
+    console.log('선택된 행:', selectedRows);
+    setSelectedRows(selectedRows); // 선택된 행 관리
+  };
+
+  /**
    * 경로탭 선택 버튼
    */
   const handleRouteClick = async () => {
@@ -813,244 +823,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setListConfigDetail(initialList);
 
     setSelectedLogList(initialList);
-    setSelectedLogList2(initialList);
+    setSelectedLogListDetail(initialList);
     setLoading(false);
-  };
-
-  /**
-   * 경로탭 검색모아보기
-   * 선택버튼 이벤트
-   */
-  const handleRouteButtonClick = async () => {
-    console.log(
-      'handleRouteButtonClick of selectedLogList ==>',
-      selectedLogList
-    );
-
-    const fileIds = selectedConfigRowsRef.current.map((route) => route.file_id);
-    console.log('handleRouteButtonClick of fileIds ==>', fileIds);
-
-    const routeCoords = await SPACE_INTERPOLATION(fileIds);
-    console.log('handleRouteButtonClick of routeCoords ==>', routeCoords);
-
-    routeData(selectedConfigRowsRef.current);
-    routeFullCoords(routeCoords);
-
-    setOpen(false);
-
-    setCond(initialCond);
-    setSelectedSearchFields([]);
-    setSelectedIds([]);
-
-    setList(initialList);
-    setListDetail(initialList);
-
-    setListConfig(initialList);
-    setListConfigDetail(initialList);
-
-    setSelectedLogList(initialList);
-    setSelectedLogList2(initialList);
-
-    setSelectedRouteCellData();
-    setSelectedConfigCellData();
-    setIsRouteModalOpen(false);
-    setIsConfigModalOpen(false);
-  };
-
-  /*
-   * 화면정보탭 선택 버튼
-   */
-  const handleConfigClick = async () => {
-    console.log('🚀 ~ handleConfigClick ~ selectedLogList:', selectedLogList);
-
-    setLoading(true);
-
-    if (selectedLogList && selectedLogList.length > 0) {
-      const resultList = await Promise.all(
-        selectedLogList.map(async (log) => {
-          const condTmp = {
-            meta_id: log.meta_id,
-          };
-
-          console.log('handleConfigClick of condTmp ==>', condTmp);
-
-          const result = await FIND_META_ID(condTmp);
-          console.log('result', result);
-
-          return result;
-        })
-      );
-
-      // resultList를 평탄화(flatten)하여 단일 배열로 변환
-      const flatResultList = resultList.flat();
-
-      console.log('🚀 ~ handleConfigClick ~ resultList:', resultList);
-      console.log('🚀 ~ handleConfigClick ~ flatResultList:', flatResultList);
-
-      handleConfigConfirm(flatResultList);
-
-      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
-      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
-    } else {
-      // 아무것도 선택되지 않았습니다.
-      setErrorValue(`${t('SpaceModal.Alert1')}`);
-      setError(true);
-      setTimeout(() => setError(false), 3000);
-      setLoading(false);
-      return;
-    }
-  };
-
-  /*
-   * 화면정보탭 선택 핸들러
-   */
-  const handleConfigConfirm = async (confirmList) => {
-    console.log('🚀 ~ handleConfigConfirm ~ confirmList:', confirmList);
-
-    if (confirmList) {
-      const fileIds = confirmList.map((route) => route.file_id);
-      const routeCoords = await SPACE_INTERPOLATION(fileIds);
-      routeData(confirmList);
-      routeFullCoords(routeCoords);
-    } else {
-      console.error('No array found in list');
-      setLoading(false);
-    }
-
-    setOpen(false);
-
-    setListConfig([]);
-
-    setCond(initialCond);
-    setSelectedSearchFields([]);
-    setSelectedSearchFieldsConfig([]);
-    setSelectedIds([]);
-    setList(initialList);
-
-    setListConfig(initialList);
-    setListConfigDetail(initialList);
-
-    setSelectedLogList(initialList);
-    setSelectedLogList2(initialList);
-
-    setSelectedRouteCellData();
-    setSelectedConfigCellData();
-
-    setIsConfigModalOpen(false);
-    setLoading(false);
-  };
-
-  /**
-   * 화면정보탭 버전모아보기 (더블클릭)
-   * 선택 이벤트
-   */
-  const handleConfigBtnDoubleClick = async () => {
-    console.log('handleConfigClick of selectedLogList ==>', selectedLogList);
-    console.log('handleConfigClick of selectedLogList2 ==>', selectedLogList2);
-
-    if (selectedLogList2 && selectedLogList2.length > 0) {
-      const resultList = await Promise.all(
-        selectedLogList.map(async (log) => {
-          const condTmp = {
-            meta_id: log.meta_id,
-          };
-          console.log('🚀 ~ selectedLogList.map ~ condTmp:', condTmp);
-
-          const result = await FIND_META_ID(condTmp);
-          console.log('🚀 ~ selectedLogList.map ~ result:', result);
-
-          return result; // result를 반환하여 리스트에 추가
-        })
-      );
-
-      // resultList를 평탄화(flatten)하여 단일 배열로 변환
-      const flatResultList = resultList.flat();
-
-      console.log('🚀 ~ handleConfigBtnDoubleClick ~ resultList:', resultList);
-      console.log(
-        '🚀 ~ handleConfigBtnDoubleClick ~ flatResultList:',
-        flatResultList
-      );
-
-      handleConfigConfirm(flatResultList);
-
-      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
-      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
-    } else {
-      console.log('선택된 로그가 없습니다.');
-    }
-  };
-
-  /**
-   * 화면정보탭 검색
-   */
-  const onFindTccfg = async () => {
-    setError(null);
-
-    const condTmp = {
-      group_id: -1,
-      description: selectedConfigIds.includes('description')
-        ? configCond.description
-        : '',
-      tag: selectedConfigIds.includes('tag') ? configCond.tag : '',
-      operation: configCond.operation,
-    };
-
-    console.log('onFindMeta of condTmp ==>', condTmp);
-    FIND_TCCFG(condTmp);
-  };
-
-  /**
-   * 화면정보탭 체크박스 선택 감지
-   */
-  const handleLeftSelectionOnChange = (selectedRows) => {
-    console.log(
-      '🚀 ~ handleLeftSelectionOnChange ~ selectedRows:',
-      selectedRows
-    );
-
-    if (selectedRows && selectedRows.length > 0) {
-      const combinedLogList = selectedRows.reduce((acc, row) => {
-        return acc.concat(row.loglist); // 각 row의 loglist를 배열에 합침
-      }, []);
-
-      console.log(
-        '🚀 ~ handleLeftSelectionOnChange ~ combinedLogList:',
-        combinedLogList
-      );
-      setSelectedLogList(combinedLogList); // 전체 합쳐진 loglist 설정
-    }
-  };
-
-  /**
-   * 화면정보탭 왼쪽 리스트 클릭 감지
-   */
-  const handleLeftCellClick = (rowData) => {
-    console.log('🚀 ~ handleLeftCellClick ~ rowData:', rowData);
-    setSelectedLogList(rowData.loglist); // 셀 클릭 시 loglist 설정
-  };
-
-  /**
-   * 화면정보탭 버전 모아보기
-   * 체크박스 선택 감지
-   */
-  const handleLeftSelectionOnChange2 = (selectedRows) => {
-    console.log(
-      '🚀 ~ handleLeftSelectionOnChange2 ~ selectedRows:',
-      selectedRows
-    );
-
-    if (selectedRows && selectedRows.length > 0) {
-      setSelectedLogList2(selectedRows[0].loglist);
-    }
-  };
-
-  /**
-   * 화면정보탭 버전 모아보기
-   * 리스트 클릭 이벤트
-   */
-  const handleLeftCellClick2 = (rowData) => {
-    setSelectedLogList2(rowData.loglist); // 셀 클릭 시 loglist 설정
   };
 
   /**
@@ -1058,271 +832,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const openRouteModal = (cellData) => {
     console.log('Opening modal with cell data:', cellData); // 디버깅 로그 추가
-    setSelectedRouteCellData(cellData); // 선택된 셀의 데이터 저장
-    setIsRouteModalOpen(true); // 모달 열기
-  };
 
-  /**
-   * 경로탭 더블클릭 모달 닫기
-   */
-  const closeRouteModal = () => {
-    setIsRouteModalOpen(false); // 모달 닫기
-  };
-
-  /**
-   * 화면정보탭 더블클릭 모달 호출
-   */
-  const openConfigModal = (cellData) => {
-    console.log('Opening modal with cell data:', cellData); // 디버깅 로그 추가
-    setSelectedConfigCellData(cellData); // 선택된 셀의 데이터 저장
-    setIsConfigModalOpen(true); // 모달 열기
-  };
-
-  /**
-   * 화면정보탭 더블클릭 모달 닫기
-   */
-  const closeConfigModal = () => {
-    setIsConfigModalOpen(false); // 모달 닫기
-  };
-
-  /**
-   * 경로탭 버전모아보기
-   * API 조회 및 데이터 출력 컴포넌트
-   */
-  const RouteModalComponent = ({ data, onClose }) => {
-    console.log('🚀 ~ RouteModalComponent ~ data:', data);
-    console.log('🚀 ~ RouteModalComponent ~ onClose:', onClose);
-
-    useEffect(() => {
-      const fetchData = async () => {
-        setLoading(true);
-        try {
-          if (data && data.meta_id) {
-            const response = await nonAuthInstance.get(
-              `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`
-            );
-            console.log('🚀 ~ fetchData ~ response:', response);
-
-            setListDetail((prevState) => {
-              const newList = response.data.findMeta;
-              if (JSON.stringify(prevState) !== JSON.stringify(newList)) {
-                return newList;
-              }
-
-              setLoading(false);
-              return prevState;
-            });
-          }
-        } catch (error) {
-          console.error('API Error:', error);
-          setLoading(false);
-        }
-      };
-
-      if (data) {
-        fetchData();
-      }
-    }, [data]);
-
-    /**
-     * 버전 모아보기 (경로탭)
-     */
-    return (
-      <Dialog open={true} onClose={onClose}>
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
-          <div className="bg-white p-1 rounded-md shadow-lg">
-            <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
-              <h1 className="text-sm font-semibold text-white">
-                {/* 버전 모아보기 */}
-                {t('LogModal.AllVersions')}
-              </h1>
-              <button
-                className="font-semibold"
-                onClick={() => setIsRouteModalOpen(false)}
-              >
-                <MdClose className="text-white" size={16} />
-              </button>
-            </div>
-            <div
-              className="flex flex-row justify-between space-x-4 my-4"
-              style={{ marginTop: '0px', marginBottom: '0px' }}
-            >
-              {/* 메인2 그리드 */}
-              <div className="flex-1 border border-gray-300 p-4">
-                <h2 className="text-center text-xl font-bold mb-2"></h2>
-                <MainGrid2
-                  list={listDetail}
-                  onSelectionChange={handleSelectionChangeRoute}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end mt-1">
-              <button
-                onClick={
-                  isDirect ? handleRouteDetailDownload : handleRouteButtonClick
-                }
-                className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
-              >
-                {isDirect ? (
-                  <>
-                    <FaDownload
-                      className="h-4 w-5 text-sky-500"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm text-sky-500 font-bold">
-                      {t('LogModal.Download')}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <FaCheck
-                      className="h-4 w-5 text-sky-500"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm text-sky-500 font-bold">
-                      {t('LogModal.Select')}
-                    </span>
-                  </>
-                )}
-              </button>
-            </div>
-            {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
-          <p>API Result: {apiData ? JSON.stringify(apiData) : 'Loading...'}</p>
-          <button onClick={onClose} className="mt-2 p-2 bg-blue-500 text-white rounded">Close</button> */}
-          </div>
-        </div>
-      </Dialog>
-    );
-  };
-
-  /**
-   * 경로탭 버전 모아보기
-   * 선택 감지
-   */
-  const handleSelectionChangeRoute = (selectedRows) => {
-    console.log(
-      '🚀 ~ handleSelectionChangeRoute ~ selectedRows:',
-      selectedRows
-    );
-
-    if (selectedRows && selectedRows.length > 0) {
-      selectedConfigRowsRef.current = selectedRows;
+    if (cellData && cellData.meta_id) {
+      setIsRouteModalOpen(true);
+      setSelectedRouteCellData(cellData); // 데이터 설정
     }
-  };
-
-  /**
-   * 화면정보탭 버전모아보기
-   * API 조회 및 데이터 출력 컴포넌트
-   */
-  const ConfigModalComponent = ({ data, onClose }) => {
-    console.log('🚀 ~ ConfigModalComponent ~ data:', data);
-
-    useEffect(() => {
-      const fetchData = async () => {
-        setLoading(true);
-        try {
-          if (data && data.tccfg_id) {
-            const response = await nonAuthInstance.get(
-              `/find/sameorigin/tccfg?group_id=${data.group_id}&tccfg_id=${data.origin_tccfg_id}`
-            );
-
-            console.log('🚀 ~ fetchData ~ response:', response);
-            setListConfigDetail((prevState) => {
-              const newList = response.data.findTccfg;
-              if (JSON.stringify(prevState) !== JSON.stringify(newList)) {
-                return newList;
-              }
-              return prevState;
-            });
-            setLoading(false);
-          }
-        } catch (error) {
-          console.error('API Error:', error);
-          setLoading(false);
-        }
-      };
-
-      if (data) {
-        fetchData();
-      }
-    }, [data]);
-
-    /**
-     * 버전 모아보기 (화면정보탭)
-     */
-    return (
-      <Dialog open={true} onClose={onClose}>
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
-          <div className="bg-white p-1 rounded-md shadow-lg">
-            <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
-              <h1 className="font-semibold text-white">
-                {t('LogModal.AllVersions')}
-              </h1>
-              <button
-                className="font-semibold"
-                onClick={() => setIsConfigModalOpen(false)}
-              >
-                <MdClose className="text-white" size={16} />
-              </button>
-            </div>
-            <div className="flex flex-row justify-between space-x-2 ">
-              {/* 왼쪽 그리드 */}
-              <h2 className="text-center text-xl font-bold mb-2"></h2>
-
-              <ConfigGridL2
-                list={listConfigDetail} // 왼쪽 그리드에 대한 데이터 리스트
-                onSelectionChange={handleLeftSelectionOnChange2}
-                onCellClick={handleLeftCellClick2} // 셀 클릭 시
-              />
-
-              {/* 오른쪽 그리드 */}
-              <h2 className="text-center text-xl font-bold mb-2"></h2>
-              <ConfigGridR2
-                list={selectedLogList2} // 오른쪽 그리드에 대한 데이터 리스트
-                // onSelectionChange={
-                //   (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
-                // }
-              />
-            </div>
-            <div className="flex justify-end mt-1">
-              <button
-                onClick={
-                  isDirect
-                    ? handleConfigDetailDownload
-                    : handleConfigBtnDoubleClick
-                }
-                className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
-              >
-                {isDirect ? (
-                  <>
-                    <FaDownload
-                      className="h-4 w-5 text-sky-500"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm text-sky-500 font-bold">
-                      {t('LogModal.Download')}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <FaCheck
-                      className="h-4 w-5 text-sky-500"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm text-sky-500 font-bold">
-                      {t('LogModal.Select')}
-                    </span>
-                  </>
-                )}
-              </button>
-            </div>
-            {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
-            <p>API Result: {apiData ? JSON.stringify(apiData) : 'Loading...'}</p>
-            <button onClick={onClose} className="mt-2 p-2 bg-blue-500 text-white rounded">Close</button> */}
-          </div>
-        </div>
-      </Dialog>
-    );
   };
 
   /**
@@ -1429,97 +943,331 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setLoading(false);
   };
 
-  /**
-   * 경로탭 버전 모아보기 다운로드
+  /*
+   * 화면정보탭 선택 버튼
    */
-  const handleRouteDetailDownload = async () => {
-    const dataToDownload = listDetail;
-    console.log('dataToDownload', dataToDownload);
+  const handleConfigClick = async () => {
+    console.log('🚀 ~ handleConfigClick ~ selectedLogList:', selectedLogList);
 
-    // JSON 파일 다운로드 추가
-    for (const item of dataToDownload) {
-      try {
-        // 각 item의 filename 속성에 따라 파일명 지정
-        const filename = item.file_name
-          ? `${item.file_name}.meta`
-          : 'dataToDownload.meta';
-        const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
-          type: 'application/json',
-        });
-        const jsonUrl = window.URL.createObjectURL(jsonBlob);
-        const jsonLink = document.createElement('a');
+    setLoading(true);
 
-        jsonLink.href = jsonUrl;
-        jsonLink.download = filename; // 지정된 파일명으로 다운로드
-        document.body.appendChild(jsonLink);
-        jsonLink.click();
-        document.body.removeChild(jsonLink);
-        window.URL.revokeObjectURL(jsonUrl);
-      } catch (error) {
-        console.error(
-          `Failed to download JSON file for ${
-            item.filename || 'dataToDownload'
-          }:`,
-          error
-        );
-      }
+    if (selectedLogList && selectedLogList.length > 0) {
+      const resultList = await Promise.all(
+        selectedLogList.map(async (log) => {
+          const condTmp = {
+            meta_id: log.meta_id,
+          };
+
+          console.log('handleConfigClick of condTmp ==>', condTmp);
+
+          const result = await FIND_META_ID(condTmp);
+          console.log('result', result);
+
+          return result;
+        })
+      );
+
+      // resultList를 평탄화(flatten)하여 단일 배열로 변환
+      const flatResultList = resultList.flat();
+
+      console.log('🚀 ~ handleConfigClick ~ resultList:', resultList);
+      console.log('🚀 ~ handleConfigClick ~ flatResultList:', flatResultList);
+
+      handleConfigConfirm(flatResultList);
+
+      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
+      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
+    } else {
+      // 아무것도 선택되지 않았습니다.
+      setErrorValue(`${t('SpaceModal.Alert1')}`);
+      setError(true);
+      setTimeout(() => setError(false), 3000);
+      setLoading(false);
+      return;
+    }
+  };
+
+  /*
+   * 화면정보탭 선택 핸들러
+   */
+  const handleConfigConfirm = async (confirmList) => {
+    console.log('🚀 ~ handleConfigConfirm ~ confirmList:', confirmList);
+
+    if (confirmList) {
+      const fileIds = confirmList.map((route) => route.file_id);
+      const routeCoords = await SPACE_INTERPOLATION(fileIds);
+      routeData(confirmList);
+      routeFullCoords(routeCoords);
+    } else {
+      console.error('No array found in list');
+      setLoading(false);
     }
 
-    for (const file of dataToDownload) {
-      try {
-        // sequence 0 = 로그파일
-        const logResponse = await nonAuthInstance.get(
-          `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
-          { responseType: 'blob' }
-        );
+    setOpen(false);
 
-        const logBlob = new Blob([logResponse.data]);
-        const logUrl = window.URL.createObjectURL(logBlob);
-        const logLink = document.createElement('a');
-        logLink.href = logUrl;
-        logLink.download = file.logPath.split('/').pop();
-        document.body.appendChild(logLink);
-        logLink.click();
-        document.body.removeChild(logLink);
-        window.URL.revokeObjectURL(logUrl);
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          console.error(`Log file for meta_id ${file.meta_id} not found.`);
-        } else {
-          console.error(
-            `Failed to download log file for meta_id ${file.meta_id}:`,
-            error
-          );
-        }
-      }
+    setListConfig([]);
 
-      try {
-        // sequence 1 = 이미지파일
-        const imageResponse = await nonAuthInstance.get(
-          `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
-          { responseType: 'blob' }
-        );
+    setCond(initialCond);
+    setSelectedSearchFields([]);
+    setSelectedSearchFieldsConfig([]);
+    setSelectedIds([]);
+    setList(initialList);
 
-        const imageBlob = new Blob([imageResponse.data]);
-        const imageUrl = window.URL.createObjectURL(imageBlob);
-        const imageLink = document.createElement('a');
-        imageLink.href = imageUrl;
-        imageLink.download = file.imagePath.split('/').pop();
-        document.body.appendChild(imageLink);
-        imageLink.click();
-        document.body.removeChild(imageLink);
-        window.URL.revokeObjectURL(imageUrl);
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          console.error(`Image file for meta_id ${file.meta_id} not found.`);
-        } else {
-          console.error(
-            `Failed to download image file for meta_id ${file.meta_id}:`,
-            error
-          );
-        }
-      }
+    setListConfig(initialList);
+    setListConfigDetail(initialList);
+
+    setSelectedLogList(initialList);
+    setSelectedLogListDetail(initialList);
+
+    setSelectedRouteCellData();
+    setSelectedConfigCellData();
+
+    setIsConfigModalOpen(false);
+    setLoading(false);
+  };
+
+  /**
+   * 화면정보탭 버전모아보기 (더블클릭)
+   * 선택 이벤트
+   */
+  const handleConfigBtnDoubleClick = async () => {
+    console.log('handleConfigClick of selectedLogList ==>', selectedLogList);
+    console.log(
+      'handleConfigClick of selectedLogListDetail ==>',
+      selectedLogListDetail
+    );
+
+    if (selectedLogListDetail && selectedLogListDetail.length > 0) {
+      const resultList = await Promise.all(
+        selectedLogList.map(async (log) => {
+          const condTmp = {
+            meta_id: log.meta_id,
+          };
+          console.log('🚀 ~ selectedLogList.map ~ condTmp:', condTmp);
+
+          const result = await FIND_META_ID(condTmp);
+          console.log('🚀 ~ selectedLogList.map ~ result:', result);
+
+          return result; // result를 반환하여 리스트에 추가
+        })
+      );
+
+      // resultList를 평탄화(flatten)하여 단일 배열로 변환
+      const flatResultList = resultList.flat();
+
+      console.log('🚀 ~ handleConfigBtnDoubleClick ~ resultList:', resultList);
+      console.log(
+        '🚀 ~ handleConfigBtnDoubleClick ~ flatResultList:',
+        flatResultList
+      );
+
+      handleConfigConfirm(flatResultList);
+
+      // resultList는 FIND_META_ID에서 받은 결과들이 포함된 리스트
+      // 이 리스트를 다른 곳으로 전달하거나 추가적인 처리를 할 수 있음
+    } else {
+      console.log('선택된 로그가 없습니다.');
     }
+  };
+
+  /**
+   * 화면정보탭 검색
+   */
+  const onFindTccfg = async () => {
+    setError(null);
+
+    const condTmp = {
+      group_id: -1,
+      description: selectedConfigIds.includes('description')
+        ? configCond.description
+        : '',
+      tag: selectedConfigIds.includes('tag') ? configCond.tag : '',
+      operation: configCond.operation,
+    };
+
+    console.log('onFindMeta of condTmp ==>', condTmp);
+    FIND_TCCFG(condTmp);
+  };
+
+  /**
+   * 화면정보탭 체크박스 선택 감지
+   */
+  const handleLeftSelectionChange = (selectedRows) => {
+    console.log('🚀 ~ handleLeftSelectionChange ~ selectedRows:', selectedRows);
+
+    if (selectedRows && selectedRows.length > 0) {
+      const combinedLogList = selectedRows.reduce((acc, row) => {
+        return acc.concat(row.loglist); // 각 row의 loglist를 배열에 합침
+      }, []);
+
+      console.log(
+        '🚀 ~ handleLeftSelectionChange ~ combinedLogList:',
+        combinedLogList
+      );
+      setSelectedLogList(combinedLogList); // 전체 합쳐진 loglist 설정
+    }
+  };
+
+  /**
+   * 화면정보탭 왼쪽 리스트 클릭 감지
+   */
+  const handleLeftCellClick = (rowData) => {
+    console.log('🚀 ~ handleLeftCellClick ~ rowData:', rowData);
+    setSelectedLogList(rowData.loglist); // 셀 클릭 시 loglist 설정
+  };
+
+  /**
+   * 화면정보탭 버전 모아보기
+   * 체크박스 선택 감지
+   */
+  const handleLeftSelectionChangeDetail = (selectedRows) => {
+    console.log(
+      '🚀 ~ handleLeftSelectionChangeDetail ~ selectedRows:',
+      selectedRows
+    );
+
+    if (selectedRows && selectedRows.length > 0) {
+      setSelectedLogListDetail(selectedRows[0].loglist);
+    }
+  };
+
+  /**
+   * 화면정보탭 버전 모아보기
+   * 리스트 클릭 이벤트
+   */
+  const handleLeftCellClickDetail = (rowData) => {
+    setSelectedLogListDetail(rowData.loglist); // 셀 클릭 시 loglist 설정
+  };
+
+  /**
+   * 화면정보탭 더블클릭 모달 호출
+   */
+  const openConfigModal = (cellData) => {
+    console.log('Opening modal with cell data:', cellData); // 디버깅 로그 추가
+    setSelectedConfigCellData(cellData); // 선택된 셀의 데이터 저장
+    setIsConfigModalOpen(true); // 모달 열기
+  };
+
+  /**
+   * 화면정보탭 더블클릭 모달 닫기
+   */
+  const closeConfigModal = () => {
+    setIsConfigModalOpen(false); // 모달 닫기
+  };
+
+  /**
+   * 화면정보탭 버전모아보기
+   * API 조회 및 데이터 출력 컴포넌트
+   */
+  const ConfigModalComponent = ({ data, onClose }) => {
+    console.log('🚀 ~ ConfigModalComponent ~ data:', data);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          if (data && data.tccfg_id) {
+            const response = await nonAuthInstance.get(
+              `/find/sameorigin/tccfg?group_id=${data.group_id}&tccfg_id=${data.origin_tccfg_id}`
+            );
+
+            console.log('🚀 ~ fetchData ~ response:', response);
+            setListConfigDetail((prevState) => {
+              const newList = response.data.findTccfg;
+              if (JSON.stringify(prevState) !== JSON.stringify(newList)) {
+                return newList;
+              }
+              return prevState;
+            });
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error('API Error:', error);
+          setLoading(false);
+        }
+      };
+
+      if (data) {
+        fetchData();
+      }
+    }, [data]);
+
+    /**
+     * 버전 모아보기 (화면정보탭)
+     */
+    return (
+      <Dialog open={true} onClose={onClose}>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
+          <div className="bg-white p-1 rounded-md shadow-lg">
+            <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
+              <h1 className="font-semibold text-white">
+                {t('LogModal.AllVersions')}
+              </h1>
+              <button
+                className="font-semibold"
+                onClick={() => setIsConfigModalOpen(false)}
+              >
+                <MdClose className="text-white" size={16} />
+              </button>
+            </div>
+            <div className="flex flex-row justify-between space-x-2 ">
+              {/* 왼쪽 그리드 */}
+              <h2 className="text-center text-xl font-bold mb-2"></h2>
+
+              <ConfigGridL2
+                list={listConfigDetail} // 왼쪽 그리드에 대한 데이터 리스트
+                onSelectionChange={handleLeftSelectionChangeDetail}
+                onCellClick={handleLeftCellClickDetail} // 셀 클릭 시
+              />
+
+              {/* 오른쪽 그리드 */}
+              <h2 className="text-center text-xl font-bold mb-2"></h2>
+              <ConfigGridR2
+                list={selectedLogListDetail} // 오른쪽 그리드에 대한 데이터 리스트
+                // onSelectionChange={
+                //   (selectedRows) => setRightList(selectedRows) // 오른쪽 그리드에서 선택된 행 업데이트
+                // }
+              />
+            </div>
+            <div className="flex justify-end mt-1">
+              <button
+                onClick={
+                  isDirect
+                    ? handleConfigDetailDownload
+                    : handleConfigBtnDoubleClick
+                }
+                className="inline-flex items-center border-2 gap-x-2 px-3 py-1 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+              >
+                {isDirect ? (
+                  <>
+                    <FaDownload
+                      className="h-4 w-5 text-sky-500"
+                      aria-hidden="true"
+                    />
+                    <span className="text-sm text-sky-500 font-bold">
+                      {t('LogModal.Download')}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <FaCheck
+                      className="h-4 w-5 text-sky-500"
+                      aria-hidden="true"
+                    />
+                    <span className="text-sm text-sky-500 font-bold">
+                      {t('LogModal.Select')}
+                    </span>
+                  </>
+                )}
+              </button>
+            </div>
+            {/* <h2>Cell Data: {data ? data.description : 'No Data'}</h2>
+            <p>API Result: {apiData ? JSON.stringify(apiData) : 'Loading...'}</p>
+            <button onClick={onClose} className="mt-2 p-2 bg-blue-500 text-white rounded">Close</button> */}
+          </div>
+        </div>
+      </Dialog>
+    );
   };
 
   /**
@@ -1527,30 +1275,26 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const handleConfigDownload = async () => {
     const dataToDownload = selectedLogList;
-    console.log('[화면정보탭 다운로드] dataToDownload ==>', dataToDownload);
 
-    // 각 dataToDownload에 대한 FIND_META_ID 호출을 동시에 처리
+    setLoading(true);
+
     const resultList = await Promise.all(
       dataToDownload.map(async (log) => {
         const condTmp = {
-          meta_id: log.meta_id, // 각 log에서 meta_id 추출
+          meta_id: log.meta_id,
         };
 
-        // FIND_META_ID 실행하고 결과 반환
-        console.log('condTmp', condTmp);
-
+        console.log('🚀 ~ dataToDownload.map ~ condTmp:', condTmp);
         const result = await FIND_META_ID(condTmp);
-        console.log('result', result);
+        console.log('🚀 ~ dataToDownload.map ~ result:', result);
 
-        return result; // result를 반환하여 리스트에 추가
+        return result;
       })
     );
 
     // resultList를 평탄화(flatten)하여 단일 배열로 변환
     const flatResultList = resultList.flat();
-
-    console.log('결과 리스트 ==>', resultList);
-    console.log('결과 리스트 flatResultList ==>', flatResultList);
+    console.log('🚀 ~ handleConfigDownload ~ flatResultList:', flatResultList);
 
     // JSON 파일 다운로드 추가
     for (const item of flatResultList) {
@@ -1578,6 +1322,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           }:`,
           error
         );
+        setLoading(false);
       }
     }
 
@@ -1616,6 +1361,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             error
           );
         }
+        setLoading(false);
       }
 
       try {
@@ -1643,16 +1389,19 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             error
           );
         }
+        setLoading(false);
       }
     }
+    setLoading(false);
   };
 
   /**
    * 화면정보탭 버전 모아보기 다운로드
    */
   const handleConfigDetailDownload = async () => {
-    const dataToDownload = selectedLogList2;
-    console.log('[화면정보탭 다운로드] dataToDownload ==>', dataToDownload);
+    const dataToDownload = selectedLogListDetail;
+
+    setLoading(true);
 
     // 각 dataToDownload에 대한 FIND_META_ID 호출을 동시에 처리
     const resultList = await Promise.all(
@@ -1660,22 +1409,19 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         const condTmp = {
           meta_id: log.meta_id, // 각 log에서 meta_id 추출
         };
-
-        // FIND_META_ID 실행하고 결과 반환
-        console.log('condTmp', condTmp);
-
+        console.log('🚀 ~ dataToDownload.map ~ condTmp:', condTmp);
         const result = await FIND_META_ID(condTmp);
-        console.log('result', result);
-
-        return result; // result를 반환하여 리스트에 추가
+        console.log('🚀 ~ dataToDownload.map ~ result:', result);
+        return result;
       })
     );
 
     // resultList를 평탄화(flatten)하여 단일 배열로 변환
     const flatResultList = resultList.flat();
-
-    console.log('결과 리스트 ==>', resultList);
-    console.log('결과 리스트 flatResultList ==>', flatResultList);
+    console.log(
+      '🚀 ~ handleConfigDetailDownload ~ flatResultList:',
+      flatResultList
+    );
 
     // JSON 파일 다운로드 추가
     for (const item of flatResultList) {
@@ -1703,6 +1449,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           }:`,
           error
         );
+        setLoading(false);
       }
     }
 
@@ -1741,6 +1488,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             error
           );
         }
+        setLoading(false);
       }
 
       try {
@@ -1768,13 +1516,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             error
           );
         }
+        setLoading(false);
       }
     }
-  };
-
-  const handleSelectionChange = (selectedRows) => {
-    console.log('선택된 행:', selectedRows);
-    setSelectedRows(selectedRows); // 선택된 행 관리
+    setLoading(false);
   };
 
   return (
@@ -1782,12 +1527,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       {error && <Error errorMessage={errorValue} />}
       <Dialog
         onClose={() => {
-          setList(initialList); // list 초기화
-          setListDetail(initialList);
+          setList(initialList);
           setListConfig(initialList);
           setListConfigDetail(initialList);
           setSelectedLogList(initialList);
-          setSelectedLogList2(initialList);
+          setSelectedLogListDetail(initialList);
           setOpen(false); // 모달 닫기
         }}
         className="relative z-40"
@@ -1829,11 +1573,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       className="font-semibold"
                       onClick={() => {
                         setList(initialList);
-                        setListDetail(initialList);
                         setListConfig(initialList);
                         setListConfigDetail(initialList);
                         setSelectedLogList(initialList);
-                        setSelectedLogList2(initialList);
+                        setSelectedLogListDetail(initialList);
                         setOpen(false);
                       }}
                     >
@@ -2086,15 +1829,25 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       {error && <p className="text-red-500">{error}</p>}
                       <MainGrid
                         list={list}
-                        onSelectionChange={handleSelectionChange}
+                        onSelectionChange={handleSelectionChangeRoute}
                         onCellDoubleClick={openRouteModal}
                       />
 
                       {/* 모달 렌더링 */}
                       {isRouteModalOpen && (
-                        <RouteModalComponent
-                          data={selectedRouteCellData}
-                          onClose={closeRouteModal}
+                        <RouteModal
+                          data={selectedRouteCellData} // 더블클릭된 데이터 전달
+                          onClose={() => setIsRouteModalOpen(false)} // 모달 닫기
+                          setList={setList}
+                          setSelectedSearchFields={setSelectedSearchFields}
+                          setSelectedIds={setSelectedIds}
+                          setSelectedRouteCellData={setSelectedRouteCellData}
+                          setIsRouteModalOpen={setIsRouteModalOpen}
+                          setLoading={setLoading}
+                          routeData={routeData}
+                          isDirect={isDirect}
+                          setOpen={setOpen}
+                          routeFullCoords={routeFullCoords}
                         />
                       )}
 
@@ -2285,7 +2038,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           list={listConfig} // 왼쪽 그리드에 대한 데이터 리스트
                           onSelectionChange={
                             // (selectedRows) => setLeftList(selectedRows) // 왼쪽 그리드에서 선택된 행 업데이트
-                            handleLeftSelectionOnChange
+                            handleLeftSelectionChange
                           }
                           onCellClick={handleLeftCellClick} // 셀 클릭 시
                           onCellDoubleClick={openConfigModal} // 더블클릭 이벤트 추가

@@ -90,7 +90,10 @@ const defaultColumns = (t) => [
         } else if (baseURL.includes('10.5.35.121')) {
           // 서버가 10.5.35.121인 경우
           // return imagePath.replace('/home/wasadmin', '');
-          return `/images${imagePath.replace('/home/wasadmin/testcourse/image', '')}`;
+          return `/images${imagePath.replace(
+            '/home/wasadmin/testcourse/image',
+            ''
+          )}`;
         }
         // 기본값 반환 (필요시 추가 설정 가능)
         return imagePath;
@@ -99,7 +102,7 @@ const defaultColumns = (t) => [
       // 포트 번호(:8080)와 '/api' 제거
       const baseURL = process.env.REACT_APP_MAPBASEURL.replace(
         /:(8080|8090)\/api/,
-        '',
+        ''
       );
 
       const adjustedImagePath = adjustImagePath(baseURL, imagePath);
@@ -164,8 +167,8 @@ const defaultData = [
   },
 ];
 
-// MainGrid2 컴포넌트 정의
-const MainGrid2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
+// MainGridDetal 컴포넌트 정의
+const MainGridDetal = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const { t } = useTranslation(); // Get the translation function
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
 
@@ -231,7 +234,7 @@ const MainGrid2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
                     ? null
                     : flexRender(
                         header.column.columnDef.header, // 컬럼 헤더 렌더링
-                        header.getContext(), // 헤더의 컨텍스트
+                        header.getContext() // 헤더의 컨텍스트
                       )}
                 </th>
               ))}
@@ -262,4 +265,4 @@ const MainGrid2 = ({ list, onSelectionChange, onCellDoubleClick }) => {
   );
 };
 
-export default MainGrid2;
+export default MainGridDetal;
