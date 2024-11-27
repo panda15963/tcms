@@ -1,6 +1,7 @@
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import { isEmpty } from 'lodash';
@@ -29,20 +30,26 @@ const defaultColumns = (t) => [
     ),
   },
   {
-    accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
-    header: () => (
-      <div
-        className="text-xs"
-        style={{
-          whiteSpace: 'nowrap', // 텍스트 줄바꿈 방지
-        }}
-      >
-        {t('MainGrid.UploadedDate')}
-      </div>
-    ),
-
+    accessorKey: 'upload_date',
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted(); // 정렬 상태 확인 (false, 'asc', 'desc')
+      return (
+        <div
+          className="flex items-center justify-center text-xs"
+          style={{ whiteSpace: 'nowrap' }} // 텍스트 줄바꿈 방지
+        >
+          <span>{t('MainGrid.UploadedDate')}</span>
+          <button
+            className="ml-1 text-gray-500"
+            onClick={column.getToggleSortingHandler()} // 정렬 토글 핸들러
+          >
+            {isSorted === 'asc' ? '▲' : isSorted === 'desc' ? '▼' : '⇅'}
+          </button>
+        </div>
+      );
+    },
     cell: ({ getValue }) => {
-      const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
+      const fullDate = getValue();
       const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
       return (
         <span title={fullDate} className="cursor-pointer text-xs">
@@ -50,6 +57,25 @@ const defaultColumns = (t) => [
         </span>
       );
     },
+    // header: () => (
+    //   <div
+    //     className="text-xs"
+    //     style={{
+    //       whiteSpace: 'nowrap', // 텍스트 줄바꿈 방지
+    //     }}
+    //   >
+    //     {t('MainGrid.UploadedDate')}
+    //   </div>
+    // ),
+    // cell: ({ getValue }) => {
+    //   const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
+    //   const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
+    //   return (
+    //     <span title={fullDate} className="cursor-pointer text-xs">
+    //       {shortDate}
+    //     </span>
+    //   );
+    // },
   },
   {
     accessorKey: 'log_name',
@@ -206,6 +232,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
 
   const [data, setData] = useState(list ?? defaultData);
+  const [sorting, setSorting] = useState([]);
 
   const [page, setPage] = useState(1); // 현재 페이지 번호
   const [selectedRows, setSelectedRows] = useState([]);
@@ -224,7 +251,12 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const table = useReactTable({
     data: displayedData, // 페이징된 데이터
     columns,
+    state: {
+      sorting, // 정렬 상태를 추가
+    },
+    onSortingChange: setSorting, // 정렬 상태 변경 핸들러
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(), // 정렬된 데이터 모델
   });
 
   // 선택된 행 상태 관리

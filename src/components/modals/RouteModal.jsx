@@ -55,6 +55,8 @@ const RouteModal = ({
   const [selectRoutes, setSelectRoutes] = useState([]); // 경로탭 체크박스 선택
 
   useEffect(() => {
+    console.log('🚀 ~ useEffect ~ data:', data);
+
     FIND_SAMEORIGIN_META(data);
   }, [data]);
 
@@ -68,6 +70,8 @@ const RouteModal = ({
       const response = await nonAuthInstance.get(
         `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.meta_id}`
       );
+      console.log('🚀 ~ constFIND_SAMEORIGIN_META= ~ response:', response);
+
       setRouteList((prevState) => {
         return {
           ...prevState,

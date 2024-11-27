@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 
@@ -28,17 +29,41 @@ const SpaceTableHeaderList = (t) => [
   {
     // 업로드 된 날짜
     accessorKey: 'upload_date',
-    header: t('SpaceTable.UploadDate'),
-    cell: ({ getValue }) => {
-      const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
-      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
-
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted(); // 정렬 상태 ('asc', 'desc', false)
       return (
-        <span title={fullDate} className="cursor-pointer">
+        <div className="flex items-center justify-center text-xs">
+          <span>{t('SpaceTable.UploadDate')}</span>
+          <button
+            className="ml-1 text-gray-500"
+            onClick={column.getToggleSortingHandler()} // 정렬 토글 핸들러
+          >
+            {isSorted === 'asc' ? '▲' : isSorted === 'desc' ? '▼' : '⇅'}
+          </button>
+        </div>
+      );
+    },
+    cell: ({ getValue }) => {
+      const fullDate = getValue();
+      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 형식으로 변환
+      return (
+        <span title={fullDate} className="cursor-pointer text-xs">
           {shortDate}
         </span>
       );
     },
+    // accessorKey: 'upload_date',
+    // header: t('SpaceTable.UploadDate'),
+    // cell: ({ getValue }) => {
+    //   const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
+    //   const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
+
+    //   return (
+    //     <span title={fullDate} className="cursor-pointer">
+    //       {shortDate}
+    //     </span>
+    //   );
+    // },
   },
   {
     // 이름
@@ -165,6 +190,7 @@ const SpaceTable = ({ list, onSelectionChange }) => {
   const { t } = useTranslation();
   const [displayedData, setDisplayedData] = useState([]); // 화면에 표시할 데이터
   const [page, setPage] = useState(1); // 현재 페이지 번호
+  const [sorting, setSorting] = useState([]); // 정렬 상태 추가
   const columns = useMemo(() => SpaceTableHeaderList(t), [t]);
 
   // list.list가 배열인지 확인하고, 아니면 빈 배열로 초기화
@@ -202,7 +228,12 @@ const SpaceTable = ({ list, onSelectionChange }) => {
   const table = useReactTable({
     data: displayedData, // 보여줄 데이터만 전달
     columns,
+    state: {
+      sorting, // 정렬 상태
+    },
+    onSortingChange: setSorting, // 정렬 변경 핸들러
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(), // 정렬된 데이터 모델
   });
 
   useEffect(() => {

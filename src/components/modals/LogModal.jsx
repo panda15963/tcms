@@ -835,6 +835,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 경로탭 더블클릭 모달 호출
    */
   const openRouteModal = (cellData) => {
+    console.log('🚀 ~ openRouteModal ~ cellData:', cellData);
     if (cellData && cellData.meta_id) {
       setIsRouteModalOpen(true);
       setSelectedRouteCellData(cellData);
@@ -1266,6 +1267,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                         setList(initialList);
                         setListConfig(initialList);
                         setSelectedLogList(initialList);
+                        setSelectedSearchFields([]);
+                        setSelectedSearchFieldsConfig([]);
+                        setListRouteCount(0);
+                        setListConfigCount(0);
                         setOpen(false);
                       }}
                     >

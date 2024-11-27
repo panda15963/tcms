@@ -1,6 +1,7 @@
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import { isEmpty } from 'lodash';
@@ -27,18 +28,45 @@ const defaultColumns = (t) => [
     ),
   },
   {
-    accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
-    header: t('MainGrid.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
+    accessorKey: 'upload_date',
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted(); // 정렬 상태 ('asc', 'desc', false)
+      return (
+        <div
+          className="flex items-center justify-center text-xs"
+          style={{ whiteSpace: 'nowrap' }} // 텍스트 줄바꿈 방지
+        >
+          <span>{t('MainGrid.UploadedDate')}</span>
+          <button
+            className="ml-1 text-gray-500"
+            onClick={column.getToggleSortingHandler()} // 정렬 토글 핸들러
+          >
+            {isSorted === 'asc' ? '▲' : isSorted === 'desc' ? '▼' : '⇅'}
+          </button>
+        </div>
+      );
+    },
     cell: ({ getValue }) => {
-      const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
-      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
-
+      const fullDate = getValue(); // 날짜 데이터
+      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 형식으로 추출
       return (
         <span title={fullDate} className="cursor-pointer text-xs">
           {shortDate}
         </span>
       );
     },
+    // accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
+    // header: t('MainGrid.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
+    // cell: ({ getValue }) => {
+    //   const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
+    //   const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
+
+    //   return (
+    //     <span title={fullDate} className="cursor-pointer text-xs">
+    //       {shortDate}
+    //     </span>
+    //   );
+    // },
   },
   {
     accessorKey: 'log_name',
@@ -174,6 +202,7 @@ const MainGridDetail = ({ list, onSelectionChange, onCellDoubleClick }) => {
 
   const [data, setData] = useState(list ?? defaultData);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [sorting, setSorting] = useState([]); // 정렬 상태 추가
 
   useEffect(() => {
     console.log('useEffect LIST ==>', list);
@@ -185,7 +214,12 @@ const MainGridDetail = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const table = useReactTable({
     data, // 테이블에 사용할 데이터
     columns, // 테이블에 사용할 컬럼
-    getCoreRowModel: getCoreRowModel(), // 기본 행 모델을 가져오는 함수 사용
+    state: {
+      sorting, // 정렬 상태
+    },
+    onSortingChange: setSorting, // 정렬 변경 핸들러
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(), // 정렬된 데이터 모델
     state: {}, // 테이블의 상태
   });
 
