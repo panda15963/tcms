@@ -1,6 +1,7 @@
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import { isEmpty } from 'lodash';
@@ -29,26 +30,55 @@ const defaultColumns = (t) => [
   {
     // 업로드 된 날짜
     accessorKey: 'modif_date', // 데이터를 가져올 키 (데이터의 속성 이름)
-    header: () => (
-      <div
-        className="text-xs"
-        style={{
-          whiteSpace: 'nowrap', // 텍스트 줄바꿈 방지
-        }}
-      >
-        {t('ConfigGridL.UploadedDate')}
-      </div>
-    ),
+    header: ({ column }) => {
+      const isSorted = column.getIsSorted(); // 정렬 상태 ('asc', 'desc', false)
+      return (
+        <div
+          className="flex items-center justify-center text-xs"
+          style={{
+            whiteSpace: 'nowrap', // 텍스트가 줄바꿈되지 않도록 설정
+            width: '100px', // 헤더 셀의 너비 조정
+          }}
+        >
+          <span>{t('ConfigGridL.UploadedDate')}</span>
+          <button
+            className="ml-1 text-gray-500"
+            onClick={column.getToggleSortingHandler()} // 정렬 토글 핸들러
+          >
+            {isSorted === 'asc' ? '▲' : isSorted === 'desc' ? '▼' : '⇅'}
+          </button>
+        </div>
+      );
+    },
     cell: ({ getValue }) => {
-      const fullDate = getValue(); // "2024-10-20 23:12:11" 형식의 데이터
-      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
-
+      const fullDate = getValue();
+      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 형식으로 변환
       return (
         <span title={fullDate} className="cursor-pointer text-xs">
           {shortDate}
         </span>
       );
     },
+    // header: () => (
+    //   <div
+    //     className="text-xs"
+    //     style={{
+    //       whiteSpace: 'nowrap', // 텍스트 줄바꿈 방지
+    //     }}
+    //   >
+    //     {t('ConfigGridL.UploadedDate')}
+    //   </div>
+    // ),
+    // cell: ({ getValue }) => {
+    //   const fullDate = getValue(); // "2024-10-20 23:12:11" 형식의 데이터
+    //   const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
+
+    //   return (
+    //     <span title={fullDate} className="cursor-pointer text-xs">
+    //       {shortDate}
+    //     </span>
+    //   );
+    // },
   },
   {
     // CFG 이름
@@ -197,6 +227,7 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const [displayedData, setDisplayedData] = useState([]); // 표시할 데이터
   const [page, setPage] = useState(1); // 현재 페이지 번호
   const [selectedRows, setSelectedRows] = useState([]);
+  const [sorting, setSorting] = useState([]); // 정렬 상태 추가
 
   // list.list가 배열인지 확인하고, 아니면 빈 배열로 초기화
   const validList = Array.isArray(list?.list) ? list.list : [];
@@ -233,7 +264,12 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const table = useReactTable({
     data: displayedData,
     columns,
+    state: {
+      sorting, // 정렬 상태 추가
+    },
+    onSortingChange: setSorting, // 정렬 변경 핸들러 추가
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(), // 정렬된 데이터 모델 추가
   });
 
   useEffect(() => {
