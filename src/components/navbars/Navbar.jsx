@@ -33,7 +33,7 @@ const NavBar = () => {
   ];
 
   const userDropMenus = [
-    { id: 'myPage', name: t('NavBar.MyPage') },
+    // { id: 'myPage', name: t('NavBar.MyPage') },
     { id: 'logout', name: t('NavBar.SignOut') },
   ];
 

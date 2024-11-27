@@ -1,10 +1,4 @@
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-  useRef,
-} from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck, FaSearch } from 'react-icons/fa';
@@ -17,10 +11,8 @@ import SingleSelectDropDown from '../dropdowns/mapMenus/SingleSelectDropDown';
 import { useTranslation } from 'react-i18next';
 import ConfigGridL from '../tables/mapTables/ConfigGridL';
 import ConfigGridR from '../tables/mapTables/ConfigGridR';
-import ConfigGridL2 from '../tables/mapTables/ConfigGridLDetail';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
-import ConfigGridR2 from '../tables/mapTables/ConfigGridRDetail';
 import { FaDownload } from 'react-icons/fa6';
 import Error from '../alerts/Error';
 import useDidMount from '../../hooks/useDidMount';
@@ -135,10 +127,12 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [activeTab, setActiveTab] = useState('route');
 
   // 검색필드 리스트 관련
-  const [selectedSearchFields, setSelectedSearchFields] = useState([]); // 경로탭 검색필드
+  // 경로탭 검색필드
+  const [selectedSearchFields, setSelectedSearchFields] = useState([]);
+  // 화면정보탭 검색필드
   const [selectedSearchFieldsConfig, setSelectedSearchFieldsConfig] = useState(
     []
-  ); // 화면정보탭 검색필드
+  );
   const [countryList, setCountryList] = useState(initialList);
   const [featureList, setFeatureList] = useState(initialList);
   const [targetList, setTargetList] = useState(initialList);
@@ -147,14 +141,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedConfigIds, setSelectedConfigIds] = useState([]);
 
-  // 그리드 리스트 관련
-  const [list, setList] = useState(initialList); // 경로탭 조회 리스트
-  const [listConfig, setListConfig] = useState(initialList); // 화면정보탭 조회 리스트
-  const [listConfigDetail, setListConfigDetail] = useState(initialList); // 화면정보탭 더블클릭 조회 리스트
+  // 리스트 표출 관련
+  const [list, setList] = useState(initialList); // 경로탭 검색 리스트
+  const [listConfig, setListConfig] = useState(initialList); // 화면정보탭 검색 리스트
+
   const [listRouteCount, setListRouteCount] = useState(0); // 경로탭 총 결과 카운트
   const [listConfigCount, setListConfigCount] = useState(0); // 화면정보탭 총 결과 카운트
-  const [selectedRows, setSelectedRows] = useState([]); // 경로탭 체크박스 선택
 
+  const [selectedRoutes, setSelectedRoutes] = useState([]); // 경로탭 체크박스 선택
   const [selectedLogList, setSelectedLogList] = useState(initialList); // 화면정보탭 체크박스 선택
 
   const [selectedLogListDetail, setSelectedLogListDetail] =
@@ -760,14 +754,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const handleSelectionChangeRoute = (selectedRows) => {
     console.log('선택된 행:', selectedRows);
-    setSelectedRows(selectedRows); // 선택된 행 관리
+    setSelectedRoutes(selectedRows); // 선택된 행 관리
   };
 
   /**
    * 경로탭 선택 버튼
    */
   const handleRouteClick = async () => {
-    console.log('🚀 ~ handleRouteClick ~ selectedRows:', selectedRows);
+    console.log('🚀 ~ handleRouteClick ~ selectedRoutes:', selectedRoutes);
     setLoading(true);
 
     const findArray = (obj) => {
@@ -787,8 +781,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       return null;
     };
 
-    const arrayFromList = findArray(selectedRows);
-    console.log('🚀 ~ handleRouteClick ~ selectedRows:', selectedRows);
+    const arrayFromList = findArray(selectedRoutes);
+    console.log('🚀 ~ handleRouteClick ~ selectedRoutes:', selectedRoutes);
     console.log('🚀 ~ handleRouteClick ~ arrayFromList:', arrayFromList);
 
     if (arrayFromList.length == 0) {
@@ -803,7 +797,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     if (arrayFromList && arrayFromList.length > 0) {
       const fileIds = arrayFromList.map((route) => route.file_id);
       const routeCoords = await SPACE_INTERPOLATION(fileIds);
-      routeData(selectedRows);
+      routeData(selectedRoutes);
       routeFullCoords(routeCoords);
     } else {
       console.error('No array found in list');
@@ -812,6 +806,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
     setOpen(false);
 
+    setListRouteCount(0);
+    setListConfigCount(0);
+
     setCond(initialCond);
     setSelectedSearchFields([]);
     setSelectedSearchFieldsConfig([]);
@@ -819,7 +816,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setList(initialList);
 
     setListConfig(initialList);
-    setListConfigDetail(initialList);
 
     setSelectedLogList(initialList);
     setSelectedLogListDetail(initialList);
@@ -842,7 +838,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 경로탭 다운로드
    */
   const handleRouteDownload = async () => {
-    const dataToDownload = selectedRows;
+    const dataToDownload = selectedRoutes;
     console.log('🚀 ~ handleRouteDownload ~ dataToDownload:', dataToDownload);
     setLoading(true);
 
@@ -1013,13 +1009,14 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setList(initialList);
 
     setListConfig(initialList);
-    setListConfigDetail(initialList);
 
     setSelectedLogList(initialList);
     setSelectedLogListDetail(initialList);
 
     setSelectedRouteCellData();
     setSelectedConfigCellData();
+
+    setListRouteCount(0);
     setListConfigCount(0);
 
     setIsConfigModalOpen(false);
@@ -1082,13 +1079,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       setIsConfigModalOpen(true);
       setSelectedConfigCellData(cellData);
     }
-  };
-
-  /**
-   * 화면정보탭 더블클릭 모달 닫기
-   */
-  const closeConfigModal = () => {
-    setIsConfigModalOpen(false); // 모달 닫기
   };
 
   /**
@@ -1223,7 +1213,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         onClose={() => {
           setList(initialList);
           setListConfig(initialList);
-          setListConfigDetail(initialList);
           setSelectedLogList(initialList);
           setSelectedLogListDetail(initialList);
           setOpen(false); // 모달 닫기
@@ -1268,7 +1257,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       onClick={() => {
                         setList(initialList);
                         setListConfig(initialList);
-                        setListConfigDetail(initialList);
                         setSelectedLogList(initialList);
                         setSelectedLogListDetail(initialList);
                         setOpen(false);
