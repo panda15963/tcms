@@ -14,7 +14,6 @@ export default function Configuration() {
     // Simulate reloading or fetching updated data
     const updatedData = location.state; // Replace this with actual data fetch if needed
     setData(updatedData);
-    console.log('Data reloaded:', updatedData);
   };
 
   // Automatically reload data every 30 seconds

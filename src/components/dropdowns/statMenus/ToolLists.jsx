@@ -14,7 +14,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function ToolLists({ selectedTool }) {
+export default function ToolLists({ selectedTool, setSelectedTool = () => {} }) {
   const { t } = useTranslation();
   const location = useLocation();
   const [selected, setSelected] = useState(null);
@@ -43,10 +43,12 @@ export default function ToolLists({ selectedTool }) {
     const initialSelected =
       ToolList.find((api) => api.name === path) || ToolList[0];
     setSelected(initialSelected);
+    setSelectedTool(initialSelected);
   }, [location.pathname, ToolList]);
 
   const handleOnSelectMap = (selectedMap) => {
     setSelected(selectedMap);
+    setSelectedTool(selectedMap);
   };
 
   if (!selected) return null;

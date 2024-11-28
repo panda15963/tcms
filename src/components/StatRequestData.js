@@ -170,9 +170,6 @@ const LIVE_TOOL = async () => {
 const TOOL_LOGS = async (inputCond) => {
   try {
     const result = await StatLogService.TOOL_LOGS({ cond: inputCond });
-
-    console.log('TOOL_LOGS:', result);
-
     if (typeof result === 'string') {
       const formattedResponse = result.replace(
         /UploadLogResponse\((.*?)\)/g,

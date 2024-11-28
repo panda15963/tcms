@@ -26,6 +26,10 @@ export default function StatTopMenuBar() {
   const [dateTerm, setDateTerm] = useState(null);
   const [toolNames, setToolNames] = useState([]);
   const [pcNames, setPcNames] = useState([]);
+  const [selectedPC, setSelectedPC] = useState(null);
+  const [selectedTool, setSelectedTool] = useState(null);
+
+  console.log('selectedPC:', selectedPC, 'selectedTool:', selectedTool);
 
   const handleReset = () => {};
 
@@ -163,12 +167,7 @@ export default function StatTopMenuBar() {
             }}
           >
             <DateTerms terms={handleOnSelectTerm} />
-            <CustomDatePicker
-              startsDate={setStartDate}
-              endsDate={setEndDate}
-              startDate={startDate}
-              endDate={endDate}
-            />
+            <CustomDatePicker startsDate={setStartDate} endsDate={setEndDate} />
           </div>
 
           <button
@@ -205,7 +204,7 @@ export default function StatTopMenuBar() {
             <label className="text-sm font-bold text-white">
               {t('StatNavBar.SelectTool')} :
             </label>
-            <ToolLists selectedTool={toolNames} />
+            <ToolLists selectedTool={toolNames} setSelectedTool={setSelectedTool} />
           </div>
 
           {/* PC Lists */}
@@ -219,7 +218,7 @@ export default function StatTopMenuBar() {
             <label className="text-sm font-bold text-white">
               {t('StatNavBar.SelectPC')}:
             </label>
-            <PCLists selectedPC={pcNames} />
+            <PCLists selectedPC={pcNames} setSelectedPC={setSelectedPC} />
           </div>
 
           {/* Search Buttons */}

@@ -7,14 +7,10 @@ import LogTable from '../../components/tables/statTables/LogsTable';
 export default function Logs() {
   const { t } = useTranslation();
   const location = useLocation();
-  const [data, setData] = useState(location.state); // Use state to manage data
 
   const handleRefresh = () => {
-    console.log('Refreshing data...', data);
-
-    setData(null); // Clear data
     setTimeout(() => {
-      setData(location.state); // Reset data to the initial state
+      setData(location.state || { result: [] });
     }, 500); // Simulate delay for refreshing
   };
 
@@ -48,8 +44,8 @@ export default function Logs() {
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
         style={{ height: '60vh' }} // Optional: Adjust height for better alignment
       >
-        {data?.result?.length ? (
-          <LogTable data={data.result} />
+        {location.state?.result?.length ? (
+          <LogTable data={location.state?.result} />
         ) : (
           <p>{t('Logs.NoDataFound')}</p>
         )}
