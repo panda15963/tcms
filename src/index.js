@@ -27,6 +27,7 @@ import { AuthProvider } from './context/AuthProvider';
 const root = createRoot(document.getElementById('root'));
 root.render(
   <I18nextProvider i18n={i18n}>
+    {/* <StrictMode> */}
     <ToastProvider>
       <SelectedItemProvider>
         <LoadingBarProvider>
@@ -72,5 +73,6 @@ root.render(
         </LoadingBarProvider>
       </SelectedItemProvider>
     </ToastProvider>
+    {/* </StrictMode> */}
   </I18nextProvider>
 );
