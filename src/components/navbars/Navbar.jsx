@@ -106,13 +106,15 @@ const NavBar = () => {
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-12 text-center transform scale-95">
-          <Link
-            to="/main/map"
-            className="text-sm font-semibold flex items-center"
-          >
-            {/* 지도 */}
-            {t('Common.Map')}
-          </Link>
+          {isActiveManagement && (
+            <Link
+              to="/main/map"
+              className="text-sm font-semibold flex items-center"
+            >
+              {/* 지도 */}
+              {t('Common.Map')}
+            </Link>
+          )}
           {isActiveManagement && (
             <Menu
               as="div"
