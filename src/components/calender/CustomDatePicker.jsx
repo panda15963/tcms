@@ -1,18 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useTranslation } from 'react-i18next';
 
-const DateRangePicker = ({ startsDate, endsDate }) => {
+const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
   const { t } = useTranslation();
-
-  // Initialize startDate to 1 week ago and endDate to today's date
-  const [startDate, setStartDate] = useState(() => {
-    const date = new Date();
-    date.setDate(date.getDate() - 7); // Subtract 7 days
-    return date;
-  });
-  const [endDate, setEndDate] = useState(new Date());
 
   useEffect(() => {
     if (startDate && typeof startsDate === 'function') {
@@ -36,11 +28,11 @@ const DateRangePicker = ({ startsDate, endsDate }) => {
         <DatePicker
           className="border py-1 border-black text-center rounded-md w-32"
           selected={startDate}
-          onChange={(date) => setStartDate(date || new Date())} // Update startDate on change
+          onChange={(date) => startsDate(date || new Date())}
           selectsStart
           startDate={startDate}
           endDate={endDate}
-          maxDate={startDate} // Prevent selection beyond endDate
+          maxDate={endDate} // Prevent selection beyond endDate
         />
       </div>
 
@@ -55,7 +47,7 @@ const DateRangePicker = ({ startsDate, endsDate }) => {
         <DatePicker
           className="border border-black py-1 text-center rounded-md w-32"
           selected={endDate}
-          onChange={(date) => setEndDate(date || new Date())} // Update endDate on change
+          onChange={(date) => endsDate(date || new Date())}
           selectsEnd
           startDate={startDate}
           endDate={endDate}

@@ -14,7 +14,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function PCLists({ selectedPC, setSelectedPC = () => {} }) {
+export default function PCLists({ selectedPC, setSelectedPC = () => {}, resetTrigger }) {
   const { t } = useTranslation();
   const location = useLocation();
   const [selected, setSelected] = useState(null);
@@ -32,7 +32,7 @@ export default function PCLists({ selectedPC, setSelectedPC = () => {} }) {
       ];
       setPCList(formattedPCList);
     }
-  }, [selectedPC]);
+  }, [selectedPC, t]);
 
   // Update the selected PC based on the current URL path or default to "All"
   useEffect(() => {
@@ -42,6 +42,15 @@ export default function PCLists({ selectedPC, setSelectedPC = () => {} }) {
     setSelected(initialSelected);
     setSelectedPC(initialSelected); // Sync with parent state
   }, [location.pathname, PCList, setSelectedPC]);
+
+  // Reset the selection when `resetTrigger` changes
+  useEffect(() => {
+    if (PCList.length > 0) {
+      const defaultSelection = PCList[0]; // Default to "All"
+      setSelected(defaultSelection);
+      setSelectedPC(defaultSelection); // Sync with parent state
+    }
+  }, [resetTrigger, PCList, setSelectedPC]);
 
   // Handle selection changes
   const handleOnSelectMap = (selectedMap) => {

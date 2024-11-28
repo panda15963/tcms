@@ -18,20 +18,34 @@ import {
 } from '../StatRequestData.js';
 
 export default function StatTopMenuBar() {
+  // Define initial dates
+  const initialStartDate = new Date();
+  initialStartDate.setDate(initialStartDate.getDate() - 7); // 1 week ago
+  const initialEndDate = new Date(); // Today
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [data, setData] = useState({ name: '' });
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [dateTerm, setDateTerm] = useState(null);
+  const [startDate, setStartDate] = useState(initialStartDate);
+  const [endDate, setEndDate] = useState(initialEndDate);
+  const [dateTerm, setDateTerm] = useState({
+    id: 1,
+    name: t('DateTerms.Day'),
+    value: 'day',
+  }); // Default to "Day"
   const [toolNames, setToolNames] = useState([]);
   const [pcNames, setPcNames] = useState([]);
   const [selectedPC, setSelectedPC] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
+  const [resetTrigger, setResetTrigger] = useState(0);
 
   console.log('selectedPC:', selectedPC, 'selectedTool:', selectedTool);
 
-  const handleReset = () => {};
+  const handleReset = () => {
+    setStartDate(initialStartDate);
+    setEndDate(initialEndDate);
+    setDateTerm({ id: 1, name: t('DateTerms.Day'), value: 'day' });
+    setResetTrigger((prev) => prev + 1);
+  };
 
   const formatDateToLocalISO = (date) => {
     if (!date) return '';
@@ -166,8 +180,13 @@ export default function StatTopMenuBar() {
               pointerEvents: isDisabled ? 'none' : 'auto',
             }}
           >
-            <DateTerms terms={handleOnSelectTerm} />
-            <CustomDatePicker startsDate={setStartDate} endsDate={setEndDate} />
+            <DateTerms terms={setDateTerm} initialTerm={dateTerm} />
+            <CustomDatePicker
+              startsDate={setStartDate}
+              endsDate={setEndDate}
+              startDate={startDate} // Pass current startDate
+              endDate={endDate} // Pass current endDate
+            />
           </div>
 
           <button
@@ -204,7 +223,11 @@ export default function StatTopMenuBar() {
             <label className="text-sm font-bold text-white">
               {t('StatNavBar.SelectTool')} :
             </label>
-            <ToolLists selectedTool={toolNames} setSelectedTool={setSelectedTool} />
+            <ToolLists
+              selectedTool={toolNames}
+              setSelectedTool={setSelectedTool}
+              resetTrigger={resetTrigger}
+            />
           </div>
 
           {/* PC Lists */}
@@ -218,7 +241,11 @@ export default function StatTopMenuBar() {
             <label className="text-sm font-bold text-white">
               {t('StatNavBar.SelectPC')}:
             </label>
-            <PCLists selectedPC={pcNames} setSelectedPC={setSelectedPC} />
+            <PCLists
+              selectedPC={pcNames}
+              setSelectedPC={setSelectedPC}
+              resetTrigger={resetTrigger}
+            />
           </div>
 
           {/* Search Buttons */}

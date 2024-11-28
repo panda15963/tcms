@@ -14,7 +14,11 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function ToolLists({ selectedTool, setSelectedTool = () => {} }) {
+export default function ToolLists({
+  selectedTool,
+  setSelectedTool = () => {},
+  resetTrigger,
+}) {
   const { t } = useTranslation();
   const location = useLocation();
   const [selected, setSelected] = useState(null);
@@ -38,6 +42,7 @@ export default function ToolLists({ selectedTool, setSelectedTool = () => {} }) 
     }
   }, [selectedTool]);
 
+  // Update the selected tool based on the current URL path or default to "All"
   useEffect(() => {
     const path = location.pathname.split('/').pop().toUpperCase();
     const initialSelected =
@@ -45,6 +50,15 @@ export default function ToolLists({ selectedTool, setSelectedTool = () => {} }) 
     setSelected(initialSelected);
     setSelectedTool(initialSelected);
   }, [location.pathname, ToolList]);
+
+  // Reset the selection when `resetTrigger` changes
+  useEffect(() => {
+    if (ToolList.length > 0) {
+      const defaultSelection = ToolList[0]; // Default to "All"
+      setSelected(defaultSelection);
+      setSelectedTool(defaultSelection); // Sync with parent state
+    }
+  }, [resetTrigger, ToolList, setSelectedTool]);
 
   const handleOnSelectMap = (selectedMap) => {
     setSelected(selectedMap);
