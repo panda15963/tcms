@@ -6,19 +6,21 @@ import { formatStringDate } from '../../common/Utils';
 import useToast from '../../hooks/useToast';
 import { ToastTypes } from '../../context/ToastProvider';
 import AddAdminModal from './AddAdminModal';
+import { useTranslation } from 'react-i18next';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
 export default function ManagementAdmins() {
+  const { t } = useTranslation();
+
   let cancelconds;
 
   const { showToast } = useToast();
+  const addAdminModalRef = useRef();
 
   const [list, setList] = useState([]);
-
-  const addAdminModalRef = useRef();
 
   useEffect(() => {
     fetchAdmins();
@@ -83,13 +85,15 @@ export default function ManagementAdmins() {
   return (
     <div className="px-24 py-16 w-full whitespace-nowrap">
       <h2 className="px-4 text-2xl font-semibold text-black sm:px-6 lg:px-8 text-center">
-        관리자 관리
+        {/* 관리자 관리 */}
+        {t('admin.AdministratorManagement')}
       </h2>
       <div className="mt-10 px-4 sm:px-6 lg:px-8">
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto">
             <h1 className="text-base font-semibold text-gray-900">
-              시스템 관리자들
+              {/* 시스템 관리자 */}
+              {t('admin.SystemAdministrator')}
             </h1>
           </div>
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -104,7 +108,8 @@ export default function ManagementAdmins() {
               }}
             >
               <FiPlus aria-hidden="true" className="-ml-0.5 size-5" />
-              관리자 추가
+              {/* 관리자 추가 */}
+              {t('admin.AddAdministrators')}
             </button>
           </div>
         </div>
@@ -126,30 +131,36 @@ export default function ManagementAdmins() {
                   scope="col"
                   className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
                 >
-                  아이디
+                  {/* 아이디 */}
+                  {t('HomeLogin.ID')}
                 </th>
                 <th
                   scope="col"
                   className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell"
                 >
-                  사용유무
+                  {/* 사용유무 */}
+                  {t('admin.UseYn')}
                 </th>
                 <th
                   scope="col"
                   className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 lg:table-cell"
                 >
-                  등록일
+                  {/* 등록일 */}
+                  {t('admin.RegisteredDate')}
                 </th>
                 <th
                   scope="col"
                   className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                 >
-                  수정일
+                  {/* 수정일 */}
+                  {t('admin.ModifiedDate')}
                 </th>
                 <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                  {/* 수정 */}
                   <span className="sr-only ">수정</span>
                 </th>
                 <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                  {/* 삭제 */}
                   <span className="sr-only ">삭제</span>
                 </th>
               </tr>

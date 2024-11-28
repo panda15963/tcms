@@ -7,6 +7,15 @@
     "Search": "Search",
     "All": "All"
   },
+  "admin": {
+    "AdministratorManagement": "Administrator Management",
+    "SystemAdministrator": "System Administrator",
+    "AddAdministrators": "Add Administrators",
+    "UseYn": "Use Y/N",
+    "RegisteredDate": "RegisteredDate",
+    "ModifiedDate": "Modified Date",
+    "Modification": "ModifiedDate"
+  },
   "NavBar": {
     "Dashboard": "Dashboard",
     "UsageRate": "Usage Rate",

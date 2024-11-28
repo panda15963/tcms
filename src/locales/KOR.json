@@ -7,6 +7,15 @@
     "Search": "조회",
     "All": "전체"
   },
+  "admin": {
+    "AdministratorManagement": "관리자 관리",
+    "SystemAdministrator": "시스템 관리자",
+    "AddAdministrators": "관리자 추가",
+    "UseYn": "사용유무",
+    "RegisteredDate": "등록일",
+    "ModifiedDate": "수정일",
+    "Modification": "수정"
+  },
   "NavBar": {
     "Dashboard": "통계",
     "UsageRate": "사용률",
@@ -303,7 +312,7 @@
     "ExecutedTime": "실행 시간",
     "OperationStatus": "동작 상태"
   },
-  "UsageCounts":{
+  "UsageCounts": {
     "UsageCounts": "도구 기능별 사용 횟수",
     "SelectTool": "도구 선택",
     "SelectPC": "PC 선택",
@@ -322,7 +331,7 @@
     "StartTestingTime": "TC 평가 시작 시간",
     "ExecutedTime": "실행 시간",
     "OperationStatus": "동작 상태",
-    "Details" : "비고"
+    "Details": "비고"
   },
   "LineChart": {
     "NoDataFound": "조회된 데이터가 없습니다.",

@@ -19,7 +19,6 @@ import useDidMount from '../../hooks/useDidMount';
 import useLoading from '../../hooks/useLoading';
 import RouteModal from './RouteModal';
 import ConfigModal from './ConfigModal';
-import useToast from '../../hooks/useToast';
 
 /**
  * 로그 검색
@@ -30,7 +29,6 @@ import useToast from '../../hooks/useToast';
 const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const { t } = useTranslation();
   const location = useLocation();
-  const { showToast } = useToast();
   const { loading, setLoading } = useLoading();
 
   const initialCond = {
@@ -318,8 +316,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             list: res.findMeta,
           };
         });
-        showToast(ToastTypes.SUCCESS, '성공', '조회를 완료했습니다.');
-
         setListRouteCount(res.findMeta.length);
         setLoading(false);
       });
