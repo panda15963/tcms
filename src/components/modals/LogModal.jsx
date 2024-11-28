@@ -19,6 +19,7 @@ import useDidMount from '../../hooks/useDidMount';
 import useLoading from '../../hooks/useLoading';
 import RouteModal from './RouteModal';
 import ConfigModal from './ConfigModal';
+import useToast from '../../hooks/useToast';
 
 /**
  * 로그 검색
@@ -29,6 +30,7 @@ import ConfigModal from './ConfigModal';
 const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const { t } = useTranslation();
   const location = useLocation();
+  const { showToast } = useToast();
   const { loading, setLoading } = useLoading();
 
   const initialCond = {
@@ -316,6 +318,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             list: res.findMeta,
           };
         });
+        showToast(ToastTypes.SUCCESS, '성공', '조회를 완료했습니다.');
+
         setListRouteCount(res.findMeta.length);
         setLoading(false);
       });
@@ -1472,7 +1476,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                             className="h-4 w-5 text-sky-500"
                             aria-hidden="true"
                           />
-                          {/* 로그검색 -> 검색 버튼 */}
+                          {/* 경로 -> 검색 버튼 */}
                           <span className="text-sm text-sky-500 font-bold">
                             {t('LogModal.Find')}
                           </span>

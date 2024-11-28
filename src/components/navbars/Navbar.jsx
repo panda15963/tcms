@@ -30,7 +30,7 @@ const NavBar = () => {
   // Define the AuthPage and userDropMenus arrays after t is initialized
   const AuthPage = [
     { id: 1, name: t('NavBar.AdminManagement'), link: '/main/admins' },
-    { id: 2, name: t('NavBar.UserManagement'), link: '/main/users' },
+    // { id: 2, name: t('NavBar.UserManagement'), link: '/main/users' },
   ];
 
   const userDropMenus = [
