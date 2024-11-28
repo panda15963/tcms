@@ -27,6 +27,8 @@ export default function StatTopMenuBar() {
   const [toolNames, setToolNames] = useState([]);
   const [pcNames, setPcNames] = useState([]);
 
+  const handleReset = () => {};
+
   const formatDateToLocalISO = (date) => {
     if (!date) return '';
     const year = date.getFullYear();
@@ -108,7 +110,6 @@ export default function StatTopMenuBar() {
         navigate('usageFunctionCounts', {
           state: await FUNCTION_COUNT(UsageCounts),
         });
-        // console.log('UsageCounts:', await FUNCTION_COUNT(UsageCounts));
         break;
       case '도구 로그 확인':
         const Logs = {
@@ -165,14 +166,14 @@ export default function StatTopMenuBar() {
             <CustomDatePicker
               startsDate={setStartDate}
               endsDate={setEndDate}
+              startDate={startDate}
+              endDate={endDate}
             />
           </div>
 
           <button
             type="button"
-            onClick={() => {
-              setReset(false);
-            }}
+            onClick={handleReset}
             className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset"
             style={{
               opacity: isDisabled ? 0.5 : 1,

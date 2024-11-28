@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Listbox,
   ListboxButton,
@@ -13,7 +14,8 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function PCLists({ selectedPC }) {
+export default function PCLists({ selectedPC, setSelectedPC }) {
+  const { t } = useTranslation();
   const location = useLocation();
   const [selected, setSelected] = useState(null);
   const [PCList, setPCList] = useState([]);
@@ -21,10 +23,13 @@ export default function PCLists({ selectedPC }) {
   // Convert the `selectedPC.pcname` array into the desired `PCList` format
   useEffect(() => {
     if (selectedPC && Array.isArray(selectedPC.pcname)) {
-      const formattedPCList = selectedPC.pcname.map((name, index) => ({
-        id: index + 1,
-        name,
-      }));
+      const formattedPCList = [
+        { id: 1, name: t('PCList.All') }, // Ensure id 1 corresponds to "All"
+        ...selectedPC.pcname.map((name, index) => ({
+          id: index + 2, // Start other IDs from 2
+          name,
+        })),
+      ];
       setPCList(formattedPCList);
     }
   }, [selectedPC]);
@@ -37,7 +42,9 @@ export default function PCLists({ selectedPC }) {
   }, [location.pathname, PCList]);
 
   const handleOnSelectMap = (selectedMap) => {
-    setSelected(selectedMap);
+    setSelected(selectedMap); // Update local state
+    setSelectedPC(selectedMap); 
+    console.log('selectedMap:', selectedMap);
   };
 
   if (!selected) return null;

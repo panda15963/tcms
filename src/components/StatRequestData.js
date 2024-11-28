@@ -80,35 +80,123 @@ const FUNCTION_COUNT = async (inputCond) => {
 
 const LIVE_TC = async () => {
   try {
-    const data = await StatLogService.LIVE_TC();
-    if (!data) {
+    const result = await StatLogService.LIVE_TC();
+    if (typeof result === 'string') {
+      const formattedResponse = result.replace(
+        /TcToolLiveInfoResponse\((.*?)\)/g,
+        (_, content) => {
+          const formattedContent = content
+            .split(', ')
+            .map((pair) => {
+              const [key, value] = pair.split('=');
+              const formattedValue =
+                value === 'null' || !isNaN(Number(value))
+                  ? value
+                  : `"${value}"`;
+              return `"${key}":${formattedValue}`;
+            })
+            .join(', ');
+          return `{${formattedContent}}`;
+        }
+      );
+      return JSON.parse(formattedResponse);
+    }
+    if (typeof result === 'object') {
+      console.log('Result is already parsed as JSON:', result);
+      return result;
+    }
+    if (!result) {
       throw new Error('No data received for LIVE_TC.');
     }
-    return data;
+    return result;
   } catch (error) {
     console.error('Error fetching live TC data:', error.message);
-    // Provide a default fallback value if needed
     return { message: 'Error fetching data', data: [] };
   }
 };
 
 const LIVE_TOOL = async () => {
   try {
-    const data = await StatLogService.LIVE_TOOL();
-    if (!data) {
+    const result = await StatLogService.LIVE_TOOL();
+
+    if (!result) {
       throw new Error('No data received for LIVE_TOOL.');
     }
-    return data;
+
+    if (typeof result === 'string') {
+      // 문자열을 JSON 형식으로 변환
+      const formattedResponse = result.replace(
+        /ToolLiveInfoResponse\((.*?)\)/g,
+        (_, content) => {
+          const formattedContent = content
+            .split(/,\s?/) // 쉼표로 구분된 데이터 분리
+            .map((pair) => {
+              const [key, value] = pair.split('=');
+              if (!key || value === undefined || value === '') {
+                // 값이 없거나 잘못된 경우 null로 설정
+                return `"${key.trim()}":null`;
+              }
+              const formattedValue =
+                value === 'null' || !isNaN(Number(value))
+                  ? value // 숫자 또는 null 처리
+                  : `"${value}"`; // 문자열 처리
+              return `"${key.trim()}":${formattedValue.trim()}`;
+            })
+            .filter(Boolean) // 유효하지 않은 값 제거
+            .join(', ');
+
+          return `{${formattedContent}}`;
+        }
+      );
+
+      try {
+        // JSON 파싱
+        return JSON.parse(formattedResponse);
+      } catch (parseError) {
+        console.error('Error parsing formatted response:', parseError.message);
+        console.error('Formatted Response:', formattedResponse);
+        throw new Error('Failed to parse formatted response.');
+      }
+    }
+
+    return result;
   } catch (error) {
-    console.error('Error fetching live tool data:', error.message);
+    console.error('Error fetching live tool result:', error.message);
     // Provide a default fallback value if needed
-    return { message: 'Error fetching data', data: [] };
+    return { message: 'Error fetching result', data: [] };
   }
 };
 
 const TOOL_LOGS = async (inputCond) => {
   try {
-    return await StatLogService.TOOL_LOGS({ cond: inputCond });
+    const result = await StatLogService.TOOL_LOGS({ cond: inputCond });
+
+    console.log('TOOL_LOGS:', result);
+
+    if (typeof result === 'string') {
+      const formattedResponse = result.replace(
+        /UploadLogResponse\((.*?)\)/g,
+        (_, content) => {
+          const keyValuePairs = content.split(', ').map((pair) => {
+            const [key, value] = pair.split('=');
+            // 값이 없을 경우 null로 처리
+            const formattedValue =
+              value === undefined || value === '' || value === 'null'
+                ? null
+                : isNaN(value) || value.trim() === ''
+                ? `"${value.trim()}"`
+                : value;
+            return `"${key}":${formattedValue}`;
+          });
+
+          // Key-value 쌍을 JSON으로 묶음
+          return `{${keyValuePairs.join(', ')}}`;
+        }
+      );
+      return JSON.parse(formattedResponse);
+    }
+
+    return result;
   } catch (error) {
     console.error('Error in TOOL_LOGS:', error);
     return null;

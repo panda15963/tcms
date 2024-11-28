@@ -36,10 +36,10 @@ export default function LogTable({ data }) {
           {sanitizedData.map((data) => (
             <tr key={data.id}>
               {[
-                'PC',
+                'pcname',
                 'toolname',
                 'toolver',
-                'logtime',
+                'exectime',
                 'loglevel',
                 'logdetail',
               ].map((field) => (

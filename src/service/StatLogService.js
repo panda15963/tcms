@@ -53,7 +53,6 @@ const StatLogService = {
   },
   FUNCTION_COUNT: async (obj) => {
     const { cond, cancelToken } = obj;
-    console.log('FUNCTION_COUNT', cond);
     const result = await nonAuthInstance
       .post('/statistics/function-count', cond, {
         cancelToken,

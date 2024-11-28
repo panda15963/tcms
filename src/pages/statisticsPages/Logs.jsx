@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { IoReloadSharp } from 'react-icons/io5';
@@ -7,8 +7,26 @@ import LogTable from '../../components/tables/statTables/LogsTable';
 export default function Logs() {
   const { t } = useTranslation();
   const location = useLocation();
-  const data = location.state;
-  console.log(data);
+  const [data, setData] = useState(location.state); // Use state to manage data
+
+  const handleRefresh = () => {
+    console.log('Refreshing data...', data);
+
+    setData(null); // Clear data
+    setTimeout(() => {
+      setData(location.state); // Reset data to the initial state
+    }, 500); // Simulate delay for refreshing
+  };
+
+  // 30초마다 자동 새로고침
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleRefresh();
+    }, 30000); // 30초
+
+    // 컴포넌트 언마운트 시 인터벌 정리
+    return () => clearInterval(interval);
+  }, [location.state]);
 
   return (
     <div
@@ -17,10 +35,12 @@ export default function Logs() {
     >
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-2xl font-bold text-center pb-4 text-gray-900">
-          {/** 도구 로그 확인 */}
           {t('Logs.ToolLogs')}
         </h1>
-        <button className="flex items-center px-4 py-2 border border-black bg-white text-gray-900 rounded-lg shadow">
+        <button
+          onClick={handleRefresh} // Attach manual refresh functionality
+          className="flex items-center px-4 py-2 border border-black bg-white text-gray-900 rounded-lg shadow"
+        >
           <IoReloadSharp />
         </button>
       </div>

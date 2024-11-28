@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Listbox,
   ListboxButton,
@@ -14,6 +15,7 @@ function classNames(...classes) {
 }
 
 export default function ToolLists({ selectedTool }) {
+  const { t } = useTranslation();
   const location = useLocation();
   const [selected, setSelected] = useState(null);
   const [ToolList, setToolList] = useState([]);
@@ -22,7 +24,7 @@ export default function ToolLists({ selectedTool }) {
   useEffect(() => {
     if (selectedTool && Array.isArray(selectedTool.toolnametbl)) {
       const formattedToolList = selectedTool.toolnametbl.map((tool, index) => ({
-        id: index + 1,
+        id: index + 2, // Start IDs from 2 since ID 1 will be for "ALL"
         name: tool.toolname,
       }));
 
@@ -31,9 +33,11 @@ export default function ToolLists({ selectedTool }) {
         new Map(formattedToolList.map((item) => [item.name, item]))
       ).map(([, value]) => value);
 
-      setToolList(uniqueToolList);
+      // Add "ALL" as the first option with ID 1
+      setToolList([{ id: 1, name: t('ToolList.All') }, ...uniqueToolList]);
     }
   }, [selectedTool]);
+
   useEffect(() => {
     const path = location.pathname.split('/').pop().toUpperCase();
     const initialSelected =

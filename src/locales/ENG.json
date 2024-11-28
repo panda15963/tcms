@@ -340,5 +340,11 @@
     "NoDataFound": "No Data Found.",
     "Value": "Data Value",
     "Date": "Date"
+  },
+  "PCList": {
+    "All": "All"
+  },
+  "ToolList": {
+    "All": "All"
   }
 }
