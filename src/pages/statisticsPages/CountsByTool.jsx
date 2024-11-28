@@ -30,7 +30,7 @@ export default function CountsByTool() {
         {data?.result?.length ? (
           <LineChart data={data.result} groupBy="tools" />
         ) : (
-          <p>No data available</p>
+          <p>{t('CountsByTool.NoDataFound')}</p>
         )}
       </div>
     </div>

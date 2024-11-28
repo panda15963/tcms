@@ -31,7 +31,7 @@ export default function Logs() {
         {data?.result?.length ? (
           <LogTable data={data.result} />
         ) : (
-          <p>No data available</p>
+          <p>{t('Logs.NoDataFound')}</p>
         )}
       </div>
     </div>

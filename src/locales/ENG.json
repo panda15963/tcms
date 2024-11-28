@@ -195,7 +195,11 @@
     "RoadName": "Road Name",
     "NoDataFound": "Log Data aren't Searched",
     "MetaList": "Meta List",
-    "LogMetaDataList": "Log Meta Data List"
+    "LogMetaDataList": "Log Meta Data List",
+    "Coord": "Coord",
+    "MemoDetail": "Memo Detail",
+    "Link": "Link",
+    "Num": "Number"
   },
   "LeftSideSlide": {
     "CourseList": "Course Lists",

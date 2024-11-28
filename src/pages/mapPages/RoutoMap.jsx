@@ -118,11 +118,6 @@ export default function RoutoMap({
     setPreviousRouteCoords(routeFullCoords);
   }, [routeFullCoords]);
 
-  useEffect(() => {
-    console.log('Adjusted Route Coords:', adjustedRouteCoords);
-    // Do something with adjustedRouteCoords if needed
-  }, [adjustedRouteCoords]);
-
   const drawCheckedRoutes = (mapInstance, routeFullCoords) => {
     clearRoutesAndMarkers(); // Clear any existing routes and markers
 

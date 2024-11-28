@@ -31,7 +31,7 @@ export default function UsageCounts() {
         {data?.result?.length ? (
           <BarChart data={data.result} />
         ) : (
-          <p>No data available</p>
+          <p>{t('UsageCounts.NoDataFound')}</p>
         )}
       </div>
     </div>

@@ -29,7 +29,7 @@ export default function CountsByVersion() {
         {data?.result?.length ? (
           <LineChart data={data.result} groupBy="versions" />
         ) : (
-          <p>No data available</p>
+          <p>{t('CountsByVersion.NoDataFound')}</p>
         )}
       </div>
     </div>

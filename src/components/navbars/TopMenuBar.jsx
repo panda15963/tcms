@@ -46,7 +46,6 @@ const TopMenuBar = ({
   const [displayCoords, setDisplayCoords] = useState(null);
   const [origins, setOrigins] = useState([]);
   const [destinations, setDestinations] = useState([]);
-  const [country, setCountry] = useState(null);
   const [routeFullCoords, setRouteFullCoords] = useState(null);
   const [spaceFullCoords, setSpaceFullCoords] = useState(null);
 
@@ -94,7 +93,6 @@ const TopMenuBar = ({
       setInputValue('');
       setSelectedCoords(null);
       setClickedCoords(null);
-      setCountry(null);
       setConvertedCoords({ lat: '', lng: '' });
       setDisplayCoords(null);
 
@@ -114,6 +112,7 @@ const TopMenuBar = ({
   }, [selectedAPI, setCurrentApi]);
 
   const handleChoosingMapAPIs = () => {
+    console.log('checkedNodes', checkedNodes);
     if (selectedAPI?.name === 'GOOGLE') {
       return (
         <GoogleMapHandler
@@ -135,7 +134,6 @@ const TopMenuBar = ({
           routoLocation={setClickedCoords}
           routeFullCoords={routeFullCoords}
           spaceFullCoords={spaceFullCoords}
-          country={country}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
           routeColors={routeColors}
@@ -149,7 +147,6 @@ const TopMenuBar = ({
           tmapLocation={setClickedCoords}
           routeFullCoords={routeFullCoords}
           spaceFullCoords={spaceFullCoords}
-          country={country}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
           routeColors={routeColors}
@@ -206,7 +203,6 @@ const TopMenuBar = ({
       setInputValue('');
       setSelectedCoords(null);
       setClickedCoords(null);
-      setCountry(null);
       setConvertedCoords({ lat: '', lng: '' });
       setDisplayCoords(null);
 
@@ -510,7 +506,6 @@ const TopMenuBar = ({
     setDisplayCoords(null); // Clear display coordinates
     setOrigins([]); // Clear origins
     setDestinations([]); // Clear destinations
-    setCountry(null); // Reset country selection
     if (typeof routeColors === 'function') {
       routeColors([]); // Reset route colors if it's a function
     }

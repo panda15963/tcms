@@ -33,7 +33,7 @@ export default function Configuration() {
         {data?.result?.length ? (
           <ConfigurationTable data={data.result} />
         ) : (
-          <p>No data available</p>
+          <p>{t('Configuration.NoDataFound')}</p>
         )}
       </div>
     </div>
