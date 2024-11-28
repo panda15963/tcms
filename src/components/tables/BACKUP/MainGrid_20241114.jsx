@@ -164,7 +164,10 @@ const defaultColumns = (t) => [
 
           // return imagePath.replace('/home/wasadmin', '');
 
-          return `/images${imagePath.replace('/home/wasadmin/testcourse/image', '')}`;
+          return `/images${imagePath.replace(
+            '/home/wasadmin/testcourse/image',
+            ''
+          )}`;
         }
 
         // 기본값 반환 (필요시 추가 설정 가능)
@@ -177,7 +180,7 @@ const defaultColumns = (t) => [
       const baseURL = process.env.REACT_APP_BASEURL.replace(
         /:(8080|8090)\/api/,
 
-        '',
+        ''
       );
 
       const adjustedImagePath = adjustImagePath(baseURL, imagePath);
@@ -350,7 +353,7 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
                     : flexRender(
                         header.column.columnDef.header, // 컬럼 헤더 렌더링
 
-                        header.getContext(), // 헤더의 컨텍스트
+                        header.getContext() // 헤더의 컨텍스트
                       )}
                 </th>
               ))}
