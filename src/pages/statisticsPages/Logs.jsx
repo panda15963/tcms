@@ -8,19 +8,26 @@ export default function Logs() {
   const { t } = useTranslation();
   const location = useLocation();
 
+  // State to manage the refreshed data
+  const [logData, setLogData] = useState(location.state?.result || []);
+
   const handleRefresh = () => {
-    setTimeout(() => {
-      setData(location.state || { result: [] });
-    }, 500); // Simulate delay for refreshing
+    // Simulate fetching new data
+    if (location.state?.result) {
+      setLogData([...location.state.result]); // Replace with actual fetch logic if needed
+      console.log('Data refreshed');
+    } else {
+      setLogData([]); // Handle case where no data is available
+    }
   };
 
-  // 30초마다 자동 새로고침
+  // Automatically refresh every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       handleRefresh();
-    }, 30000); // 30초
+    }, 30000); // 30 seconds
 
-    // 컴포넌트 언마운트 시 인터벌 정리
+    // Clear interval on component unmount
     return () => clearInterval(interval);
   }, [location.state]);
 
@@ -44,8 +51,8 @@ export default function Logs() {
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
         style={{ height: '60vh' }} // Optional: Adjust height for better alignment
       >
-        {location.state?.result?.length ? (
-          <LogTable data={location.state?.result} />
+        {logData?.length ? (
+          <LogTable data={logData} />
         ) : (
           <p>{t('Logs.NoDataFound')}</p>
         )}
