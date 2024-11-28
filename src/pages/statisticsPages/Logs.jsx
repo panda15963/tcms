@@ -11,13 +11,20 @@ export default function Logs() {
   // State to manage the refreshed data
   const [logData, setLogData] = useState(location.state?.result || []);
 
+  // Update logData whenever location.state?.result changes
+  useEffect(() => {
+    if (location.state?.result) {
+      setLogData(location.state.result);
+    }
+  }, [location.state?.result]);
+
   const handleRefresh = () => {
     // Simulate fetching new data
     if (location.state?.result) {
       setLogData([...location.state.result]); // Replace with actual fetch logic if needed
       console.log('Data refreshed');
     } else {
-      setLogData([]); // Handle case where no data is available
+      console.log('No new data found, keeping existing data');
     }
   };
 
@@ -29,7 +36,7 @@ export default function Logs() {
 
     // Clear interval on component unmount
     return () => clearInterval(interval);
-  }, [location.state]);
+  }, []);
 
   return (
     <div
