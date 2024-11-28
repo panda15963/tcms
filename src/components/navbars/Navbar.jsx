@@ -12,7 +12,7 @@ import {
   DialogPanel,
 } from '@headlessui/react';
 import { FaXmark, FaBars, FaAngleDown, FaRegUser } from 'react-icons/fa6';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SwitchLanguages from '../toggles/SwitchLanguages';
 import profileImage from '../../assets/images/profile.png'; // 이미지 파일 경로
@@ -25,6 +25,7 @@ const NavBar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const location = useLocation();
 
   // Define the AuthPage and userDropMenus arrays after t is initialized
   const AuthPage = [
@@ -72,6 +73,13 @@ const NavBar = () => {
     }
   };
 
+  const handleNavigation = () => {
+    if (location.pathname === '/main/map') {
+      // 이미 현재 경로가 /main/map이면 새로고침
+      window.location.reload();
+    }
+  };
+
   return (
     <header className="bg-white pt-1 pb-1 z-50 relative border-b-2">
       <nav
@@ -79,7 +87,11 @@ const NavBar = () => {
         aria-label="Global"
       >
         <div className="flex lg:flex-1">
-          <Link to="/main/map" className="-m-1.5 p-1.5 ">
+          <Link
+            to="/main/map"
+            onClick={handleNavigation}
+            className="-m-1.5 p-1.5 "
+          >
             <div className="sm:mx-auto sm:w-full sm:max-w-sm transform scale-95">
               <div className="flex items-center space-x-1">
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900">
