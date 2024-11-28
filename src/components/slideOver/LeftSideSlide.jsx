@@ -13,7 +13,7 @@ export default function LeftSideSlide({
   routeColors,
 }) {
   const [open, setOpen] = useState(false); // State to manage whether the panel is open
-  const [treeData, setTreeData] = useState([]); // Local state to manage tree data
+  const [rowsData, setRowsData] = useState([]); // Rows data for filtered results
   const { t } = useTranslation();
 
   const handleRouteColors = (colors) => {
@@ -22,37 +22,65 @@ export default function LeftSideSlide({
     }
   };
 
-  // Function to handle checked nodes change
   const handleCheckedNodes = (nodes) => {
-    onCheckedNodesChange(nodes); // Send the checked nodes back to MapLayout
+    onCheckedNodesChange(nodes);
   };
 
-  // Function to handle clicked node
   const handleNodeClick = (node) => {
-    onClickedNode(node); // Set the clicked node in state
+    onClickedNode(node);
   };
 
   const togglePanel = () => {
-    setOpen(!open); // Toggle the panel manually
+    setOpen(!open);
   };
 
-  // useEffect to automatically open the panel when new data is provided and set treeData
+  // Automatically open the panel and set treeData when new data is provided
   useEffect(() => {
     if (data && data.length > 0) {
-      setOpen(true); // Open the panel when new data is provided
-      setTreeData(data); // Set the data for the Tree component
+      setOpen(true);
     }
   }, [data]);
 
+  // Reset data to null when onMapChange occurs
   useEffect(() => {
     if (onMapChange) {
-      setOpen(false);
+      // Map change detected, set data to null
+      setRowsData([]); // Clear rows data
+      setOpen(false); // Close the panel
     }
   }, [onMapChange]);
 
+  // Apply filtering logic based on onMapChange
+  useEffect(() => {
+    if (onMapChange?.name === 'ROUTO' || onMapChange?.name === 'TMAP') {
+      console.log('onMapChange is ROUTO or TMAP, applying filters.');
+
+      // Filter logic
+      const filteredByCountry = data.filter(
+        (item) => item.country_str === 'KOR' || item.country_str === 'SAU'
+      );
+
+      const filteredByName = filteredByCountry.filter(
+        (item) =>
+          !item.file_name.includes('US') ||
+          (item.country_str === 'SAU' && item.file_name.includes('KOR'))
+      );
+
+      setRowsData(filteredByName);
+
+      // Open the panel only if filtered data exists
+      if (filteredByName.length > 0) {
+        setOpen(true);
+      }
+    } else {
+      console.log(
+        'onMapChange is not ROUTO or TMAP, keeping current panel state.'
+      );
+    }
+  }, [data, onMapChange]);
+
   return (
     <div className="flex">
-      {/* Panel open button */}
       {!open && (
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
@@ -64,7 +92,6 @@ export default function LeftSideSlide({
         </div>
       )}
 
-      {/* Sidebar with Transition */}
       <Transition
         show={open}
         enter="transform transition ease-in-out duration-500 sm:duration-700"
@@ -74,12 +101,10 @@ export default function LeftSideSlide({
         leaveFrom="translate-x-0"
         leaveTo="-translate-x-full"
       >
-        {/* <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4"> */}
         <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
           <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
             <div className="flex items-center justify-between">
               <label className="flex text-base font-semibold leading-6 text-white">
-                {/* 경로 목록 */}
                 {t('LeftSideSlide.CourseList')}
               </label>
               <div className="ml-3 flex h-7 items-center">
@@ -96,13 +121,12 @@ export default function LeftSideSlide({
             </div>
           </div>
           <div className="px-2 overflow-x-auto pb-5 scroll-smooth overflow-auto">
-            {/* Tree menu component */}
             <Tree
-              data={treeData} // Use the local treeData state
+              data={rowsData} // Use filtered data
               onCheckedNodesChange={handleCheckedNodes}
-              onNodeClick={handleNodeClick} // Pass the onNodeClick handler to Tree
+              onNodeClick={handleNodeClick}
               onMapChange={onMapChange}
-              routeColors={handleRouteColors} // Pass routeColors to Tree component
+              routeColors={handleRouteColors}
             />
           </div>
         </div>

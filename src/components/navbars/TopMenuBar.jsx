@@ -111,15 +111,48 @@ const TopMenuBar = ({
     setRouteFullCoords(null);
   }, [selectedAPI, setCurrentApi]);
 
+  const mergeByFileId = (routeFullCoords, checkedNodes) => {
+    if (!routeFullCoords || !checkedNodes) return [];
+
+    const mergedData = routeFullCoords.map((route) => {
+      const matchedNode = checkedNodes.find(
+        (node) => node.file_id === route.file_id
+      );
+
+      return {
+        ...route,
+        ...(matchedNode || {}), // Merge matchedNode's data
+      };
+    });
+
+    // Filter only the data where country_str is "KOR" or "SAU"
+    const filteredByCountry = mergedData.filter(
+      (data) => data.country_str === 'KOR' || data.country_str === 'SAU'
+    );
+
+    // Exclude data where file_name includes "US"
+    const filteredByName = filteredByCountry.filter(
+      (data) => !data.file_name.includes('US') || (data.country_str === 'SAU' && data.file_name.includes('KOR'))
+    );
+
+    return filteredByName;
+  };
+
   const handleChoosingMapAPIs = () => {
-    console.log('checkedNodes', checkedNodes);
+    let filteredRouteFullCoords = routeFullCoords;
+
+    // Apply mergeByFileId only for Routo and TMap
+    if (selectedAPI?.name === 'ROUTO' || selectedAPI?.name === 'TMAP') {
+      filteredRouteFullCoords = mergeByFileId(routeFullCoords, checkedNodes);
+    }
+
     if (selectedAPI?.name === 'GOOGLE') {
       return (
         <GoogleMapHandler
           key="google"
           selectedCoords={selectedCoords}
           googleLocation={setClickedCoords}
-          routeFullCoords={routeFullCoords}
+          routeFullCoords={routeFullCoords} // Original data
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -132,7 +165,7 @@ const TopMenuBar = ({
           key="routo"
           selectedCoords={selectedCoords}
           routoLocation={setClickedCoords}
-          routeFullCoords={routeFullCoords}
+          routeFullCoords={filteredRouteFullCoords} // Filtered data
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -145,7 +178,7 @@ const TopMenuBar = ({
           key="tmap"
           selectedCoords={selectedCoords}
           tmapLocation={setClickedCoords}
-          routeFullCoords={routeFullCoords}
+          routeFullCoords={filteredRouteFullCoords} // Filtered data
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -158,7 +191,7 @@ const TopMenuBar = ({
           key="tomtom"
           selectedCoords={selectedCoords}
           tomtomLocation={setClickedCoords}
-          routeFullCoords={routeFullCoords}
+          routeFullCoords={routeFullCoords} // Original data
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -173,7 +206,7 @@ const TopMenuBar = ({
           baiduLocation={setClickedCoords}
           origins={origins}
           destinations={destinations}
-          routeFullCoords={routeFullCoords}
+          routeFullCoords={routeFullCoords} // Original data
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -185,7 +218,7 @@ const TopMenuBar = ({
           key="here"
           selectedCoords={selectedCoords}
           hereLocation={setClickedCoords}
-          routeFullCoords={routeFullCoords}
+          routeFullCoords={routeFullCoords} // Original data
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}

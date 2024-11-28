@@ -13,19 +13,44 @@ export default function RightSideSlide({ data, onMapChange }) {
 
   // useEffect to automatically open the panel when data is provided
   useEffect(() => {
-    if (data && data.length > 0) {
-      setOpen(true); // Open the panel when data is not empty
-      setRowsData(data); // Set rows data based on provided data
-
-      // Automatically expand all rows by default
-      const allRowIds = data.map((_, index) => index + 1); // Generate IDs for all rows
-      setExpandedRows(allRowIds); // Set all rows as expanded initially
+    if (onMapChange?.name === 'ROUTO' || onMapChange?.name === 'TMAP') {
+      if (data && data.length > 0) {
+        console.log('onMapChange is ROUTO or TMAP, applying filters.');
+  
+        const filteredByCountry = data.filter(
+          (item) => item.country_str === 'KOR' || item.country_str === 'SAU'
+        );
+  
+        const filteredByName = filteredByCountry.filter(
+          (item) =>
+            !item.file_name.includes('US') ||
+            (item.country_str === 'SAU' && item.file_name.includes('KOR'))
+        );
+  
+        setOpen(true);
+        setRowsData(filteredByName);
+  
+        const firstRowId = filteredByName.length > 0 ? [1] : [];
+        setExpandedRows(firstRowId);
+      } else {
+        console.log('No data available after filtering.');
+        setOpen(false);
+      }
     } else {
-      setOpen(false);
+      console.log('onMapChange is not ROUTO or TMAP, skipping filters.');
+      if (data && data.length > 0) {
+        setOpen(true);
+        setRowsData(data);
+  
+        const firstRowId = data.length > 0 ? [1] : [];
+        setExpandedRows(firstRowId);
+      } else {
+        console.log('No data provided or data is empty.');
+        setOpen(false);
+      }
     }
-  }, [data]);
-
-  console.log('data:', data);
+  }, [data, onMapChange]);
+  
 
   // Clear rows when the map changes
   useEffect(() => {
