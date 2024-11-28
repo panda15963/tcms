@@ -38,9 +38,9 @@ function calculateCenterAndMarker(lat, lng) {
   const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
   const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
   if (lat !== undefined && lng !== undefined) {
-    return { lat: parseFloat(lat), lng: parseFloat(lng) };
+    return { lat: parseFloat(lat), lng: parseFloat(lng), isDefault: false };
   }
-  return { lat: defaultLat, lng: defaultLng };
+  return { lat: defaultLat, lng: defaultLng, isDefault: true };
 }
 
 /**
@@ -78,6 +78,7 @@ export default function TomTomMap({
   const routeMarkers = useRef([]); // Store the markers for each route (start and end)
   const previousColorsRef = useRef([]);
   const previousRouteRef = useRef([]);
+  const [searchMarker, setSearchMarker] = useState(null); // 검색된 마커 상태
 
   // Update center coordinates whenever lat or lng changes
   useEffect(() => {
@@ -99,10 +100,12 @@ export default function TomTomMap({
         locationCoords({ lat, lng });
       });
 
-      markerRef.current = new tt.Marker()
-        .setLngLat([center.lng, center.lat])
-        .addTo(mapRef.current);
-
+      // 초기 마커 설정 (기본 좌표가 아닌 경우)
+      if (!center.isDefault) {
+        markerRef.current = new tt.Marker()
+          .setLngLat([center.lng, center.lat])
+          .addTo(mapRef.current);
+      }
       // Wait until the style is fully loaded before drawing routes
       mapRef.current.on('style.load', () => {
         if (routeFullCoords) {
@@ -115,6 +118,25 @@ export default function TomTomMap({
       initializeMap();
     }
   }, [center, routeFullCoords, place]);
+
+  // 검색된 위치에 마커 추가
+  useEffect(() => {
+    if (searchMarker) {
+      searchMarker.remove(); // 이전 마커 제거
+    }
+
+    if (lat && lng) {
+      const newMarker = new tt.Marker()
+        .setLngLat([lng, lat])
+        .addTo(mapRef.current);
+
+      setSearchMarker(newMarker); // 검색된 마커 상태 업데이트
+      mapRef.current.flyTo({
+        center: [lng, lat],
+        zoom: 15, // 적절한 줌 레벨
+      });
+    }
+  }, [lat, lng]);
 
   // Updated Effect for Handling checkedNodes Changes
   useEffect(() => {
@@ -132,7 +154,7 @@ export default function TomTomMap({
         checkedNodes.length === 0
           ? validRouteFullCoords
           : validRouteFullCoords.filter((route) =>
-              checkedNodes.some((node) => node.file_id === route.file_id),
+              checkedNodes.some((node) => node.file_id === route.file_id)
             );
 
       // Filter spaceFullCoords based on checkedNodes (if no checked nodes, show all)
@@ -140,7 +162,7 @@ export default function TomTomMap({
         checkedNodes.length === 0
           ? validSpaceFullCoords
           : validSpaceFullCoords.filter((space) =>
-              checkedNodes.some((node) => node.file_id === space.file_id),
+              checkedNodes.some((node) => node.file_id === space.file_id)
             );
 
       // Combine filtered rorouteFullCoords and spaceFullCoords for drawing
@@ -194,7 +216,7 @@ export default function TomTomMap({
   const insertNullsAtDeactivatedIndices = (
     routeFullCoords,
     deactivatedRoutes,
-    removedRoutes = [],
+    removedRoutes = []
   ) => {
     // Create a copy of routeFullCoords to avoid mutating the original array
     let routesWithNulls = [...routeFullCoords];
@@ -267,13 +289,13 @@ export default function TomTomMap({
     // Find deactivated routes
     const deactivatedRoutes = findDeactivatedRoutes(
       previousRouteRef.current,
-      routeFullCoords,
+      routeFullCoords
     );
 
     // Create a new array with nulls inserted at deactivated indices
     const { routesWithNulls } = insertNullsAtDeactivatedIndices(
       routeFullCoords,
-      deactivatedRoutes,
+      deactivatedRoutes
     );
 
     // Ensure routesWithNulls is a valid array
@@ -389,7 +411,7 @@ export default function TomTomMap({
         centerRoute(mapRef.current, originCoords, destinationCoords);
       } else {
         console.error(
-          'Invalid origin or destination coordinates for clicked node.',
+          'Invalid origin or destination coordinates for clicked node.'
         );
       }
     }

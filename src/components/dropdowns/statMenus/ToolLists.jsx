@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Listbox,
   ListboxButton,
@@ -9,34 +10,65 @@ import {
 import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 import { useLocation } from 'react-router-dom';
 
-const ToolList = [
-  { id: 1, name: 'Tool 1' },
-  { id: 2, name: 'Tool 2' },
-  { id: 3, name: 'Tool 3' },
-  { id: 4, name: 'Tool 4' },
-  { id: 5, name: 'Tool 5' },
-];
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function ToolLists() {
+export default function ToolLists({
+  selectedTool,
+  setSelectedTool = () => {},
+  resetTrigger,
+}) {
+  const { t } = useTranslation();
   const location = useLocation();
   const [selected, setSelected] = useState(null);
+  const [ToolList, setToolList] = useState([]);
 
+  // Convert `selectedTool.toolnametbl` array into `ToolList` format and filter duplicates
+  useEffect(() => {
+    if (selectedTool && Array.isArray(selectedTool.toolnametbl)) {
+      const formattedToolList = selectedTool.toolnametbl.map((tool, index) => ({
+        id: index + 2, // Start IDs from 2 since ID 1 will be for "ALL"
+        name: tool.toolname,
+      }));
+
+      // Filter out duplicates based on the `name` property
+      const uniqueToolList = Array.from(
+        new Map(formattedToolList.map((item) => [item.name, item]))
+      ).map(([, value]) => value);
+
+      // Add "ALL" as the first option with ID 1
+      setToolList([{ id: 1, name: t('ToolList.All') }, ...uniqueToolList]);
+    }
+  }, [selectedTool]);
+
+  // Update the selected tool based on the current URL path or default to "All"
   useEffect(() => {
     const path = location.pathname.split('/').pop().toUpperCase();
     const initialSelected =
       ToolList.find((api) => api.name === path) || ToolList[0];
     setSelected(initialSelected);
-  }, [location.pathname]);
+    setSelectedTool(initialSelected);
+  }, [location.pathname, ToolList]);
+
+  // Reset the selection when `resetTrigger` changes
+  useEffect(() => {
+    if (ToolList.length > 0) {
+      const defaultSelection = ToolList[0]; // Default to "All"
+      setSelected(defaultSelection);
+      setSelectedTool(defaultSelection); // Sync with parent state
+    }
+  }, [resetTrigger, ToolList, setSelectedTool]);
 
   const handleOnSelectMap = (selectedMap) => {
     setSelected(selectedMap);
+    setSelectedTool(selectedMap);
   };
 
   if (!selected) return null;
+
+  const truncate = (str, maxLength) =>
+    str.length > maxLength ? `${str.slice(0, maxLength)}...` : str;
 
   return (
     <Listbox value={selected} onChange={handleOnSelectMap}>
@@ -44,7 +76,9 @@ export default function ToolLists() {
         <>
           <div className="relative min-w-32 border border-black rounded-lg">
             <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:border-black sm:text-sm sm:leading-6">
-              <span className="block truncate">{selected.name}</span>
+              <span className="block truncate">
+                {truncate(selected.name, 10)}
+              </span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <FaAngleDown
                   className="h-5 w-5 text-gray-400"
@@ -75,13 +109,11 @@ export default function ToolLists() {
                       <>
                         <span
                           className={classNames(
-                            selected
-                              ? 'font-bold text-white'
-                              : 'text-gray-900',
+                            selected ? 'font-bold text-white' : 'text-gray-900',
                             'block truncate'
                           )}
                         >
-                          {api.name}
+                          {truncate(api.name, 10)}
                         </span>
                         {selected && (
                           <span className="absolute inset-y-0 left-0 flex items-center pl-1.5 text-white">

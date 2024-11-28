@@ -18,8 +18,8 @@ export default function LogTable({ data }) {
   const sanitizedData = Array.isArray(data) ? data : [];
   
   return (
-    <div className="flow-root">
-      <table className="min-w-full divide-y divide-gray-200 border-gray-300">
+    <div className="h-full w-full overflow-auto">
+      <table className="w-full h-full table-auto border-collapse border border-gray-300">
         <thead className="bg-gray-100 border-2">
           <tr>
             {columns.map((header) => (
@@ -36,10 +36,10 @@ export default function LogTable({ data }) {
           {sanitizedData.map((data) => (
             <tr key={data.id}>
               {[
-                'PC',
+                'pcname',
                 'toolname',
                 'toolver',
-                'logtime',
+                'exectime',
                 'loglevel',
                 'logdetail',
               ].map((field) => (

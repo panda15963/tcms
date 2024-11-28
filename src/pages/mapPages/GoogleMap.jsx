@@ -113,18 +113,31 @@ export default function GoogleMap({
   useEffect(() => {
     if (map) {
       const newCenter = calculateCenterAndMarker(lat, lng);
+      const isDefaultLocation =
+        newCenter.lat === parseFloat(process.env.REACT_APP_LATITUDE) &&
+        newCenter.lng === parseFloat(process.env.REACT_APP_LONGITUDE);
+
       if (
         newCenter.lat !== map.getCenter().lat() ||
         newCenter.lng !== map.getCenter().lng()
       ) {
         map.setCenter(newCenter);
       }
-      clearMarkers();
-      const marker = new window.google.maps.Marker({
-        position: newCenter,
-        map: map,
-      });
-      markerRefs.current.push(marker);
+
+      // Remove markers only if the location is the default location
+      if (isDefaultLocation) {
+        clearMarkers();
+      } else {
+        // Clear existing markers
+        clearMarkers();
+
+        // Add new marker
+        const marker = new window.google.maps.Marker({
+          position: newCenter,
+          map: map,
+        });
+        markerRefs.current.push(marker);
+      }
     }
   }, [lat, lng, map]);
 
@@ -132,7 +145,7 @@ export default function GoogleMap({
     for (let i = 0; i < prevCoords.length; i++) {
       const prevRoute = prevCoords[i];
       const isRouteRemoved = !currentCoords.some(
-        (route) => route.file_id === prevRoute.file_id,
+        (route) => route.file_id === prevRoute.file_id
       );
       if (isRouteRemoved) {
         return i; // Index of the removed route
@@ -148,7 +161,7 @@ export default function GoogleMap({
     ) {
       const removedIndex = findRemovedSpaceIndex(
         previousSpaceCoords,
-        spaceFullCoords,
+        spaceFullCoords
       );
       if (removedIndex !== -1) {
         // Create a new array with null at the removed index
@@ -183,11 +196,11 @@ export default function GoogleMap({
 
         const startMarker = calculateCenterAndMarker(
           space.coords[0].lat,
-          space.coords[0].lng,
+          space.coords[0].lng
         );
         const goalMarker = calculateCenterAndMarker(
           space.coords[space.coords.length - 1].lat,
-          space.coords[space.coords.length - 1].lng,
+          space.coords[space.coords.length - 1].lng
         );
 
         spaceMarkers.push(startMarker, goalMarker);
@@ -232,7 +245,7 @@ export default function GoogleMap({
     for (let i = 0; i < prevCoords.length; i++) {
       const prevRoute = prevCoords[i];
       const isRouteRemoved = !currentCoords.some(
-        (route) => route.file_id === prevRoute.file_id,
+        (route) => route.file_id === prevRoute.file_id
       );
       if (isRouteRemoved) {
         return i; // Index of the removed route
@@ -249,7 +262,7 @@ export default function GoogleMap({
     ) {
       const removedIndex = findRemovedRouteIndex(
         previousRouteCoords,
-        routeFullCoords,
+        routeFullCoords
       );
       if (removedIndex !== -1) {
         // Create a new array with null at the removed index
@@ -296,11 +309,11 @@ export default function GoogleMap({
 
         const startMarker = calculateCenterAndMarker(
           route.coords[0].lat,
-          route.coords[0].lng,
+          route.coords[0].lng
         );
         const goalMarker = calculateCenterAndMarker(
           route.coords[route.coords.length - 1].lat,
-          route.coords[route.coords.length - 1].lng,
+          route.coords[route.coords.length - 1].lng
         );
 
         routeMarkers.push(startMarker, goalMarker);
@@ -362,5 +375,5 @@ export default function GoogleMap({
     map.fitBounds(bounds);
   }, [clickedNode, map]);
 
-  return <div ref={mapRef} style={{ height: "87.8vh"}} />;
+  return <div ref={mapRef} style={{ height: '87.8vh' }} />;
 }

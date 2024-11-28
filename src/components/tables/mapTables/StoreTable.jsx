@@ -18,7 +18,6 @@ export default function StoreTable({ stores = [], onDataReceive }) {
   const indexOfLastStore = currentPage * storesPerPage;
   const indexOfFirstStore = indexOfLastStore - storesPerPage;
   const currentStores = stores.slice(indexOfFirstStore, indexOfLastStore);
-
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const pageNumbers = [];
@@ -77,15 +76,24 @@ export default function StoreTable({ stores = [], onDataReceive }) {
               store.name || store.title || 'N/A',
               typeof store.latitude === 'number'
                 ? store.latitude.toFixed(6)
+                : typeof store.latitude === 'string'
+                ? parseFloat(store.latitude).toFixed(6)
                 : typeof store.position?.lat === 'number'
-                  ? store.position.lat.toFixed(6)
-                  : 'N/A',
+                ? store.position.lat.toFixed(6)
+                : typeof store.position?.lat === 'string'
+                ? parseFloat(store.position.lat).toFixed(6)
+                : 'N/A',
               typeof store.longitude === 'number'
                 ? store.longitude.toFixed(6)
+                : typeof store.longitude === 'string'
+                ? parseFloat(store.longitude).toFixed(6)
                 : typeof store.position?.lng === 'number'
-                  ? store.position.lng.toFixed(6)
-                  : 'N/A',
+                ? store.position.lng.toFixed(6)
+                : typeof store.position?.lng === 'string'
+                ? parseFloat(store.position.lng).toFixed(6)
+                : 'N/A',
             ];
+
             return (
               <tr
                 key={store.id}
@@ -125,7 +133,7 @@ export default function StoreTable({ stores = [], onDataReceive }) {
             }) ||
               `Showing ${indexOfFirstStore + 1} to ${Math.min(
                 indexOfLastStore,
-                stores.length,
+                stores.length
               )} of ${stores.length} stores`}
           </span>
         )}

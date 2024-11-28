@@ -15,7 +15,6 @@ import Logs from './pages/statisticsPages/Logs';
 import RealTime from './pages/statisticsPages/RealTime';
 import UsageCounts from './pages/statisticsPages/UsageCounts';
 import UsageStatus from './pages/statisticsPages/UsageStatus';
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
@@ -28,7 +27,6 @@ import { AuthProvider } from './context/AuthProvider';
 const root = createRoot(document.getElementById('root'));
 root.render(
   <I18nextProvider i18n={i18n}>
-    {/* <StrictMode> */}
     <ToastProvider>
       <SelectedItemProvider>
         <LoadingBarProvider>
@@ -74,6 +72,5 @@ root.render(
         </LoadingBarProvider>
       </SelectedItemProvider>
     </ToastProvider>
-    {/* </StrictMode> */}
   </I18nextProvider>
 );

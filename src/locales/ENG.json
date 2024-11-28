@@ -204,7 +204,11 @@
     "RoadName": "Road Name",
     "NoDataFound": "Log Data aren't Searched",
     "MetaList": "Meta List",
-    "LogMetaDataList": "Log Meta Data List"
+    "LogMetaDataList": "Log Meta Data List",
+    "Coord": "Coord",
+    "MemoDetail": "Memo Detail",
+    "Link": "Link",
+    "Num": "Number"
   },
   "LeftSideSlide": {
     "CourseList": "Course Lists",
@@ -229,7 +233,11 @@
     "TUSRT": "Real-Time Tool Usage Status Based on TC",
     "RTTUI": "Real-Time Tool Usage Information",
     "CTL": "Check Tool Logs",
-    "TCIC": "Tool Configuration Information Change"
+    "TCIC": "Tool Configuration Information Change",
+    "SelectTool": "Select Tool",
+    "SelectPC": "Select PC",
+    "Search": "Search",
+    "Reset": "Reset"
   },
   "StatSideBar": {
     "StatMenu": "Tool Usage Status Menu",
@@ -247,7 +255,8 @@
   "DateTerms": {
     "Day": "Day",
     "Week": "Week",
-    "Month": "Month"
+    "Month": "Month",
+    "DatePeriod": "Date Period"
   },
   "DateRangePicker": {
     "StartDate": "Start Date",
@@ -340,5 +349,11 @@
     "NoDataFound": "No Data Found.",
     "Value": "Data Value",
     "Date": "Date"
+  },
+  "PCList": {
+    "All": "All"
+  },
+  "ToolList": {
+    "All": "All"
   }
 }
