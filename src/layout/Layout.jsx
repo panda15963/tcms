@@ -3,8 +3,6 @@ import Navbar from '../components/navbars/Navbar';
 
 // Layout 컴포넌트 정의
 export default function Layout() {
-  console.log('여기도??');
-
   return (
     <>
       {/* 네비게이션 바 렌더링 */}
