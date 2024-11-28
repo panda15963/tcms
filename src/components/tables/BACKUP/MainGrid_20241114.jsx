@@ -347,7 +347,6 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
                   className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider text-nowrap"
                 >
                   {/* 헤더 렌더링 */}
-
                   {header.isPlaceholder
                     ? null
                     : flexRender(
