@@ -68,7 +68,7 @@ const RouteModal = ({
     setLoading(true);
     try {
       const response = await nonAuthInstance.get(
-        `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.meta_id}`
+        `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`
       );
       console.log('🚀 ~ constFIND_SAMEORIGIN_META= ~ response:', response);
 
