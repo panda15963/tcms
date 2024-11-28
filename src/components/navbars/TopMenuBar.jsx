@@ -528,7 +528,7 @@ const TopMenuBar = ({
                 <div className="flex items-center lg:px-0">
                   <div className="hidden lg:block scale-90 z-40">
                     <div className="flex">
-                      <label className="px-3 py-2 text-sm font-bold text-white">
+                      <label className="px-2 py-2 text-sm font-bold text-white">
                         {/* 지도 선택 */}
                         {t('TopMenuBar.MapSelection')}
                       </label>
@@ -545,7 +545,7 @@ const TopMenuBar = ({
                               onChange={handleChange}
                               onKeyDown={handleKeyDown}
                               value={inputValue}
-                              style={{ width: '200px' }}
+                              style={{ width: '170px' }}
                               className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
                               placeholder={t('Common.SearchPlaceholder')}
                             />
@@ -570,7 +570,7 @@ const TopMenuBar = ({
                         chosenMapAPIs={selectedAPI}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white">
+                        <label className="rounded-md px-2 py-2 text-sm font-bold text-white">
                           {/* 로그 검색 */}
                           {t('TopMenuBar.LogSearch')}
                         </label>

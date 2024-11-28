@@ -188,17 +188,15 @@ const NavBar = () => {
                 </svg>
               </span>
             </MenuButton>
-
             <MenuItems
               transition
-              className="absolute font-bold right-0 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40"
+              className="absolute font-bold right-0 mt-2 w-36 rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-40"
             >
               <div className="py-1">
                 {userDropMenus.map((page) => (
-                  <MenuItem>
+                  <MenuItem key={page.id}>
                     <span
-                      key={page.id}
-                      className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 text-center hover:bg-gray-50 cursor-pointer"
+                      className="block px-2 py-1 text-sm rounded-lg text-gray-600 text-center hover:bg-gray-100 hover:text-gray-800 cursor-pointer transition-all duration-200"
                       onClick={() => handleLinkClick(page.id)}
                     >
                       {page.name}
@@ -246,7 +244,6 @@ const NavBar = () => {
                 </Link>
               </DisclosurePanel>
             </Disclosure>
-
             <Disclosure as="div">
               <DisclosureButton className="flex justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
                 {t('NavBar.Management')}
@@ -266,11 +263,9 @@ const NavBar = () => {
               </DisclosurePanel>
             </Disclosure>
           </div>
-
           <div className="px-2 pt-2 pb-3 space-y-1">
             <SwitchLanguages onClick={changeLanguage} />
           </div>
-
           <div className="px-2 pb-3 border-t border-gray-200">
             <img
               className="h-10 w-10 rounded-full ml-3 mt-3"

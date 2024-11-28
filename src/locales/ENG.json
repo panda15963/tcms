@@ -21,7 +21,7 @@
     "StoreSearch": "Store Search",
     "LogSearch": "Log Search",
     "SpaceSearch": "Space Search",
-    "CoordsOutput": "Input Coordinates Output",
+    "CoordsOutput": "Location",
     "CopyButton": "Copy",
     "Copy": {
       "Success": "Copied to clipboard",
@@ -283,7 +283,7 @@
     "Refresh": "Refresh",
     "Search": "Search",
     "Loading": "Loading...",
-    "NoDataFound": "No Data Found.",    
+    "NoDataFound": "No Data Found.",
     "ToolName": "Tool Name",
     "VersionName": "Version Name",
     "LogReceivedTime": "Log Received Time",
@@ -301,7 +301,7 @@
     "ExecutedTime": "Executed Time",
     "OperationStatus": "Operation Status"
   },
-  "UsageCounts":{
+  "UsageCounts": {
     "UsageCounts": "Tool Usage Counts By Function",
     "SelectTool": "Select Tool",
     "SelectPC": "Select PC",
