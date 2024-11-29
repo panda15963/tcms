@@ -13,8 +13,16 @@
     "AddAdministrators": "Add Administrators",
     "UseYn": "Use Y/N",
     "RegisteredDate": "RegisteredDate",
-    "ModifiedDate": "Modified Date",
-    "Modification": "ModifiedDate"
+    "EditDate": "Modified Date",
+    "Edit": "Edit",
+    "Delete": "Delete"
+  },
+  "toast": {
+    "Success": "Success",
+    "DeleteMessage": "The selected administrator information has been deleted successfully.",
+    "SearchMessage": "Your inquiry has been completed.",
+    "DeleteConfirm": "Are you sure you want to delete the administrator ID?",
+    "Error": "Error"
   },
   "NavBar": {
     "Dashboard": "Dashboard",

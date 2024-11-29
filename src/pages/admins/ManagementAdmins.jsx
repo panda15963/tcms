@@ -35,14 +35,21 @@ export default function ManagementAdmins() {
     if (data) {
       if (!isEmpty(data)) {
         console.log('Data ==> ', data);
-        showToast(ToastTypes.SUCCESS, '성공', '조회를 완료했습니다.');
+        showToast(
+          ToastTypes.SUCCESS,
+          // 성공
+          t('toast.Success'),
+          // 조회를 완료했습니다.
+          t('toast.SearchMessage')
+        );
         setList(data);
       } else {
         setList([]);
       }
     } else if (error) {
       setList([]);
-      showToast(ToastTypes.ERROR, '오류', error);
+      // 오류
+      showToast(ToastTypes.ERROR, t('toast.Error'), error);
       console.log('Error ==> ', error);
     }
   };
@@ -52,7 +59,8 @@ export default function ManagementAdmins() {
    * @param {관리자 아이디} adminId
    */
   const handleDeleteAdminId = async (adminId) => {
-    const res = confirm(`${adminId} 관리자 아이디를 삭제하시겠습니까?`);
+    // 관리자 아이디를 삭제하시겠습니까?
+    const res = confirm(`${adminId}  ${t('toast.DeleteConfirm')}`);
     console.log('[handleDeleteAdminId][res] ==> ', res);
     if (res) {
       const { data, error } = await deleteAdmin(adminId);
@@ -62,14 +70,17 @@ export default function ManagementAdmins() {
           if (data === 'Successfully deleted admin info') {
             showToast(
               ToastTypes.SUCCESS,
-              '성공',
-              '선택한 관리자 정보가 성공적으로 삭제되었습니다.'
+              // 성공
+              t('toast.Success'),
+              // 선택한 관리자 정보가 성공적으로 삭제되었습니다.
+              t('toast.DeleteMessage')
             );
             fetchAdmins();
           }
         }
       } else if (error) {
-        showToast(ToastTypes.ERROR, '오류', error);
+        // 오류
+        showToast(ToastTypes.ERROR, t('toast.Error'), error);
         console.log('Error ==> ', error);
       }
     }
@@ -153,7 +164,7 @@ export default function ManagementAdmins() {
                   className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
                 >
                   {/* 수정일 */}
-                  {t('admin.ModifiedDate')}
+                  {t('admin.EditDate')}
                 </th>
                 <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
                   {/* 수정 */}
@@ -192,7 +203,8 @@ export default function ManagementAdmins() {
                           handleUpdateAdminInfo(item);
                         }}
                       >
-                        수정
+                        {/* 수정 */}
+                        {t('admin.Edit')}
                       </a>
                     </td>
                     <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
@@ -202,7 +214,8 @@ export default function ManagementAdmins() {
                           handleDeleteAdminId(item.admin_id);
                         }}
                       >
-                        삭제
+                        {/* 삭제 */}
+                        {t('admin.Delete')}
                       </a>
                     </td>
                   </tr>
