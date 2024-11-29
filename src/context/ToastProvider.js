@@ -50,7 +50,7 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={{ showToast, close }}>
       {children}
-      <div className="space-y-4 fixed top-4 right-4  pointer-events-auto w-full max-w-sm overflow-hidden z-50">
+      <div className="space-y-4 fixed top-16 right-4  pointer-events-auto w-full max-w-sm overflow-hidden z-50">
         {toasts.map(({ type, id, title, message }) => (
           <div
             key={id}
