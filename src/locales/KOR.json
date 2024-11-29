@@ -266,7 +266,8 @@
     "Day": "일",
     "Week": "주",
     "Month": "달",
-    "DatePeriod": "날짜 간격 주기"
+    "DatePeriod": "날짜",
+    "Inquiryperiod": "조회 기간"
   },
   "DateRangePicker": {
     "StartDate": "시작 날짜",

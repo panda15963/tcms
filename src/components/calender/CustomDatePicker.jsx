@@ -21,12 +21,13 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
   return (
     <div className="flex items-center">
       {/* Start Date Picker */}
-      <div className="pl-2 flex items-center gap-2">
+      <div className=" flex items-center gap-2 ">
         <label className="text-sm font-semibold text-white whitespace-nowrap">
-          {t('DateRangePicker.StartDate')}:{' '}
+          {/* 시작 날짜 */}
+          {/* {t('DateRangePicker.StartDate')} */}
         </label>
         <DatePicker
-          className="border py-1 border-black text-center rounded-md w-32"
+          className="border py-1 border-black text-center rounded-md w-32 h-10"
           selected={startDate}
           onChange={(date) => startsDate(date || new Date())}
           selectsStart
@@ -42,10 +43,11 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
       {/* End Date Picker */}
       <div className="pl-2 flex items-center gap-2">
         <label className="text-sm font-semibold text-white whitespace-nowrap">
-          {t('DateRangePicker.EndDate')}:{' '}
+          {/* 종료 날짜 */}
+          {/* {t('DateRangePicker.EndDate')} */}
         </label>
         <DatePicker
-          className="border border-black py-1 text-center rounded-md w-32"
+          className="border border-black py-1 text-center rounded-md w-32 h-10"
           selected={endDate}
           onChange={(date) => endsDate(date || new Date())}
           selectsEnd

@@ -160,12 +160,13 @@ export default function StatTopMenuBar() {
 
   return (
     <Disclosure as="nav" className="bg-gray-800">
-      <div className="mx-auto px-2 sm:px-6 lg:px-8">
-        <div className="relative flex h-[52px] items-center justify-between gap-5">
+      <div className="mx-auto inset-x-0">
+        <div className="relative scale-90 flex h-[52px] items-center justify-start gap-5">
           {/* Stat Menu */}
-          <div className="flex items-center space-x-4">
-            <label className="rounded-md pr-2 py-2 text-sm font-bold text-white">
-              {t('StatNavBar.StatMenu')}:
+          <div className="flex items-center space-x-2">
+            <label className="rounded-md py-2 text-sm font-bold text-white">
+              {/* 도구 사용 현황 메뉴 */}
+              {t('StatNavBar.StatMenu')}
             </label>
             <div>
               <StatGraphsLists requestData={setData} />
@@ -173,6 +174,7 @@ export default function StatTopMenuBar() {
           </div>
 
           {/* Date Terms & Custom Date Picker */}
+          {/* 조회 기간 */}
           <div
             className="flex items-center space-x-4"
             style={{
@@ -188,20 +190,6 @@ export default function StatTopMenuBar() {
               endDate={endDate} // Pass current endDate
             />
           </div>
-
-          <button
-            type="button"
-            onClick={handleReset}
-            className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset"
-            style={{
-              opacity: isDisabled ? 0.5 : 1,
-              pointerEvents: isDisabled ? 'none' : 'auto',
-            }}
-          >
-            {/* Reset Button */}
-            {t('StatNavBar.Reset')}
-          </button>
-
           {/* Tool Lists */}
           <div
             className="flex items-center space-x-4"
@@ -221,7 +209,8 @@ export default function StatTopMenuBar() {
             }}
           >
             <label className="text-sm font-bold text-white">
-              {t('StatNavBar.SelectTool')} :
+              {/* 도구 선택 */}
+              {t('StatNavBar.SelectTool')}
             </label>
             <ToolLists
               selectedTool={toolNames}
@@ -239,7 +228,8 @@ export default function StatTopMenuBar() {
             }}
           >
             <label className="text-sm font-bold text-white">
-              {t('StatNavBar.SelectPC')}:
+              {/* PC 선택 */}
+              {t('StatNavBar.SelectPC')}
             </label>
             <PCLists
               selectedPC={pcNames}
@@ -252,14 +242,29 @@ export default function StatTopMenuBar() {
           <div className="flex items-center space-x-4">
             <button
               type="button"
-              className="w-24 h-9 flex items-center justify-center cursor-pointer rounded-md bg-white text-gray-900 shadow-sm ring-1 ring-inset"
+              className="rounded bg-white px-2 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
               onClick={handleSearch}
               style={{
                 opacity: isDisabled ? 0.5 : 1,
                 pointerEvents: isDisabled ? 'none' : 'auto',
               }}
             >
+              {/* 조회 */}
               {t('StatNavBar.Search')}
+            </button>
+
+            {/* Reset Button */}
+            <button
+              type="button"
+              onClick={handleReset}
+              className="rounded bg-white px-2 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+              style={{
+                opacity: isDisabled ? 0.5 : 1,
+                pointerEvents: isDisabled ? 'none' : 'auto',
+              }}
+            >
+              {/* 초기화 */}
+              {t('StatNavBar.Reset')}
             </button>
           </div>
         </div>
