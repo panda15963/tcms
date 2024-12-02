@@ -13,8 +13,16 @@
     "AddAdministrators": "관리자 추가",
     "UseYn": "사용유무",
     "RegisteredDate": "등록일",
-    "ModifiedDate": "수정일",
-    "Modification": "수정"
+    "EditDate": "수정일",
+    "Edit": "수정",
+    "Delete": "삭제"
+  },
+  "toast": {
+    "Success": "성공",
+    "DeleteMessage": "선택한 관리자 정보가 성공적으로 삭제되었습니다.",
+    "SearchMessage": "조회를 완료했습니다.",
+    "DeleteConfirm": "관리자 아이디를 삭제하시겠습니까?",
+    "Error": "오류"
   },
   "NavBar": {
     "Dashboard": "통계",
@@ -258,7 +266,8 @@
     "Day": "일",
     "Week": "주",
     "Month": "달",
-    "DatePeriod": "날짜 간격 주기"
+    "DatePeriod": "날짜",
+    "Inquiryperiod": "조회 기간"
   },
   "DateRangePicker": {
     "StartDate": "시작 날짜",

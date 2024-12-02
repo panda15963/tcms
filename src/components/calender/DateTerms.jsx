@@ -25,16 +25,22 @@ export default function DateTerms({ terms, initialTerm }) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm font-semibold text-white">
-        {t('DateTerms.DatePeriod')}:
+        {/* 날짜 간격 주기 */}
+        {/* {t('DateTerms.DatePeriod')} */}
+        {/* 조회 기간 */}
+        {t('DateTerms.Inquiryperiod')}
       </span>
       <Listbox value={selected} onChange={setSelected}>
         {({ open }) => (
           <>
-            <div className="relative w-20">
-              <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm">
+            <div className="relative w-16 ">
+              <Listbox.Button className="relative h-9 w-full cursor-default rounded-md bg-white py-1 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm ">
                 <span className="block truncate">{selected.name}</span>
-                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                  <FaAngleDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                <span className="pointer-events-none  absolute inset-y-0 right-0 flex items-center pr-2">
+                  <FaAngleDown
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
                 </span>
               </Listbox.Button>
               <Transition
@@ -49,18 +55,27 @@ export default function DateTerms({ terms, initialTerm }) {
                       key={term.id}
                       value={term}
                       className={({ active }) =>
-                        `${active ? 'bg-indigo-600 text-white' : 'text-gray-900'}
-                         relative cursor-pointer select-none py-2 pl-10 pr-4`
+                        `${
+                          active ? 'bg-indigo-600 text-white' : 'text-gray-900'
+                        }
+                       relative cursor-pointer select-none py-2 pl-3 pr-10`
                       }
                     >
                       {({ selected }) => (
                         <>
-                          <span className={`${selected ? 'font-bold' : 'font-normal'} block truncate`}>
+                          <span
+                            className={`${
+                              selected ? 'font-bold' : 'font-normal'
+                            } block truncate`}
+                          >
                             {term.name}
                           </span>
                           {selected && (
-                            <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                              <FaCheck className="h-5 w-5 text-indigo-600" aria-hidden="true" />
+                            <span className="absolute inset-y-0 right-0 flex items-center pr-3">
+                              <FaCheck
+                                className="h-5 w-5 text-indigo-600"
+                                aria-hidden="true"
+                              />
                             </span>
                           )}
                         </>

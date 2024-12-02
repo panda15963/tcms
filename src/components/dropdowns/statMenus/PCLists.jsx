@@ -14,7 +14,11 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function PCLists({ selectedPC, setSelectedPC = () => {}, resetTrigger }) {
+export default function PCLists({
+  selectedPC,
+  setSelectedPC = () => {},
+  resetTrigger,
+}) {
   const { t } = useTranslation();
   const location = useLocation();
   const [selected, setSelected] = useState(null);
@@ -65,7 +69,7 @@ export default function PCLists({ selectedPC, setSelectedPC = () => {}, resetTri
     <Listbox value={selected} onChange={handleOnSelectMap}>
       {({ open }) => (
         <>
-          <div className="relative min-w-32 border border-black rounded-lg">
+          <div className="relative min-w-52 border border-black rounded-lg">
             <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-black sm:text-sm sm:leading-6">
               <span className="block truncate">{selected.name}</span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
