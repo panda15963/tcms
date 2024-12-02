@@ -8,24 +8,24 @@ export default function UsageStatus() {
   const { t } = useTranslation();
   const [data, setData] = useState(null);
 
-  // Fetch data function
+  // 데이터 가져오기 함수
   const fetchData = async () => {
-    const { result: response } = await LIVE_TOOL(); // Fetch data
-    setData(response); // Set the LIVE_TOOL
+    const { result: response } = await LIVE_TOOL();
+    setData(response); 
   };
 
-  // Fetch data on component mount and set up interval for refreshing
+  // 컴포넌트가 마운트될 때 데이터 가져오기 및 갱신을 위한 인터벌 설정
   useEffect(() => {
-    fetchData(); // Initial fetch
-    const interval = setInterval(fetchData, 30000); // Fetch every 30 seconds
+    fetchData(); // 초기 데이터 가져오기
+    const interval = setInterval(fetchData, 30000);
 
-    // Cleanup interval on component unmount
+    // 컴포넌트 언마운트 시 인터벌 정리
     return () => clearInterval(interval);
   }, []);
 
-  // Manual reload handler
+  // 수동 새로고침 핸들러
   const handleReload = async () => {
-    await fetchData(); // Manually trigger data reload
+    await fetchData();
   };
 
   return (
@@ -35,7 +35,7 @@ export default function UsageStatus() {
     >
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-2xl font-bold text-gray-900">
-          {/** 실시간 도구 사용 정보  */}
+          {/** 실시간 도구 사용 정보 */}
           {t('UsageInformation.ToolUsageInformation')}
         </h1>
         <button
@@ -47,9 +47,9 @@ export default function UsageStatus() {
       </div>
       <div
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
-        style={{ height: '60vh' }} // Optional: Adjust height for better alignment
+        style={{ height: '60vh' }} // 선택사항: 더 나은 정렬을 위한 높이 조정
       >
-        <UsageStatusTable data={data} /> {/* Pass data as a prop */}
+        <UsageStatusTable data={data} /> {/* 데이터를 props로 전달 */}
       </div>
     </div>
   );

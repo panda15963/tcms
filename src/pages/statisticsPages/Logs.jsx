@@ -39,16 +39,6 @@ export default function Logs() {
     }
   };
 
-  // 30초마다 자동 새로고침
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handleRefresh();
-    }, 30000); // 30초
-
-    // 컴포넌트 언마운트 시 인터벌 해제
-    return () => clearInterval(interval);
-  }, []);
-
   // toolname에서 공백 제거 및 데이터 가공
   const processedData = Array.isArray(data)
     ? data.map((item) => ({
@@ -80,6 +70,7 @@ export default function Logs() {
     >
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-2xl font-bold text-center pb-4 text-gray-900">
+          {/*도구 로그 확인*/}
           {t('Logs.ToolLogs')}
         </h1>
         <button

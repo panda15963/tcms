@@ -19,16 +19,6 @@ export default function Configuration() {
     setData(updatedData.result || []);
   };
 
-  // Automatically reload data every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handleReload();
-    }, 30000); // 30 seconds interval
-
-    // Clear interval on component unmount
-    return () => clearInterval(interval);
-  }, []); // Empty dependency array to avoid re-creation of the interval
-
   useEffect(() => {
     setData(initialData.result || []); // Initialize data on component mount
   }, [location.state?.data]); // Listen to changes in `data` only
@@ -40,11 +30,11 @@ export default function Configuration() {
   }));
 
   const filteredData = processedData.filter(
-    (item) => 
+    (item) =>
       (toolName === '전체' || item.toolname === toolName) &&
       (pcName === '전체' || item.pc === pcName)
   );
-  
+
   return (
     <div
       className="flex flex-col items-center justify-start pt-20 bg-gray-100 px-4 sm:px-6 lg:px-8"
@@ -52,6 +42,7 @@ export default function Configuration() {
     >
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-2xl font-bold text-center pb-4 text-gray-900">
+          {/*도구 설정 정보 변경 사항*/}
           {t('Configuration.TSIM')}
         </h1>
         <button

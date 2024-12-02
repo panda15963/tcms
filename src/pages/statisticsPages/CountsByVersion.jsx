@@ -7,18 +7,18 @@ import LineChart from '../../components/D3Charts/LineChart';
 export default function CountsByVersion() {
   const { t } = useTranslation();
   const location = useLocation();
-  const initialData = location.state?.data?.result || []; // 여기서 result로 통일
+  const initialData = location.state?.data?.result || [];
   const [data, setData] = useState(initialData);
   const [isLoading, setIsLoading] = useState(false);
 
-  const pcName = location.state?.pcname || '전체';
+  const pcName = location.state?.pcname || '전체'; 
   const toolName = location.state?.toolname || '전체';
 
-  // Process data to handle null toolname safely
+  // 데이터를 처리하여 null toolname을 안전하게 처리
   const processedData = Array.isArray(data)
     ? data.map((item) => ({
         ...item,
-        toolname: item.toolname ? item.toolname.replace(/\s+/g, '') : '', // Handle null toolname
+        toolname: item.toolname ? item.toolname.replace(/\s+/g, '') : '',
       }))
     : [];
 
@@ -28,33 +28,23 @@ export default function CountsByVersion() {
       (pcName === '전체' || item.pc === pcName)
   );
 
-  // Refresh function
+  // 새로 고침 함수
   const handleReload = async () => {
-    console.log('Refreshing data...', data);
-    setIsLoading(true); // Enable loading state
+    console.log('데이터 새로 고침 중...', data);
+    setIsLoading(true); 
     try {
-      const refreshedData = location.state?.data?.result || []; // data 구조 통일
+      const refreshedData = location.state?.data?.result || [];
       setData(refreshedData);
     } catch (error) {
-      console.error('Error refreshing data:', error);
+      console.error('데이터 새로 고침 중 오류 발생:', error);
     } finally {
-      setIsLoading(false); // Disable loading state
+      setIsLoading(false);
     }
   };
 
-  // Update data whenever location.state changes
+  // location.state가 변경될 때마다 데이터 업데이트
   useEffect(() => {
     setData(location.state?.data?.result || []); // result로 통일
-  }, [location.state]);
-
-  // Automatic refresh every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handleReload();
-    }, 30000); // 30 seconds
-
-    // Clear interval on component unmount
-    return () => clearInterval(interval);
   }, [location.state]);
 
   return (
@@ -64,6 +54,7 @@ export default function CountsByVersion() {
     >
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-2xl font-bold text-center pb-4 text-gray-900">
+          {/* 도구 실행 횟수(버전 별) */}
           {t('CountsByVersion.CBV')}
         </h1>
         <button
@@ -74,7 +65,7 @@ export default function CountsByVersion() {
           } text-gray-900`}
         >
           {isLoading ? (
-            <span>{t('CountsByVersion.Loading')}</span>
+            <span>{t('CountsByVersion.Loading')}</span> // 로딩 중 텍스트 표시
           ) : (
             <IoReloadSharp />
           )}

@@ -13,10 +13,10 @@ export default function UsageCounts() {
   const pcName = location.state?.pcname || '전체';
   const toolName = location.state?.toolname || '전체';
 
-  // Process data to handle null toolname safely
+  // 데이터를 처리하여 null toolname을 안전하게 처리
   const processedData = data.map((item) => ({
     ...item,
-    toolname: item.toolname ? item.toolname.replace(/\s+/g, '') : '', // Handle null toolname
+    toolname: item.toolname ? item.toolname.replace(/\s+/g, '') : '', // null toolname 처리
   }));
 
   const filteredData = processedData.filter(
@@ -27,31 +27,21 @@ export default function UsageCounts() {
 
   // 새로 고침 함수
   const handleReload = async () => {
-    setIsLoading(true); // 로딩 상태 활성화
+    setIsLoading(true);
     try {
-      const refreshedData = location.state?.data?.result || [];
+      const refreshedData = location.state?.data?.result || []; // 데이터를 새로 가져옴
       setData(refreshedData);
     } catch (error) {
-      console.error('Error refreshing data:', error);
+      console.error('데이터 새로 고침 중 오류 발생:', error);
     } finally {
-      setIsLoading(false); // 로딩 상태 해제
+      setIsLoading(false);
     }
   };
 
   // `location.state` 변경 시 데이터 초기화
   useEffect(() => {
-    setData(location.state?.data?.result || []);
+    setData(location.state?.data?.result || []); // 새 데이터로 설정
   }, [location.state]);
-
-  // 30초마다 자동 새로 고침
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handleReload();
-    }, 30000); // 30초
-
-    // 컴포넌트 언마운트 시 인터벌 정리
-    return () => clearInterval(interval);
-  }, []); // 빈 배열로 설정해 interval이 한 번만 설정되도록 수정
 
   return (
     <div
@@ -60,6 +50,7 @@ export default function UsageCounts() {
     >
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-2xl font-bold text-center pb-4 text-gray-900">
+          {/* 도구 기능별 사용 횟수 */}
           {t('UsageCounts.UsageCounts')}
         </h1>
         <button
@@ -70,7 +61,7 @@ export default function UsageCounts() {
           } text-gray-900`}
         >
           {isLoading ? (
-            <span>{t('UsageCounts.Loading')}</span>
+            <span>{t('UsageCounts.Loading')}</span> // 로딩 중 텍스트 표시
           ) : (
             <IoReloadSharp />
           )}
