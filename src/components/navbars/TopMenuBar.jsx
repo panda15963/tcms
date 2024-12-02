@@ -132,7 +132,9 @@ const TopMenuBar = ({
 
     // Exclude data where file_name includes "US"
     const filteredByName = filteredByCountry.filter(
-      (data) => !data.file_name.includes('US') || (data.country_str === 'SAU' && data.file_name.includes('KOR'))
+      (data) =>
+        !data.file_name.includes('US') ||
+        (data.country_str === 'SAU' && data.file_name.includes('KOR'))
     );
 
     return filteredByName;
@@ -145,6 +147,8 @@ const TopMenuBar = ({
     if (selectedAPI?.name === 'ROUTO' || selectedAPI?.name === 'TMAP') {
       filteredRouteFullCoords = mergeByFileId(routeFullCoords, checkedNodes);
     }
+
+    console.log('routeColors ==>', routeColors);
 
     if (selectedAPI?.name === 'GOOGLE') {
       return (

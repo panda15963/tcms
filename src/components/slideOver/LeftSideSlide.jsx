@@ -5,6 +5,10 @@ import { FaArrowCircleRight } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import Tree from '../treeMenu/Tree';
 
+/**
+ * 경로 목록
+ * 왼쪽 사이드바
+ */
 export default function LeftSideSlide({
   data,
   onCheckedNodesChange,
@@ -12,8 +16,8 @@ export default function LeftSideSlide({
   onMapChange,
   routeColors,
 }) {
-  const [open, setOpen] = useState(false); // State to manage whether the panel is open
-  const [rowsData, setRowsData] = useState([]); // Rows data for filtered results
+  const [open, setOpen] = useState(false);
+  const [rowsData, setRowsData] = useState([]);
   const { t } = useTranslation();
 
   const handleRouteColors = (colors) => {
@@ -105,6 +109,7 @@ export default function LeftSideSlide({
           <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
             <div className="flex items-center justify-between">
               <label className="flex text-base font-semibold leading-6 text-white">
+                {/* 경로 목록 */}
                 {t('LeftSideSlide.CourseList')}
               </label>
               <div className="ml-3 flex h-7 items-center">

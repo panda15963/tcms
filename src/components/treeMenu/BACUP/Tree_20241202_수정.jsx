@@ -29,23 +29,38 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
   const { t } = useTranslation();
   const [treeData, setTreeData] = useState([]);
   const [checkedNodes, setCheckedNodes] = useState([]);
+  const [colorMap, setColorMap] = useState({});
+
+  useEffect(() => {
+    if (Array.isArray(data) && data.length > 0) {
+      const initializedData = initializeTreeData(data);
+      setTreeData(initializedData);
+
+      // Initialize colorMap
+      const initialColorMap = {};
+      initializedData.forEach((node, index) => {
+        initialColorMap[node.id] = colors[index % colors.length];
+      });
+      setColorMap(initialColorMap);
+    } else {
+      setTreeData([]);
+      setColorMap({});
+      setSelectedOrder([]);
+    }
+  }, [data]);
 
   const initializeTreeData = (data) => {
-    const addIdsAndColorsToData = (nodes, parentIndex = 0) => {
-      return nodes.map((node, index) => {
-        const colorIndex = (parentIndex + index) % colors.length; // 고정 색상 인덱스 계산
-        return {
-          ...node,
-          id: node.id || parentIndex + index + 1,
-          color: colors[colorIndex], // 각 노드에 색상 고정
-          checked: true,
-          children: Array.isArray(node.children)
-            ? addIdsAndColorsToData(node.children, parentIndex + index)
-            : [],
-        };
-      });
+    const addIdsToData = (nodes) => {
+      return nodes.map((node, index) => ({
+        ...node,
+        id: node.id || index + 1,
+        checked: true,
+        children: Array.isArray(node.children)
+          ? addIdsToData(node.children)
+          : [],
+      }));
     };
-    return Array.isArray(data) ? addIdsAndColorsToData(data) : [];
+    return Array.isArray(data) ? addIdsToData(data) : [];
   };
 
   useEffect(() => {
@@ -101,6 +116,8 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
     };
 
     const updatedTreeData = updateNodes(treeData);
+    console.log('🚀 ~ handleCheck ~ updatedTreeData:', updatedTreeData);
+
     const finalTreeData = updatedTreeData.map((node) =>
       updateParentNodeRecursively(node, updatedNodesMap)
     );
@@ -111,6 +128,8 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
   };
 
   const handleNodeClick = (node) => {
+    console.log('🚀 ~ handleNodeClick ~ node:', node);
+
     if (onNodeClick) {
       onNodeClick(node);
     }
@@ -132,12 +151,22 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
     return checkedNodes;
   };
 
-  const getRouteColor = (node) => {
-    console.log('🚀 ~ getRouteColor ~ node:', node);
+  // const getRouteColor = (node) => {
+  //   console.log('🚀 ~ getRouteColor ~ node:', node);
 
-    const colorIndex = (node.id - 1) % colors.length; // Adjusted to start from 0
-    routeColors(colors[colorIndex]);
-    return colors[colorIndex];
+  //   const colorIndex = (node.id - 1) % colors.length; // Adjusted to start from 0
+  //   routeColors(colors[colorIndex]);
+  //   return colors[colorIndex];
+  // };
+
+  const getRouteColor = (node) => {
+    console.log('colorMap[node.id] ==>', colorMap[node.id]);
+
+    const colorIndex = (node.id - 1) % colors.length;
+    console.log('colors[colorIndex] ==>', colors[colorIndex]);
+
+    routeColors(colorMap[node.id]);
+    return colorMap[node.id] || '#000000'; // Fallback to black if color is missing
   };
 
   useEffect(() => {
