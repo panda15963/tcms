@@ -105,7 +105,7 @@ export default function LeftSideSlide({
         leaveFrom="translate-x-0"
         leaveTo="-translate-x-full"
       >
-        <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
+        <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-30 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
           <div className="bg-blue-900 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
             <div className="flex items-center justify-between">
               <label className="flex text-base font-semibold leading-6 text-white">
