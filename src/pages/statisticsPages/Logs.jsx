@@ -8,35 +8,70 @@ export default function Logs() {
   const { t } = useTranslation();
   const location = useLocation();
 
-  // State to manage the refreshed data
-  const [logData, setLogData] = useState(location.state?.result || []);
+  // 기본값 설정: location.state가 없을 경우 대비
+  const initialData = location.state?.data || {};
+  const pcName = location.state?.pcname || '전체';
+  const toolName = (location.state?.toolname || '전체');
+  const [data, setData] = useState(initialData.result || []);
+  console.log('Initial Data:', initialData);
+  console.log('data:', data);
 
-  // Update logData whenever location.state?.result changes
+  // 컴포넌트가 처음 로드될 때 데이터 초기화
   useEffect(() => {
-    if (location.state?.result) {
-      setLogData(location.state.result);
+    if (Array.isArray(initialData.result)) {
+      setData([...initialData.result]);
+    } else {
+      setData([]);
     }
-  }, [location.state?.result]);
+  }, []);
+
+  useEffect(() => {
+    setData(initialData.result || []); // Initialize data on component mount
+  }, [location.state?.data]); // Listen to changes in `data` only
 
   const handleRefresh = () => {
-    // Simulate fetching new data
-    if (location.state?.result) {
-      setLogData([...location.state.result]); // Replace with actual fetch logic if needed
+    // 데이터 새로고침 (실제 데이터 페치로 교체 가능)
+    if (Array.isArray(location.state?.result)) {
+      setData([...location.state.result]);
       console.log('Data refreshed');
     } else {
       console.log('No new data found, keeping existing data');
     }
   };
 
-  // Automatically refresh every 30 seconds
+  // 30초마다 자동 새로고침
   useEffect(() => {
     const interval = setInterval(() => {
       handleRefresh();
-    }, 30000); // 30 seconds
+    }, 30000); // 30초
 
-    // Clear interval on component unmount
+    // 컴포넌트 언마운트 시 인터벌 해제
     return () => clearInterval(interval);
   }, []);
+
+  // toolname에서 공백 제거 및 데이터 가공
+  const processedData = Array.isArray(data)
+    ? data.map((item) => ({
+        ...item,
+        toolname:
+          typeof item.toolname === 'string'
+            ? item.toolname.replace(/\s+/g, '')
+            : '',
+      }))
+    : [];
+
+  // pcName과 toolName 기준으로 데이터 필터링
+  const filteredData = processedData.filter(
+    (item) =>
+      (toolName === '전체' || item.toolname === toolName) &&
+      (pcName === '전체' || item.pc === pcName)
+  );
+
+  // 디버깅용 데이터 출력
+  useEffect(() => {
+    console.log('Filtered Data:', filteredData);
+    console.log('Processed Data:', processedData);
+  }, [filteredData, processedData]);
 
   return (
     <div
@@ -48,7 +83,7 @@ export default function Logs() {
           {t('Logs.ToolLogs')}
         </h1>
         <button
-          onClick={handleRefresh} // Attach manual refresh functionality
+          onClick={handleRefresh} // 새로고침 버튼
           className="flex items-center px-4 py-2 border border-black bg-white text-gray-900 rounded-lg shadow"
         >
           <IoReloadSharp />
@@ -56,10 +91,10 @@ export default function Logs() {
       </div>
       <div
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
-        style={{ height: '60vh' }} // Optional: Adjust height for better alignment
+        style={{ height: '60vh' }} // 레이아웃 높이 조정
       >
-        {logData?.length ? (
-          <LogTable data={logData} />
+        {filteredData?.length ? (
+          <LogTable data={filteredData} />
         ) : (
           <p>{t('Logs.NoDataFound')}</p>
         )}

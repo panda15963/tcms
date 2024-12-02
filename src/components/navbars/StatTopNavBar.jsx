@@ -38,8 +38,6 @@ export default function StatTopMenuBar() {
   const [selectedTool, setSelectedTool] = useState(null);
   const [resetTrigger, setResetTrigger] = useState(0);
 
-  console.log('selectedPC:', selectedPC, 'selectedTool:', selectedTool);
-
   const handleReset = () => {
     setStartDate(initialStartDate);
     setEndDate(initialEndDate);
@@ -58,10 +56,6 @@ export default function StatTopMenuBar() {
   const isDisabled =
     data?.name === 'TC 기반 도구 실시간 사용 현황' ||
     data?.name === '실시간 도구 사용 정보';
-
-  const handleOnSelectTerm = (selectedTerm) => {
-    setDateTerm(selectedTerm);
-  };
 
   // Fetch PC names
   useEffect(() => {
@@ -99,7 +93,11 @@ export default function StatTopMenuBar() {
           pcname: '',
         };
         navigate('countsByTool', {
-          state: await EXECUTION_COUNT_TOOL(countsByTool),
+          state: {
+            data: await EXECUTION_COUNT_TOOL(countsByTool),
+            pcname: selectedPC?.name || '', // 선택된 PC 이름을 state에 포함
+            toolname: selectedTool?.name || '', // 선택된 도구 이름을 state에 포함
+          },
         });
         break;
 
@@ -113,7 +111,11 @@ export default function StatTopMenuBar() {
           pcname: '',
         };
         navigate('countsByVersion', {
-          state: await EXECUTION_COUNT_VERSION(CountsByVersion),
+          state: {
+            data: await EXECUTION_COUNT_VERSION(CountsByVersion),
+            pcname: selectedPC?.name || '', // 선택된 PC 이름을 state에 포함
+            toolname: selectedTool?.name || '', // 선택된 도구 이름을 state에 포함
+          },
         });
         break;
       case '도구 기능별 사용 횟수':
@@ -126,7 +128,11 @@ export default function StatTopMenuBar() {
           pcname: '',
         };
         navigate('usageFunctionCounts', {
-          state: await FUNCTION_COUNT(UsageCounts),
+          state: {
+            data: await FUNCTION_COUNT(UsageCounts),
+            pcname: selectedPC?.name || '', // 선택된 PC 이름을 state에 포함
+            toolname: selectedTool?.name || '', // 선택된 도구 이름을 state에 포함
+          },
         });
         break;
       case '도구 로그 확인':
@@ -138,7 +144,13 @@ export default function StatTopMenuBar() {
           toolname: '',
           pcname: '',
         };
-        navigate('logs', { state: await TOOL_LOGS(Logs) });
+        navigate('logs', {
+          state: {
+            data: await TOOL_LOGS(Logs),
+            pcname: selectedPC?.name || '', // 선택된 PC 이름을 state에 포함
+            toolname: selectedTool?.name || '', // 선택된 도구 이름을 state에 포함
+          },
+        });
         break;
       case '도구 설정 정보 변경 사항':
         const Configuration = {
@@ -150,7 +162,11 @@ export default function StatTopMenuBar() {
           pcname: '',
         };
         navigate('configuration', {
-          state: await TOOL_SETTINGS(Configuration),
+          state: {
+            data: await TOOL_SETTINGS(Configuration),
+            pcname: selectedPC?.name || '', // 선택된 PC 이름을 state에 포함
+            toolname: selectedTool?.name || '', // 선택된 도구 이름을 state에 포함
+          },
         });
         break;
       default:

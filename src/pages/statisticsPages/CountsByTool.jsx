@@ -7,36 +7,56 @@ import LineChart from '../../components/D3Charts/LineChart';
 export default function CountsByTool() {
   const { t } = useTranslation();
   const location = useLocation();
-  const [data, setData] = useState(location.state || { result: [] });
+
+  // 초기 데이터 설정, 항상 배열로 보장
+  const initialData = Array.isArray(location.state?.data?.result)
+    ? location.state?.data?.result
+    : [];
+  const [data, setData] = useState(initialData);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 새로 고침 함수
+  const pcName = location.state?.pcname || '전체';
+
+  console.log(pcName);
+
+  // 데이터 필터링
+  const filteredData = Array.isArray(data)
+    ? data.filter((item) => pcName === '전체' || item.pc === pcName) // pcName이 전체면 필터링하지 않음
+    : [];
+
+  console.log('PC Name:', pcName);
+  console.log('Filtered Data:', filteredData);
+
+  // 새로고침 함수
   const handleReload = async () => {
     console.log('Refreshing data...', data);
-    setIsLoading(true); // 로딩 상태 설정
+    setIsLoading(true);
     try {
-      // 데이터 로드 (여기서는 location.state를 재사용)
-      const refreshedData = location.state || { result: [] }; // 실제 API 요청으로 대체 가능
-      setData(refreshedData);
+      // 데이터 새로고침 (여기서는 location.state를 재사용)
+      const refreshedData = Array.isArray(location.state?.data?.result)
+        ? location.state?.data?.result
+        : [];
+      setData(refreshedData); // 배열로만 설정
     } catch (error) {
       console.error('Error refreshing data:', error);
     } finally {
-      setIsLoading(false); // 로딩 상태 해제
+      setIsLoading(false);
     }
   };
 
-  // 새로 고침 시마다 데이터 로드 초기화
+  // 컴포넌트 초기화 시 데이터 설정
   useEffect(() => {
-    setData(location.state || { result: [] });
+    const newData = Array.isArray(location.state?.data?.result)
+      ? location.state?.data?.result
+      : [];
+    setData(newData);
   }, [location.state]);
 
-  // 30초마다 자동 새로 고침
+  // 30초마다 자동 새로고침
   useEffect(() => {
     const interval = setInterval(() => {
       handleReload();
-    }, 30000); // 30초
-
-    // 컴포넌트 언마운트 시 인터벌 정리
+    }, 30000);
     return () => clearInterval(interval);
   }, [location.state]);
 
@@ -67,10 +87,10 @@ export default function CountsByTool() {
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
         style={{ height: '60vh' }}
       >
-        {data?.result?.length ? (
-          <LineChart data={data.result} groupBy="tools" />
+        {filteredData.length > 0 ? (
+          <LineChart data={filteredData} groupBy="tools" />
         ) : (
-          <p>{t('CountsByTool.NoDataFound')}</p>
+          <p>{t('UsageCounts.NoDataFound')}</p>
         )}
       </div>
     </div>

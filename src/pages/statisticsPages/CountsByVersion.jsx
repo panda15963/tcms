@@ -7,36 +7,53 @@ import LineChart from '../../components/D3Charts/LineChart';
 export default function CountsByVersion() {
   const { t } = useTranslation();
   const location = useLocation();
-  const [data, setData] = useState(location.state || { result: [] });
+  const initialData = location.state?.data?.result || []; // 여기서 result로 통일
+  const [data, setData] = useState(initialData);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 새로 고침 함수
+  const pcName = location.state?.pcname || '전체';
+  const toolName = location.state?.toolname || '전체';
+
+  // Process data to handle null toolname safely
+  const processedData = Array.isArray(data)
+    ? data.map((item) => ({
+        ...item,
+        toolname: item.toolname ? item.toolname.replace(/\s+/g, '') : '', // Handle null toolname
+      }))
+    : [];
+
+  const filteredData = processedData.filter(
+    (item) =>
+      (toolName === '전체' || item.toolname === toolName) &&
+      (pcName === '전체' || item.pc === pcName)
+  );
+
+  // Refresh function
   const handleReload = async () => {
     console.log('Refreshing data...', data);
-    setIsLoading(true); // 로딩 상태 활성화
+    setIsLoading(true); // Enable loading state
     try {
-      // 데이터 로드 (여기서는 location.state를 재사용)
-      const refreshedData = location.state || { result: [] }; // 실제 API 요청으로 대체 가능
+      const refreshedData = location.state?.data?.result || []; // data 구조 통일
       setData(refreshedData);
     } catch (error) {
       console.error('Error refreshing data:', error);
     } finally {
-      setIsLoading(false); // 로딩 상태 해제
+      setIsLoading(false); // Disable loading state
     }
   };
 
-  // 새로 고침 시마다 데이터 초기화
+  // Update data whenever location.state changes
   useEffect(() => {
-    setData(location.state || { result: [] });
+    setData(location.state?.data?.result || []); // result로 통일
   }, [location.state]);
 
-  // 30초마다 자동 새로 고침
+  // Automatic refresh every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       handleReload();
-    }, 30000); // 30초
+    }, 30000); // 30 seconds
 
-    // 컴포넌트 언마운트 시 인터벌 정리
+    // Clear interval on component unmount
     return () => clearInterval(interval);
   }, [location.state]);
 
@@ -67,10 +84,10 @@ export default function CountsByVersion() {
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
         style={{ height: '60vh' }}
       >
-        {data?.result?.length ? (
-          <LineChart data={data.result} groupBy="versions" />
+        {filteredData.length > 0 ? (
+          <LineChart data={filteredData} groupBy="versions" />
         ) : (
-          <p>{t('CountsByVersion.NoDataFound')}</p>
+          <p>{t('UsageCounts.NoDataFound')}</p>
         )}
       </div>
     </div>

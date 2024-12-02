@@ -7,15 +7,29 @@ import BarChart from '../../components/D3Charts/BarChart';
 export default function UsageCounts() {
   const { t } = useTranslation();
   const location = useLocation();
-  const [data, setData] = useState(location.state || { result: [] });
+  const initialData = location.state?.data?.result || [];
+  const [data, setData] = useState(initialData);
   const [isLoading, setIsLoading] = useState(false);
+  const pcName = location.state?.pcname || '전체';
+  const toolName = location.state?.toolname || '전체';
+
+  // Process data to handle null toolname safely
+  const processedData = data.map((item) => ({
+    ...item,
+    toolname: item.toolname ? item.toolname.replace(/\s+/g, '') : '', // Handle null toolname
+  }));
+
+  const filteredData = processedData.filter(
+    (item) =>
+      (toolName === '전체' || item.toolname === toolName) &&
+      (pcName === '전체' || item.pc === pcName)
+  );
 
   // 새로 고침 함수
   const handleReload = async () => {
     setIsLoading(true); // 로딩 상태 활성화
     try {
-      // 데이터 로드 (여기서는 location.state를 재사용)
-      const refreshedData = location.state || { result: [] }; // 실제 API 요청으로 대체 가능
+      const refreshedData = location.state?.data?.result || [];
       setData(refreshedData);
     } catch (error) {
       console.error('Error refreshing data:', error);
@@ -26,7 +40,7 @@ export default function UsageCounts() {
 
   // `location.state` 변경 시 데이터 초기화
   useEffect(() => {
-    setData(location.state || { result: [] });
+    setData(location.state?.data?.result || []);
   }, [location.state]);
 
   // 30초마다 자동 새로 고침
@@ -37,7 +51,7 @@ export default function UsageCounts() {
 
     // 컴포넌트 언마운트 시 인터벌 정리
     return () => clearInterval(interval);
-  }, [location.state]);
+  }, []); // 빈 배열로 설정해 interval이 한 번만 설정되도록 수정
 
   return (
     <div
@@ -66,8 +80,8 @@ export default function UsageCounts() {
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
         style={{ height: '60vh' }}
       >
-        {data?.result?.length ? (
-          <BarChart data={data.result} />
+        {filteredData.length > 0 ? (
+          <BarChart data={filteredData} />
         ) : (
           <p>{t('UsageCounts.NoDataFound')}</p>
         )}
