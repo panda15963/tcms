@@ -88,7 +88,7 @@ export default function LeftSideSlide({
       {!open && (
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className="text-white px-2 py-3 rounded-r-full bg-blue-600 hover:bg-blue_lapis"
+            className="text-white px-2 py-3 rounded-r-full bg-blue-900 hover:bg-blue_lapis"
             onClick={togglePanel}
           >
             <FaArrowCircleRight size={30} />
@@ -106,7 +106,7 @@ export default function LeftSideSlide({
         leaveTo="-translate-x-full"
       >
         <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
-          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
+          <div className="bg-blue-900 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
             <div className="flex items-center justify-between">
               <label className="flex text-base font-semibold leading-6 text-white">
                 {/* 경로 목록 */}

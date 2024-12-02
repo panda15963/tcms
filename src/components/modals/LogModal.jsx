@@ -1256,7 +1256,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               >
                 {/* 모달 헤더 */}
                 {!isDirect && (
-                  <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
+                  <div className="flex justify-between py-3 px-5 bg-blue-900 rounded-t-lg">
                     <h1 className="text-sm font-semibold text-white">
                       {/* 로그 검색 */}
                       {t('LogModal.ModalName')}
@@ -1284,7 +1284,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                   <button
                     className={`h-9 px-4 py-2 text-sm rounded-t-lg transition-all duration-300 ease-in-out flex-1 shadow-md ${
                       activeTab === 'route'
-                        ? 'bg-blue-400 text-white border-b-2 border-blue-300 shadow'
+                        ? 'bg-blue-700 text-white border-b-2 border-blue-300 shadow'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                     onClick={() => handleTabChange('route')}
@@ -1296,7 +1296,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                   <button
                     className={`h-9 px-4 py-2 text-sm rounded-t-lg transition-all duration-300 ease-in-out flex-1 shadow-md ${
                       activeTab === 'batch'
-                        ? 'bg-blue-400 text-white border-b-2 border-blue-300 shadow'
+                        ? 'bg-blue-700 text-white border-b-2 border-blue-300 shadow'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                     onClick={() => handleTabChange('batch')}

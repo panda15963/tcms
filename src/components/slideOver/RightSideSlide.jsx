@@ -16,20 +16,20 @@ export default function RightSideSlide({ data, onMapChange }) {
     if (onMapChange?.name === 'ROUTO' || onMapChange?.name === 'TMAP') {
       if (data && data.length > 0) {
         console.log('onMapChange is ROUTO or TMAP, applying filters.');
-  
+
         const filteredByCountry = data.filter(
           (item) => item.country_str === 'KOR' || item.country_str === 'SAU'
         );
-  
+
         const filteredByName = filteredByCountry.filter(
           (item) =>
             !item.file_name.includes('US') ||
             (item.country_str === 'SAU' && item.file_name.includes('KOR'))
         );
-  
+
         setOpen(true);
         setRowsData(filteredByName);
-  
+
         const firstRowId = filteredByName.length > 0 ? [1] : [];
         setExpandedRows(firstRowId);
       } else {
@@ -41,7 +41,7 @@ export default function RightSideSlide({ data, onMapChange }) {
       if (data && data.length > 0) {
         setOpen(true);
         setRowsData(data);
-  
+
         const firstRowId = data.length > 0 ? [1] : [];
         setExpandedRows(firstRowId);
       } else {
@@ -50,7 +50,6 @@ export default function RightSideSlide({ data, onMapChange }) {
       }
     }
   }, [data, onMapChange]);
-  
 
   // Clear rows when the map changes
   useEffect(() => {
@@ -292,7 +291,7 @@ export default function RightSideSlide({ data, onMapChange }) {
       {!open && (
         <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className="text-white px-2 py-3 rounded-l-full bg-blue-600 hover:bg-blue_lapis"
+            className="text-white px-2 py-3 rounded-l-full bg-blue-900 hover:bg-blue_lapis"
             onClick={() => setOpen(true)}
           >
             <FaArrowCircleLeft size={30} />
@@ -309,7 +308,7 @@ export default function RightSideSlide({ data, onMapChange }) {
         leaveTo="translate-x-full"
       >
         <div className="fixed inset-y-0 top-32 right-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tl-lg">
-          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tl-lg">
+          <div className="bg-blue-900 px-2 py-2 sm:px-3 shadow-xl rounded-tl-lg">
             <div className="flex items-center justify-between">
               <span className="text-base font-semibold leading-6 text-white">
                 {t('RightSideSlide.LogMetaDataList')}

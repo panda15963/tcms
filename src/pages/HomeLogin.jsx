@@ -214,7 +214,7 @@ export default function Login() {
                     <h1 className="text-5xl font-bold tracking-tight text-gray-900">
                       TestCourse
                     </h1>
-                    <h2 className="text-4xl font-semibold tracking-tight text-blue-700">
+                    <h2 className="text-4xl font-semibold tracking-tight text-blue-900">
                       ManagementSystem
                     </h2>
                   </div>
@@ -233,7 +233,7 @@ export default function Login() {
                         </div>
                         <div className="mt-2">
                           <input
-                            className="block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 pl-3"
+                            className="block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3"
                             placeholder="아이디를 입력하세요"
                             required
                             ref={idRef}
@@ -268,7 +268,7 @@ export default function Login() {
                         <div className="relative w-full max-w-md mt-2">
                           <input
                             placeholder="비밀번호를 입력하세요"
-                            className="block w-full rounded-lg shadow border-0 py-3 text-gray-900  ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 pl-3"
+                            className="block w-full rounded-lg shadow border-0 py-3 text-gray-900  ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3"
                             required
                             ref={passRef}
                             id="password"
@@ -313,7 +313,7 @@ export default function Login() {
                           <button
                             className={`px-4 py-2 rounded-lg ${
                               authMethod === 'FIDO'
-                                ? 'bg-blue-600 text-white'
+                                ? 'bg-blue-900 text-white'
                                 : 'bg-gray-200 text-gray-600'
                             }`}
                             onClick={() => setAuthMethod('FIDO')}
@@ -323,7 +323,7 @@ export default function Login() {
                           <button
                             className={`px-4 py-2 rounded-lg ${
                               authMethod === 'OTP'
-                                ? 'bg-blue-600 text-white'
+                                ? 'bg-blue-900 text-white'
                                 : 'bg-gray-200 text-gray-600'
                             }`}
                             onClick={() => setAuthMethod('OTP')}
@@ -335,7 +335,7 @@ export default function Login() {
                           {authMethod === 'OTP' && (
                             <input
                               type="text"
-                              className="block w-full max-w-xs rounded-lg border-0 py-2 px-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                              className="block w-full max-w-xs rounded-lg border-0 py-2 px-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6"
                               placeholder="OTP 번호 입력"
                               value={otpCode}
                               onChange={(e) => setOtpCode(e.target.value)}
@@ -347,7 +347,7 @@ export default function Login() {
                       <div>
                         <button
                           ref={btnLoginRef}
-                          className="flex w-full justify-center items-center rounded-lg bg-blue-600 px-3 py-4 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                          className="flex w-full justify-center items-center rounded-lg bg-blue-900 px-3 py-4 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900"
                           onClick={(e) => handleSubmit(e)}
                         >
                           로그인

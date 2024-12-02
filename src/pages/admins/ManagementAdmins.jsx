@@ -110,7 +110,7 @@ export default function ManagementAdmins() {
           <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
             <button
               type="button"
-              className="inline-flex items-center gap-x-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="inline-flex items-center gap-x-1.5 rounded-md bg-blue-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-900"
               onClick={() => {
                 if (addAdminModalRef) {
                   // console.log('Clicked show add admin modal');
@@ -198,7 +198,7 @@ export default function ManagementAdmins() {
                     </td>
                     <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                       <a
-                        className="text-blue-600 hover:text-blue-700 font-semibold cursor-pointer"
+                        className="text-blue-900 hover:text-blue-700 font-semibold cursor-pointer"
                         onClick={() => {
                           handleUpdateAdminInfo(item);
                         }}
