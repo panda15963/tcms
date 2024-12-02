@@ -38,7 +38,10 @@ export default function StatTopMenuBar() {
   const [selectedTool, setSelectedTool] = useState(null);
   const [resetTrigger, setResetTrigger] = useState(0);
 
-  console.log('selectedPC:', selectedPC, 'selectedTool:', selectedTool);
+  // 도구 사용 현황 메뉴 변경할때 조회
+  useEffect(() => {
+    handleSearch();
+  }, [data]);
 
   const handleReset = () => {
     setStartDate(initialStartDate);
