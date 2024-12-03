@@ -8,7 +8,12 @@ import { isEmpty } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// 테이블의 기본 컬럼 정의
+/**
+ * defaultColumns
+ * @description 테이블 컬럼 정의 함수
+ * @param {Function} t - 다국어 번역 함수
+ * @returns {Array} 테이블 컬럼 배열
+ */
 const defaultColumns = (t) => [
   {
     accessorKey: 'select',
@@ -30,7 +35,7 @@ const defaultColumns = (t) => [
   {
     accessorKey: 'upload_date',
     header: ({ column }) => {
-      const isSorted = column.getIsSorted(); // 정렬 상태 ('asc', 'desc', false)
+      const isSorted = column.getIsSorted();
       return (
         <div
           className="flex items-center justify-center text-xs"
@@ -39,7 +44,7 @@ const defaultColumns = (t) => [
           <span>{t('MainGrid.UploadedDate')}</span>
           <button
             className="ml-1 text-gray-500"
-            onClick={column.getToggleSortingHandler()} // 정렬 토글 핸들러
+            onClick={column.getToggleSortingHandler()}
           >
             {isSorted === 'asc' ? '▲' : isSorted === 'desc' ? '▼' : '⇅'}
           </button>
@@ -47,26 +52,14 @@ const defaultColumns = (t) => [
       );
     },
     cell: ({ getValue }) => {
-      const fullDate = getValue(); // 날짜 데이터
-      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 형식으로 추출
+      const fullDate = getValue();
+      const shortDate = fullDate.slice(0, 10);
       return (
         <span title={fullDate} className="cursor-pointer text-xs">
           {shortDate}
         </span>
       );
     },
-    // accessorKey: 'upload_date', // 데이터를 가져올 키 (데이터의 속성 이름)
-    // header: t('MainGrid.UploadedDate'), // 컬럼 헤더에 표시될 텍스트
-    // cell: ({ getValue }) => {
-    //   const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
-    //   const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
-
-    //   return (
-    //     <span title={fullDate} className="cursor-pointer text-xs">
-    //       {shortDate}
-    //     </span>
-    //   );
-    // },
   },
   {
     accessorKey: 'log_name',
@@ -107,13 +100,12 @@ const defaultColumns = (t) => [
       const imagePath = row.original.imagePath;
       // 모디엠개발 : /testcourse/image/DESKTOP-6A267SH/20231214/HIP/20231124_083827_S_KOR_서울특별시_E_KOR_서울특별시.hip.png
       // 오토검증계 : /home/wasadmin/testcourse/image/DESKTOP-6A267SH/20231214/HIP/20231124_083827_S_KOR_서울특별시_E_KOR_서울특별시.hip.png
-
       const [showModal, setShowModal] = useState(false);
 
       // 현재 baseURL의 패턴을 보고 서버에 맞는 경로로 바꾸는 함수
       const adjustImagePath = (baseURL, imagePath) => {
         if (baseURL.includes('192.168.0.88')) {
-          // 서버가 192.168.0.88인 경우
+           // 서버가 192.168.0.88인 경우
           return `/images${imagePath.replace('/testcourse/image', '')}`;
         } else if (baseURL.includes('10.5.35.121')) {
           // 서버가 10.5.35.121인 경우
@@ -134,15 +126,13 @@ const defaultColumns = (t) => [
       );
 
       const adjustedImagePath = adjustImagePath(baseURL, imagePath);
-      // console.log('adjustedImagePath', adjustedImagePath);
 
       return imagePath ? (
         <>
           <img
-            // src={`${baseURL}/images${imagePath.replace('/testcourse/image', '')}`}
             src={`${baseURL}${adjustedImagePath}`}
             style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
-            onClick={() => setShowModal(true)} // 이미지 클릭 시 모달 표시
+            onClick={() => setShowModal(true)}
           />
           {showModal && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -150,8 +140,8 @@ const defaultColumns = (t) => [
                 <img
                   src={`${baseURL}${adjustedImagePath}`}
                   style={{
-                    maxWidth: '55vw', // 화면 너비의 90%로 제한
-                    maxHeight: '55vh', // 화면 높이의 90%로 제한
+                    maxWidth: '55vw',
+                    maxHeight: '55vh',
                     width: 'auto',
                     height: 'auto',
                   }}
@@ -195,67 +185,60 @@ const defaultData = [
   },
 ];
 
-// MainGridDetail 컴포넌트 정의
-const MainGridDetail = ({ list, onSelectionChange, onCellDoubleClick }) => {
-  const { t } = useTranslation(); // Get the translation function
-  const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
 
-  const [data, setData] = useState(list ?? defaultData);
+/**
+ * MainGridDetail
+ * @description 테이블 데이터를 렌더링하는 컴포넌트
+ * @param {Array} list - 테이블 데이터
+ * @param {Function} onSelectionChange - 선택된 행 전달 콜백
+ * @param {Function} onCellDoubleClick - 셀 더블클릭 핸들러
+ * @returns {JSX.Element} MainGridDetail 컴포넌트
+ */
+const MainGridDetail = ({ list, onSelectionChange, onCellDoubleClick }) => {
+  const { t } = useTranslation();
+  const columns = useMemo(() => defaultColumns(t), [t]);
+  const [data, setData] = useState(list?.list ?? []);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [sorting, setSorting] = useState([]); // 정렬 상태 추가
+  const [sorting, setSorting] = useState([]);
 
   useEffect(() => {
-    console.log('useEffect LIST ==>', list);
-    if (list && !isEmpty(list.list)) {
+    if (list?.list && !isEmpty(list.list)) {
       setData(list.list);
     }
   }, [list]);
 
   const table = useReactTable({
-    data, // 테이블에 사용할 데이터
-    columns, // 테이블에 사용할 컬럼
+    data,
+    columns,
     state: {
-      sorting, // 정렬 상태
+      sorting,
     },
-    onSortingChange: setSorting, // 정렬 변경 핸들러
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(), // 정렬된 데이터 모델
-    state: {}, // 테이블의 상태
+    getSortedRowModel: getSortedRowModel(),
   });
-
-  // 선택된 행의 데이터 추출
-  // useEffect(() => {
-  //   const selectedRows = table
-  //     .getSelectedRowModel()
-  //     .rows.map((row) => row.original);
-  //   onSelectionChange(selectedRows);
-  // }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
   useEffect(() => {
     const currentSelectedRows = table
       .getSelectedRowModel()
       .rows.map((row) => row.original);
 
-    // 선택된 행이 변경될 때만 상태 업데이트
     if (JSON.stringify(currentSelectedRows) !== JSON.stringify(selectedRows)) {
       setSelectedRows(currentSelectedRows);
-      onSelectionChange(currentSelectedRows); // 부모 컴포넌트로 업데이트된 선택된 행 전달
+      onSelectionChange(currentSelectedRows);
     }
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
-  // 셀 클릭 이벤트 핸들러 (더블클릭 시 모달 열기)
   const handleCellDoubleClick = (rowData) => {
-    console.log('Row double clicked:', rowData);
     if (onCellDoubleClick) {
-      onCellDoubleClick(rowData); // 더블클릭 시 부모 컴포넌트로 데이터를 전달해 모달 열기
+      onCellDoubleClick(rowData);
     }
   };
 
   return (
-    // <div className="my-2 h-96 block overflow-x-auto">
-    <div className="my-2 h-[400px]  block overflow-x-auto">
-      <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
-        <thead className="bg-gray-50 border-2 sticky top-0 ">
+    <div className="my-2 h-[400px] block overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200 border-gray-300">
+        <thead className="bg-gray-50 border-2 sticky top-0">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
@@ -267,8 +250,8 @@ const MainGridDetail = ({ list, onSelectionChange, onCellDoubleClick }) => {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header, // 컬럼 헤더 렌더링
-                        header.getContext() // 헤더의 컨텍스트
+                        header.column.columnDef.header,
+                        header.getContext()
                       )}
                 </th>
               ))}
@@ -280,7 +263,7 @@ const MainGridDetail = ({ list, onSelectionChange, onCellDoubleClick }) => {
             <tr
               key={row.id}
               className={row.getIsSelected() ? 'bg-gray-100' : ''}
-              onDoubleClick={() => handleCellDoubleClick(row.original)} // 셀 더블클릭 이벤트 추가
+              onDoubleClick={() => handleCellDoubleClick(row.original)}
             >
               {row.getVisibleCells().map((cell) => (
                 <td

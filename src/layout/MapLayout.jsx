@@ -4,35 +4,46 @@ import TopMenuBar from '../components/navbars/TopMenuBar';
 import LeftSideSlide from '../components/slideOver/LeftSideSlide';
 import RightSideSlide from '../components/slideOver/RightSideSlide';
 
-// MapLayout component definition
+/**
+ * MapLayout 컴포넌트
+ * 
+ * 지도와 관련된 레이아웃을 구성하며, 상단 메뉴 바, 좌측 및 우측 슬라이드 패널, 
+ * 그리고 동적으로 렌더링되는 콘텐츠(Outlet)를 포함합니다.
+ *
+ * @returns {JSX.Element} 레이아웃 컴포넌트
+ */
 export default function MapLayout() {
-  const [routeData, setRouteData] = useState([]);
-  const [checkedNodes, setCheckedNodes] = useState([]);
-  const [clickedNode, setClickedNode] = useState(null);
-  const [currentApi, setCurrentApi] = useState(null);
-  const [routeColors, setRouteColors] = useState([]);
+  // 상태 정의
+  const [routeData, setRouteData] = useState([]); // 경로 데이터
+  const [checkedNodes, setCheckedNodes] = useState([]); // 체크된 노드
+  const [clickedNode, setClickedNode] = useState(null); // 클릭된 노드
+  const [currentApi, setCurrentApi] = useState(null); // 현재 사용 중인 지도 API
+  const [routeColors, setRouteColors] = useState([]); // 경로 색상
 
+  // 메모이제이션: 상태 변경으로 인한 불필요한 리렌더링 방지
   const memoizedRouteData = useMemo(() => routeData, [routeData]);
   const memoizedCheckedNodes = useMemo(() => checkedNodes, [checkedNodes]);
 
+  /**
+   * 경로 색상을 업데이트하는 핸들러
+   * @param {string[] | string} colors - 새로운 색상 배열 또는 문자열
+   */
   const handleRouteColors = useCallback((colors) => {
     setRouteColors((prevColors) => {
       let formattedColors = [];
 
-      // Ensure colors is an array, or convert it to an array if possible
+      // colors를 배열 또는 문자열로 변환
       if (Array.isArray(colors)) {
         formattedColors = colors;
       } else if (typeof colors === 'string') {
-        // If colors is a string, split it into an array
         formattedColors = colors.split('');
       } else {
         console.warn('Unexpected format for colors:', colors);
-        return prevColors; // If colors is not an array or a string, return previous state
+        return prevColors;
       }
 
-      // Check if the colors are in individual character format or complete hex strings
+      // Hex 색상 형식으로 변환
       if (formattedColors.length > 0 && formattedColors[0].length === 1) {
-        // Group the characters into valid hex color strings
         const groupedColors = [];
         for (let i = 0; i < formattedColors.length; i += 7) {
           if (formattedColors[i] === '#') {
@@ -45,62 +56,64 @@ export default function MapLayout() {
         formattedColors = groupedColors;
       }
 
-      // Check if any of the new colors are not already in the previous colors
+      // 새로운 색상만 추가
       const newColors = formattedColors.filter(
-        (color) => !prevColors.includes(color),
+        (color) => !prevColors.includes(color)
       );
-      if (newColors.length === 0) {
-        return prevColors; // No new colors to add, return previous state to avoid re-render
-      }
-
-      const updatedColors = [...prevColors, ...newColors];
-      return updatedColors; // Update the state with the new list
+      return newColors.length > 0 ? [...prevColors, ...newColors] : prevColors;
     });
   }, []);
 
+  /**
+   * 경로 데이터를 업데이트하는 핸들러
+   * @param {Array} data - 새로운 경로 데이터
+   */
   const handleRouteData = useCallback((data) => {
     if (data !== routeData) {
       setRouteData(data);
     }
   }, [routeData]);
 
+  /**
+   * 체크된 노드를 업데이트하는 핸들러
+   * @param {Array} nodes - 체크된 노드 배열
+   */
   const handleCheckedNodes = useCallback((nodes) => {
     if (nodes !== checkedNodes) {
       setCheckedNodes(nodes);
     }
   }, [checkedNodes]);
 
+  /**
+   * 클릭된 노드를 업데이트하는 핸들러
+   * @param {Object} node - 클릭된 노드 데이터
+   */
   const handleClickedNode = useCallback((node) => {
     if (node !== clickedNode) {
       setClickedNode(node);
     }
   }, [clickedNode]);
 
-  // Use useEffect to update state based on external changes, not during render
+  // currentApi 변경 시 실행되는 로직
   useEffect(() => {
     if (currentApi) {
-      // Handle any updates needed when currentApi changes
+      // API 변경에 따른 처리 로직 작성
     }
   }, [currentApi]);
 
   return (
     <>
-      {/* Top Menu Bar */}
+      {/* 상단 메뉴 바 */}
       <TopMenuBar
         handleRouteData={handleRouteData}
         checkedNodes={memoizedCheckedNodes}
         clickedNode={clickedNode}
         setCurrentApi={setCurrentApi}
         routeColors={routeColors}
-        handleSpaceData={
-          // Add handleSpaceData to props
-          (data) => {
-            setRouteData(data);
-          }
-        }
+        handleSpaceData={(data) => setRouteData(data)} // 공간 데이터 핸들링
       />
 
-      {/* Left Slide Panel */}
+      {/* 좌측 슬라이드 패널 */}
       <LeftSideSlide
         data={memoizedRouteData}
         onCheckedNodesChange={handleCheckedNodes}
@@ -109,10 +122,10 @@ export default function MapLayout() {
         routeColors={handleRouteColors}
       />
       
-      {/* Right Slide Panel */}
+      {/* 우측 슬라이드 패널 */}
       <RightSideSlide data={memoizedRouteData} onMapChange={currentApi} />
 
-      {/* Outlet renders nested route components */}
+      {/* 중첩된 라우트를 렌더링하는 Outlet */}
       <main>
         <Outlet />
       </main>

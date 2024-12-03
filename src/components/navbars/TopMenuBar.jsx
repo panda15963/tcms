@@ -25,151 +25,184 @@ import { useTranslation } from 'react-i18next';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
 const TopMenuBar = ({
-  checkedNodes,
-  handleRouteData,
-  clickedNode,
-  setCurrentApi,
-  handleSpaceData,
-  routeColors = () => {},
+  checkedNodes, // 선택된 노드 리스트
+  handleRouteData, // 경로 데이터 처리 함수
+  clickedNode, // 클릭된 노드 데이터
+  setCurrentApi, // 현재 지도 API를 설정하는 함수
+  handleSpaceData, // 공간 데이터 처리 함수
+  routeColors = () => {}, // 경로 색상 관리 함수
 }) => {
-  const [inputValue, setInputValue] = useState('');
-  const [keyPressed, setKeyPressed] = useState('');
-  const [selectedCoords, setSelectedCoords] = useState(null);
-  const [selectedAPI, setSelectedAPI] = useState(null);
-  const [clickedCoords, setClickedCoords] = useState(null);
-  const [selectedMapList, setSelectedMapList] = useState(null);
-  const [convertedCoords, setConvertedCoords] = useState({ lat: '', lng: '' });
-  const [success, setSuccess] = useState(false);
-  const [successValue, setSuccessValue] = useState('');
-  const [error, setError] = useState(false);
-  const [errorValue, setErrorValue] = useState('');
-  const [displayCoords, setDisplayCoords] = useState(null);
-  const [origins, setOrigins] = useState([]);
-  const [destinations, setDestinations] = useState([]);
-  const [routeFullCoords, setRouteFullCoords] = useState(null);
-  const [spaceFullCoords, setSpaceFullCoords] = useState(null);
+  const [inputValue, setInputValue] = useState(''); // 검색 입력값
+  const [keyPressed, setKeyPressed] = useState(''); // 마지막으로 입력된 키
+  const [selectedCoords, setSelectedCoords] = useState(null); // 선택된 좌표
+  const [selectedAPI, setSelectedAPI] = useState(null); // 선택된 지도 API
+  const [clickedCoords, setClickedCoords] = useState(null); // 클릭된 좌표
+  const [selectedMapList, setSelectedMapList] = useState(null); // 선택된 좌표 형식
+  const [convertedCoords, setConvertedCoords] = useState({ lat: '', lng: '' }); // 변환된 좌표
+  const [success, setSuccess] = useState(false); // 성공 메시지 표시 여부
+  const [successValue, setSuccessValue] = useState(''); // 성공 메시지 내용
+  const [error, setError] = useState(false); // 에러 메시지 표시 여부
+  const [errorValue, setErrorValue] = useState(''); // 에러 메시지 내용
+  const [displayCoords, setDisplayCoords] = useState(null); // 화면에 표시할 좌표
+  const [origins, setOrigins] = useState([]); // 시작 좌표 리스트
+  const [destinations, setDestinations] = useState([]); // 도착 좌표 리스트
+  const [routeFullCoords, setRouteFullCoords] = useState(null); // 전체 경로 데이터
+  const [spaceFullCoords, setSpaceFullCoords] = useState(null); // 전체 공간 데이터
 
-  const storeModalRef = useRef();
-  const logModalRef = useRef();
-  const spaceModalRef = useRef();
+  const storeModalRef = useRef(); // StoreModal 참조
+  const logModalRef = useRef(); // LogModal 참조
+  const spaceModalRef = useRef(); // SpaceModal 참조
 
-  const { t } = useTranslation();
+  const { t } = useTranslation(); // 다국어 번역 훅
 
+  /**
+   * 검색 입력값 변경 핸들러
+   * - 사용자가 검색 입력란에 입력한 값을 상태로 업데이트
+   *
+   * @param {object} event - 입력 이벤트 객체
+   */
   const handleChange = (event) => {
-    setInputValue(event.target.value);
+    setInputValue(event.target.value); // 입력값 상태 업데이트
   };
 
+  /**
+   * 키보드 입력 이벤트 핸들러
+   * - 사용자가 키보드를 입력했을 때 특정 키와 조건에 따라 동작 수행
+   *
+   * @param {object} event - 키보드 입력 이벤트 객체
+   */
   const handleKeyDown = (event) => {
-    const reg = /[\{\}\[\]\/?,;:|\)*~!^\-_+<>@\#$%&\\\=\(\'\"]/g;
+    const reg = /[\{\}\[\]\/?,;:|\)*~!^\-_+<>@\#$%&\\\=\(\'\"]/g; // 특수문자 필터 정규식
     if (
-      event.key === 'Enter' &&
-      event.target.value !== '' &&
-      !reg.test(event.target.value)
+      event.key === 'Enter' && // Enter 키 입력 시
+      event.target.value !== '' && // 입력값이 비어 있지 않은 경우
+      !reg.test(event.target.value) // 특수문자가 포함되지 않은 경우
     ) {
-      storeModalRef.current.show();
-      setKeyPressed(event.key);
+      storeModalRef.current.show(); // StoreModal 열기
+      setKeyPressed(event.key); // 마지막으로 입력된 키 저장
     }
     if (event.key === 'Backspace') {
-      setInputValue('');
+      setInputValue(''); // Backspace 입력 시 입력값 초기화
     }
   };
 
+  /**
+   * StoreModal로부터 데이터 반환 처리
+   * - 모달에서 선택된 데이터를 부모 컴포넌트로 전달받아 상태를 업데이트
+   *
+   * @param {object} store - 모달에서 반환된 데이터 객체
+   */
   const handleDataReceiveBack = (store) => {
     if (store.latitude && store.longitude !== undefined) {
-      setInputValue('');
+      setInputValue(''); // 입력값 초기화
       setSelectedCoords({
-        lat: store.latitude,
-        lng: store.longitude,
+        lat: store.latitude, // 반환된 위도 설정
+        lng: store.longitude, // 반환된 경도 설정
       });
-      storeModalRef.current.close();
+      storeModalRef.current.close(); // StoreModal 닫기
     }
   };
 
+  // 선택된 API 변경 시 상태 초기화
   useEffect(() => {
     if (selectedAPI) {
-      // Reset states when a new API is selected
-      setOrigins([]);
-      setDestinations([]);
-      setInputValue('');
-      setSelectedCoords(null);
-      setClickedCoords(null);
-      setConvertedCoords({ lat: '', lng: '' });
-      setDisplayCoords(null);
-
-      // Reset routeFullCoords when the map changes
-      setRouteFullCoords(null);
-      setSpaceFullCoords(null);
-
-      // Set the current API to the selected API
-      setCurrentApi(selectedAPI);
-
-      // Display success message
+      setOrigins([]); // 시작 좌표 초기화
+      setDestinations([]); // 도착 좌표 초기화
+      setInputValue(''); // 검색 입력값 초기화
+      setSelectedCoords(null); // 선택된 좌표 초기화
+      setClickedCoords(null); // 클릭된 좌표 초기화
+      setConvertedCoords({ lat: '', lng: '' }); // 변환된 좌표 초기화
+      setDisplayCoords(null); // 화면 표시 좌표 초기화
+      setRouteFullCoords(null); // 경로 데이터 초기화
+      setSpaceFullCoords(null); // 공간 데이터 초기화
+      setCurrentApi(selectedAPI); // 현재 API 설정
       setSuccessValue(
         `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`
-      );
+      ); // 성공 메시지
     }
-    setRouteFullCoords(null);
   }, [selectedAPI, setCurrentApi]);
 
+  /**
+   * 두 배열을 file_id 기준으로 병합하고 특정 조건에 따라 데이터를 필터링하는 함수
+   *
+   * @param {Array} routeFullCoords - 경로 데이터 배열
+   * @param {Array} checkedNodes - 체크된 노드 데이터 배열
+   * @returns {Array} 필터링된 데이터 배열
+   */
   const mergeByFileId = (routeFullCoords, checkedNodes) => {
+    // 경로 데이터나 체크된 노드 데이터가 없을 경우 빈 배열 반환
     if (!routeFullCoords || !checkedNodes) return [];
 
+    // routeFullCoords와 checkedNodes를 file_id 기준으로 병합
     const mergedData = routeFullCoords.map((route) => {
       const matchedNode = checkedNodes.find(
-        (node) => node.file_id === route.file_id
+        (node) => node.file_id === route.file_id // file_id가 일치하는 노드 찾기
       );
 
       return {
-        ...route,
-        ...(matchedNode || {}), // Merge matchedNode's data
+        ...route, // route 데이터 유지
+        ...(matchedNode || {}), // 일치하는 노드 데이터 병합
       };
     });
 
-    // Filter only the data where country_str is "KOR" or "SAU"
+    // country_str가 "KOR" 또는 "SAU"인 데이터만 필터링
     const filteredByCountry = mergedData.filter(
       (data) => data.country_str === 'KOR' || data.country_str === 'SAU'
     );
 
-    // Exclude data where file_name includes "US"
+    // file_name에 "US"가 포함된 데이터를 제외
+    // 단, country_str가 "SAU"이면서 file_name에 "KOR"이 포함된 경우는 제외하지 않음
     const filteredByName = filteredByCountry.filter(
       (data) =>
         !data.file_name.includes('US') ||
         (data.country_str === 'SAU' && data.file_name.includes('KOR'))
     );
 
-    return filteredByName;
+    return filteredByName; // 최종 필터링된 데이터 반환
   };
 
+  /**
+   * 선택된 지도 API에 따라 적절한 지도 핸들러를 반환
+   * - Routo와 TMap의 경우 데이터 필터링 수행
+   *
+   * @returns {JSX.Element|null} 선택된 지도 API에 따른 핸들러 컴포넌트 반환
+   */
   const handleChoosingMapAPIs = () => {
-    let filteredRouteFullCoords = routeFullCoords;
+    let filteredRouteFullCoords = routeFullCoords; // 기본 경로 데이터
 
-    // Apply mergeByFileId only for Routo and TMap
+    // Routo와 TMap의 경우 mergeByFileId 함수로 데이터 필터링
     if (selectedAPI?.name === 'ROUTO' || selectedAPI?.name === 'TMAP') {
       filteredRouteFullCoords = mergeByFileId(routeFullCoords, checkedNodes);
     }
 
     console.log('routeColors ==>', routeColors);
+    console.log(checkedNodes);
 
+    // console.log('filteredRouteFullCoords ==>', filteredRouteFullCoords);
+
+    // 선택된 지도 API에 따라 적절한 지도 핸들러 반환
     if (selectedAPI?.name === 'GOOGLE') {
+      console.log('Rendering GoogleMapHandler with routeFullCoords:', routeFullCoords);
       return (
         <GoogleMapHandler
           key="google"
-          selectedCoords={selectedCoords}
-          googleLocation={setClickedCoords}
-          routeFullCoords={routeFullCoords} // Original data
-          spaceFullCoords={spaceFullCoords}
-          checkedNode={checkedNodes}
-          clickedNode={clickedNode}
-          routeColors={routeColors}
+          selectedCoords={selectedCoords} // 선택된 좌표
+          googleLocation={setClickedCoords} // 클릭된 좌표 설정 함수
+          routeFullCoords={routeFullCoords} // 원본 경로 데이터
+          spaceFullCoords={spaceFullCoords} // 공간 데이터
+          checkedNode={checkedNodes} // 선택된 노드 데이터
+          clickedNode={clickedNode} // 클릭된 노드 데이터
+          routeColors={routeColors} // 경로 색상
         />
       );
     } else if (selectedAPI?.name === 'ROUTO') {
+      console.log('Rendering GoogleMapHandler with routeFullCoords:', routeFullCoords);
       return (
         <RoutoMapHandler
           key="routo"
           selectedCoords={selectedCoords}
           routoLocation={setClickedCoords}
-          routeFullCoords={filteredRouteFullCoords} // Filtered data
+          routeFullCoords={filteredRouteFullCoords} // 필터링된 경로 데이터
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -182,7 +215,7 @@ const TopMenuBar = ({
           key="tmap"
           selectedCoords={selectedCoords}
           tmapLocation={setClickedCoords}
-          routeFullCoords={filteredRouteFullCoords} // Filtered data
+          routeFullCoords={filteredRouteFullCoords} // 필터링된 경로 데이터
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -195,7 +228,7 @@ const TopMenuBar = ({
           key="tomtom"
           selectedCoords={selectedCoords}
           tomtomLocation={setClickedCoords}
-          routeFullCoords={routeFullCoords} // Original data
+          routeFullCoords={routeFullCoords} // 원본 경로 데이터
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -208,9 +241,9 @@ const TopMenuBar = ({
           key="baidu"
           selectedCoords={selectedCoords}
           baiduLocation={setClickedCoords}
-          origins={origins}
-          destinations={destinations}
-          routeFullCoords={routeFullCoords} // Original data
+          origins={origins} // 시작 좌표 리스트
+          destinations={destinations} // 도착 좌표 리스트
+          routeFullCoords={routeFullCoords} // 원본 경로 데이터
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -222,7 +255,7 @@ const TopMenuBar = ({
           key="here"
           selectedCoords={selectedCoords}
           hereLocation={setClickedCoords}
-          routeFullCoords={routeFullCoords} // Original data
+          routeFullCoords={routeFullCoords} // 원본 경로 데이터
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
@@ -253,85 +286,116 @@ const TopMenuBar = ({
     }
   }, [selectedAPI, setCurrentApi]);
 
+  /**
+   * 좌표 입력값 변경 핸들러
+   * - 사용자가 입력한 값을 검증하고 상태를 업데이트
+   *
+   * @param {object} e - 입력 이벤트 객체
+   */
   const handleCoordsChange = (e) => {
     const { name, value } = e.target;
 
-    // 숫자와 소수점만 입력할 수 있도록 제한
+    // 숫자와 소수점만 입력 가능하도록 제한
     if (!/^[\d.]*$/.test(value)) {
-      return; // 숫자와 소수점 외의 입력을 무시
+      return; // 유효하지 않은 입력은 무시
     }
 
+    // 기존 좌표 상태에 새로운 값 업데이트
     setConvertedCoords((prevCoords) => ({
       ...prevCoords,
       [name]: value,
     }));
   };
 
+  /**
+   * 좌표 입력란 클릭 시 초기화 핸들러
+   * - 클릭한 입력란의 값을 초기화
+   *
+   * @param {object} e - 클릭 이벤트 객체
+   */
   const handleCoordsClick = (e) => {
     const { name } = e.target;
 
     setConvertedCoords((prevCoords) => ({
       ...prevCoords,
-      [name]: '',
+      [name]: '', // 해당 입력란 값 초기화
     }));
   };
 
+  /**
+   * 좌표 복사 핸들러
+   * - 현재 변환된 좌표를 클립보드에 복사
+   */
   const handleCopy = () => {
     if (convertedCoords.lat && convertedCoords.lng) {
       const coordsText = `${t('Common.Latitude')}: ${convertedCoords.lat}, ${t(
         'Common.Longitude'
-      )}: ${convertedCoords.lng}`;
+      )}: ${convertedCoords.lng}`; // 복사할 텍스트 구성
+
       navigator.clipboard
-        .writeText(coordsText)
+        .writeText(coordsText) // 클립보드에 텍스트 복사
         .then(() => {
-          setSuccessValue(`${t('TopMenuBar.Copy.Success')}`);
-          setSuccess(true);
-          setTimeout(() => setSuccess(false), 5000);
+          setSuccessValue(`${t('TopMenuBar.Copy.Success')}`); // 성공 메시지 설정
+          setSuccess(true); // 성공 상태 활성화
+          setTimeout(() => setSuccess(false), 5000); // 5초 후 성공 상태 비활성화
         })
         .catch((err) => {
-          setErrorValue(err.message || `${t('TopMenuBar.Copy.Fail')}`);
-          setError(true);
-          setTimeout(() => setError(false), 5000);
+          setErrorValue(err.message || `${t('TopMenuBar.Copy.Fail')}`); // 에러 메시지 설정
+          setError(true); // 에러 상태 활성화
+          setTimeout(() => setError(false), 5000); // 5초 후 에러 상태 비활성화
         });
     } else {
-      setErrorValue(`${t('TopMenuBar.CoordsNotExistence')}`);
+      setErrorValue(`${t('TopMenuBar.CoordsNotExistence')}`); // 좌표 없음 에러 메시지 설정
       setError(true);
       setTimeout(() => setError(false), 5000);
     }
   };
 
+  /**
+   * DEG 형식의 좌표 문자열을 소수점 형식으로 변환
+   * - DEG 형식은 "도 분 초"로 구성됨
+   *
+   * @param {string} degString - DEG 형식의 좌표 문자열
+   * @returns {number} 변환된 소수점 형식 좌표값
+   * @throws {Error} 형식 오류가 발생한 경우
+   */
   const parseDEGToDecimal = (degString) => {
-    const parts = degString.split(' ');
+    const parts = degString.split(' '); // 문자열을 공백으로 분리
     if (parts.length !== 3) {
-      throw new Error(`${t('TopMenuBar.FormatError')}`);
+      throw new Error(`${t('TopMenuBar.FormatError')}`); // "도 분 초" 형식이 아닌 경우 에러 발생
     }
 
-    const degrees = parseFloat(parts[0]);
-    const minutes = parseFloat(parts[1]);
-    const seconds = parseFloat(parts[2]);
+    const degrees = parseFloat(parts[0]); // 도
+    const minutes = parseFloat(parts[1]); // 분
+    const seconds = parseFloat(parts[2]); // 초
 
     if (isNaN(degrees) || isNaN(minutes) || isNaN(seconds)) {
-      throw new Error(`${t('TopMenuBar.FormatError')}`);
+      throw new Error(`${t('TopMenuBar.FormatError')}`); // 숫자로 변환할 수 없는 경우 에러 발생
     }
 
+    // DEG -> 소수점 형식 변환
     return degrees + minutes / 60 + seconds / 3600;
   };
 
+  /**
+   * 좌표 검색 핸들러
+   * - 입력된 좌표를 검증하고 변환하여 상태에 저장
+   */
   const handleSearch = () => {
-    const lat = convertedCoords.lat;
-    const lng = convertedCoords.lng;
-    let latitude = `${t('Common.Latitude')}`;
-    let longitude = `${t('Common.Longitude')}`;
+    const lat = convertedCoords.lat; // 입력된 위도
+    const lng = convertedCoords.lng; // 입력된 경도
+    const latitude = `${t('Common.Latitude')}`; // "위도" 문자열
+    const longitude = `${t('Common.Longitude')}`; // "경도" 문자열
 
-    let decError = `${t('TopMenuBar.DECError')}`;
+    // 에러 메시지 템플릿
+    const decError = `${t('TopMenuBar.DECError')}`;
+    const mmsError = `${t('TopMenuBar.MMSError')}`;
+    const degError = `${t('TopMenuBar.DEGError')}`;
 
-    let mmsError = `${t('TopMenuBar.MMSError')}`;
+    let latError = ''; // 위도 에러 메시지
+    let lngError = ''; // 경도 에러 메시지
 
-    let degError = `${t('TopMenuBar.DEGError')}`;
-
-    let latError = '';
-    let lngError = '';
-
+    // 좌표가 입력되지 않은 경우 에러 메시지 설정
     if (!lat) {
       latError = `${latitude} ${t('TopMenuBar.LatError')}`;
     }
@@ -339,8 +403,9 @@ const TopMenuBar = ({
       lngError = `${longitude} ${t('TopMenuBar.LonError')}`;
     }
 
+    // 입력된 좌표가 없을 때 에러 표시
     if (latError || lngError) {
-      let combinedError =
+      const combinedError =
         latError && lngError
           ? `${t('TopMenuBar.CombinedError')}: ${latError} & ${lngError}.`
           : latError
@@ -349,21 +414,23 @@ const TopMenuBar = ({
 
       console.log('combinedError ==>', combinedError);
 
-      setErrorValue(combinedError);
-      setError(true);
-      setTimeout(() => setError(false), 2000);
+      setErrorValue(combinedError); // 에러 메시지 설정
+      setError(true); // 에러 상태 활성화
+      setTimeout(() => setError(false), 2000); // 2초 후 에러 상태 비활성화
       return;
     }
 
+    // 입력값 검증 함수
     const isDecimal = (value) =>
       !isNaN(value) && value.toString().includes('.');
     const isInteger = (value) => Number.isInteger(Number(value));
     const hasSpaces = (value) =>
       typeof value === 'string' && value.split(' ').length > 1;
 
-    let latSpaceError = false;
-    let lngSpaceError = false;
+    let latSpaceError = false; // DEG 형식의 위도 공백 검증 에러
+    let lngSpaceError = false; // DEG 형식의 경도 공백 검증 에러
 
+    // 좌표 형식에 따른 검증 로직
     if (selectedMapList.name === 'DEC') {
       if (!isDecimal(lat)) {
         latError = `${latitude} ${decError}`;
@@ -395,8 +462,9 @@ const TopMenuBar = ({
       }
     }
 
+    // 검증 에러 발생 시 에러 메시지 설정
     if (latError || lngError) {
-      let combinedError =
+      const combinedError =
         latError && lngError
           ? `${t('TopMenuBar.CombinedError')}: ${latError} & ${lngError}`
           : latError
@@ -410,6 +478,7 @@ const TopMenuBar = ({
 
     let latValue, lngValue;
 
+    // DEG 형식의 좌표를 소수점 형식으로 변환
     if (selectedMapList.name === 'DEG') {
       try {
         latValue = parseDEGToDecimal(lat);
@@ -417,19 +486,20 @@ const TopMenuBar = ({
       } catch (error) {
         console.log('error.message ==>', error.message);
 
-        setErrorValue(error.message);
+        setErrorValue(error.message); // 변환 에러 메시지 설정
         setError(true);
         setTimeout(() => setError(false), 2000);
         return;
       }
     } else {
-      latValue = parseFloat(lat);
+      latValue = parseFloat(lat); // 소수점 형식 변환
       lngValue = parseFloat(lng);
     }
 
-    const validLat = !isNaN(latValue);
-    const validLng = !isNaN(lngValue);
+    const validLat = !isNaN(latValue); // 유효한 위도 여부 확인
+    const validLng = !isNaN(lngValue); // 유효한 경도 여부 확인
 
+    // 유효한 좌표인 경우 추가 검증 및 변환 수행
     if (validLat && validLng) {
       const ranges = {
         ROUTO: {
@@ -456,6 +526,7 @@ const TopMenuBar = ({
 
       const currentRanges = ranges[selectedAPI?.name]?.[selectedMapList?.name];
 
+      // 좌표가 지정된 범위 내에 있는지 확인
       if (
         currentRanges &&
         (latValue < currentRanges.minLat ||
@@ -463,12 +534,14 @@ const TopMenuBar = ({
           lngValue < currentRanges.minLng ||
           lngValue > currentRanges.maxLng)
       ) {
-        setErrorValue(`${t('TopMenuBar.RangeError')}`);
+        setErrorValue(`${t('TopMenuBar.RangeError')}`); // 범위 에러 메시지 설정
         setError(true);
         setTimeout(() => setError(false), 2000);
+        return;
       }
 
       let result;
+      // 좌표 변환 수행
       if (selectedMapList.name === 'MMS') {
         result = MMSToDEC({ lat: latValue, lng: lngValue });
       } else if (selectedMapList.name === 'DEC') {
@@ -477,10 +550,10 @@ const TopMenuBar = ({
         result = DEGToDEC({ lat: latValue, lng: lngValue });
       }
 
-      setSelectedCoords(result);
-      setDisplayCoords(result);
+      setSelectedCoords(result); // 변환된 좌표 저장
+      setDisplayCoords(result); // 화면에 표시할 좌표 저장
     } else {
-      setErrorValue(`${t('TopMenuBar.WrongCoords')}`);
+      setErrorValue(`${t('TopMenuBar.WrongCoords')}`); // 유효하지 않은 좌표 에러 메시지
       setError(true);
       setTimeout(() => setError(false), 2000);
     }
@@ -534,17 +607,23 @@ const TopMenuBar = ({
     setConvertedCoords(result);
   }, [clickedCoords, selectedMapList]);
 
+  /**
+   * 지도 데이터 초기화
+   * - 지도 관련 모든 상태값을 초기화하여 초기 상태로 되돌림
+   */
   const handleMapClear = () => {
-    setSelectedCoords(null); // Clear selected coordinates
-    setClickedCoords(null); // Clear clicked coordinates
-    setRouteFullCoords(null); // Clear route coordinates
-    setSpaceFullCoords(null); // Clear space coordinates
-    setConvertedCoords({ lat: '', lng: '' }); // Reset converted coordinates
-    setDisplayCoords(null); // Clear display coordinates
-    setOrigins([]); // Clear origins
-    setDestinations([]); // Clear destinations
+    setSelectedCoords(null); // 선택된 좌표 초기화
+    setClickedCoords(null); // 클릭된 좌표 초기화
+    setRouteFullCoords(null); // 경로 데이터 초기화
+    setSpaceFullCoords(null); // 공간 데이터 초기화
+    setConvertedCoords({ lat: '', lng: '' }); // 변환된 좌표 초기화
+    setDisplayCoords(null); // 화면 표시 좌표 초기화
+    setOrigins([]); // 시작 좌표 리스트 초기화
+    setDestinations([]); // 도착 좌표 리스트 초기화
+
+    // 경로 색상 관리 함수가 함수인 경우 초기화
     if (typeof routeColors === 'function') {
-      routeColors([]); // Reset route colors if it's a function
+      routeColors([]); // 경로 색상 초기화
     }
   };
 

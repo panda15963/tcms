@@ -10,122 +10,96 @@ import { useTranslation } from 'react-i18next';
 // 테이블의 기본 컬럼 정의
 const defaultColumns = (t) => [
   {
-    // CFG 이름
-    accessorKey: 'tccfg_name',
-    header: t('ConfigGridR.CFG_name'),
-    cell: ({ getValue }) => <span className="text-xs">{getValue()}</span>,
-    // cell: ({ getValue }) => getValue(),
-    // // 스타일을 추가해 헤더가 한 줄로 나오게 설정
-    // header: ({ column }) => (
-    //   <div
-    //     style={{
-    //       whiteSpace: 'pre-wrap', // 텍스트가 줄바꿈 없이 한 줄로 유지되도록 설정
-    //       width: '30px', // 헤더 셀의 너비를 넓혀서 한 줄에 맞도록 설정
-    //     }}
-    //   >
-    //     {t('ConfigGridR.CFG_name')}
-    //   </div>
-    // ),
+    // CFG 이름 컬럼
+    accessorKey: 'tccfg_name', // 데이터의 키를 지정
+    header: t('ConfigGridR.CFG_name'), // 다국어 처리된 헤더 이름
+    cell: ({ getValue }) => <span className="text-xs">{getValue()}</span>, // 셀 데이터를 표시
   },
   {
-    // 범주
-    accessorKey: 'category',
-    header: t('ConfigGridR.Category'),
-    cell: ({ getValue }) => <span className="text-xs">{getValue()}</span>,
+    // 범주 컬럼
+    accessorKey: 'category', // 데이터의 키를 지정
+    header: t('ConfigGridR.Category'), // 다국어 처리된 헤더 이름
+    cell: ({ getValue }) => <span className="text-xs">{getValue()}</span>, // 셀 데이터를 표시
   },
   {
-    // 내용
-    accessorKey: 'file_name',
-    header: t('ConfigGridR.Contents'),
-    // cell: ({ getValue }) => {
-    //   const fullText = getValue();
-    //   const maxLength = 34; // 표시할 최대 문자 수
-    //   const shortText =
-    //     fullText.length > maxLength
-    //       ? fullText.slice(0, maxLength) + '...'
-    //       : fullText;
-
-    //   return (
-    //     <span title={fullText} className="cursor-pointer text-xs">
-    //       {shortText}
-    //     </span>
-    //   );
-    // },
+    // 내용 컬럼
+    accessorKey: 'file_name', // 데이터의 키를 지정
+    header: t('ConfigGridR.Contents'), // 다국어 처리된 헤더 이름
   },
 ];
 
-// 기본 데이터 (테이블에 표시될 데이터)
+// 기본 데이터 (테이블에 표시할 샘플 데이터)
 const defaultData = [
   {
-    upload_date: '2023-12-25',
-    name: 'HippoLog',
-    version: '1',
-    country: 'KOR',
-    logType: 'None',
-    summary: 'Real Log',
-    map: '',
+    upload_date: '2023-12-25', // 업로드 날짜
+    name: 'HippoLog', // 이름
+    version: '1', // 버전
+    country: 'KOR', // 국가
+    logType: 'None', // 로그 유형
+    summary: 'Real Log', // 요약
+    map: '', // 지도 데이터
   },
   {
-    upload_date: '2023-12-30',
-    name: 'HippoLog1',
-    version: '2',
-    country: 'KOR',
-    logType: 'None',
-    summary: 'Real Log',
-    map: '',
+    upload_date: '2023-12-30', // 업로드 날짜
+    name: 'HippoLog1', // 이름
+    version: '2', // 버전
+    country: 'KOR', // 국가
+    logType: 'None', // 로그 유형
+    summary: 'Real Log', // 요약
+    map: '', // 지도 데이터
   },
 ];
 
-// ConfigGridR 컴포넌트 정의
+/**
+ * ConfigGridR 컴포넌트
+ * @param {Object} props - 컴포넌트 속성
+ * @param {Array} props.list - 테이블에 표시할 데이터 리스트
+ * @param {function} props.onSelectionChange - 선택된 행 변경 시 호출되는 콜백 함수
+ */
 const ConfigGridR = ({ list, onSelectionChange }) => {
-  const { t } = useTranslation(); // Get the translation function
-  const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
+  const { t } = useTranslation(); // 다국어 처리를 위한 함수 가져오기
+  const columns = useMemo(() => defaultColumns(t), [t]); // 다국어 처리를 적용한 컬럼 정의
 
-  const [data, setData] = useState(list ?? defaultData);
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [data, setData] = useState(list ?? defaultData); // 테이블 데이터 상태
+  const [selectedRows, setSelectedRows] = useState([]); // 선택된 행 데이터 상태
 
   useEffect(() => {
-    // console.log('useEffect LIST ==>', list);
+    // props로 전달받은 list가 비어있지 않으면 데이터 업데이트
     if (list && !isEmpty(list)) {
       setData(list);
     }
   }, [list]);
 
+  // React Table 생성
   const table = useReactTable({
-    data, // 테이블에 사용할 데이터
-    columns, // 테이블에 사용할 컬럼
-    getCoreRowModel: getCoreRowModel(), // 기본 행 모델을 가져오는 함수 사용
-    state: {}, // 테이블의 상태
+    data, // 사용할 데이터
+    columns, // 사용할 컬럼
+    getCoreRowModel: getCoreRowModel(), // 기본 행 모델 가져오기
+    state: {}, // 테이블 상태 관리
   });
 
-  // 선택된 행의 데이터 추출
-  // useEffect(() => {
-  //   const selectedRows = table
-  //     .getSelectedRowModel()
-  //     .rows.map((row) => row.original);
-  //   onSelectionChange(selectedRows);
-  // }, [table.getSelectedRowModel().rows, onSelectionChange]);
-
+  // 선택된 행 데이터가 변경되었을 때 처리
   useEffect(() => {
     const currentSelectedRows = table
       .getSelectedRowModel()
-      .rows.map((row) => row.original);
+      .rows.map((row) => row.original); // 선택된 행의 원래 데이터를 가져옴
 
-    // 선택된 행이 변경될 때만 상태 업데이트
+    // 선택된 행 상태가 변경되었을 경우에만 업데이트
     if (JSON.stringify(currentSelectedRows) !== JSON.stringify(selectedRows)) {
-      setSelectedRows(currentSelectedRows);
-      onSelectionChange(currentSelectedRows); // 부모 컴포넌트로 업데이트된 선택된 행 전달
+      setSelectedRows(currentSelectedRows); // 선택된 행 상태 업데이트
+      onSelectionChange(currentSelectedRows); // 부모 컴포넌트로 선택된 행 데이터 전달
     }
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
   return (
-    // <div className="my-2 h-96 block overflow-x-auto">
     <div
-      class="my-2 h-[400px] w-[510px] block overflow-x-auto"
-      style={{ marginLeft: '0px' }}
+      className="my-2 h-[400px] w-[510px] block overflow-x-auto"
+      style={{ marginLeft: '0px' }} // 스타일 설정
     >
-      <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
-        <thead className="bg-gray-50 border-2 sticky top-0 ">
+      {/* 테이블 렌더링 */}
+      <table className="min-w-full divide-y divide-gray-200 border-gray-300">
+        <thead className="bg-gray-50 border-2 sticky top-0">
+          {/* 테이블 헤더 */}
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
@@ -133,11 +107,11 @@ const ConfigGridR = ({ list, onSelectionChange }) => {
                   key={header.id}
                   className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider"
                 >
-                  {/* 헤더 렌더링 */}
+                  {/* 헤더 내용 렌더링 */}
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header, // 컬럼 헤더 렌더링
+                        header.column.columnDef.header, // 컬럼의 헤더 정의
                         header.getContext() // 헤더의 컨텍스트
                       )}
                 </th>
@@ -146,6 +120,7 @@ const ConfigGridR = ({ list, onSelectionChange }) => {
           ))}
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
+          {/* 테이블 본문 */}
           {table.getRowModel().rows.map((row) => (
             <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
@@ -153,7 +128,7 @@ const ConfigGridR = ({ list, onSelectionChange }) => {
                   key={cell.id}
                   className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
                 >
-                  {/* 셀 렌더링 */}
+                  {/* 셀 내용 렌더링 */}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}

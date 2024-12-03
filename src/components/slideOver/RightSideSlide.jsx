@@ -11,56 +11,62 @@ export default function RightSideSlide({ data, onMapChange }) {
   const [expandedRows, setExpandedRows] = useState([]); // Default to all expanded
   const [rowsData, setRowsData] = useState([]); // State to manage rows data
 
-  // useEffect to automatically open the panel when data is provided
+  // 데이터가 제공되면 패널을 자동으로 여는 useEffect
   useEffect(() => {
     if (onMapChange?.name === 'ROUTO' || onMapChange?.name === 'TMAP') {
+      // 특정 지도 종류일 때 필터링 로직 실행
       if (data && data.length > 0) {
-        console.log('onMapChange is ROUTO or TMAP, applying filters.');
-  
+        console.log('onMapChange가 ROUTO 또는 TMAP입니다. 필터를 적용합니다.');
+
+        // 국가에 따라 데이터 필터링
         const filteredByCountry = data.filter(
           (item) => item.country_str === 'KOR' || item.country_str === 'SAU'
         );
-  
+
+        // 이름 조건에 따라 추가 필터링
         const filteredByName = filteredByCountry.filter(
           (item) =>
             !item.file_name.includes('US') ||
             (item.country_str === 'SAU' && item.file_name.includes('KOR'))
         );
-  
-        setOpen(true);
-        setRowsData(filteredByName);
-  
+
+        setOpen(true); // 패널 열기
+        setRowsData(filteredByName); // 필터링된 데이터를 상태에 설정
+
+        // 첫 번째 행 ID를 기본 확장 상태로 설정
         const firstRowId = filteredByName.length > 0 ? [1] : [];
         setExpandedRows(firstRowId);
       } else {
-        console.log('No data available after filtering.');
-        setOpen(false);
+        console.log('필터링 후 사용할 데이터가 없습니다.');
+        setOpen(false); // 데이터가 없으면 패널 닫기
       }
     } else {
-      console.log('onMapChange is not ROUTO or TMAP, skipping filters.');
+      console.log(
+        'onMapChange가 ROUTO 또는 TMAP이 아닙니다. 필터를 생략합니다.'
+      );
       if (data && data.length > 0) {
         setOpen(true);
         setRowsData(data);
-  
+
         const firstRowId = data.length > 0 ? [1] : [];
         setExpandedRows(firstRowId);
       } else {
-        console.log('No data provided or data is empty.');
+        console.log('제공된 데이터가 없거나 비어 있습니다.');
         setOpen(false);
       }
     }
   }, [data, onMapChange]);
-  
 
-  // Clear rows when the map changes
+  // 지도 변경 시 데이터를 초기화
   useEffect(() => {
     if (onMapChange) {
-      setRowsData([]); // Clear the rows when the map changes
-      setExpandedRows([]); // Clear any expanded rows as well
-      setOpen(false);
+      setRowsData([]); // 행 데이터 초기화
+      setExpandedRows([]); // 확장된 행 초기화
+      setOpen(false); // 패널 닫기
     }
   }, [onMapChange]);
 
+  // 행 데이터를 구성
   const rows =
     Array.isArray(rowsData) && rowsData.length > 0
       ? rowsData.map((item, index) => ({
@@ -70,6 +76,7 @@ export default function RightSideSlide({ data, onMapChange }) {
               {`${index + 1}. ${item?.file_name || 'No file name available'}`}
             </span>
           ),
+          // 하위 데이터 포함
           children: item?.file_name && [
             {
               id: `${index + 1}-2`,
@@ -281,6 +288,7 @@ export default function RightSideSlide({ data, onMapChange }) {
         }))
       : [];
 
+  // 행 확장/축소 토글
   const toggleRow = (id) => {
     setExpandedRows((pre) =>
       pre.includes(id) ? pre.filter((rowId) => rowId !== id) : [...pre, id]
@@ -290,6 +298,7 @@ export default function RightSideSlide({ data, onMapChange }) {
   return (
     <div className="flex">
       {!open && (
+        // 패널이 닫혀 있을 때 열기 버튼
         <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
             className="text-white px-2 py-3 rounded-l-full bg-blue-600 hover:bg-blue_lapis"
@@ -300,6 +309,7 @@ export default function RightSideSlide({ data, onMapChange }) {
         </div>
       )}
       <Transition
+        // 애니메이션 효과
         show={open}
         enter="transform transition ease-in-out duration-500 sm:duration-700"
         enterFrom="translate-x-full"
@@ -309,6 +319,7 @@ export default function RightSideSlide({ data, onMapChange }) {
         leaveTo="translate-x-full"
       >
         <div className="fixed inset-y-0 top-32 right-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tl-lg">
+          {/* 헤더 */}
           <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tl-lg">
             <div className="flex items-center justify-between">
               <span className="text-base font-semibold leading-6 text-white">
@@ -325,6 +336,7 @@ export default function RightSideSlide({ data, onMapChange }) {
               </div>
             </div>
           </div>
+          {/* 데이터 테이블 */}
           <div className="px-2 overflow-x-auto pb-5 scroll-smooth overflow-scroll ">
             {rows.length > 0 ? (
               <table className="min-w-full border-collapse border border-gray-200">
@@ -354,7 +366,7 @@ export default function RightSideSlide({ data, onMapChange }) {
                           {row.col1}
                         </td>
                       </tr>
-
+                      {/* 하위 데이터 렌더링 */}
                       {Array.isArray(row.children) &&
                         expandedRows.includes(row.id) &&
                         row.children.map((child) => (
@@ -382,20 +394,6 @@ export default function RightSideSlide({ data, onMapChange }) {
                                 {child.col2}
                               </td>
                             </tr>
-
-                            {Array.isArray(child.children) &&
-                              expandedRows.includes(child.id) &&
-                              child.children.map((nestedChild) => (
-                                <tr key={nestedChild.id}>
-                                  <td className="bg-gray-200" />
-                                  <td className="border border-gray-300 ps-8 pr-2 text-xs font-normal text-gray-900">
-                                    {nestedChild.col1}
-                                  </td>
-                                  <td className="border border-gray-300 ps-8 pr-2 text-xs font-normal text-gray-900">
-                                    {nestedChild.col2}
-                                  </td>
-                                </tr>
-                              ))}
                           </Fragment>
                         ))}
                     </Fragment>
@@ -403,9 +401,11 @@ export default function RightSideSlide({ data, onMapChange }) {
                 </tbody>
               </table>
             ) : (
+              // 데이터가 없을 때 메시지 표시
               <div className="text-center py-5">
                 <p className="text-gray-500">
-                  {t('RightSideSlide.NoDataFound') || 'No data found'}
+                  {t('RightSideSlide.NoDataFound') ||
+                    '데이터를 찾을 수 없습니다.'}
                 </p>
               </div>
             )}

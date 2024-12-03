@@ -10,63 +10,91 @@ import {
 import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 import { useLocation } from 'react-router-dom';
 
+/**
+ * 여러 클래스를 조합하여 반환하는 함수
+ * @param {...string} classes - 조건에 따라 적용할 클래스들
+ * @returns {string} 조합된 클래스 문자열
+ */
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
+/**
+ * ToolLists 컴포넌트 - 툴 선택을 관리하며 부모 상태와 동기화
+ * @param {object} props - 컴포넌트에 전달되는 속성
+ * @param {object} props.selectedTool - 선택된 툴 데이터
+ * @param {function} props.setSelectedTool - 선택된 툴을 설정하는 함수
+ * @param {any} props.resetTrigger - 선택 초기화를 트리거하는 값
+ */
 export default function ToolLists({
   selectedTool,
   setSelectedTool = () => {},
   resetTrigger,
 }) {
-  const { t } = useTranslation();
-  const location = useLocation();
-  const [selected, setSelected] = useState(null);
-  const [ToolList, setToolList] = useState([]);
+  const { t } = useTranslation(); // 다국어 번역 훅
+  const location = useLocation(); // 현재 URL 경로
+  const [selected, setSelected] = useState(null); // 현재 선택된 툴 상태
+  const [ToolList, setToolList] = useState([]); // 툴 목록 상태
 
-  // Convert `selectedTool.toolnametbl` array into `ToolList` format and filter duplicates
+  /**
+   * `selectedTool.toolnametbl` 배열을 `ToolList` 형식으로 변환하고 중복 제거
+   */
   useEffect(() => {
     if (selectedTool && Array.isArray(selectedTool.toolnametbl)) {
       const formattedToolList = selectedTool.toolnametbl.map((tool, index) => ({
-        id: index + 2, // Start IDs from 2 since ID 1 will be for "ALL"
+        id: index + 2, // ID는 2부터 시작, ID 1은 "ALL"에 사용
         name: tool.toolname,
       }));
 
-      // Filter out duplicates based on the `name` property
+      // 중복 제거 (name 속성 기준)
       const uniqueToolList = Array.from(
         new Map(formattedToolList.map((item) => [item.name, item]))
       ).map(([, value]) => value);
 
-      // Add "ALL" as the first option with ID 1
+      // "ALL" 옵션 추가 (ID 1)
       setToolList([{ id: 1, name: t('ToolList.All') }, ...uniqueToolList]);
     }
-  }, [selectedTool]);
+  }, [selectedTool, t]);
 
-  // Update the selected tool based on the current URL path or default to "All"
+  /**
+   * 현재 URL 경로를 기준으로 선택된 툴을 업데이트하거나 기본값 설정
+   */
   useEffect(() => {
-    const path = location.pathname.split('/').pop().toUpperCase();
+    const path = location.pathname.split('/').pop().toUpperCase(); // URL 경로 마지막 부분 가져오기
     const initialSelected =
       ToolList.find((api) => api.name === path) || ToolList[0];
     setSelected(initialSelected);
-    setSelectedTool(initialSelected);
-  }, [location.pathname, ToolList]);
+    setSelectedTool(initialSelected); // 부모 상태와 동기화
+  }, [location.pathname, ToolList, setSelectedTool]);
 
-  // Reset the selection when `resetTrigger` changes
+  /**
+   * `resetTrigger` 변경 시 선택 초기화
+   */
   useEffect(() => {
     if (ToolList.length > 0) {
-      const defaultSelection = ToolList[0]; // Default to "All"
+      const defaultSelection = ToolList[0]; // 기본값은 "ALL"
       setSelected(defaultSelection);
-      setSelectedTool(defaultSelection); // Sync with parent state
+      setSelectedTool(defaultSelection); // 부모 상태와 동기화
     }
   }, [resetTrigger, ToolList, setSelectedTool]);
 
+  /**
+   * 툴 선택 변경 핸들러
+   * @param {object} selectedMap - 선택된 툴 데이터
+   */
   const handleOnSelectMap = (selectedMap) => {
-    setSelected(selectedMap);
-    setSelectedTool(selectedMap);
+    setSelected(selectedMap); // 선택 상태 업데이트
+    setSelectedTool(selectedMap); // 부모 상태와 동기화
   };
 
-  if (!selected) return null;
+  if (!selected) return null; // 선택된 툴이 없으면 렌더링하지 않음
 
+  /**
+   * 문자열을 지정된 길이로 자르고 말줄임표(...)를 추가
+   * @param {string} str - 입력 문자열
+   * @param {number} maxLength - 최대 길이
+   * @returns {string} 줄여진 문자열
+   */
   const truncate = (str, maxLength) =>
     str.length > maxLength ? `${str.slice(0, maxLength)}...` : str;
 
@@ -75,6 +103,7 @@ export default function ToolLists({
       {({ open }) => (
         <>
           <div className="relative min-w-48 border border-black rounded-lg">
+            {/* 드롭다운 버튼 */}
             <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:border-black sm:text-sm sm:leading-6">
               <span className="block truncate">
                 {truncate(selected.name, 10)}
@@ -86,6 +115,7 @@ export default function ToolLists({
                 />
               </span>
             </ListboxButton>
+            {/* 드롭다운 옵션 */}
             <Transition
               show={open}
               leave="transition ease-in duration-100"

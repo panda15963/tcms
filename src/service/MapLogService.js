@@ -1,6 +1,14 @@
 import { axiosInstance, nonAuthInstance } from '../server/MapAxiosConfig';
 
+/**
+ * 맵 데이터 관련 요청 서비스
+ */
 const MapLogService = {
+  /**
+   * 주요 국가 데이터 요청
+   * @param {Object} obj - 요청 조건(cond) 및 취소 토큰(cancelToken)
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   MAIN_COUNTRY: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -27,6 +35,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * 주요 기능 데이터 요청
+   * @param {Object} obj - 요청 조건(cond) 및 취소 토큰(cancelToken)
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   MAIN_FEATURE: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -58,6 +71,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * 주요 타겟 데이터 요청
+   * @param {Object} obj - 요청 조건(cond) 및 취소 토큰(cancelToken)
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   MAIN_TARGET: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -84,6 +102,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * 주요 태그 데이터 요청
+   * @param {Object} obj - 요청 조건(cond) 및 취소 토큰(cancelToken)
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   MAIN_TAG: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -110,6 +133,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * 메타 데이터 조회 (특정 ID)
+   * @param {Object} obj - 요청 조건(cond) 및 취소 토큰(cancelToken)
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   FIND_META: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -136,6 +164,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * FIND_META_10009: 특정 메타 데이터를 조회
+   * @param {Object} obj - 요청 조건(cond)과 취소 토큰(cancelToken)을 포함한 객체
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   FIND_META_10009: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -162,6 +195,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * FIND_META_10100: 특정 메타 데이터를 조회
+   * @param {Object} obj - 요청 조건(cond)과 취소 토큰(cancelToken)을 포함한 객체
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   FIND_META_10100: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -188,6 +226,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * FIND_TCCFG_10003: 특정 TC 설정 데이터를 조회
+   * @param {Object} obj - 요청 조건(cond)과 취소 토큰(cancelToken)을 포함한 객체
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   FIND_TCCFG_10003: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -214,6 +257,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * FIND_SAMEORIGIN_TCCFG: 동일 출처 TC 설정 데이터를 조회
+   * @param {Object} obj - 요청 조건(cond)과 취소 토큰(cancelToken)을 포함한 객체
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   FIND_SAMEORIGIN_TCCFG: async (obj) => {
     console.log('obj', obj);
 
@@ -242,6 +290,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * 공간 데이터 보간 요청
+   * @param {Object} obj - 요청 조건(cond) 및 취소 토큰(cancelToken)
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   SPACE_INTERPOLATION: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -267,6 +320,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * TCCFG 데이터 다운로드
+   * @param {Object} obj - 요청 조건(cond) 및 취소 토큰(cancelToken)
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   DOWNLOAD_TCCFG: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -292,6 +350,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * 공간 데이터 검색 요청
+   * @param {Object} obj - 요청 객체로, 조건(cond)과 취소 토큰(cancelToken)을 포함
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   FIND_SPACE: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -318,6 +381,11 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * 메타 ID를 기반으로 메타 데이터 조회
+   * @param {Object} obj - 요청 조건(cond), meta_id 및 취소 토큰(cancelToken)
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   FIND_META_ID: async (obj) => {
     const { cond, cancelToken } = obj;
     const { meta_id, ...otherParams } = cond; // cond에서 meta_id 추출, 나머지 파라미터는 유지

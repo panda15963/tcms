@@ -1,6 +1,14 @@
 import { axiosInstance, nonAuthInstance } from '../server/StatAxiosConfig';
 
+/**
+ * 통계 및 정보 요청 서비스
+ */
 const StatLogService = {
+  /**
+   * 도구 설정 데이터 요청
+   * @param {Object} obj - 조건 및 취소 토큰을 포함한 객체
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   TOOL_SETTINGS: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -26,6 +34,11 @@ const StatLogService = {
       });
     return result.data;
   },
+  /**
+   * 도구 로그 데이터 요청
+   * @param {Object} obj - 조건 및 취소 토큰을 포함한 객체
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   TOOL_LOGS: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -51,6 +64,11 @@ const StatLogService = {
       });
     return result.data;
   },
+  /**
+   * 기능 사용 횟수 데이터 요청
+   * @param {Object} obj - 조건 및 취소 토큰을 포함한 객체
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   FUNCTION_COUNT: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -76,6 +94,11 @@ const StatLogService = {
       });
     return result.data;
   },
+  /**
+   * 실행 횟수 데이터 요청
+   * @param {Object} obj - 조건 및 취소 토큰을 포함한 객체
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   EXECUTION_COUNT: async (obj) => {
     const { cond, cancelToken } = obj;
     const result = await nonAuthInstance
@@ -101,6 +124,10 @@ const StatLogService = {
       });
     return result.data;
   },
+  /**
+   * 실시간 도구 데이터 요청
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   LIVE_TOOL: async () => {
     const result = await nonAuthInstance
       .get('/statistics/live-tool')
@@ -123,6 +150,10 @@ const StatLogService = {
       });
     return result.data;
   },
+  /**
+   * 실시간 TC 데이터 요청
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   LIVE_TC: async () => {
     const result = await nonAuthInstance
       .get('/statistics/live-tc')
@@ -145,6 +176,10 @@ const StatLogService = {
       });
     return result.data;
   },
+  /**
+   * PC 이름 목록 요청
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   PCNAMES: async () => {
     const result = await nonAuthInstance.get('/info/pcnames').catch((error) => {
       console.log('error', error);
@@ -165,6 +200,10 @@ const StatLogService = {
     });
     return result.data;
   },
+  /**
+   * 도구 이름 목록 요청
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
   TOOLNAMES: async () => {
     const result = await nonAuthInstance
       .get('/info/toolnames')

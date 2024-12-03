@@ -8,10 +8,19 @@ import { ToastTypes } from '../../context/ToastProvider';
 import AddAdminModal from './AddAdminModal';
 import { useTranslation } from 'react-i18next';
 
+/**
+ * 여러 클래스 이름을 조합하는 함수
+ * @param {string[]} classes - 클래스 이름 배열
+ * @returns {string} - 조합된 클래스 이름 문자열
+ */
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
+/**
+ * 관리자 관리 페이지 컴포넌트
+ * @returns {JSX.Element} - 관리자 관리 페이지
+ */
 export default function ManagementAdmins() {
   const { t } = useTranslation();
 
@@ -22,12 +31,13 @@ export default function ManagementAdmins() {
 
   const [list, setList] = useState([]);
 
+  // 컴포넌트 마운트 시 관리자 목록 가져오기
   useEffect(() => {
     fetchAdmins();
   }, []);
 
   /**
-   * 관리자 데이터 가져오기
+   * 관리자 목록 가져오기
    */
   const fetchAdmins = async () => {
     const { data, cancel, error } = await getAdmins();
@@ -85,7 +95,10 @@ export default function ManagementAdmins() {
       }
     }
   };
-
+  /**
+   * 관리자 정보 수정 모드로 전환
+   * @param {Object} adminInfo - 수정할 관리자 정보
+   */
   const handleUpdateAdminInfo = (adminInfo) => {
     console.log('[handleUpdateAdminInfo][admin info]', adminInfo);
     if (addAdminModalRef && addAdminModalRef.current) {
