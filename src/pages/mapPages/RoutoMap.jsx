@@ -4,9 +4,12 @@ import Start_Point from '../../assets/images/multi_start_point.svg'; // Import y
 
 /**
  * 중심 좌표와 마커 좌표를 계산하는 함수
- * @param {number} lat - 위도 값
- * @param {number} lng - 경도 값
- * @returns {Object} - 위도와 경도를 포함한 객체
+ * lat : 위도
+ * lng : 경도
+ * Object : 위도와 경도를 포함한 객체
+ * @param {number} lat
+ * @param {number} lng
+ * @returns {Object}
  */
 function calculateCenterAndMarker(lat, lng) {
   const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE); // 환경 변수에서 기본 위도 값 가져오기
@@ -19,9 +22,12 @@ function calculateCenterAndMarker(lat, lng) {
 
 /**
  * RoutoMap 컴포넌트
- * @param {number} lat - 위도 값
- * @param {number} lng - 경도 값
- * @param {function} locationCoords - 클릭한 좌표를 부모로 전달하기 위한 함수
+ * lat : 위도
+ * lng : 경도
+ * locationCoords : 클릭한 좌표를 부모로 전달하기 위한 함수
+ * @param {number} lat
+ * @param {number} lng
+ * @param {function} locationCoords
  */
 export default function RoutoMap({
   lat,
@@ -45,55 +51,9 @@ export default function RoutoMap({
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
   const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
 
-  // 경로와 마커를 모두 삭제하는 함수
-  const clearRoutesAndMarkers = () => {
-    // 지도에서 모든 경로(폴리라인) 제거
-    routeObjects.forEach((route) => {
-      if (route && typeof route.setMap === 'function') {
-        route.setMap(null); // 지도에서 폴리라인 제거
-      }
-    });
-    setRouteObjects([]); // 경로 객체 상태 초기화
-
-    // 지도에서 모든 마커 제거
-    routeMarkers.forEach((marker) => {
-      if (marker && typeof marker.setMap === 'function') {
-        marker.setMap(null); // 지도에서 마커 제거
-      }
-    });
-    setRouteMarkers([]); // 마커 상태 초기화
-  };
-
-  const clearSpaceAndMarkers = () => {
-    spaceObjects.forEach((route) => {
-      if (route && typeof route.setMap === 'function') {
-        route.setMap(null); // 지도에서 폴리라인 제거
-      }
-    });
-    setSpaceObjects([]); // 경로 객체 상태 초기화
-
-    spaceMarkers.forEach((marker) => {
-      if (marker && typeof marker.setMap === 'function') {
-        marker.setMap(null); // 지도에서 마커 제거
-      }
-    });
-    setSpaceMarkers([]); // 마커 상태 초기화
-  };
-
-  const findRemovedRouteIndex = (prevCoords, currentCoords) => {
-    for (let i = 0; i < prevCoords.length; i++) {
-      const prevRoute = prevCoords[i];
-      const isRouteRemoved = !currentCoords.some(
-        (route) => route.file_id === prevRoute.file_id
-      );
-      if (isRouteRemoved) {
-        return i; // Index of the removed route
-      }
-    }
-    return -1; // No route was removed
-  };
-
-  // Effect to detect when a route is removed and update adjustedRouteCoords
+  /**
+   * Effect to detect when a route is removed and update adjustedRouteCoords
+   */
   useEffect(() => {
     if (
       previousRouteCoords.length > 0 &&
@@ -118,6 +78,199 @@ export default function RoutoMap({
     setPreviousRouteCoords(routeFullCoords);
   }, [routeFullCoords]);
 
+  useEffect(() => {
+    if (
+      previousSpaceCoords.length > 0 &&
+      previousSpaceCoords.length > spaceFullCoords.length
+    ) {
+      const removedIndex = findRemovedSpaceIndex(
+        previousSpaceCoords,
+        spaceFullCoords
+      );
+      if (removedIndex !== -1) {
+        // Create a new array with null at the removed index
+        const newAdjustedCoords = [...previousSpaceCoords];
+        newAdjustedCoords[removedIndex] = null;
+        setAdjustedSpaceCoords(newAdjustedCoords);
+      }
+    } else {
+      // If no routes have been removed, just update the adjustedSpaceCoords to match spaceFullCoords
+      setAdjustedSpaceCoords(spaceFullCoords);
+    }
+
+    // Update previousSpaceCoords state
+    setPreviousSpaceCoords(spaceFullCoords);
+  }, [spaceFullCoords]);
+
+  useEffect(() => {
+    if (mapRef.current && Array.isArray(adjustedSpaceCoords)) {
+      // Clear existing space routes and markers
+      clearSpaceAndMarkers();
+
+      // Draw new space routes and markers
+      drawSpaceRoutes(mapRef.current, adjustedSpaceCoords);
+    }
+  }, [mapRef.current, adjustedSpaceCoords]);
+
+  /**
+   * Center the map on the clicked route when clickedNode is provided
+   */
+  useEffect(() => {
+    if (clickedNode && clickedNode.start_coord && clickedNode.goal_coord) {
+      const [startLng, startLat] = clickedNode.start_coord
+        .split(',')
+        .map(parseFloat);
+      const [goalLng, goalLat] = clickedNode.goal_coord
+        .split(',')
+        .map(parseFloat);
+
+      if (mapRef.current) {
+        const bounds = new routo.maps.LatLngBounds();
+
+        // Extend the bounds with both start and goal points
+        bounds.extend(new routo.maps.LatLng(startLat, startLng));
+        bounds.extend(new routo.maps.LatLng(goalLat, goalLng));
+
+        // Adjust the map to fit the bounds, centering on the route
+        mapRef.current.fitBounds(bounds);
+
+        // Optionally hide the marker when focusing on routes
+        if (markerRef.current) {
+          markerRef.current.setMap(null);
+        }
+      }
+    }
+  }, [clickedNode]);
+
+  /**
+   * Initialize the map with marker for the initial center
+   */
+  useEffect(() => {
+    const loadMapScript = () => {
+      const script = document.createElement('script');
+      script.src =
+        'https://api.routo.com/v2/maps/map?key=' +
+        process.env.REACT_APP_ROUTTO_MAP_API;
+      script.async = true;
+      script.onload = () => {
+        if (!mapRef.current) {
+          mapRef.current = new routo.maps.Map(document.getElementById('map'), {
+            center: { lat: center.lat, lng: center.lng },
+            zoom: Number(process.env.REACT_APP_ZOOM),
+          });
+        }
+
+        updateMarker(center); // Update or create marker
+        attachClickListener(); // Attach click listener
+      };
+      document.body.appendChild(script);
+    };
+    if (!window.routo) {
+      loadMapScript();
+    } else {
+      if (!mapRef.current) {
+        mapRef.current = new routo.maps.Map('map', {
+          center: { lat: center.lat, lng: center.lng },
+          zoom: Number(process.env.REACT_APP_ZOOM),
+        });
+      }
+
+      updateMarker(center); // Update or create marker
+      attachClickListener(); // Attach click listener
+    }
+
+    return () => {
+      if (mapRef.current) {
+        routo.maps.event.clearListeners(mapRef.current, 'click');
+      }
+      if (markerRef.current) {
+        markerRef.current.setMap(null);
+        markerRef.current = null;
+      }
+    };
+  }, [center]);
+
+  useEffect(() => {
+    if (mapRef.current && Array.isArray(adjustedRouteCoords)) {
+      // Clear existing routes and markers
+      clearRoutesAndMarkers();
+
+      // Draw new routes and markers
+      drawCheckedRoutes(mapRef.current, adjustedRouteCoords);
+    }
+  }, [mapRef.current, adjustedRouteCoords]);
+
+  /**
+   * Update map center and marker when coordinates change
+   */
+  useEffect(() => {
+    const newCenter = calculateCenterAndMarker(lat, lng);
+    setCenter(newCenter);
+    if (mapRef.current) {
+      mapRef.current.setCenter(newCenter);
+    }
+    updateMarker(newCenter);
+  }, [lat, lng]);
+
+  /**
+   * 경로와 마커를 모두 삭제하는 함수
+   */
+  const clearRoutesAndMarkers = () => {
+    // 지도에서 모든 경로(폴리라인) 제거
+    routeObjects.forEach((route) => {
+      if (route && typeof route.setMap === 'function') {
+        route.setMap(null); // 지도에서 폴리라인 제거
+      }
+    });
+    setRouteObjects([]); // 경로 객체 상태 초기화
+
+    // 지도에서 모든 마커 제거
+    routeMarkers.forEach((marker) => {
+      if (marker && typeof marker.setMap === 'function') {
+        marker.setMap(null); // 지도에서 마커 제거
+      }
+    });
+    setRouteMarkers([]); // 마커 상태 초기화
+  };
+
+  /**
+   * clearSpaceAndMarkers
+   */
+  const clearSpaceAndMarkers = () => {
+    spaceObjects.forEach((route) => {
+      if (route && typeof route.setMap === 'function') {
+        route.setMap(null); // 지도에서 폴리라인 제거
+      }
+    });
+    setSpaceObjects([]); // 경로 객체 상태 초기화
+
+    spaceMarkers.forEach((marker) => {
+      if (marker && typeof marker.setMap === 'function') {
+        marker.setMap(null); // 지도에서 마커 제거
+      }
+    });
+    setSpaceMarkers([]); // 마커 상태 초기화
+  };
+
+  /**
+   * findRemovedRouteIndex
+   */
+  const findRemovedRouteIndex = (prevCoords, currentCoords) => {
+    for (let i = 0; i < prevCoords.length; i++) {
+      const prevRoute = prevCoords[i];
+      const isRouteRemoved = !currentCoords.some(
+        (route) => route.file_id === prevRoute.file_id
+      );
+      if (isRouteRemoved) {
+        return i; // Index of the removed route
+      }
+    }
+    return -1; // No route was removed
+  };
+
+  /**
+   * drawCheckedRoutes
+   */
   const drawCheckedRoutes = (mapInstance, routeFullCoords) => {
     clearRoutesAndMarkers(); // Clear any existing routes and markers
 
@@ -204,6 +357,9 @@ export default function RoutoMap({
     setRouteMarkers(newRouteMarkers);
   };
 
+  /**
+   * findRemovedSpaceIndex
+   */
   const findRemovedSpaceIndex = (prevCoords, currentCoords) => {
     for (let i = 0; i < prevCoords.length; i++) {
       const prevRoute = prevCoords[i];
@@ -217,30 +373,9 @@ export default function RoutoMap({
     return -1; // No route was removed
   };
 
-  useEffect(() => {
-    if (
-      previousSpaceCoords.length > 0 &&
-      previousSpaceCoords.length > spaceFullCoords.length
-    ) {
-      const removedIndex = findRemovedSpaceIndex(
-        previousSpaceCoords,
-        spaceFullCoords
-      );
-      if (removedIndex !== -1) {
-        // Create a new array with null at the removed index
-        const newAdjustedCoords = [...previousSpaceCoords];
-        newAdjustedCoords[removedIndex] = null;
-        setAdjustedSpaceCoords(newAdjustedCoords);
-      }
-    } else {
-      // If no routes have been removed, just update the adjustedSpaceCoords to match spaceFullCoords
-      setAdjustedSpaceCoords(spaceFullCoords);
-    }
-
-    // Update previousSpaceCoords state
-    setPreviousSpaceCoords(spaceFullCoords);
-  }, [spaceFullCoords]);
-
+  /**
+   * drawSpaceRoutes
+   */
   const drawSpaceRoutes = (mapInstance, spaceFullCoords) => {
     clearSpaceAndMarkers(); // Clear any existing routes and markers
 
@@ -326,45 +461,9 @@ export default function RoutoMap({
     setSpaceMarkers(newRouteMarkers);
   };
 
-  useEffect(() => {
-    if (mapRef.current && Array.isArray(adjustedSpaceCoords)) {
-      // Clear existing space routes and markers
-      clearSpaceAndMarkers();
-
-      // Draw new space routes and markers
-      drawSpaceRoutes(mapRef.current, adjustedSpaceCoords);
-    }
-  }, [mapRef.current, adjustedSpaceCoords]);
-
-  // Center the map on the clicked route when clickedNode is provided
-  useEffect(() => {
-    if (clickedNode && clickedNode.start_coord && clickedNode.goal_coord) {
-      const [startLng, startLat] = clickedNode.start_coord
-        .split(',')
-        .map(parseFloat);
-      const [goalLng, goalLat] = clickedNode.goal_coord
-        .split(',')
-        .map(parseFloat);
-
-      if (mapRef.current) {
-        const bounds = new routo.maps.LatLngBounds();
-
-        // Extend the bounds with both start and goal points
-        bounds.extend(new routo.maps.LatLng(startLat, startLng));
-        bounds.extend(new routo.maps.LatLng(goalLat, goalLng));
-
-        // Adjust the map to fit the bounds, centering on the route
-        mapRef.current.fitBounds(bounds);
-
-        // Optionally hide the marker when focusing on routes
-        if (markerRef.current) {
-          markerRef.current.setMap(null);
-        }
-      }
-    }
-  }, [clickedNode]);
-
-  // Function to update or create a marker
+  /**
+   * Function to update or create a marker
+   */
   const updateMarker = (newCenter) => {
     if (markerRef.current) {
       // Update marker position if it already exists
@@ -383,7 +482,9 @@ export default function RoutoMap({
     }
   };
 
-  // Function to re-attach the click listener
+  /**
+   * Function to re-attach the click listener
+   */
   const attachClickListener = () => {
     if (mapRef.current) {
       routo.maps.event.clearListeners(mapRef.current, 'click'); // Clear existing listeners
@@ -394,72 +495,6 @@ export default function RoutoMap({
       });
     }
   };
-
-  // Initialize the map with marker for the initial center
-  useEffect(() => {
-    const loadMapScript = () => {
-      const script = document.createElement('script');
-      script.src =
-        'https://api.routo.com/v2/maps/map?key=' +
-        process.env.REACT_APP_ROUTTO_MAP_API;
-      script.async = true;
-      script.onload = () => {
-        if (!mapRef.current) {
-          mapRef.current = new routo.maps.Map(document.getElementById('map'), {
-            center: { lat: center.lat, lng: center.lng },
-            zoom: Number(process.env.REACT_APP_ZOOM),
-          });
-        }
-
-        updateMarker(center); // Update or create marker
-        attachClickListener(); // Attach click listener
-      };
-      document.body.appendChild(script);
-    };
-    if (!window.routo) {
-      loadMapScript();
-    } else {
-      if (!mapRef.current) {
-        mapRef.current = new routo.maps.Map('map', {
-          center: { lat: center.lat, lng: center.lng },
-          zoom: Number(process.env.REACT_APP_ZOOM),
-        });
-      }
-
-      updateMarker(center); // Update or create marker
-      attachClickListener(); // Attach click listener
-    }
-
-    return () => {
-      if (mapRef.current) {
-        routo.maps.event.clearListeners(mapRef.current, 'click');
-      }
-      if (markerRef.current) {
-        markerRef.current.setMap(null);
-        markerRef.current = null;
-      }
-    };
-  }, [center]);
-
-  useEffect(() => {
-    if (mapRef.current && Array.isArray(adjustedRouteCoords)) {
-      // Clear existing routes and markers
-      clearRoutesAndMarkers();
-
-      // Draw new routes and markers
-      drawCheckedRoutes(mapRef.current, adjustedRouteCoords);
-    }
-  }, [mapRef.current, adjustedRouteCoords]);
-
-  // Update map center and marker when coordinates change
-  useEffect(() => {
-    const newCenter = calculateCenterAndMarker(lat, lng);
-    setCenter(newCenter);
-    if (mapRef.current) {
-      mapRef.current.setCenter(newCenter);
-    }
-    updateMarker(newCenter);
-  }, [lat, lng]);
 
   return <div id="map" className="map" style={{ height: '87.8vh' }} />;
 }
