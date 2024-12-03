@@ -37,13 +37,9 @@ export default function RightSideSlide({ data, onMapChange }) {
         const firstRowId = filteredByName.length > 0 ? [1] : [];
         setExpandedRows(firstRowId);
       } else {
-        console.log('필터링 후 사용할 데이터가 없습니다.');
         setOpen(false); // 데이터가 없으면 패널 닫기
       }
     } else {
-      console.log(
-        'onMapChange가 ROUTO 또는 TMAP이 아닙니다. 필터를 생략합니다.'
-      );
       if (data && data.length > 0) {
         setOpen(true);
         setRowsData(data);
@@ -51,7 +47,6 @@ export default function RightSideSlide({ data, onMapChange }) {
         const firstRowId = data.length > 0 ? [1] : [];
         setExpandedRows(firstRowId);
       } else {
-        console.log('제공된 데이터가 없거나 비어 있습니다.');
         setOpen(false);
       }
     }
@@ -394,6 +389,19 @@ export default function RightSideSlide({ data, onMapChange }) {
                                 {child.col2}
                               </td>
                             </tr>
+                            {Array.isArray(child.children) &&
+                              expandedRows.includes(child.id) &&
+                              child.children.map((nestedChild) => (
+                                <tr key={nestedChild.id}>
+                                  <td className="bg-gray-200" />
+                                  <td className="border border-gray-300 ps-8 pr-2 text-xs font-normal text-gray-900">
+                                    {nestedChild.col1}
+                                  </td>
+                                  <td className="border border-gray-300 ps-8 pr-2 text-xs font-normal text-gray-900">
+                                    {nestedChild.col2}
+                                  </td>
+                                </tr>
+                              ))}
                           </Fragment>
                         ))}
                     </Fragment>

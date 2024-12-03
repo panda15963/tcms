@@ -70,8 +70,6 @@ export default function GoogleMap({
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
   const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
 
-  console.log(routeFullCoords)
-
   // Memoize the callback functions
   const memoizedLocationCoords = useCallback(locationCoords, []);
 
@@ -304,10 +302,6 @@ export default function GoogleMap({
 
     setPreviousRouteCoords(routeFullCoords); // 이전 경로 상태 업데이트
   }, [routeFullCoords]); // 의존성 배열: routeFullCoords
-
-  useEffect(() => {
-    console.log('Adjusted Route Coords:', adjustedRouteCoords); // 조정된 경로 좌표 확인
-  }, [adjustedRouteCoords]);
 
   // routeFullCoords를 지도에 그리는 useEffect
   useEffect(() => {

@@ -240,14 +240,13 @@ export default function RoutoMap({
       );
       if (removedIndex !== -1) {
         const newAdjustedCoords = [...previousSpaceCoords];
-        newAdjustedCoords[removedIndex] = null; // 제거된 경로를 null로 설정
+        newAdjustedCoords[removedIndex] = null;
         setAdjustedSpaceCoords(newAdjustedCoords);
       }
     } else {
-      setAdjustedSpaceCoords(spaceFullCoords); // 변경된 공간 경로 업데이트
+      setAdjustedSpaceCoords(spaceFullCoords);
     }
-
-    setPreviousSpaceCoords(spaceFullCoords); // 이전 좌표 상태 업데이트
+    setPreviousSpaceCoords(spaceFullCoords);
   }, [spaceFullCoords]);
 
   /**
@@ -263,7 +262,7 @@ export default function RoutoMap({
     const bounds = new routo.maps.LatLngBounds(); // 모든 경로를 포함하는 범위 초기화
 
     if (Array.isArray(spaceFullCoords)) {
-      spaceFullCoords.forEach((space, index) => {
+      adjustedSpaceCoords.forEach((space, index) => {
         if (!space) {
           console.warn(`Index ${index}에서 null 공간 경로를 건너뜁니다.`);
           return;
@@ -414,46 +413,52 @@ export default function RoutoMap({
       script.async = true;
       script.onload = () => {
         if (!mapRef.current) {
-          // 지도 인스턴스가 없을 경우 초기화
           mapRef.current = new routo.maps.Map(document.getElementById('map'), {
-            center: { lat: center.lat, lng: center.lng }, // 초기 중심 좌표 설정
-            zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨 설정
+            center: { lat: center.lat, lng: center.lng },
+            zoom: Number(process.env.REACT_APP_ZOOM),
           });
         }
 
-        updateMarker(center); // 마커 생성 또는 업데이트
-        attachClickListener(); // 지도 클릭 이벤트 리스너 추가
+        updateMarker(center);
+        attachClickListener();
+
+        // Initial rendering of space routes
+        if (Array.isArray(spaceFullCoords)) {
+          drawSpaceRoutes(mapRef.current, spaceFullCoords);
+        }
       };
-      document.body.appendChild(script); // 스크립트를 문서에 추가
+      document.body.appendChild(script);
     };
 
     if (!window.routo) {
-      // Routo Maps 객체가 없으면 스크립트를 로드
       loadMapScript();
     } else {
       if (!mapRef.current) {
-        // 지도 인스턴스가 없을 경우 초기화
         mapRef.current = new routo.maps.Map('map', {
-          center: { lat: center.lat, lng: center.lng }, // 초기 중심 좌표 설정
-          zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨 설정
+          center: { lat: center.lat, lng: center.lng },
+          zoom: Number(process.env.REACT_APP_ZOOM),
         });
       }
 
-      updateMarker(center); // 마커 생성 또는 업데이트
-      attachClickListener(); // 지도 클릭 이벤트 리스너 추가
+      updateMarker(center);
+      attachClickListener();
+
+      if (Array.isArray(spaceFullCoords)) {
+        drawSpaceRoutes(mapRef.current, spaceFullCoords);
+      }
     }
 
-    // 컴포넌트 언마운트 시 리소스 정리
     return () => {
       if (mapRef.current) {
-        routo.maps.event.clearListeners(mapRef.current, 'click'); // 클릭 이벤트 리스너 제거
+        routo.maps.event.clearListeners(mapRef.current, 'click');
       }
       if (markerRef.current) {
-        markerRef.current.setMap(null); // 마커 제거
-        markerRef.current = null; // 마커 참조 초기화
+        markerRef.current.setMap(null);
+        markerRef.current = null;
       }
+      clearSpaceAndMarkers();
     };
-  }, [center]);
+  }, [center, spaceFullCoords]);
 
   /**
    * 경로 좌표가 변경될 때 기존 경로와 마커를 제거하고 새로운 경로와 마커를 그리는 useEffect
@@ -464,6 +469,17 @@ export default function RoutoMap({
       drawCheckedRoutes(mapRef.current, adjustedRouteCoords); // 새로운 경로와 마커 렌더링
     }
   }, [mapRef.current, adjustedRouteCoords]);
+
+  /**
+   * 경로 좌표가 변경될 때 기존 경로와 마커를 제거하고 새로운 경로와 마커를 그리는 useEffect
+   * (지도 인스턴스와 수정된 공간 경로(adjustedSpaceCoords)가 업데이트될 때 실행)
+   */
+  useEffect(() => {
+    if (mapRef.current && Array.isArray(adjustedSpaceCoords)) {
+      clearRoutesAndMarkers(); // 기존 경로와 마커를 제거
+      drawCheckedRoutes(mapRef.current, adjustedSpaceCoords); // 수정된 공간 경로를 사용하여 새로운 경로와 마커를 지도에 그리기
+    }
+  }, [mapRef.current, adjustedSpaceCoords]);
 
   /**
    * 위도(lat)와 경도(lng)가 변경될 때 지도 중심과 마커를 업데이트하는 useEffect
