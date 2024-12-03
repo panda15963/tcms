@@ -102,7 +102,7 @@ const NavBar = () => {
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                   TestCourse
                 </h1>
-                <h1 className="text-2xl font-semibold tracking-tight text-blue-700">
+                <h1 className="text-2xl font-semibold tracking-tight text-blue-900">
                   ManagementSystem
                 </h1>
               </div>

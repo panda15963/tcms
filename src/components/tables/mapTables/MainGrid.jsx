@@ -4,12 +4,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { isEmpty } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// 테이블의 기본 컬럼 정의
-
+/**
+ * 기본 컬럼 정의
+ */
 const defaultColumns = (t) => [
   {
     accessorKey: 'select',
@@ -143,6 +143,8 @@ const defaultColumns = (t) => [
       const [showModal, setShowModal] = useState(false);
       // 현재 baseURL의 패턴을 보고 서버에 맞는 경로로 바꾸는 함수
       const adjustImagePath = (baseURL, imagePath) => {
+        console.log('baseURL ==>', baseURL);
+
         if (baseURL.includes('192.168.0.88')) {
           // 서버가 192.168.0.88인 경우
           return `/images${imagePath.replace('/testcourse/image', '')}`;
@@ -154,7 +156,6 @@ const defaultColumns = (t) => [
             ''
           )}`;
         }
-        // 기본값 반환 (필요시 추가 설정 가능)
         return imagePath;
       };
       // 포트 번호(:8080)와 '/api' 제거
@@ -162,6 +163,7 @@ const defaultColumns = (t) => [
         /:(8080|8090)\/api/,
         ''
       );
+
       const adjustedImagePath = adjustImagePath(baseURL, imagePath);
       // console.log('adjustedImagePath', adjustedImagePath);
 
@@ -201,49 +203,29 @@ const defaultColumns = (t) => [
   },
 ];
 
-// 기본 데이터 (테이블에 표시될 데이터)
-const defaultData = [
-  {
-    upload_date: '2023-12-25',
-    name: 'HippoLog',
-    version: '1',
-    country: 'KOR',
-    logType: 'None',
-    summary: 'Real Log',
-    map: '',
-  },
-
-  {
-    upload_date: '2023-12-30',
-    name: 'HippoLog1',
-    version: '2',
-    country: 'KOR',
-    logType: 'None',
-    summary: 'Real Log',
-    map: '',
-  },
-];
-
 const ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 개수
 
-// MainGrid 컴포넌트 정의
+/**
+ * 로그 검색 모달
+ * 경로탭 메인 그리드
+ */
 const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
-  const { t } = useTranslation(); // Get the translation function
-  const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
+  const { t } = useTranslation();
 
-  const [data, setData] = useState(list ?? defaultData);
+  const [page, setPage] = useState(1);
   const [sorting, setSorting] = useState([]);
-
-  const [page, setPage] = useState(1); // 현재 페이지 번호
   const [selectedRows, setSelectedRows] = useState([]);
 
-  // list.list가 배열인지 확인하고, 아니면 빈 배열로 초기화
+  const columns = useMemo(() => defaultColumns(t), [t]);
+
   const validList = useMemo(
     () => (Array.isArray(list?.list) ? list.list : []),
     [list]
   );
 
-  // 현재 페이지에 표시할 데이터
+  /**
+   * 현재 페이지에 표시할 데이터
+   */
   const displayedData = useMemo(() => {
     return validList.slice(0, page * ITEMS_PER_PAGE);
   }, [page, validList]);
@@ -259,7 +241,9 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
     getSortedRowModel: getSortedRowModel(), // 정렬된 데이터 모델
   });
 
-  // 선택된 행 상태 관리
+  /**
+   * 선택된 행 상태 관리
+   */
   useEffect(() => {
     const currentSelectedRows = table
       .getSelectedRowModel()
@@ -272,7 +256,10 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
     }
   }, [table.getSelectedRowModel().rows, onSelectionChange, selectedRows]);
 
-  // 셀 클릭 이벤트 핸들러 (더블클릭 시 모달 열기)
+  /**
+   * 셀 클릭 이벤트 핸들러
+   * 더블클릭 시 모달창 오픈
+   */
   const handleCellDoubleClick = (rowData) => {
     console.log('Row double clicked:', rowData);
     if (onCellDoubleClick) {
@@ -280,7 +267,9 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
     }
   };
 
-  // 더 많은 항목 보기 버튼 핸들러
+  /**
+   * 더 많은 항목 보기 버튼 핸들러
+   */
   const handleLoadMore = () => {
     setPage((prevPage) => prevPage + 1);
   };
@@ -292,13 +281,12 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
         <thead className="bg-gray-50 border-2 sticky top-0 ">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
+              {/* 헤더 렌더링 */}
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
                   className="px-3 py-2 border-2 text-center text-xs font-bold text-black uppercase tracking-wider text-nowrap"
                 >
-                  {/* 헤더 렌더링 */}
-
                   {header.isPlaceholder
                     ? null
                     : flexRender(

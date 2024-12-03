@@ -25,12 +25,13 @@ import { useTranslation } from 'react-i18next';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
 const TopMenuBar = ({
-  checkedNodes, // 선택된 노드 리스트
-  handleRouteData, // 경로 데이터 처리 함수
-  clickedNode, // 클릭된 노드 데이터
-  setCurrentApi, // 현재 지도 API를 설정하는 함수
-  handleSpaceData, // 공간 데이터 처리 함수
-  routeColors = () => {}, // 경로 색상 관리 함수
+  checkedNodes,
+  handleRouteData,
+  clickedNode,
+  setCurrentApi,
+  handleSpaceData,
+  onClear,
+  routeColors = () => {},
 }) => {
   const [inputValue, setInputValue] = useState(''); // 검색 입력값
   const [keyPressed, setKeyPressed] = useState(''); // 마지막으로 입력된 키
@@ -71,6 +72,12 @@ const TopMenuBar = ({
    *
    * @param {object} event - 키보드 입력 이벤트 객체
    */
+  const handleClearClick = () => {
+    if (onClear) {
+      onClear(); // 부모 컴포넌트의 Clear 핸들러 호출
+    }
+  };
+
   const handleKeyDown = (event) => {
     const reg = /[\{\}\[\]\/?,;:|\)*~!^\-_+<>@\#$%&\\\=\(\'\"]/g; // 특수문자 필터 정규식
     if (
@@ -607,23 +614,30 @@ const TopMenuBar = ({
   }, [clickedCoords, selectedMapList]);
 
   /**
-   * 지도 데이터 초기화
-   * - 지도 관련 모든 상태값을 초기화하여 초기 상태로 되돌림
+   * 지도 초기화 버튼 핸들러
+   * setSelectedCoords  : Clear selected coordinates
+   * setClickedCoords   : Clear clicked coordinates
+   * setRouteFullCoords : Clear route coordinates
+   * setSpaceFullCoords : Clear space coordinates
+   * setConvertedCoords : Reset converted coordinates
+   * setDisplayCoords   : Clear display coordinates
+   * setOrigins         : Clear origins
+   * setDestinations    : Clear destinations
+   * routeColors        : Reset route colors if it's a function
    */
   const handleMapClear = () => {
-    setSelectedCoords(null); // 선택된 좌표 초기화
-    setClickedCoords(null); // 클릭된 좌표 초기화
-    setRouteFullCoords(null); // 경로 데이터 초기화
-    setSpaceFullCoords(null); // 공간 데이터 초기화
-    setConvertedCoords({ lat: '', lng: '' }); // 변환된 좌표 초기화
-    setDisplayCoords(null); // 화면 표시 좌표 초기화
-    setOrigins([]); // 시작 좌표 리스트 초기화
-    setDestinations([]); // 도착 좌표 리스트 초기화
-
-    // 경로 색상 관리 함수가 함수인 경우 초기화
+    setSelectedCoords(null);
+    setClickedCoords(null);
+    setRouteFullCoords(null);
+    setSpaceFullCoords(null);
+    setConvertedCoords({ lat: '', lng: '' });
+    setDisplayCoords(null);
+    setOrigins([]);
+    setDestinations([]);
     if (typeof routeColors === 'function') {
-      routeColors([]); // 경로 색상 초기화
+      routeColors([]);
     }
+    handleClearClick();
   };
 
   return (

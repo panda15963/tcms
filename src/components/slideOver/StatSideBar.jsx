@@ -63,7 +63,7 @@ export default function StatSideBar() {
       {!open && (
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className="text-white px-2 py-3 rounded-r-full bg-blue-600 hover:bg-blue-700"
+            className="text-white px-2 py-3 rounded-r-full bg-blue-900 hover:bg-blue-700"
             onClick={togglePanel}
           >
             <FaArrowCircleRight size={30} />

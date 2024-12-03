@@ -63,10 +63,11 @@ export default function TreeNode({
         <span
           className="w-4 h-4 ml-1"
           style={{
-            backgroundColor: routeColor, // 경로에 고정된 색상 적용
+            backgroundColor: routeColor,
             display: 'inline-block',
-            borderRadius: '3px', // 모서리 살짝 둥글게
-            border: '1px solid rgba(255, 255, 255, 0.5)', // 얇은 테두리 추가
+            borderRadius: '3px',
+            // boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+            border: '1px solid rgba(255, 255, 255, 0.5)',
           }}
         ></span>
         {/* 노드 이름 표시 */}
@@ -84,10 +85,10 @@ export default function TreeNode({
             <TreeNode
               key={child.id} // 자식 노드의 고유 ID 설정
               node={child}
-              onCheck={onCheck} // 체크 이벤트 핸들러 전달
-              onNodeClick={onNodeClick} // 클릭 이벤트 핸들러 전달
-              currentIndex={`${currentIndex}.${index + 1}`} // 현재 인덱스 업데이트
-              routeColor={routeColor} // 자식 노드에 경로 색상 전달
+              onCheck={onCheck}
+              onNodeClick={onNodeClick}
+              currentIndex={`${currentIndex}.${index + 1}`}
+              routeColor={routeColor}
             />
           ))}
         </div>

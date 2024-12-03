@@ -4,9 +4,12 @@ import Start_Point from '../../assets/images/multi_start_point.svg'; // Import y
 
 /**
  * 중심 좌표와 마커 좌표를 계산하는 함수
- * @param {number} lat - 위도 값
- * @param {number} lng - 경도 값
- * @returns {Object} - 위도와 경도를 포함한 객체
+ * lat : 위도
+ * lng : 경도
+ * Object : 위도와 경도를 포함한 객체
+ * @param {number} lat
+ * @param {number} lng
+ * @returns {Object}
  */
 function calculateCenterAndMarker(lat, lng) {
   const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE); // 환경 변수에서 기본 위도 값 가져오기
@@ -19,9 +22,12 @@ function calculateCenterAndMarker(lat, lng) {
 
 /**
  * RoutoMap 컴포넌트
- * @param {number} lat - 위도 값
- * @param {number} lng - 경도 값
- * @param {function} locationCoords - 클릭한 좌표를 부모로 전달하기 위한 함수
+ * lat : 위도
+ * lng : 경도
+ * locationCoords : 클릭한 좌표를 부모로 전달하기 위한 함수
+ * @param {number} lat
+ * @param {number} lng
+ * @param {function} locationCoords
  */
 export default function RoutoMap({
   lat,
@@ -45,62 +51,9 @@ export default function RoutoMap({
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
   const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
 
-  // 경로와 마커를 모두 삭제하는 함수
-  const clearRoutesAndMarkers = () => {
-    // 지도에서 모든 경로(폴리라인) 제거
-    routeObjects.forEach((route) => {
-      if (route && typeof route.setMap === 'function') {
-        route.setMap(null); // 지도에서 폴리라인 제거
-      }
-    });
-    setRouteObjects([]); // 경로 객체 상태 초기화
-
-    // 지도에서 모든 마커 제거
-    routeMarkers.forEach((marker) => {
-      if (marker && typeof marker.setMap === 'function') {
-        marker.setMap(null); // 지도에서 마커 제거
-      }
-    });
-    setRouteMarkers([]); // 마커 상태 초기화
-  };
-
-  // 공간 경로와 마커를 모두 삭제하는 함수
-  const clearSpaceAndMarkers = () => {
-    spaceObjects.forEach((route) => {
-      if (route && typeof route.setMap === 'function') {
-        route.setMap(null); // 지도에서 공간 경로 제거
-      }
-    });
-    setSpaceObjects([]); // 공간 객체 상태 초기화
-
-    spaceMarkers.forEach((marker) => {
-      if (marker && typeof marker.setMap === 'function') {
-        marker.setMap(null); // 지도에서 공간 마커 제거
-      }
-    });
-    setSpaceMarkers([]); // 공간 마커 상태 초기화
-  };
-
   /**
-   * 삭제된 경로 인덱스를 찾는 함수
-   * @param {Array} prevCoords - 이전 경로 데이터
-   * @param {Array} currentCoords - 현재 경로 데이터
-   * @returns {number} - 삭제된 경로의 인덱스
+   * Effect to detect when a route is removed and update adjustedRouteCoords
    */
-  const findRemovedRouteIndex = (prevCoords, currentCoords) => {
-    for (let i = 0; i < prevCoords.length; i++) {
-      const prevRoute = prevCoords[i];
-      const isRouteRemoved = !currentCoords.some(
-        (route) => route.file_id === prevRoute.file_id
-      );
-      if (isRouteRemoved) {
-        return i; // Index of the removed route
-      }
-    }
-    return -1; // No route was removed
-  };
-
-  // 경로 데이터 변경 감지 및 업데이트
   useEffect(() => {
     if (
       previousRouteCoords.length > 0 &&
@@ -121,7 +74,129 @@ export default function RoutoMap({
     setPreviousRouteCoords(routeFullCoords);
   }, [routeFullCoords]);
 
-  // 경로를 지도에 그리는 함수
+  useEffect(() => {
+    if (
+      previousSpaceCoords.length > 0 &&
+      previousSpaceCoords.length > spaceFullCoords.length
+    ) {
+      const removedIndex = findRemovedSpaceIndex(
+        previousSpaceCoords,
+        spaceFullCoords
+      );
+      if (removedIndex !== -1) {
+        // Create a new array with null at the removed index
+        const newAdjustedCoords = [...previousSpaceCoords];
+        newAdjustedCoords[removedIndex] = null;
+        setAdjustedSpaceCoords(newAdjustedCoords);
+      }
+    } else {
+      // If no routes have been removed, just update the adjustedSpaceCoords to match spaceFullCoords
+      setAdjustedSpaceCoords(spaceFullCoords);
+    }
+
+    // Update previousSpaceCoords state
+    setPreviousSpaceCoords(spaceFullCoords);
+  }, [spaceFullCoords]);
+
+  useEffect(() => {
+    if (mapRef.current && Array.isArray(adjustedSpaceCoords)) {
+      // Clear existing space routes and markers
+      clearSpaceAndMarkers();
+
+      // Draw new space routes and markers
+      drawSpaceRoutes(mapRef.current, adjustedSpaceCoords);
+    }
+  }, [mapRef.current, adjustedSpaceCoords]);
+
+  /**
+   * Center the map on the clicked route when clickedNode is provided
+   */
+  useEffect(() => {
+    if (clickedNode && clickedNode.start_coord && clickedNode.goal_coord) {
+      const [startLng, startLat] = clickedNode.start_coord
+        .split(',')
+        .map(parseFloat);
+      const [goalLng, goalLat] = clickedNode.goal_coord
+        .split(',')
+        .map(parseFloat);
+
+      if (mapRef.current) {
+        const bounds = new routo.maps.LatLngBounds();
+
+        // Extend the bounds with both start and goal points
+        bounds.extend(new routo.maps.LatLng(startLat, startLng));
+        bounds.extend(new routo.maps.LatLng(goalLat, goalLng));
+
+        // Adjust the map to fit the bounds, centering on the route
+        mapRef.current.fitBounds(bounds);
+
+        // Optionally hide the marker when focusing on routes
+        if (markerRef.current) {
+          markerRef.current.setMap(null);
+        }
+      }
+    }
+  }, [clickedNode]);
+
+  /**
+   * 경로와 마커를 모두 삭제하는 함수
+   */
+  const clearRoutesAndMarkers = () => {
+    // 지도에서 모든 경로(폴리라인) 제거
+    routeObjects.forEach((route) => {
+      if (route && typeof route.setMap === 'function') {
+        route.setMap(null); // 지도에서 폴리라인 제거
+      }
+    });
+    setRouteObjects([]); // 경로 객체 상태 초기화
+
+    // 지도에서 모든 마커 제거
+    routeMarkers.forEach((marker) => {
+      if (marker && typeof marker.setMap === 'function') {
+        marker.setMap(null); // 지도에서 마커 제거
+      }
+    });
+    setRouteMarkers([]); // 마커 상태 초기화
+  };
+
+  /**
+   * clearSpaceAndMarkers
+   */
+  const clearSpaceAndMarkers = () => {
+    spaceObjects.forEach((route) => {
+      if (route && typeof route.setMap === 'function') {
+        route.setMap(null); // 지도에서 폴리라인 제거
+      }
+    });
+    setSpaceObjects([]); // 경로 객체 상태 초기화
+
+    spaceMarkers.forEach((marker) => {
+      if (marker && typeof marker.setMap === 'function') {
+        marker.setMap(null); // 지도에서 마커 제거
+      }
+    });
+    setSpaceMarkers([]); // 마커 상태 초기화
+  };
+
+  /**
+   * findRemovedRouteIndex
+   */
+  const findRemovedRouteIndex = (prevCoords, currentCoords) => {
+    for (let i = 0; i < prevCoords.length; i++) {
+      const prevRoute = prevCoords[i];
+      const isRouteRemoved = !currentCoords.some(
+        (route) => route.file_id === prevRoute.file_id
+      );
+      if (isRouteRemoved) {
+        return i; // Index of the removed route
+      }
+    }
+    return -1; // No route was removed
+  };
+
+  /**
+   * drawCheckedRoutes
+   */
   const drawCheckedRoutes = (mapInstance, routeFullCoords) => {
     clearRoutesAndMarkers(); // 기존 경로와 마커 삭제
 
@@ -207,10 +282,7 @@ export default function RoutoMap({
   };
 
   /**
-   * 이전 좌표와 현재 좌표를 비교하여 제거된 공간 경로의 인덱스를 찾는 함수
-   * @param {Array} prevCoords - 이전 공간 좌표 배열
-   * @param {Array} currentCoords - 현재 공간 좌표 배열
-   * @returns {number} - 제거된 공간 경로의 인덱스 (없으면 -1)
+   * findRemovedSpaceIndex
    */
   const findRemovedSpaceIndex = (prevCoords, currentCoords) => {
     for (let i = 0; i < prevCoords.length; i++) {
@@ -226,33 +298,7 @@ export default function RoutoMap({
   };
 
   /**
-   * 공간 경로 변경 시 상태를 업데이트하는 useEffect
-   * @param {Array} spaceFullCoords - 현재 공간 경로 배열
-   */
-  useEffect(() => {
-    if (
-      previousSpaceCoords.length > 0 &&
-      previousSpaceCoords.length > spaceFullCoords.length
-    ) {
-      const removedIndex = findRemovedSpaceIndex(
-        previousSpaceCoords,
-        spaceFullCoords
-      );
-      if (removedIndex !== -1) {
-        const newAdjustedCoords = [...previousSpaceCoords];
-        newAdjustedCoords[removedIndex] = null;
-        setAdjustedSpaceCoords(newAdjustedCoords);
-      }
-    } else {
-      setAdjustedSpaceCoords(spaceFullCoords);
-    }
-    setPreviousSpaceCoords(spaceFullCoords);
-  }, [spaceFullCoords]);
-
-  /**
-   * 지도에 공간 경로를 렌더링하는 함수
-   * @param {Object} mapInstance - 지도 인스턴스
-   * @param {Array} spaceFullCoords - 렌더링할 공간 경로 배열
+   * drawSpaceRoutes
    */
   const drawSpaceRoutes = (mapInstance, spaceFullCoords) => {
     clearSpaceAndMarkers(); // 기존 경로 및 마커 삭제
@@ -340,36 +386,7 @@ export default function RoutoMap({
   };
 
   /**
-   * 클릭된 노드에 따라 지도를 특정 경로에 맞게 중심으로 이동시키는 useEffect
-   * @param {Object} clickedNode - 클릭된 노드의 정보 (시작 및 목표 좌표 포함)
-   */
-  useEffect(() => {
-    if (clickedNode && clickedNode.start_coord && clickedNode.goal_coord) {
-      const [startLng, startLat] = clickedNode.start_coord
-        .split(',')
-        .map(parseFloat);
-      const [goalLng, goalLat] = clickedNode.goal_coord
-        .split(',')
-        .map(parseFloat);
-
-      if (mapRef.current) {
-        const bounds = new routo.maps.LatLngBounds();
-
-        bounds.extend(new routo.maps.LatLng(startLat, startLng));
-        bounds.extend(new routo.maps.LatLng(goalLat, goalLng));
-
-        mapRef.current.fitBounds(bounds); // 경로에 맞게 지도 범위 조정
-
-        if (markerRef.current) {
-          markerRef.current.setMap(null); // 마커 제거
-        }
-      }
-    }
-  }, [clickedNode]);
-
-  /**
-   * 새로운 중심 좌표에 따라 마커를 업데이트하거나 생성하는 함수
-   * @param {Object} newCenter - 새로 설정할 지도 중심 좌표
+   * Function to update or create a marker
    */
   const updateMarker = (newCenter) => {
     if (markerRef.current) {
@@ -388,7 +405,7 @@ export default function RoutoMap({
   };
 
   /**
-   * 지도 클릭 이벤트 리스너를 재설정하는 함수
+   * Function to re-attach the click listener
    */
   const attachClickListener = () => {
     if (mapRef.current) {
@@ -402,7 +419,7 @@ export default function RoutoMap({
   };
 
   /**
-   * 초기 중심 좌표를 기준으로 지도를 초기화하고 마커를 생성하는 useEffect
+   * Initialize the map with marker for the initial center
    */
   useEffect(() => {
     const loadMapScript = () => {
@@ -471,8 +488,7 @@ export default function RoutoMap({
   }, [mapRef.current, adjustedRouteCoords]);
 
   /**
-   * 경로 좌표가 변경될 때 기존 경로와 마커를 제거하고 새로운 경로와 마커를 그리는 useEffect
-   * (지도 인스턴스와 수정된 공간 경로(adjustedSpaceCoords)가 업데이트될 때 실행)
+   * Update map center and marker when coordinates change
    */
   useEffect(() => {
     if (mapRef.current && Array.isArray(adjustedSpaceCoords)) {

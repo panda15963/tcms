@@ -436,7 +436,7 @@ const SpaceModal = forwardRef(
                   style={{ width: '1324px' }}
                 >
                   {!isDirect && (
-                    <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
+                    <div className="flex justify-between py-3 px-5 bg-blue-900 rounded-t-lg">
                       <h1 className="text-sm font-semibold text-white">
                         {t('SpaceModal.ModalSearch')}
                       </h1>
@@ -521,7 +521,7 @@ const SpaceModal = forwardRef(
                       {/* 찾기 버튼과 결과 개수 */}
                       <div className="flex items-center justify-start mt-1">
                         <button
-                          className="text-base w-[100px] py-1 bg-blue-500 text-white rounded"
+                          className="text-base w-[100px] py-1 bg-blue-900 text-white rounded"
                           onClick={handleFindClick}
                         >
                           {t('SpaceModal.Find')}

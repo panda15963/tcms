@@ -22,17 +22,21 @@ export default function LeftSideSlide({
   onClickedNode,
   onMapChange,
   routeColors,
+  isCleared,
 }) {
   const [open, setOpen] = useState(false); // 사이드바 열림 상태
   const [rowsData, setRowsData] = useState([]); // 트리에 표시할 데이터
   const { t } = useTranslation(); // 다국어 지원
 
-  /**
-   * 경로 색상 관리 핸들러
-   * - 외부에서 전달된 routeColors 함수 호출
-   *
-   * @param {array} colors - 경로 색상 배열
-   */
+  useEffect(() => {
+    if (isCleared) {
+      console.log('LeftSideSlide: Clear event received');
+      // Clear 동작 처리
+      setRowsData();
+      setOpen(false);
+    }
+  }, [isCleared]); // isCleared 상태가 변경될 때마다 실행
+
   const handleRouteColors = (colors) => {
     if (typeof routeColors === 'function') {
       routeColors(colors);
@@ -69,6 +73,8 @@ export default function LeftSideSlide({
 
   // 새로운 데이터가 제공되면 자동으로 패널 열기
   useEffect(() => {
+    console.log('왼쪽 사이드 슬라이드 data ==>', data);
+
     if (data && data.length > 0) {
       setOpen(true);
     }
@@ -121,7 +127,7 @@ export default function LeftSideSlide({
       {!open && (
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className="text-white px-2 py-3 rounded-r-full bg-blue-600 hover:bg-blue_lapis"
+            className="text-white px-2 py-3 rounded-r-full bg-blue-900 hover:bg-blue_lapis"
             onClick={togglePanel}
           >
             <FaArrowCircleRight size={30} />
@@ -139,9 +145,8 @@ export default function LeftSideSlide({
         leaveFrom="translate-x-0"
         leaveTo="-translate-x-full"
       >
-        <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
-          {/* 헤더 */}
-          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
+        <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-30 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
+          <div className="bg-blue-900 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
             <div className="flex items-center justify-between">
               <label className="flex text-base font-semibold leading-6 text-white">
                 {t('LeftSideSlide.CourseList')} {/* 경로 목록 */}

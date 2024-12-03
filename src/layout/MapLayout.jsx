@@ -13,12 +13,12 @@ import RightSideSlide from '../components/slideOver/RightSideSlide';
  * @returns {JSX.Element} 레이아웃 컴포넌트
  */
 export default function MapLayout() {
-  // 상태 정의
-  const [routeData, setRouteData] = useState([]); // 경로 데이터
-  const [checkedNodes, setCheckedNodes] = useState([]); // 체크된 노드
-  const [clickedNode, setClickedNode] = useState(null); // 클릭된 노드
-  const [currentApi, setCurrentApi] = useState(null); // 현재 사용 중인 지도 API
-  const [routeColors, setRouteColors] = useState([]); // 경로 색상
+  const [routeData, setRouteData] = useState([]);
+  const [checkedNodes, setCheckedNodes] = useState([]);
+  const [clickedNode, setClickedNode] = useState(null);
+  const [currentApi, setCurrentApi] = useState(null);
+  const [routeColors, setRouteColors] = useState([]);
+  const [isCleared, setIsCleared] = useState(false);
 
   // 메모이제이션: 상태 변경으로 인한 불필요한 리렌더링 방지
   const memoizedRouteData = useMemo(() => routeData, [routeData]);
@@ -64,35 +64,32 @@ export default function MapLayout() {
     });
   }, []);
 
-  /**
-   * 경로 데이터를 업데이트하는 핸들러
-   * @param {Array} data - 새로운 경로 데이터
-   */
-  const handleRouteData = useCallback((data) => {
-    if (data !== routeData) {
-      setRouteData(data);
-    }
-  }, [routeData]);
+  const handleRouteData = useCallback(
+    (data) => {
+      if (data !== routeData) {
+        setRouteData(data);
+      }
+    },
+    [routeData]
+  );
 
-  /**
-   * 체크된 노드를 업데이트하는 핸들러
-   * @param {Array} nodes - 체크된 노드 배열
-   */
-  const handleCheckedNodes = useCallback((nodes) => {
-    if (nodes !== checkedNodes) {
-      setCheckedNodes(nodes);
-    }
-  }, [checkedNodes]);
+  const handleCheckedNodes = useCallback(
+    (nodes) => {
+      if (nodes !== checkedNodes) {
+        setCheckedNodes(nodes);
+      }
+    },
+    [checkedNodes]
+  );
 
-  /**
-   * 클릭된 노드를 업데이트하는 핸들러
-   * @param {Object} node - 클릭된 노드 데이터
-   */
-  const handleClickedNode = useCallback((node) => {
-    if (node !== clickedNode) {
-      setClickedNode(node);
-    }
-  }, [clickedNode]);
+  const handleClickedNode = useCallback(
+    (node) => {
+      if (node !== clickedNode) {
+        setClickedNode(node);
+      }
+    },
+    [clickedNode]
+  );
 
   // currentApi 변경 시 실행되는 로직
   useEffect(() => {
@@ -100,6 +97,11 @@ export default function MapLayout() {
       // API 변경에 따른 처리 로직 작성
     }
   }, [currentApi]);
+
+  const handleClear = () => {
+    setIsCleared(true); // Clear 상태 업데이트
+    setTimeout(() => setIsCleared(false), 100); // Clear 상태를 짧은 시간 후 초기화 (선택 사항)
+  };
 
   return (
     <>
@@ -110,7 +112,13 @@ export default function MapLayout() {
         clickedNode={clickedNode}
         setCurrentApi={setCurrentApi}
         routeColors={routeColors}
-        handleSpaceData={(data) => setRouteData(data)} // 공간 데이터 핸들링
+        onClear={handleClear}
+        handleSpaceData={
+          // Add handleSpaceData to props
+          (data) => {
+            setRouteData(data);
+          }
+        }
       />
 
       {/* 좌측 슬라이드 패널 */}
@@ -120,10 +128,15 @@ export default function MapLayout() {
         onClickedNode={handleClickedNode}
         onMapChange={currentApi}
         routeColors={handleRouteColors}
+        isCleared={isCleared}
       />
-      
-      {/* 우측 슬라이드 패널 */}
-      <RightSideSlide data={memoizedRouteData} onMapChange={currentApi} />
+
+      {/* Right Slide Panel */}
+      <RightSideSlide
+        data={memoizedRouteData}
+        onMapChange={currentApi}
+        isCleared={isCleared}
+      />
 
       {/* 중첩된 라우트를 렌더링하는 Outlet */}
       <main>

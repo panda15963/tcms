@@ -5,35 +5,42 @@ import { FaArrowCircleLeft } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { CiSquarePlus, CiSquareMinus } from 'react-icons/ci';
 
-export default function RightSideSlide({ data, onMapChange }) {
+export default function RightSideSlide({ data, onMapChange, isCleared }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState([]); // Default to all expanded
   const [rowsData, setRowsData] = useState([]); // State to manage rows data
 
-  // 데이터가 제공되면 패널을 자동으로 여는 useEffect
+  useEffect(() => {
+    if (isCleared) {
+      console.log('RightSideSlide: Clear event received');
+      // Clear 동작 처리
+      setExpandedRows();
+      setRowsData();
+      setOpen(false);
+    }
+  }, [isCleared]); // isCleared 상태가 변경될 때마다 실행
+
+  // useEffect to automatically open the panel when data is provided
   useEffect(() => {
     if (onMapChange?.name === 'ROUTO' || onMapChange?.name === 'TMAP') {
       // 특정 지도 종류일 때 필터링 로직 실행
       if (data && data.length > 0) {
-        console.log('onMapChange가 ROUTO 또는 TMAP입니다. 필터를 적용합니다.');
+        console.log('onMapChange is ROUTO or TMAP, applying filters.');
 
-        // 국가에 따라 데이터 필터링
         const filteredByCountry = data.filter(
           (item) => item.country_str === 'KOR' || item.country_str === 'SAU'
         );
 
-        // 이름 조건에 따라 추가 필터링
         const filteredByName = filteredByCountry.filter(
           (item) =>
             !item.file_name.includes('US') ||
             (item.country_str === 'SAU' && item.file_name.includes('KOR'))
         );
 
-        setOpen(true); // 패널 열기
-        setRowsData(filteredByName); // 필터링된 데이터를 상태에 설정
+        setOpen(true);
+        setRowsData(filteredByName);
 
-        // 첫 번째 행 ID를 기본 확장 상태로 설정
         const firstRowId = filteredByName.length > 0 ? [1] : [];
         setExpandedRows(firstRowId);
       } else {
@@ -296,7 +303,7 @@ export default function RightSideSlide({ data, onMapChange }) {
         // 패널이 닫혀 있을 때 열기 버튼
         <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className="text-white px-2 py-3 rounded-l-full bg-blue-600 hover:bg-blue_lapis"
+            className="text-white px-2 py-3 rounded-l-full bg-blue-900 hover:bg-blue_lapis"
             onClick={() => setOpen(true)}
           >
             <FaArrowCircleLeft size={30} />
@@ -313,9 +320,8 @@ export default function RightSideSlide({ data, onMapChange }) {
         leaveFrom="translate-x-0"
         leaveTo="translate-x-full"
       >
-        <div className="fixed inset-y-0 top-32 right-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tl-lg">
-          {/* 헤더 */}
-          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tl-lg">
+        <div className="fixed inset-y-0 top-32 right-0 w-3/12 bg-stone-50 shadow-lg z-30 flex flex-col space-y-4 h-[800px] rounded-tl-lg">
+          <div className="bg-blue-900 px-2 py-2 sm:px-3 shadow-xl rounded-tl-lg">
             <div className="flex items-center justify-between">
               <span className="text-base font-semibold leading-6 text-white">
                 {t('RightSideSlide.LogMetaDataList')}
