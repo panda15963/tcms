@@ -99,7 +99,7 @@ const HereMap = ({
       previousRouteCoords.length > 0 &&
       previousRouteCoords.length > routeFullCoords.length
     ) {
-      const removedIndex = findRemovedRouteIndex(
+      const removedIndex = findRemovedIndex(
         previousRouteCoords,
         routeFullCoords
       );

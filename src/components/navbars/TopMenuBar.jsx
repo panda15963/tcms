@@ -133,6 +133,8 @@ const TopMenuBar = ({
     // 경로 데이터나 체크된 노드 데이터가 없을 경우 빈 배열 반환
     if (!routeFullCoords || !checkedNodes) return [];
 
+    console.log('checkedNodes ==>', checkedNodes);
+
     // routeFullCoords와 checkedNodes를 file_id 기준으로 병합
     const mergedData = routeFullCoords.map((route) => {
       const matchedNode = checkedNodes.find(
@@ -178,11 +180,8 @@ const TopMenuBar = ({
     console.log('routeColors ==>', routeColors);
     console.log(checkedNodes);
 
-    // console.log('filteredRouteFullCoords ==>', filteredRouteFullCoords);
-
     // 선택된 지도 API에 따라 적절한 지도 핸들러 반환
     if (selectedAPI?.name === 'GOOGLE') {
-      console.log('Rendering GoogleMapHandler with routeFullCoords:', routeFullCoords);
       return (
         <GoogleMapHandler
           key="google"

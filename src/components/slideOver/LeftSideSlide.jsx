@@ -8,7 +8,7 @@ import Tree from '../treeMenu/Tree';
 /**
  * 경로 목록 컴포넌트
  * - 왼쪽 사이드바에 경로 데이터와 필터링된 트리 데이터를 표시
- * 
+ *
  * @param {object} props - 컴포넌트에 전달되는 속성
  * @param {array} props.data - 트리에 표시할 경로 데이터
  * @param {function} props.onCheckedNodesChange - 체크된 노드 변경 핸들러
@@ -30,7 +30,7 @@ export default function LeftSideSlide({
   /**
    * 경로 색상 관리 핸들러
    * - 외부에서 전달된 routeColors 함수 호출
-   * 
+   *
    * @param {array} colors - 경로 색상 배열
    */
   const handleRouteColors = (colors) => {
@@ -42,7 +42,7 @@ export default function LeftSideSlide({
   /**
    * 체크된 노드 변경 핸들러
    * - 부모 컴포넌트에 체크된 노드 전달
-   * 
+   *
    * @param {array} nodes - 체크된 노드 배열
    */
   const handleCheckedNodes = (nodes) => {
@@ -52,7 +52,7 @@ export default function LeftSideSlide({
   /**
    * 노드 클릭 핸들러
    * - 부모 컴포넌트에 클릭된 노드 전달
-   * 
+   *
    * @param {object} node - 클릭된 노드 객체
    */
   const handleNodeClick = (node) => {
@@ -105,9 +105,13 @@ export default function LeftSideSlide({
         setOpen(true);
       }
     } else {
-      console.log(
-        'onMapChange is not ROUTO or TMAP, keeping current panel state.'
-      );
+      // 기본 데이터 설정
+      setRowsData(data); // 전체 데이터를 rowsData에 설정
+
+      // 데이터가 있으면 패널 열기
+      if (data.length > 0) {
+        setOpen(true);
+      }
     }
   }, [data, onMapChange]);
 
