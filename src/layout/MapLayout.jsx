@@ -127,7 +127,11 @@ export default function MapLayout() {
       />
 
       {/* Right Slide Panel */}
-      <RightSideSlide data={memoizedRouteData} onMapChange={currentApi} />
+      <RightSideSlide
+        data={memoizedRouteData}
+        onMapChange={currentApi}
+        isCleared={isCleared}
+      />
 
       {/* Outlet renders nested route components */}
       <main>

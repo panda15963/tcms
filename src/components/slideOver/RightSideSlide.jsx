@@ -5,11 +5,21 @@ import { FaArrowCircleLeft } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { CiSquarePlus, CiSquareMinus } from 'react-icons/ci';
 
-export default function RightSideSlide({ data, onMapChange }) {
+export default function RightSideSlide({ data, onMapChange, isCleared }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState([]); // Default to all expanded
   const [rowsData, setRowsData] = useState([]); // State to manage rows data
+
+  useEffect(() => {
+    if (isCleared) {
+      console.log('RightSideSlide: Clear event received');
+      // Clear 동작 처리
+      setExpandedRows();
+      setRowsData();
+      setOpen(false);
+    }
+  }, [isCleared]); // isCleared 상태가 변경될 때마다 실행
 
   // useEffect to automatically open the panel when data is provided
   useEffect(() => {
