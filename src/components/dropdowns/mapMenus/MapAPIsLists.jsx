@@ -64,7 +64,7 @@ export default function MapAPIsLists({ setSelectedAPI }) {
     <Listbox value={selected} onChange={handleOnSelectMap}>
       {({ open }) => (
         <>
-          <div className="relative min-w-32 ">
+          <div className="relative min-w-36 ">
             {/* ListboxButton: 사용자가 선택한 항목을 보여주는 버튼 */}
             <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
               <span className="block truncate">{selected.name}</span>{' '}
