@@ -143,76 +143,6 @@ export default function RoutoMap({
   }, [clickedNode]);
 
   /**
-   * Initialize the map with marker for the initial center
-   */
-  useEffect(() => {
-    const loadMapScript = () => {
-      const script = document.createElement('script');
-      script.src =
-        'https://api.routo.com/v2/maps/map?key=' +
-        process.env.REACT_APP_ROUTTO_MAP_API;
-      script.async = true;
-      script.onload = () => {
-        if (!mapRef.current) {
-          mapRef.current = new routo.maps.Map(document.getElementById('map'), {
-            center: { lat: center.lat, lng: center.lng },
-            zoom: Number(process.env.REACT_APP_ZOOM),
-          });
-        }
-
-        updateMarker(center); // Update or create marker
-        attachClickListener(); // Attach click listener
-      };
-      document.body.appendChild(script);
-    };
-    if (!window.routo) {
-      loadMapScript();
-    } else {
-      if (!mapRef.current) {
-        mapRef.current = new routo.maps.Map('map', {
-          center: { lat: center.lat, lng: center.lng },
-          zoom: Number(process.env.REACT_APP_ZOOM),
-        });
-      }
-
-      updateMarker(center); // Update or create marker
-      attachClickListener(); // Attach click listener
-    }
-
-    return () => {
-      if (mapRef.current) {
-        routo.maps.event.clearListeners(mapRef.current, 'click');
-      }
-      if (markerRef.current) {
-        markerRef.current.setMap(null);
-        markerRef.current = null;
-      }
-    };
-  }, [center]);
-
-  useEffect(() => {
-    if (mapRef.current && Array.isArray(adjustedRouteCoords)) {
-      // Clear existing routes and markers
-      clearRoutesAndMarkers();
-
-      // Draw new routes and markers
-      drawCheckedRoutes(mapRef.current, adjustedRouteCoords);
-    }
-  }, [mapRef.current, adjustedRouteCoords]);
-
-  /**
-   * Update map center and marker when coordinates change
-   */
-  useEffect(() => {
-    const newCenter = calculateCenterAndMarker(lat, lng);
-    setCenter(newCenter);
-    if (mapRef.current) {
-      mapRef.current.setCenter(newCenter);
-    }
-    updateMarker(newCenter);
-  }, [lat, lng]);
-
-  /**
    * 경로와 마커를 모두 삭제하는 함수
    */
   const clearRoutesAndMarkers = () => {
@@ -495,6 +425,76 @@ export default function RoutoMap({
       });
     }
   };
+
+  /**
+   * Initialize the map with marker for the initial center
+   */
+  useEffect(() => {
+    const loadMapScript = () => {
+      const script = document.createElement('script');
+      script.src =
+        'https://api.routo.com/v2/maps/map?key=' +
+        process.env.REACT_APP_ROUTTO_MAP_API;
+      script.async = true;
+      script.onload = () => {
+        if (!mapRef.current) {
+          mapRef.current = new routo.maps.Map(document.getElementById('map'), {
+            center: { lat: center.lat, lng: center.lng },
+            zoom: Number(process.env.REACT_APP_ZOOM),
+          });
+        }
+
+        updateMarker(center); // Update or create marker
+        attachClickListener(); // Attach click listener
+      };
+      document.body.appendChild(script);
+    };
+    if (!window.routo) {
+      loadMapScript();
+    } else {
+      if (!mapRef.current) {
+        mapRef.current = new routo.maps.Map('map', {
+          center: { lat: center.lat, lng: center.lng },
+          zoom: Number(process.env.REACT_APP_ZOOM),
+        });
+      }
+
+      updateMarker(center); // Update or create marker
+      attachClickListener(); // Attach click listener
+    }
+
+    return () => {
+      if (mapRef.current) {
+        routo.maps.event.clearListeners(mapRef.current, 'click');
+      }
+      if (markerRef.current) {
+        markerRef.current.setMap(null);
+        markerRef.current = null;
+      }
+    };
+  }, [center]);
+
+  useEffect(() => {
+    if (mapRef.current && Array.isArray(adjustedRouteCoords)) {
+      // Clear existing routes and markers
+      clearRoutesAndMarkers();
+
+      // Draw new routes and markers
+      drawCheckedRoutes(mapRef.current, adjustedRouteCoords);
+    }
+  }, [mapRef.current, adjustedRouteCoords]);
+
+  /**
+   * Update map center and marker when coordinates change
+   */
+  useEffect(() => {
+    const newCenter = calculateCenterAndMarker(lat, lng);
+    setCenter(newCenter);
+    if (mapRef.current) {
+      mapRef.current.setCenter(newCenter);
+    }
+    updateMarker(newCenter);
+  }, [lat, lng]);
 
   return <div id="map" className="map" style={{ height: '87.8vh' }} />;
 }
