@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { ko, enUS } from 'date-fns/locale'; // 한국어와 영어 로케일 추가
+import { useTranslation } from 'react-i18next';
 
 /**
  * DateRangePicker 컴포넌트 - 시작 날짜와 종료 날짜를 선택할 수 있는 컴포넌트
@@ -12,6 +14,11 @@ import 'react-datepicker/dist/react-datepicker.css';
  * @returns {JSX.Element} 날짜 범위 선택 UI
  */
 const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
+  const { i18n } = useTranslation();
+
+  // 현재 언어에 따라 DatePicker의 locale 설정
+  const currentLocale = i18n.language === 'kor' ? ko : enUS;
+
   /**
    * 시작 날짜가 변경될 때 부모 컴포넌트로 전달
    */
@@ -35,7 +42,7 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
       {/* 시작 날짜 선택기 */}
       <div className="flex items-center gap-0">
         <label className="text-sm font-semibold text-white whitespace-nowrap">
-          {/* 시작 날짜 레이블 (다국어 지원 예정) */}
+          {/* 다국어 레이블 */}
         </label>
         <DatePicker
           className="border py-1 border-black text-center rounded-md w-32 h-10"
@@ -45,6 +52,7 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
           startDate={startDate}
           endDate={endDate}
           maxDate={endDate} // 종료 날짜를 초과하지 않도록 설정
+          locale={currentLocale} // 동적으로 설정된 로케일
         />
       </div>
 
@@ -54,7 +62,7 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
       {/* 종료 날짜 선택기 */}
       <div className="pl-2 flex items-center gap-0">
         <label className="text-sm font-semibold text-white whitespace-nowrap">
-          {/* 종료 날짜 레이블 (다국어 지원 예정) */}
+          {/* 다국어 레이블 */}
         </label>
         <DatePicker
           className="border border-black py-1 text-center rounded-md w-32 h-10"
@@ -64,9 +72,11 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
           startDate={startDate}
           endDate={endDate}
           maxDate={new Date()} // 오늘 날짜를 초과하지 않도록 설정
+          locale={currentLocale} // 동적으로 설정된 로케일
         />
       </div>
     </div>
   );
 };
+
 export default DateRangePicker;

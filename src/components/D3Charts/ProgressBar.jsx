@@ -79,18 +79,15 @@ const ProgressBar = ({ data, barHeight = 20, barWidth = 200, gap = 0 }) => {
    */
   const barTransition = (value, index) => {
     const xScale = scaleLinear().domain([0, 100]).range([0, barWidth]);
-    const t = transition().duration(800); // 애니메이션 지속 시간
 
     // 막대 길이 애니메이션
     select(refs.current[index])
       .select('.bar')
-      .transition(t)
       .attr('width', xScale(value));
 
     // 텍스트 위치 및 값 업데이트
     select(refs.current[index])
       .select('.amount')
-      .transition(t)
       .attr('x', Math.max(xScale(value) - 10, 0)) // 막대 내부로 위치 조정
       .text(`${value}%`);
   };

@@ -81,7 +81,9 @@ const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
     const allDates = groupedData.flatMap((group) =>
       group.data.map((d) => new Date(d.date))
     );
-    const allValues = groupedData.flatMap((group) => group.data.map((d) => d.value));
+    const allValues = groupedData.flatMap((group) =>
+      group.data.map((d) => d.value)
+    );
 
     // 날짜 및 값 범위 설정
     const minDate = d3.min(allDates); // 최소 날짜
@@ -123,7 +125,18 @@ const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
           .attr('fill', 'none') // 채우기 없음
           .attr('stroke', colorScale(idx)) // 그룹별 색상
           .attr('stroke-width', 2) // 라인 두께
-          .attr('d', line); // 라인 경로
+          .attr('d', line) // 초기 라인 경로
+          .attr('stroke-dasharray', function () {
+            const totalLength = this.getTotalLength();
+            return `${totalLength} ${totalLength}`; // 총 길이를 구해서 dash 배열 설정
+          })
+          .attr('stroke-dashoffset', function () {
+            return this.getTotalLength(); // 처음에는 전체가 숨겨짐
+          })
+          .transition()
+          .duration(2000) // 애니메이션 시간 (ms)
+          .ease(d3.easeLinear) // 선형 보간
+          .attr('stroke-dashoffset', 0); // 완전히 보이도록 설정
       }
 
       // 데이터 포인트 추가
