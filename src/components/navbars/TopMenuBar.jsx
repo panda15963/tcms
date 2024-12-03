@@ -30,6 +30,7 @@ const TopMenuBar = ({
   clickedNode,
   setCurrentApi,
   handleSpaceData,
+  onClear,
   routeColors = () => {},
 }) => {
   const [inputValue, setInputValue] = useState('');
@@ -57,6 +58,12 @@ const TopMenuBar = ({
 
   const handleChange = (event) => {
     setInputValue(event.target.value);
+  };
+
+  const handleClearClick = () => {
+    if (onClear) {
+      onClear(); // 부모 컴포넌트의 Clear 핸들러 호출
+    }
   };
 
   const handleKeyDown = (event) => {
@@ -534,18 +541,31 @@ const TopMenuBar = ({
     setConvertedCoords(result);
   }, [clickedCoords, selectedMapList]);
 
+  /**
+   * 지도 초기화 버튼 핸들러
+   * setSelectedCoords  : Clear selected coordinates
+   * setClickedCoords   : Clear clicked coordinates
+   * setRouteFullCoords : Clear route coordinates
+   * setSpaceFullCoords : Clear space coordinates
+   * setConvertedCoords : Reset converted coordinates
+   * setDisplayCoords   : Clear display coordinates
+   * setOrigins         : Clear origins
+   * setDestinations    : Clear destinations
+   * routeColors        : Reset route colors if it's a function
+   */
   const handleMapClear = () => {
-    setSelectedCoords(null); // Clear selected coordinates
-    setClickedCoords(null); // Clear clicked coordinates
-    setRouteFullCoords(null); // Clear route coordinates
-    setSpaceFullCoords(null); // Clear space coordinates
-    setConvertedCoords({ lat: '', lng: '' }); // Reset converted coordinates
-    setDisplayCoords(null); // Clear display coordinates
-    setOrigins([]); // Clear origins
-    setDestinations([]); // Clear destinations
+    setSelectedCoords(null);
+    setClickedCoords(null);
+    setRouteFullCoords(null);
+    setSpaceFullCoords(null);
+    setConvertedCoords({ lat: '', lng: '' });
+    setDisplayCoords(null);
+    setOrigins([]);
+    setDestinations([]);
     if (typeof routeColors === 'function') {
-      routeColors([]); // Reset route colors if it's a function
+      routeColors([]);
     }
+    handleClearClick();
   };
 
   return (

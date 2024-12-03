@@ -15,10 +15,20 @@ export default function LeftSideSlide({
   onClickedNode,
   onMapChange,
   routeColors,
+  isCleared,
 }) {
   const [open, setOpen] = useState(false);
   const [rowsData, setRowsData] = useState([]);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (isCleared) {
+      console.log('LeftSideSlide: Clear event received');
+      // Clear 동작 처리
+      setRowsData();
+      setOpen(false);
+    }
+  }, [isCleared]); // isCleared 상태가 변경될 때마다 실행
 
   const handleRouteColors = (colors) => {
     if (typeof routeColors === 'function') {
@@ -40,6 +50,8 @@ export default function LeftSideSlide({
 
   // Automatically open the panel and set treeData when new data is provided
   useEffect(() => {
+    console.log('왼쪽 사이드 슬라이드 data ==>', data);
+
     if (data && data.length > 0) {
       setOpen(true);
     }

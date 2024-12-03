@@ -11,6 +11,7 @@ export default function MapLayout() {
   const [clickedNode, setClickedNode] = useState(null);
   const [currentApi, setCurrentApi] = useState(null);
   const [routeColors, setRouteColors] = useState([]);
+  const [isCleared, setIsCleared] = useState(false);
 
   const memoizedRouteData = useMemo(() => routeData, [routeData]);
   const memoizedCheckedNodes = useMemo(() => checkedNodes, [checkedNodes]);
@@ -47,7 +48,7 @@ export default function MapLayout() {
 
       // Check if any of the new colors are not already in the previous colors
       const newColors = formattedColors.filter(
-        (color) => !prevColors.includes(color),
+        (color) => !prevColors.includes(color)
       );
       if (newColors.length === 0) {
         return prevColors; // No new colors to add, return previous state to avoid re-render
@@ -58,23 +59,32 @@ export default function MapLayout() {
     });
   }, []);
 
-  const handleRouteData = useCallback((data) => {
-    if (data !== routeData) {
-      setRouteData(data);
-    }
-  }, [routeData]);
+  const handleRouteData = useCallback(
+    (data) => {
+      if (data !== routeData) {
+        setRouteData(data);
+      }
+    },
+    [routeData]
+  );
 
-  const handleCheckedNodes = useCallback((nodes) => {
-    if (nodes !== checkedNodes) {
-      setCheckedNodes(nodes);
-    }
-  }, [checkedNodes]);
+  const handleCheckedNodes = useCallback(
+    (nodes) => {
+      if (nodes !== checkedNodes) {
+        setCheckedNodes(nodes);
+      }
+    },
+    [checkedNodes]
+  );
 
-  const handleClickedNode = useCallback((node) => {
-    if (node !== clickedNode) {
-      setClickedNode(node);
-    }
-  }, [clickedNode]);
+  const handleClickedNode = useCallback(
+    (node) => {
+      if (node !== clickedNode) {
+        setClickedNode(node);
+      }
+    },
+    [clickedNode]
+  );
 
   // Use useEffect to update state based on external changes, not during render
   useEffect(() => {
@@ -82,6 +92,11 @@ export default function MapLayout() {
       // Handle any updates needed when currentApi changes
     }
   }, [currentApi]);
+
+  const handleClear = () => {
+    setIsCleared(true); // Clear 상태 업데이트
+    setTimeout(() => setIsCleared(false), 100); // Clear 상태를 짧은 시간 후 초기화 (선택 사항)
+  };
 
   return (
     <>
@@ -92,6 +107,7 @@ export default function MapLayout() {
         clickedNode={clickedNode}
         setCurrentApi={setCurrentApi}
         routeColors={routeColors}
+        onClear={handleClear}
         handleSpaceData={
           // Add handleSpaceData to props
           (data) => {
@@ -107,8 +123,9 @@ export default function MapLayout() {
         onClickedNode={handleClickedNode}
         onMapChange={currentApi}
         routeColors={handleRouteColors}
+        isCleared={isCleared}
       />
-      
+
       {/* Right Slide Panel */}
       <RightSideSlide data={memoizedRouteData} onMapChange={currentApi} />
 
