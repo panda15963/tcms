@@ -8,15 +8,21 @@ import {
 } from '@headlessui/react';
 import { FaAngleDown, FaCheck } from 'react-icons/fa6';
 import { useNavigate, useLocation } from 'react-router-dom';
+import routoLogo from '../../../assets/images/mapLogo/routo.png';
+import googleLogo from '../../../assets/images/mapLogo/google.png';
+import hereLogo from '../../../assets/images/mapLogo/here.png';
+import baiduLogo from '../../../assets/images/mapLogo/baidu.png';
+import tmapLogo from '../../../assets/images/mapLogo/tmap.png';
+import tomtomLogo from '../../../assets/images/mapLogo/tomtom.png';
 
 // 사용 가능한 지도 API 목록 주석 처리한 부분은 당분간 사용 금지
 const mapAPIs = [
-  { id: 1, name: 'ROUTO' },
-  { id: 2, name: 'TOMTOM' },
-  { id: 3, name: 'GOOGLE' },
-  { id: 4, name: 'HERE' },
-  { id: 5, name: 'TMAP' },
-  // { id: 6, name: 'BAIDU' },
+  { id: 1, name: 'ROUTO', logo: routoLogo },
+  { id: 2, name: 'TOMTOM', logo: tomtomLogo },
+  { id: 3, name: 'GOOGLE', logo: googleLogo },
+  { id: 4, name: 'HERE', logo: hereLogo },
+  { id: 5, name: 'TMAP', logo: tmapLogo },
+  // { id: 6, name: 'BAIDU', logo: baiduLogo },
 ];
 
 // classNames 함수는 여러 클래스를 결합할 때 유용함
@@ -67,7 +73,14 @@ export default function MapAPIsLists({ setSelectedAPI }) {
           <div className="relative min-w-36 ">
             {/* ListboxButton: 사용자가 선택한 항목을 보여주는 버튼 */}
             <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
-              <span className="block truncate">{selected.name}</span>{' '}
+              <div className="flex items-center space-x-2">
+                <img
+                  src={selected.logo}
+                  alt={selected.name}
+                  className="h-5 w-5"
+                />
+                <span className="block truncate">{selected.name}</span>{' '}
+              </div>
               {/* 선택된 API 이름 표시 */}
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <FaAngleDown
@@ -99,6 +112,11 @@ export default function MapAPIsLists({ setSelectedAPI }) {
                   >
                     {({ selected }) => (
                       <>
+                        {/* <img
+                          src={api.logo}
+                          alt={api.name}
+                          className="h-5 w-5 mr-2"
+                        /> */}
                         <span
                           className={classNames(
                             selected ? 'font-bold text-white' : 'text-gray-900', // Set font-bold and white text for selected item
