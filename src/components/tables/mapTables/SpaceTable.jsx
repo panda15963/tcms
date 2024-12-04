@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   flexRender,
@@ -7,30 +7,34 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-// 테이블의 기본 컬럼 정의
+/**
+ * SpaceTableHeaderList
+ * @description 테이블의 기본 컬럼 정의
+ * @param {Function} t - 다국어 번역 함수
+ * @returns {Array} 테이블 컬럼 배열
+ */
 const SpaceTableHeaderList = (t) => [
   {
     accessorKey: 'select',
     header: ({ table }) => (
       <input
         type="checkbox"
-        checked={table.getIsAllRowsSelected()}
-        onChange={table.getToggleAllRowsSelectedHandler()}
+        checked={table.getIsAllRowsSelected()} // 전체 행 선택 여부
+        onChange={table.getToggleAllRowsSelectedHandler()} // 전체 선택 토글 핸들러
       />
     ),
     cell: ({ row }) => (
       <input
         type="checkbox"
-        checked={row.getIsSelected()}
-        onChange={row.getToggleSelectedHandler()}
+        checked={row.getIsSelected()} // 특정 행 선택 여부
+        onChange={row.getToggleSelectedHandler()} // 특정 행 선택 토글 핸들러
       />
     ),
   },
   {
-    // 업로드 된 날짜
     accessorKey: 'upload_date',
     header: ({ column }) => {
-      const isSorted = column.getIsSorted(); // 정렬 상태 ('asc', 'desc', false)
+      const isSorted = column.getIsSorted(); // 정렬 상태 확인
       return (
         <div className="flex items-center justify-center text-xs">
           <span>{t('SpaceTable.UploadDate')}</span>
@@ -44,39 +48,26 @@ const SpaceTableHeaderList = (t) => [
       );
     },
     cell: ({ getValue }) => {
-      const fullDate = getValue();
-      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 형식으로 변환
+      const fullDate = getValue(); // 전체 날짜
+      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 형식
       return (
         <span title={fullDate} className="cursor-pointer text-xs">
           {shortDate}
         </span>
       );
     },
-    // accessorKey: 'upload_date',
-    // header: t('SpaceTable.UploadDate'),
-    // cell: ({ getValue }) => {
-    //   const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
-    //   const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
-
-    //   return (
-    //     <span title={fullDate} className="cursor-pointer">
-    //       {shortDate}
-    //     </span>
-    //   );
-    // },
   },
+  // 파일 이름 컬럼
   {
-    // 이름
     accessorKey: 'file_name',
     header: t('SpaceTable.Name'),
     cell: ({ getValue }) => {
-      const fullText = getValue();
-      const maxLength = 70; // 표시할 최대 문자 수
+      const fullText = getValue(); // 전체 텍스트
+      const maxLength = 70; // 최대 표시 길이
       const shortText =
         fullText.length > maxLength
           ? fullText.slice(0, maxLength) + '...'
           : fullText;
-
       return (
         <span title={fullText} className="cursor-pointer">
           {shortText}
@@ -85,36 +76,29 @@ const SpaceTableHeaderList = (t) => [
     },
   },
   {
-    // 버전
     accessorKey: 'version_id',
     header: t('SpaceTable.Version'),
   },
   {
-    // 국가
     accessorKey: 'country_str',
     header: t('SpaceTable.Country'),
   },
+  // 로그 종류
   {
-    // 로그 종류
     accessorKey: 'b_virtual',
     header: t('SpaceTable.LogType'),
-    cell: ({ getValue }) => {
-      const value = getValue();
-      return value === 0 ? 'Virtual Log' : 'Real Log';
-    },
+    cell: ({ getValue }) => (getValue() === 0 ? 'Virtual Log' : 'Real Log'),
   },
   {
-    // 요약
     accessorKey: 'summary_str',
     header: t('SpaceTable.Summary'),
     cell: ({ getValue }) => {
       const fullText = getValue();
-      const maxLength = 40; // 표시할 최대 문자 수
+      const maxLength = 40;
       const shortText =
         fullText.length > maxLength
           ? fullText.slice(0, maxLength) + '...'
           : fullText;
-
       return (
         <span title={fullText} className="cursor-pointer">
           {shortText}
@@ -128,7 +112,7 @@ const SpaceTableHeaderList = (t) => [
     cell: ({ row }) => {
       const imagePath = row.original.imagePath;
       const [showModal, setShowModal] = useState(false);
-
+      
       const adjustImagePath = (baseURL, imagePath) => {
         if (baseURL.includes('192.168.0.88')) {
           return `/images${imagePath.replace('/testcourse/image', '')}`;
@@ -161,8 +145,8 @@ const SpaceTableHeaderList = (t) => [
                 <img
                   src={`${baseURL}${adjustedImagePath}`}
                   style={{
-                    maxWidth: '55vw', // 화면 너비의 90%로 제한
-                    maxHeight: '55vh', // 화면 높이의 90%로 제한
+                    maxWidth: '55vw',
+                    maxHeight: '55vh',
                     width: 'auto',
                     height: 'auto',
                   }}
@@ -184,56 +168,54 @@ const SpaceTableHeaderList = (t) => [
   },
 ];
 
-const ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 개수
+const ITEMS_PER_PAGE = 20;
 
+/**
+ * SpaceTable 컴포넌트
+ * @description 페이지 네이션과 정렬을 지원하는 테이블 컴포넌트
+ * @param {Object} list - 데이터 리스트
+ * @param {Function} onSelectionChange - 선택된 데이터 변경 핸들러
+ * @returns {JSX.Element} SpaceTable 컴포넌트
+ */
 const SpaceTable = ({ list, onSelectionChange }) => {
   const { t } = useTranslation();
-  const [displayedData, setDisplayedData] = useState([]); // 화면에 표시할 데이터
-  const [page, setPage] = useState(1); // 현재 페이지 번호
-  const [sorting, setSorting] = useState([]); // 정렬 상태 추가
+  const [displayedData, setDisplayedData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [sorting, setSorting] = useState([]);
   const columns = useMemo(() => SpaceTableHeaderList(t), [t]);
 
-  // list.list가 배열인지 확인하고, 아니면 빈 배열로 초기화
   const validList = Array.isArray(list.list) ? list.list : [];
 
-  // 초기 및 리스트 변경 시 데이터를 설정하는 useEffect
   useEffect(() => {
     if (validList.length > 0) {
-      setDisplayedData(validList.slice(0, ITEMS_PER_PAGE)); // 초기 데이터만 설정
-      setPage(1); // 페이지를 초기화
+      setDisplayedData(validList.slice(0, ITEMS_PER_PAGE));
+      setPage(1);
     } else if (displayedData.length > 0) {
-      setDisplayedData([]); // 리스트가 없으면 빈 배열 설정
+      setDisplayedData([]);
     }
   }, [validList]);
 
-  // 페이지 변경 시 더 많은 데이터를 로드하여 기존 데이터에 추가
   useEffect(() => {
     if (page > 1) {
       const newItems = validList.slice(
         (page - 1) * ITEMS_PER_PAGE,
         page * ITEMS_PER_PAGE
       );
-      setDisplayedData((prevDisplayedData) => [
-        ...prevDisplayedData,
-        ...newItems,
-      ]);
+      setDisplayedData((prev) => [...prev, ...newItems]);
     }
   }, [page, validList]);
 
-  // 더 많은 항목 보기 버튼 핸들러
-  const handleLoadMore = () => {
-    setPage((prevPage) => prevPage + 1);
-  };
+  const handleLoadMore = () => setPage((prev) => prev + 1);
 
   const table = useReactTable({
-    data: displayedData, // 보여줄 데이터만 전달
+    data: displayedData,
     columns,
     state: {
-      sorting, // 정렬 상태
+      sorting,
     },
-    onSortingChange: setSorting, // 정렬 변경 핸들러
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(), // 정렬된 데이터 모델
+    getSortedRowModel: getSortedRowModel(),
   });
 
   useEffect(() => {
@@ -243,10 +225,7 @@ const SpaceTable = ({ list, onSelectionChange }) => {
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
   return (
-    <div
-      className="overflow-auto h-[400px] text-center"
-      style={{ maxHeight: '500px' }}
-    >
+    <div className="overflow-auto h-[400px]" style={{ maxHeight: '500px' }}>
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -285,13 +264,13 @@ const SpaceTable = ({ list, onSelectionChange }) => {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table> 
 
       {/* 더 많은 항목 보기 버튼 */}
       {displayedData.length < validList.length && (
         <button
           onClick={handleLoadMore}
-          className="mt-1 px-2 py-1 bg-blue-500 text-white rounded "
+          className="mt-1 px-2 py-1 bg-blue-500 text-white rounded"
         >
           {t('SpaceTable.LoadMore')}
         </button>

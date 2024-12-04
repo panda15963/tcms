@@ -64,17 +64,13 @@ export default function RoutoMap({
         routeFullCoords
       );
       if (removedIndex !== -1) {
-        // Create a new array with null at the removed index
         const newAdjustedCoords = [...previousRouteCoords];
-        newAdjustedCoords[removedIndex] = null;
+        newAdjustedCoords[removedIndex] = null; // 삭제된 경로를 null로 표시
         setAdjustedRouteCoords(newAdjustedCoords);
       }
     } else {
-      // If no routes have been removed, just update the adjustedRouteCoords to match routeFullCoords
       setAdjustedRouteCoords(routeFullCoords);
     }
-
-    // Update previousRouteCoords state
     setPreviousRouteCoords(routeFullCoords);
   }, [routeFullCoords]);
 
@@ -202,7 +198,7 @@ export default function RoutoMap({
    * drawCheckedRoutes
    */
   const drawCheckedRoutes = (mapInstance, routeFullCoords) => {
-    clearRoutesAndMarkers(); // Clear any existing routes and markers
+    clearRoutesAndMarkers(); // 기존 경로와 마커 삭제
 
     const newRouteObjects = [];
     const newRouteMarkers = [];
@@ -230,7 +226,6 @@ export default function RoutoMap({
             })
             .filter(Boolean);
 
-          // Extend bounds with all route points
           routePath.forEach((point) => {
             bounds.extend(new routo.maps.LatLng(point.lat, point.lng));
           });
@@ -275,7 +270,6 @@ export default function RoutoMap({
         }
       });
 
-      // Adjust map to fit all routes after processing
       if (!bounds.isEmpty()) {
         mapInstance.fitBounds(bounds);
       }
@@ -297,26 +291,26 @@ export default function RoutoMap({
         (route) => route.file_id === prevRoute.file_id
       );
       if (isRouteRemoved) {
-        return i; // Index of the removed route
+        return i; // 제거된 경로의 인덱스 반환
       }
     }
-    return -1; // No route was removed
+    return -1; // 제거된 경로가 없을 경우 -1 반환
   };
 
   /**
    * drawSpaceRoutes
    */
   const drawSpaceRoutes = (mapInstance, spaceFullCoords) => {
-    clearSpaceAndMarkers(); // Clear any existing routes and markers
+    clearSpaceAndMarkers(); // 기존 경로 및 마커 삭제
 
     const newRouteObjects = [];
     const newRouteMarkers = [];
-    const bounds = new routo.maps.LatLngBounds(); // Initialize bounds to fit all routes
+    const bounds = new routo.maps.LatLngBounds(); // 모든 경로를 포함하는 범위 초기화
 
     if (Array.isArray(spaceFullCoords)) {
-      spaceFullCoords.forEach((space, index) => {
+      adjustedSpaceCoords.forEach((space, index) => {
         if (!space) {
-          console.warn(`Skipping null space route at index ${index}`);
+          console.warn(`Index ${index}에서 null 공간 경로를 건너뜁니다.`);
           return;
         }
 
@@ -334,7 +328,7 @@ export default function RoutoMap({
             })
             .filter(Boolean);
 
-          // Extend bounds with all route points
+          // 경로의 각 포인트를 사용하여 범위 확장
           spacePath.forEach((point) => {
             bounds.extend(new routo.maps.LatLng(point.lat, point.lng));
           });
@@ -374,17 +368,17 @@ export default function RoutoMap({
           }
         } else {
           console.warn(
-            `space.coords for space ${index} is not in the expected format.`
+            `space.coords의 형식이 올바르지 않습니다. Index: ${index}`
           );
         }
       });
 
-      // Adjust map to fit all routes after processing
+      // 모든 경로를 처리한 후 지도 범위 조정
       if (!bounds.isEmpty()) {
         mapInstance.fitBounds(bounds);
       }
     } else {
-      console.warn('spaceFullCoords is not an array.');
+      console.warn('spaceFullCoords는 배열이 아닙니다.');
     }
 
     setSpaceObjects(newRouteObjects);
@@ -396,10 +390,8 @@ export default function RoutoMap({
    */
   const updateMarker = (newCenter) => {
     if (markerRef.current) {
-      // Update marker position if it already exists
-      markerRef.current.setPosition(newCenter);
+      markerRef.current.setPosition(newCenter); // 기존 마커 위치 업데이트
     } else {
-      // Create marker if it does not exist and is not default coordinates
       if (
         newCenter.lat !== parseFloat(process.env.REACT_APP_LATITUDE) ||
         newCenter.lng !== parseFloat(process.env.REACT_APP_LONGITUDE)
@@ -417,11 +409,11 @@ export default function RoutoMap({
    */
   const attachClickListener = () => {
     if (mapRef.current) {
-      routo.maps.event.clearListeners(mapRef.current, 'click'); // Clear existing listeners
+      routo.maps.event.clearListeners(mapRef.current, 'click'); // 기존 리스너 제거
       mapRef.current.addListener('click', (event) => {
         const clickedLat = event.latLng.lat();
         const clickedLng = event.latLng.lng();
-        locationCoords({ lat: clickedLat, lng: clickedLng });
+        locationCoords({ lat: clickedLat, lng: clickedLng }); // 클릭 좌표 전달
       });
     }
   };
@@ -434,7 +426,7 @@ export default function RoutoMap({
       const script = document.createElement('script');
       script.src =
         'https://api.routo.com/v2/maps/map?key=' +
-        process.env.REACT_APP_ROUTTO_MAP_API;
+        process.env.REACT_APP_ROUTTO_MAP_API; // Routo Maps API 스크립트 로드
       script.async = true;
       script.onload = () => {
         if (!mapRef.current) {
@@ -444,11 +436,17 @@ export default function RoutoMap({
           });
         }
 
-        updateMarker(center); // Update or create marker
-        attachClickListener(); // Attach click listener
+        updateMarker(center);
+        attachClickListener();
+
+        // Initial rendering of space routes
+        if (Array.isArray(spaceFullCoords)) {
+          drawSpaceRoutes(mapRef.current, spaceFullCoords);
+        }
       };
       document.body.appendChild(script);
     };
+
     if (!window.routo) {
       loadMapScript();
     } else {
@@ -459,8 +457,12 @@ export default function RoutoMap({
         });
       }
 
-      updateMarker(center); // Update or create marker
-      attachClickListener(); // Attach click listener
+      updateMarker(center);
+      attachClickListener();
+
+      if (Array.isArray(spaceFullCoords)) {
+        drawSpaceRoutes(mapRef.current, spaceFullCoords);
+      }
     }
 
     return () => {
@@ -471,16 +473,17 @@ export default function RoutoMap({
         markerRef.current.setMap(null);
         markerRef.current = null;
       }
+      clearSpaceAndMarkers();
     };
-  }, [center]);
+  }, [center, spaceFullCoords]);
 
+  /**
+   * 경로 좌표가 변경될 때 기존 경로와 마커를 제거하고 새로운 경로와 마커를 그리는 useEffect
+   */
   useEffect(() => {
     if (mapRef.current && Array.isArray(adjustedRouteCoords)) {
-      // Clear existing routes and markers
-      clearRoutesAndMarkers();
-
-      // Draw new routes and markers
-      drawCheckedRoutes(mapRef.current, adjustedRouteCoords);
+      clearRoutesAndMarkers(); // 기존 경로와 마커 제거
+      drawCheckedRoutes(mapRef.current, adjustedRouteCoords); // 새로운 경로와 마커 렌더링
     }
   }, [mapRef.current, adjustedRouteCoords]);
 
@@ -488,12 +491,22 @@ export default function RoutoMap({
    * Update map center and marker when coordinates change
    */
   useEffect(() => {
-    const newCenter = calculateCenterAndMarker(lat, lng);
-    setCenter(newCenter);
-    if (mapRef.current) {
-      mapRef.current.setCenter(newCenter);
+    if (mapRef.current && Array.isArray(adjustedSpaceCoords)) {
+      clearRoutesAndMarkers(); // 기존 경로와 마커를 제거
+      drawCheckedRoutes(mapRef.current, adjustedSpaceCoords); // 수정된 공간 경로를 사용하여 새로운 경로와 마커를 지도에 그리기
     }
-    updateMarker(newCenter);
+  }, [mapRef.current, adjustedSpaceCoords]);
+
+  /**
+   * 위도(lat)와 경도(lng)가 변경될 때 지도 중심과 마커를 업데이트하는 useEffect
+   */
+  useEffect(() => {
+    const newCenter = calculateCenterAndMarker(lat, lng); // 새로운 중심 좌표 계산
+    setCenter(newCenter); // 중심 좌표 상태 업데이트
+    if (mapRef.current) {
+      mapRef.current.setCenter(newCenter); // 지도 중심 좌표 업데이트
+    }
+    updateMarker(newCenter); // 마커 업데이트 또는 생성
   }, [lat, lng]);
 
   return <div id="map" className="map" style={{ height: '87.8vh' }} />;

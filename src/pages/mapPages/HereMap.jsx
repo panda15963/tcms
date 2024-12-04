@@ -2,6 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import End_Point from '../../assets/images/multi_end_point.svg';
 import Start_Point from '../../assets/images/multi_start_point.svg';
 
+/**
+ * 지도 중심 좌표를 계산하는 함수
+ * @param {number} lat - 위도 값
+ * @param {number} lng - 경도 값
+ * @returns {Object} - 지도 중심 좌표 (위도와 경도 포함)
+ */
 function calculateCenterAndMarker(lat, lng) {
   const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE) || 0;
   const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE) || 0;
@@ -10,28 +16,45 @@ function calculateCenterAndMarker(lat, lng) {
     : { lat: defaultLat, lng: defaultLng };
 }
 
+/**
+ * HereMap 컴포넌트
+ * @param {Object} props
+ * @param {number} lat - 초기 지도 중심 위도 값
+ * @param {number} lng - 초기 지도 중심 경도 값
+ * @param {function} locationCoords - 지도 클릭 시 좌표를 부모로 전달하는 콜백
+ * @param {Array} routeFullCoords - 경로를 나타내는 좌표 배열
+ * @param {Array} routeColors - 경로 색상을 나타내는 배열
+ * @param {Object} clickedNode - 선택된 노드 데이터
+ * @param {Array} spaceFullCoords - 공간 데이터를 나타내는 좌표 배열
+ * @param {Object} checkedNode - 선택된 노드 데이터 상태
+ */
 const HereMap = ({
   lat,
   lng,
-  locationCoords = () => {},
-  routeFullCoords,
-  routeColors,
-  clickedNode,
-  spaceFullCoords,
-  checkedNode,
+  locationCoords = () => {}, // 지도 클릭 시 호출되는 콜백 함수
+  routeFullCoords, // 경로 전체 좌표
+  routeColors, // 경로 색상 배열
+  clickedNode, // 선택된 노드 데이터
+  spaceFullCoords, // 공간 전체 좌표
+  checkedNode, // 선택된 노드 상태
 }) => {
-  const mapRef = useRef(null);
-  const mapInstance = useRef(null);
-  const platformInstance = useRef(null);
-  const markerRef = useRef(null);
-  const polylineRefs = useRef({ routes: [], spaces: [] });
-  const markerRefs = useRef({ routes: [], spaces: [] });
-  const [previousRouteCoords, setPreviousRouteCoords] = useState([]);
-  const [adjustedRouteCoords, setAdjustedRouteCoords] = useState([]);
-  const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
-  const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
-  const apiKey = process.env.REACT_APP_HERE_MAP_API;
+  const mapRef = useRef(null); // 지도 DOM 요소 참조
+  const mapInstance = useRef(null); // HERE 지도 인스턴스 참조
+  const platformInstance = useRef(null); // HERE 플랫폼 인스턴스 참조
+  const markerRef = useRef(null); // 지도 마커 참조
+  const polylineRefs = useRef({ routes: [], spaces: [] }); // 폴리라인 참조
+  const markerRefs = useRef({ routes: [], spaces: [] }); // 마커 참조
+  const [previousRouteCoords, setPreviousRouteCoords] = useState([]); // 이전 경로 좌표 상태
+  const [adjustedRouteCoords, setAdjustedRouteCoords] = useState([]); // 조정된 경로 좌표 상태
+  const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]); // 이전 공간 좌표 상태
+  const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]); // 조정된 공간 좌표 상태
+  const apiKey = process.env.REACT_APP_HERE_MAP_API; // HERE Maps API 키
 
+  /**
+   * 지도 중심을 설정하고 검색 마커를 추가하는 함수
+   * @param {number} latitude - 위도 값
+   * @param {number} longitude - 경도 값
+   */
   const centerMapOnLatLng = (latitude, longitude) => {
     if (mapInstance.current && latitude && longitude) {
       if (markerRef.current) {
@@ -44,13 +67,19 @@ const HereMap = ({
     }
   };
 
-  // lat과 lng가 변경될 때마다 호출
+  // lat과 lng가 변경될 때마다 지도 중심을 업데이트
   useEffect(() => {
     if (lat && lng) {
       centerMapOnLatLng(lat, lng);
     }
   }, [lat, lng]);
 
+  /**
+   * 이전 경로 또는 공간 데이터에서 제거된 인덱스를 찾는 함수
+   * @param {Array} prevCoords - 이전 좌표 배열
+   * @param {Array} currentCoords - 현재 좌표 배열
+   * @returns {number} - 제거된 항목의 인덱스 (없으면 -1)
+   */
   const findRemovedIndex = (prevCoords, currentCoords) => {
     for (let i = 0; i < prevCoords.length; i++) {
       const prevRoute = prevCoords[i];
@@ -64,6 +93,7 @@ const HereMap = ({
     return -1;
   };
 
+  // 경로가 제거되었을 때 `adjustedRouteCoords`를 업데이트하는 effect
   useEffect(() => {
     if (
       previousRouteCoords.length > 0 &&
@@ -74,13 +104,17 @@ const HereMap = ({
         routeFullCoords
       );
       if (removedIndex !== -1) {
+        // 제거된 인덱스에 null 값을 추가하여 새 배열 생성
         const newAdjustedCoords = [...previousRouteCoords];
         newAdjustedCoords[removedIndex] = null;
         setAdjustedRouteCoords(newAdjustedCoords);
       }
     } else {
+      // 경로가 제거되지 않은 경우, `adjustedRouteCoords`를 `routeFullCoords`와 동일하게 설정
       setAdjustedRouteCoords(routeFullCoords);
     }
+
+    // 이전 경로 상태를 업데이트
     setPreviousRouteCoords(routeFullCoords);
   }, [routeFullCoords]);
 
@@ -102,6 +136,7 @@ const HereMap = ({
     }
   }, [clickedNode]);
 
+  // 공간 데이터 변경 시 조정된 공간 데이터를 업데이트
   useEffect(() => {
     if (
       previousSpaceCoords.length > 0 &&
@@ -122,6 +157,13 @@ const HereMap = ({
     setPreviousSpaceCoords(spaceFullCoords);
   }, [spaceFullCoords]);
 
+  /**
+   * 이전 좌표와 현재 좌표를 비교하여 조정된 좌표를 업데이트하는 함수
+   * @param {Array} previousCoords - 이전 좌표 배열
+   * @param {Array} currentCoords - 현재 좌표 배열
+   * @param {function} setAdjustedCoords - 조정된 좌표를 업데이트하는 상태 설정 함수
+   * @param {function} setPreviousCoords - 이전 좌표를 업데이트하는 상태 설정 함수
+   */
   const updateAdjustedCoords = (
     previousCoords,
     currentCoords,
@@ -162,25 +204,31 @@ const HereMap = ({
     );
   }, [spaceFullCoords]);
 
+  /**
+   * 지도에 표시된 엔티티(좌표들)를 중심으로 지도 중심 및 줌을 조정하는 함수
+   * @param {Array} coords - 좌표 배열
+   */
   const fitMapToEntities = (coords) => {
+    // 좌표 배열이 비어있거나 지도 인스턴스가 초기화되지 않은 경우 함수 종료
     if (!coords || coords.length === 0 || !mapInstance.current) return;
 
-    // Filter out null entries and log the valid coordinates
+    // null 값을 제외한 유효한 좌표만 필터링
     const validCoords = coords.filter((coord) => coord !== null);
     console.log('Valid coords for fitMapToEntities:', validCoords);
 
-    // If no valid coordinates remain, clear the map and exit
+    // 유효한 좌표가 없을 경우 지도 상의 엔티티를 제거하고 종료
     if (validCoords.length === 0) {
-      clearEntities('routes');
-      clearEntities('spaces');
+      clearEntities('routes'); // 경로 데이터 제거
+      clearEntities('spaces'); // 공간 데이터 제거
       return;
     }
 
-    let bounds = null;
-    let totalLat = 0;
-    let totalLng = 0;
-    let pointCount = 0;
+    let bounds = null; // 지도 경계 초기화
+    let totalLat = 0; // 위도의 합
+    let totalLng = 0; // 경도의 합
+    let pointCount = 0; // 좌표의 총 개수
 
+    // 각 좌표를 반복하며 경계를 확장하고 중심점을 계산
     validCoords.forEach((coord) => {
       if (Array.isArray(coord.coords)) {
         coord.coords.forEach((point) => {
@@ -189,10 +237,11 @@ const HereMap = ({
             typeof point.lat === 'number' &&
             typeof point.lng === 'number'
           ) {
-            totalLat += point.lat;
-            totalLng += point.lng;
-            pointCount += 1;
+            totalLat += point.lat; // 위도를 누적
+            totalLng += point.lng; // 경도를 누적
+            pointCount += 1; // 유효한 좌표의 개수 증가
 
+            // 지도 경계를 초기화하거나 확장
             if (!bounds) {
               bounds = new H.geo.Rect(
                 point.lat,
@@ -208,15 +257,20 @@ const HereMap = ({
       }
     });
 
-    // Calculate the midpoint
+    // 중심점 계산
     const midLat = pointCount > 0 ? totalLat / pointCount : 0;
     const midLng = pointCount > 0 ? totalLng / pointCount : 0;
 
-    // Set the map center to the midpoint and adjust zoom
+    // 지도 중심을 계산된 중심점으로 설정하고 줌 레벨을 조정
     mapInstance.current.setCenter({ lat: midLat, lng: midLng });
     mapInstance.current.setZoom(10);
   };
 
+  /**
+   * 지도에 엔터티(경로 및 공간)를 렌더링하는 함수
+   * @param {Array} coords - 렌더링할 좌표 배열
+   * @param {string} type - 엔터티 유형 ("routes" 또는 "spaces")
+   */
   const renderEntities = (coords, type) => {
     console.log('Rendering entities:', type);
     clearEntities(type); // Clear previous entities
@@ -265,7 +319,10 @@ const HereMap = ({
     fitMapToEntities(coords);
   };
 
-  // Ensure `clearEntities` removes both polylines and markers effectively
+  /**
+   * 이전 엔터티를 제거하는 함수
+   * @param {string} type - 엔터티 유형 ("routes" 또는 "spaces")
+   */
   const clearEntities = (type) => {
     polylineRefs.current[type].forEach((polyline) =>
       mapInstance.current.removeObject(polyline)
@@ -277,7 +334,7 @@ const HereMap = ({
     markerRefs.current[type] = [];
   };
 
-  // Update entities when adjusted coordinates or checkedNode changes
+  // 초기 지도 로드 및 설정
   useEffect(() => {
     renderEntities(adjustedRouteCoords, 'routes');
   }, [adjustedRouteCoords, routeColors, checkedNode]);

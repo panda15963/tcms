@@ -11,23 +11,21 @@ import {
   DisclosurePanel,
   DialogPanel,
 } from '@headlessui/react';
-import { FaXmark, FaBars, FaAngleDown, FaRegUser } from 'react-icons/fa6';
+import { FaXmark, FaBars, FaAngleDown } from 'react-icons/fa6';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SwitchLanguages from '../toggles/SwitchLanguages';
-import profileImage from '../../assets/images/profile.png'; // 이미지 파일 경로
 import useAuth from '../../hooks/useAuth';
 import { isEmpty } from 'lodash';
-import { FaUser } from 'react-icons/fa';
 
 const NavBar = () => {
-  const { isActiveManagement, logout } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-  const location = useLocation();
+  const { isActiveManagement, logout } = useAuth(); // 사용자 인증 관련 상태와 로그아웃 함수 가져오기
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // 모바일 메뉴 열림 상태 관리
+  const navigate = useNavigate(); // 페이지 이동을 위한 네비게이트 훅
+  const { t, i18n } = useTranslation(); // 다국어 지원을 위한 번역 훅
+  const location = useLocation(); // 현재 위치 정보 가져오기
 
-  // Define the AuthPage and userDropMenus arrays after t is initialized
+  // `AuthPage`와 `userDropMenus` 배열 정의 (다국어 초기화 후 사용)
   const AuthPage = [
     { id: 1, name: t('NavBar.AdminManagement'), link: '/main/admins' },
     // { id: 2, name: t('NavBar.UserManagement'), link: '/main/users' },
@@ -39,10 +37,11 @@ const NavBar = () => {
   ];
 
   useEffect(() => {
-    console.log('useEffect Navbar ===> ', isActiveManagement);
+    console.log('useEffect Navbar ===> ', isActiveManagement); // 관리 활성화 여부 로깅
   }, []);
 
   useEffect(() => {
+    // 저장된 언어 가져와 현재 i18n 언어와 비교하여 변경
     const savedLanguage = localStorage.getItem('language') || 'kor';
     console.log('Saved Language:', savedLanguage);
     console.log('Current i18n Language:', i18n.language);
@@ -51,6 +50,7 @@ const NavBar = () => {
     }
   }, [i18n]);
 
+  // 언어 변경 함수
   const changeLanguage = useCallback(
     (lng) => {
       const newLanguage = lng.toLowerCase();
@@ -61,32 +61,37 @@ const NavBar = () => {
     [i18n.language, i18n]
   );
 
+  // 링크 클릭 핸들러
   const handleLinkClick = (link) => {
     console.log('🚀 ~ handleLinkClick ~ link:', link);
     if (link && !isEmpty(link) && link === 'logout') {
+      // 로그아웃 시 메인 페이지로 이동
       console.log('NAVIGATING MAIN ==> ');
       logout();
       navigate('/');
     } else {
+      // 다른 링크로 이동
       navigate(link);
       setMobileMenuOpen(false);
     }
   };
 
+  // 특정 경로에서 새로고침
   const handleNavigation = () => {
     if (location.pathname === '/main/map') {
-      // 이미 현재 경로가 /main/map이면 새로고침
       window.location.reload();
     }
   };
 
   return (
     <header className="bg-white pt-1 pb-1 z-50 relative border-b-2">
+      {/* 전역 내비게이션 */}
       <nav
         className="mx-auto max-w-full lg:px-8 flex justify-between items-center"
         aria-label="Global"
       >
         <div className="flex lg:flex-1">
+          {/* 로고 */}
           <Link
             to="/main/map"
             onClick={handleNavigation}
@@ -105,6 +110,7 @@ const NavBar = () => {
           </Link>
         </div>
         <div className="flex lg:hidden">
+          {/* 모바일 메뉴 버튼 */}
           <button
             type="button"
             className="inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
@@ -181,15 +187,11 @@ const NavBar = () => {
           )}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end py">
+          {/* 언어 변경 버튼 */}
           <SwitchLanguages onClick={changeLanguage} />
+          {/* 사용자 메뉴 */}
           <Menu as="div" className="relative ml-3 transform scale-95">
             <MenuButton className="flex items-center">
-              {/* <img
-                className="h-10 w-10 rounded-full"
-                // src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                src={profileImage}
-                alt="Profile Picture"
-              /> */}
               <span className="inline-block size-10 overflow-hidden rounded-full bg-gray-100">
                 <svg
                   fill="currentColor"
@@ -220,7 +222,7 @@ const NavBar = () => {
           </Menu>
         </div>
       </nav>
-      {/* Mobile menu */}
+      {/* 모바일 메뉴 */}
       <Dialog
         open={mobileMenuOpen}
         onClose={setMobileMenuOpen}
@@ -232,7 +234,7 @@ const NavBar = () => {
         >
           <div className="flex justify-between items-center p-6"></div>
           <div className="px-2 pt-2 pb-3 space-y-1">
-            {/* Map link should be clearly visible and separate from Disclosure */}
+            {/* 지도 링크 */}
             <Link
               to="/main/map"
               className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
@@ -241,6 +243,7 @@ const NavBar = () => {
               {t('Common.Map')}
             </Link>
 
+            {/* 대시보드 */}
             <Disclosure as="div">
               <DisclosureButton className="flex justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
                 {t('NavBar.Dashboard')}
@@ -256,6 +259,7 @@ const NavBar = () => {
                 </Link>
               </DisclosurePanel>
             </Disclosure>
+            {/* 관리 */}
             <Disclosure as="div">
               <DisclosureButton className="flex justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
                 {t('NavBar.Management')}
@@ -275,9 +279,11 @@ const NavBar = () => {
               </DisclosurePanel>
             </Disclosure>
           </div>
+          {/* 언어 변경 */}
           <div className="px-2 pt-2 pb-3 space-y-1">
             <SwitchLanguages onClick={changeLanguage} />
           </div>
+          {/* 사용자 메뉴 */}
           <div className="px-2 pb-3 border-t border-gray-200">
             <img
               className="h-10 w-10 rounded-full ml-3 mt-3"
@@ -299,5 +305,4 @@ const NavBar = () => {
     </header>
   );
 };
-
 export default NavBar;

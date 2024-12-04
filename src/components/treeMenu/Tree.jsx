@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import TreeNode from './TreeNode';
 
+// 사용 가능한 색상 배열
 const colors = [
   '#0000FF', // 파란색
   '#00FF00', // 초록색
@@ -25,20 +26,33 @@ const colors = [
   '#415e45', // 짙은 녹색
 ];
 
+/**
+ * Tree 컴포넌트
+ * @description 트리 구조 데이터를 렌더링하고, 체크된 노드와 클릭 이벤트를 관리
+ * @param {Array} data - 트리 데이터
+ * @param {Function} onCheckedNodesChange - 체크된 노드 변경 이벤트 핸들러
+ * @param {Function} onNodeClick - 노드 클릭 이벤트 핸들러
+ * @param {Function} routeColors - 경로 색상 관리 함수
+ */
 const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
-  const { t } = useTranslation();
-  const [treeData, setTreeData] = useState([]);
-  const [checkedNodes, setCheckedNodes] = useState([]);
+  const { t } = useTranslation(); // 다국어 번역을 위한 훅
+  const [treeData, setTreeData] = useState([]); // 트리 데이터 상태
+  const [checkedNodes, setCheckedNodes] = useState([]); // 체크된 노드 상태
 
+  /**
+   * 트리 데이터 초기화
+   * @param {Array} data - 입력된 트리 데이터
+   * @returns {Array} 초기화된 트리 데이터
+   */
   const initializeTreeData = (data) => {
     const addIdsAndColorsToData = (nodes, parentIndex = 0) => {
       return nodes.map((node, index) => {
-        const colorIndex = (parentIndex + index) % colors.length; // 고정 색상 인덱스 계산
+        const colorIndex = (parentIndex + index) % colors.length; // 색상 인덱스 계산
         return {
           ...node,
-          id: node.id || parentIndex + index + 1,
-          color: colors[colorIndex], // 각 노드에 색상 고정
-          checked: true,
+          id: node.id || parentIndex + index + 1, // 고유 ID 설정
+          color: colors[colorIndex], // 고유 색상 적용
+          checked: true, // 기본 체크 상태
           children: Array.isArray(node.children)
             ? addIdsAndColorsToData(node.children, parentIndex + index)
             : [],
@@ -48,6 +62,7 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
     return Array.isArray(data) ? addIdsAndColorsToData(data) : [];
   };
 
+  // 컴포넌트 마운트 시 트리 데이터 초기화
   useEffect(() => {
     if (Array.isArray(data) && data.length > 0) {
       const dataWithIdsAndChecked = initializeTreeData(data);
@@ -57,23 +72,31 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
     }
   }, [data]);
 
-  const updateNodeRecursively = (node, checked) => {
-    return {
-      ...node,
-      checked,
-      children: Array.isArray(node.children)
-        ? node.children.map((child) => updateNodeRecursively(child, checked))
-        : [],
-    };
-  };
+  /**
+   * 노드 상태를 재귀적으로 업데이트
+   * @param {Object} node - 현재 노드
+   * @param {boolean} checked - 체크 상태
+   * @returns {Object} 업데이트된 노드
+   */
+  const updateNodeRecursively = (node, checked) => ({
+    ...node,
+    checked,
+    children: Array.isArray(node.children)
+      ? node.children.map((child) => updateNodeRecursively(child, checked))
+      : [],
+  });
 
+  /**
+   * 부모 노드 상태를 업데이트
+   * @param {Object} node - 현재 노드
+   * @returns {Object} 업데이트된 부모 노드
+   */
   const updateParentNodeRecursively = (node) => {
-    if (!Array.isArray(node.children) || node.children.length === 0)
-      return node;
+    if (!Array.isArray(node.children) || node.children.length === 0) return node;
     const updatedChildren = node.children.map((child) =>
       updateParentNodeRecursively(child)
     );
-    const allChecked = updatedChildren.every((child) => child.checked);
+    const allChecked = updatedChildren.every((child) => child.checked); // 모든 자식 노드가 체크 상태인지 확인
     return {
       ...node,
       checked: allChecked,
@@ -81,65 +104,68 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
     };
   };
 
+  /**
+   * 체크박스 상태 변경 처리
+   * @param {Object} node - 체크된 노드
+   * @param {boolean} checked - 체크 상태
+   */
   const handleCheck = (node, checked) => {
-    const updatedNodesMap = new Map();
-    const updateNodes = (nodes) => {
-      return nodes.map((currentNode) => {
-        if (currentNode.id === node.id) {
-          const updatedNode = updateNodeRecursively(currentNode, checked);
-          updatedNodesMap.set(currentNode.id, updatedNode);
-          return updatedNode;
-        } else {
-          const updatedChildNode = updateNodes(
-            Array.isArray(currentNode.children) ? currentNode.children : []
-          );
-          const updatedNode = { ...currentNode, children: updatedChildNode };
-          updatedNodesMap.set(currentNode.id, updatedNode);
-          return updatedNode;
-        }
-      });
-    };
+    const updateNodes = (nodes) =>
+      nodes.map((currentNode) =>
+        currentNode.id === node.id
+          ? updateNodeRecursively(currentNode, checked)
+          : {
+              ...currentNode,
+              children: Array.isArray(currentNode.children)
+                ? updateNodes(currentNode.children)
+                : [],
+            }
+      );
 
-    const updatedTreeData = updateNodes(treeData);
-    const finalTreeData = updatedTreeData.map((node) =>
-      updateParentNodeRecursively(node, updatedNodesMap)
+    const updatedTreeData = updateNodes(treeData).map((node) =>
+      updateParentNodeRecursively(node)
     );
 
-    if (JSON.stringify(finalTreeData) !== JSON.stringify(treeData)) {
-      setTreeData(finalTreeData);
+    if (JSON.stringify(updatedTreeData) !== JSON.stringify(treeData)) {
+      setTreeData(updatedTreeData);
     }
   };
 
+  /**
+   * 노드 클릭 처리
+   * @param {Object} node - 클릭된 노드
+   */
   const handleNodeClick = (node) => {
-    if (onNodeClick) {
-      onNodeClick(node);
-    }
+    if (onNodeClick) onNodeClick(node);
   };
 
+  /**
+   * 체크된 노드 목록 가져오기
+   * @param {Array} nodes - 트리 데이터
+   * @returns {Array} 체크된 노드 목록
+   */
   const getCheckedNodes = (nodes) => {
     let checkedNodes = [];
     const traverse = (node) => {
-      if (node.checked) {
-        checkedNodes.push(node);
-      }
-      if (Array.isArray(node.children)) {
-        node.children.forEach(traverse);
-      }
+      if (node.checked) checkedNodes.push(node);
+      if (Array.isArray(node.children)) node.children.forEach(traverse);
     };
-    if (Array.isArray(nodes)) {
-      nodes.forEach(traverse);
-    }
+    nodes.forEach(traverse);
     return checkedNodes;
   };
 
+  /**
+   * 노드의 경로 색상 가져오기
+   * @param {Object} node - 대상 노드
+   * @returns {string} 색상
+   */
   const getRouteColor = (node) => {
-    console.log('🚀 ~ getRouteColor ~ node:', node);
-
-    const colorIndex = (node.id - 1) % colors.length; // Adjusted to start from 0
-    routeColors(colors[colorIndex]);
+    const colorIndex = (node.id - 1) % colors.length; // 색상 인덱스 계산
+    routeColors(colors[colorIndex]); // 부모 컴포넌트로 색상 전달
     return colors[colorIndex];
   };
 
+  // 트리 데이터 변경 시 체크된 노드 업데이트
   useEffect(() => {
     const currentCheckedNodes = getCheckedNodes(treeData);
     if (JSON.stringify(currentCheckedNodes) !== JSON.stringify(checkedNodes)) {
@@ -164,7 +190,7 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
       ) : (
         <div className="text-center py-5">
           <p className="text-gray-500">
-            {t('LeftSideSlide.NoDataFound') || 'No data found'}
+            {t('LeftSideSlide.NoDataFound') || 'No data found'} {/* 데이터 없음 표시 */}
           </p>
         </div>
       )}

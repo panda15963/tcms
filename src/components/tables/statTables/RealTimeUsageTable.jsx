@@ -2,7 +2,12 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import ProgressBar from '../../D3Charts/ProgressBar';
 
-// 테이블 헤더 정의
+/**
+ * TableHeader
+ * @description 테이블 헤더 정의 함수
+ * @param {Function} t - 다국어 번역 함수
+ * @returns {Array} 테이블 헤더 배열
+ */
 const TableHeader = (t) => [
   { id: 1, name: 'PC' },
   { id: 2, name: t('RealTime.ToolName') }, // 도구 이름
@@ -12,13 +17,17 @@ const TableHeader = (t) => [
   { id: 6, name: t('RealTime.OperationStatus') }, // 진행 상태
 ];
 
-// 컴포넌트 정의
+/**
+ * RealTimeUsageTable
+ * @description 실시간 사용 상태를 표시하는 테이블 컴포넌트
+ * @param {Array} data - 테이블에 표시할 데이터
+ * @returns {JSX.Element} RealTimeUsageTable 컴포넌트
+ */
 export default function RealTimeUsageTable({ data = [] }) {
-  const { t } = useTranslation();
-  const columns = useMemo(() => TableHeader(t), [t]);
+  const { t } = useTranslation(); // 다국어 번역 훅
+  const columns = useMemo(() => TableHeader(t), [t]); // 테이블 헤더 정의
 
-  // 데이터가 항상 배열인지 확인
-  const sanitizedData = Array.isArray(data) ? data : [];
+  const sanitizedData = Array.isArray(data) ? data : []; // 데이터 유효성 확인
 
   return (
     <div className="h-full w-full overflow-auto">

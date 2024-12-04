@@ -3,11 +3,14 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { isEmpty } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// 테이블의 기본 컬럼 정의
+/**
+ * 테이블의 기본 컬럼 정의
+ * @param {Function} t - 다국어 번역 함수
+ * @returns {Array} - 테이블 컬럼 배열
+ */
 const defaultColumns = (t) => [
   {
     accessorKey: 'select',
@@ -21,8 +24,8 @@ const defaultColumns = (t) => [
     cell: ({ row }) => (
       <input
         type="checkbox"
-        checked={row.getIsSelected()} // 체크박스 상태 유지
-        onChange={row.getToggleSelectedHandler()} // 체크박스 클릭 시 선택 상태 변경
+        checked={row.getIsSelected()}
+        onChange={row.getToggleSelectedHandler()}
       />
     ),
   },
@@ -111,49 +114,29 @@ const defaultColumns = (t) => [
   },
 ];
 
-// 기본 데이터 (테이블에 표시될 데이터)
-const defaultData = [
-  {
-    upload_date: '2023-12-25',
-    name: 'HippoLog',
-    version: '1',
-    country: 'KOR',
-    logType: 'None',
-    summary: 'Real Log',
-    map: '',
-  },
-  {
-    upload_date: '2023-12-30',
-    name: 'HippoLog1',
-    version: '2',
-    country: 'KOR',
-    logType: 'None',
-    summary: 'Real Log',
-    map: '',
-  },
-];
-
-// ConfigGridLDetail 컴포넌트 정의
+/**
+ * ConfigGridLDetail 컴포넌트
+ * @param {Object} props
+ * @param {Array} props.list - 테이블에 표시할 데이터 리스트
+ * @param {Function} props.onSelectionChange - 선택된 행 변경 시 호출되는 콜백 함수
+ * @param {Function} props.onCellDoubleClick - 셀 더블 클릭 시 호출되는 콜백 함수
+ * @param {Function} props.onCellClick - 셀 클릭 시 호출되는 콜백 함수
+ * @returns {JSX.Element} - 구성된 ConfigGridLDetail 컴포넌트
+ */
 const ConfigGridLDetail = ({
   list,
   onSelectionChange,
   onCellDoubleClick,
   onCellClick,
 }) => {
-  const { t } = useTranslation(); // Get the translation function
-  const columns = useMemo(() => defaultColumns(t), [t]); // Use t in the memoized columns
-
-  const [data, setData] = useState(list ?? defaultData);
-  const [selectedRows, setSelectedRows] = useState([]);
-
+  const { t } = useTranslation(); // 다국어 번역 함수
+  const columns = useMemo(() => defaultColumns(t), [t]); // 컬럼 정의
+  const [data, setData] = useState(list ?? []); // 테이블 데이터 상태
+  const [selectedRows, setSelectedRows] = useState([]); // 선택된 행 상태
   let clickTimer = null;
 
   useEffect(() => {
-    console.log('useEffect LIST ==>', list);
-    console.log('useEffect LIST ==>', list.length);
     if (list && list.length > 0) {
-      console.log('여기안올껄?');
-
       setData(list);
     }
   }, [list]);
@@ -165,61 +148,35 @@ const ConfigGridLDetail = ({
     state: {}, // 테이블의 상태
   });
 
-  // 선택된 행의 데이터 추출
-  // useEffect(() => {
-  //   const selectedRows = table
-  //     .getSelectedRowModel()
-  //     .rows.map((row) => row.original);
-  //   onSelectionChange(selectedRows);
-  // }, [table.getSelectedRowModel().rows, onSelectionChange]);
-
   useEffect(() => {
     const currentSelectedRows = table
       .getSelectedRowModel()
       .rows.map((row) => row.original);
 
-    // 선택된 행이 변경될 때만 상태 업데이트
     if (JSON.stringify(currentSelectedRows) !== JSON.stringify(selectedRows)) {
       setSelectedRows(currentSelectedRows);
-      onSelectionChange(currentSelectedRows); // 부모 컴포넌트로 업데이트된 선택된 행 전달
+      onSelectionChange(currentSelectedRows);
     }
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
-  // 셀 클릭 이벤트 핸들러 (셀 클릭 시 선택 상태는 변경하지 않음)
-  const handleCellClick = (rowData) => {
-    // console.log('Row clicked:', rowData); // 클릭된 행의 데이터
-    onSelectionChange([rowData]); // 셀 클릭 시 해당 데이터를 우측에 조회하도록 부모 컴포넌트로 전달
-  };
-
-  // 셀 클릭 이벤트 핸들러 (더블클릭 시 모달 열기)
-  const handleCellDoubleClick = (rowData) => {
-    console.log('Row double clicked:', rowData);
-    if (onCellDoubleClick) {
-      onCellDoubleClick(rowData); // 더블클릭 시 부모 컴포넌트로 데이터를 전달해 모달 열기
-    }
-  };
-
+  // 셀 클릭 및 더블클릭 처리
   const handleRowClick = (rowData) => {
     if (clickTimer) {
       clearTimeout(clickTimer); // 더블클릭 타이머 초기화
       clickTimer = null;
+      if (onCellDoubleClick) onCellDoubleClick(rowData);
     } else {
       clickTimer = setTimeout(() => {
         clickTimer = null;
-        console.log('Single click executed:', rowData);
         onCellClick(rowData); // onClick 이벤트 실행
-      }, 200); // 더블클릭 지연 시간 (ms)
+      }, 200); // 더블클릭 지연 시간 설정
     }
   };
 
   return (
-    // <div className="my-2 h-96 block overflow-x-auto">
-    <div
-      className="my-2 h-[400px] w-[700px] block overflow-x-auto"
-      style={{ marginLeft: '0px' }}
-    >
-      <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
-        <thead className="bg-gray-50 border-2 sticky top-0 ">
+    <div className="my-2 h-[400px] w-[700px] block overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200 border-gray-300">
+        <thead className="bg-gray-50 border-2 sticky top-0">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
@@ -231,8 +188,8 @@ const ConfigGridLDetail = ({
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header, // 컬럼 헤더 렌더링
-                        header.getContext() // 헤더의 컨텍스트
+                        header.column.columnDef.header,
+                        header.getContext()
                       )}
                 </th>
               ))}
@@ -244,15 +201,13 @@ const ConfigGridLDetail = ({
             <tr
               key={row.id}
               className={row.getIsSelected() ? 'bg-gray-100' : ''}
-              onClick={() => handleRowClick(row.original)} // 셀 클릭 시 데이터를 처리하고 선택 상태는 변경하지 않음
-              // onDoubleClick={() => handleCellDoubleClick(row.original)} // 셀 더블클릭 이벤트 추가
+              onClick={() => handleRowClick(row.original)}
             >
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
                   className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black"
                 >
-                  {/* 셀 렌더링 */}
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}

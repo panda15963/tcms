@@ -31,101 +31,95 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const location = useLocation();
   const { loading, setLoading } = useLoading();
 
+  // 초기 검색 조건
   const initialCond = {
-    searchWord: '',
-    continent: '',
-    region: '',
-    priority: '',
-    target: '',
-    format: '',
-    feature: '',
-    virtual: -1, // all : -1, virtual : 0, real : 1
-    tag: '',
-    group_id: -1,
-    operation: 0, // and : 0, or : 1
+    searchWord: '', // 검색어
+    continent: '', // 대륙
+    region: '', // 지역
+    priority: '', // 우선순위
+    target: '', // 대상
+    format: '', // 형식
+    feature: '', // 특징
+    virtual: -1, // 가상: -1(전체), 0(가상), 1(실제)
+    tag: '', // 태그
+    group_id: -1, // 그룹 ID
+    operation: 0, // 연산: 0(AND), 1(OR)
   };
 
   const initialConfigCond = {
-    group_id: -1, // all : -1, virtual : 0, real : 1
-    description: '',
-    tag: '',
-    operation: '1',
+    group_id: -1, // 그룹 ID
+    description: '', // 설명
+    tag: '', // 태그
+    operation: '1', // 연산
   };
 
   const initialList = {
-    status: 'idle',
-    currentRequestId: undefined,
-    error: null,
-    list: [],
+    status: 'idle', // 상태
+    currentRequestId: undefined, // 현재 요청 ID
+    error: null, // 에러
+    list: [], // 리스트
   };
 
-  // 경로 검색 필드 옵션
+  // 검색 필드 옵션
   const searchFields = [
-    // 검색 설명
-    { id: 'description', name: t('Fields.FindDescription') },
-    // 대륙
-    { id: 'continent', name: t('Fields.Continent') },
-    // 지역
-    { id: 'region', name: t('Fields.Region') },
-    // 우선순위
-    { id: 'priority', name: t('Fields.Priority') },
-    // 특징
-    { id: 'feature', name: t('Fields.Feature') },
-    // 대상
-    { id: 'target', name: t('Fields.Target') },
-    // 가상
-    { id: 'virtual', name: t('Fields.Virtual') },
-    // 형식
-    { id: 'format', name: t('Fields.Format') },
-    // 태그
-    { id: 'tag', name: t('Fields.Tag') },
+    { id: 'description', name: t('Fields.FindDescription') }, // 검색 설명
+    { id: 'continent', name: t('Fields.Continent') }, // 대륙
+    { id: 'region', name: t('Fields.Region') }, // 지역
+    { id: 'priority', name: t('Fields.Priority') }, // 우선순위
+    { id: 'feature', name: t('Fields.Feature') }, // 특징
+    { id: 'target', name: t('Fields.Target') }, // 대상
+    { id: 'virtual', name: t('Fields.Virtual') }, // 가상
+    { id: 'format', name: t('Fields.Format') }, // 형식
+    { id: 'tag', name: t('Fields.Tag') }, // 태그
   ];
 
-  // 화면정보 검색 필드 옵션
+  // 화면 정보 검색 필드 옵션
   const configFields = [
-    // 검색 설명
-    { id: 'description', name: t('Fields.FindDescription') },
-    // 태그
-    { id: 'tag', name: t('Fields.Tag') },
+    { id: 'description', name: t('Fields.FindDescription') }, // 검색 설명
+    { id: 'tag', name: t('Fields.Tag') }, // 태그
   ];
 
+  // 우선순위 선택 옵션
   const priority = [
-    { id: 'all', name: t('Common.All') },
-    { id: 'top', name: t('Priority.Top') },
-    { id: 'a', name: t('Priority.A') },
-    { id: 'b', name: t('Priority.B') },
-    { id: 'c', name: t('Priority.C') },
+    { id: 'all', name: t('Common.All') }, // 전체
+    { id: 'top', name: t('Priority.Top') }, // 최상위
+    { id: 'a', name: t('Priority.A') }, // A
+    { id: 'b', name: t('Priority.B') }, // B
+    { id: 'c', name: t('Priority.C') }, // C
   ];
 
+  // 형식 선택 옵션
   const format = [
-    { id: 'all', name: t('Common.All') },
-    { id: 'hippo', name: t('Format.Hippo') },
-    { id: 'kml', name: t('Format.Kml') },
-    { id: 'nmea', name: t('Format.Nmea') },
+    { id: 'all', name: t('Common.All') }, // 전체
+    { id: 'hippo', name: t('Format.Hippo') }, // 히포 형식
+    { id: 'kml', name: t('Format.Kml') }, // KML 형식
+    { id: 'nmea', name: t('Format.Nmea') }, // NMEA 형식
   ];
 
+  // 가상/실제 선택 옵션
   const virtual = [
-    { id: -1, name: t('Common.All') },
-    { id: 0, name: t('Virtual.VirtualLog') },
-    { id: 1, name: t('Virtual.RealLog') },
+    { id: -1, name: t('Common.All') }, // 전체
+    { id: 0, name: t('Virtual.VirtualLog') }, // 가상 로그
+    { id: 1, name: t('Virtual.RealLog') }, // 실제 로그
   ];
 
-  // 대륙 코드와 이름 매핑
+  // 대륙 이름 매핑
   const continentNameMap = {
-    AF: t('Continents.Africa'),
-    AS: t('Continents.Asia'),
-    EU: t('Continents.Europe'),
-    NA: t('Continents.NorthAmerica'),
-    OC: t('Continents.Oceania'),
-    SA: t('Continents.SouthAmerica'),
+    AF: t('Continents.Africa'), // 아프리카
+    AS: t('Continents.Asia'), // 아시아
+    EU: t('Continents.Europe'), // 유럽
+    NA: t('Continents.NorthAmerica'), // 북미
+    OC: t('Continents.Oceania'), // 오세아니아
+    SA: t('Continents.SouthAmerica'), // 남미
   };
 
-  const [cond, setCond] = useState(initialCond);
-  const [configCond, setConfigCond] = useState(initialConfigCond);
-  const [error, setError] = useState(null);
-  const [errorValue, setErrorValue] = useState('');
-  const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('route');
+ // 모달 상태 및 조건 관리
+ const [cond, setCond] = useState(initialCond); // 검색 조건
+ const [configCond, setConfigCond] = useState(initialConfigCond); // 화면 정보 조건
+ const [error, setError] = useState(null); // 에러 상태
+ const [errorValue, setErrorValue] = useState(''); // 에러 메시지
+ const [open, setOpen] = useState(false); // 모달 열림 상태
+ const [activeTab, setActiveTab] = useState('route'); // 활성 탭 ('route' 또는 'batch')
 
   // 검색필드 리스트 관련
   const [selectedSearchFields, setSelectedSearchFields] = useState([]); // 경로탭 검색필드
@@ -305,7 +299,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const FIND_META = async (inputCond) => {
     setLoading(true);
-    try {
+        try {
       await MapLogService.FIND_META_10100({
         cond: inputCond,
       }).then((res) => {
@@ -763,7 +757,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const handleRouteClick = async () => {
     console.log('🚀 ~ handleRouteClick ~ selectedRoutes:', selectedRoutes);
     setLoading(true);
-
     const findArray = (obj) => {
       if (Array.isArray(obj)) {
         return obj;
@@ -910,8 +903,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             `Failed to download log file for meta_id ${file.meta_id}:`,
             error
           );
-        }
-        setLoading(false);
+          setLoading(false);        }
       }
 
       try {
@@ -942,7 +934,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         setLoading(false);
       }
     }
-
     setLoading(false);
   };
 
@@ -1092,7 +1083,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const handleConfigDownload = async () => {
     const dataToDownload = selectedLogList;
-
     setLoading(true);
 
     const resultList = await Promise.all(

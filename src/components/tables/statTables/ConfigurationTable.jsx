@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// 테이블 헤더 정의
+/**
+ * TableHeader
+ * @description 테이블 헤더 정의 함수
+ * @param {Function} t - 다국어 번역 함수
+ * @returns {Array} 테이블 헤더 배열
+ */
 const TableHeader = (t) => [
   { id: 1, name: 'PC' },
   { id: 2, name: t('Configuration.ToolName') }, // 도구 이름
@@ -12,11 +17,17 @@ const TableHeader = (t) => [
   { id: 7, name: t('Configuration.NewValue') }, // 새로운 값
 ];
 
-// 컴포넌트 정의
+/**
+ * ConfigurationTable
+ * @description 구성 데이터를 표시하는 테이블 컴포넌트
+ * @param {Array} data - 테이블에 표시할 데이터
+ * @returns {JSX.Element} ConfigurationTable 컴포넌트
+ */
 export default function ConfigurationTable({ data }) {
-  const { t } = useTranslation();
-  const columns = useMemo(() => TableHeader(t), [t]);
-  const sanitizedData = Array.isArray(data) ? data : []; // 데이터가 항상 배열인지 확인
+  const { t } = useTranslation(); // 다국어 번역 훅
+  const columns = useMemo(() => TableHeader(t), [t]); // 테이블 헤더 정의
+
+  const sanitizedData = Array.isArray(data) ? data : []; // 데이터 유효성 확인
 
   return (
     <div className="h-full w-full overflow-auto">
@@ -34,8 +45,8 @@ export default function ConfigurationTable({ data }) {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
-          {sanitizedData.map((data) => (
-            <tr key={data.id}>
+          {sanitizedData.map((row) => (
+            <tr key={row.id}>
               {[
                 'PC',
                 'toolname',
@@ -46,11 +57,11 @@ export default function ConfigurationTable({ data }) {
                 'newvalue',
               ].map((field) => (
                 <td
-                  key={`${data.id}-${field}`}
+                  key={`${row.id}-${field}`}
                   className="px-4 py-3 border-2 text-center text-sm font-medium text-gray-700 whitespace-nowrap"
                   style={{ width: '200px', height: '30px' }}
                 >
-                  {data[field] || '-'} {/* 데이터가 없을 경우 '-' 표시 */}
+                  {row[field] || '-'} {/* 데이터가 없을 경우 '-' 표시 */}
                 </td>
               ))}
             </tr>

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+// 상태에 따른 아이콘 매핑
 const statusIcons = {
   Idle: '🟡', // 대기 상태
   Running: '🟢', // 실행 중
@@ -8,7 +9,7 @@ const statusIcons = {
   Completed: '🟢', // 완료
 };
 
-// 테이블 헤더 정의
+// 테이블 헤더 정의 함수
 const TableHeader = (t) => [
   { id: 1, name: 'PC' },
   { id: 2, name: t('UsageInformation.ToolName') }, // 도구 이름
@@ -30,12 +31,17 @@ const formatRunStatus = (status) => {
   return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 };
 
-// 컴포넌트 정의
+/**
+ * UsageStatusTable 컴포넌트
+ * @description 실행 상태 및 관련 정보를 테이블 형태로 표시
+ * @param {Array} data - 테이블에 표시할 데이터
+ * @returns {JSX.Element} UsageStatusTable 컴포넌트
+ */
 export default function UsageStatusTable({ data }) {
-  const { t } = useTranslation();
-  const columns = useMemo(() => TableHeader(t), [t]);
+  const { t } = useTranslation(); // 다국어 번역 훅
+  const columns = useMemo(() => TableHeader(t), [t]); // 테이블 헤더 정의
 
-  const sanitizedData = Array.isArray(data) ? data : []; // 데이터가 배열인지 확인
+  const sanitizedData = Array.isArray(data) ? data : []; // 데이터가 배열인지 확인 후 초기화
 
   return (
     <div className="h-full w-full overflow-auto">

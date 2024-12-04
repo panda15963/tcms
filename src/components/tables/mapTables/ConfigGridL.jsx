@@ -4,11 +4,14 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { isEmpty } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-// 테이블의 기본 컬럼 정의
+/**
+ * 테이블의 기본 컬럼 정의
+ * @param {Function} t - 다국어 번역 함수
+ * @returns {Array} - 테이블 컬럼 배열
+ */
 const defaultColumns = (t) => [
   {
     accessorKey: 'select',
@@ -22,8 +25,8 @@ const defaultColumns = (t) => [
     cell: ({ row }) => (
       <input
         type="checkbox"
-        checked={row.getIsSelected()} // 체크박스 상태 유지
-        onChange={row.getToggleSelectedHandler()} // 체크박스 클릭 시 선택 상태 변경
+        checked={row.getIsSelected()}
+        onChange={row.getToggleSelectedHandler()}
       />
     ),
   },
@@ -43,7 +46,7 @@ const defaultColumns = (t) => [
           <span>{t('ConfigGridL.UploadedDate')}</span>
           <button
             className="ml-1 text-gray-500"
-            onClick={column.getToggleSortingHandler()} // 정렬 토글 핸들러
+            onClick={column.getToggleSortingHandler()}
           >
             {isSorted === 'asc' ? '▲' : isSorted === 'desc' ? '▼' : '⇅'}
           </button>
@@ -52,33 +55,13 @@ const defaultColumns = (t) => [
     },
     cell: ({ getValue }) => {
       const fullDate = getValue();
-      const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 형식으로 변환
+      const shortDate = fullDate.slice(0, 10);
       return (
         <span title={fullDate} className="cursor-pointer text-xs">
           {shortDate}
         </span>
       );
     },
-    // header: () => (
-    //   <div
-    //     className="text-xs"
-    //     style={{
-    //       whiteSpace: 'nowrap', // 텍스트 줄바꿈 방지
-    //     }}
-    //   >
-    //     {t('ConfigGridL.UploadedDate')}
-    //   </div>
-    // ),
-    // cell: ({ getValue }) => {
-    //   const fullDate = getValue(); // "2024-10-20 23:12:11" 형식의 데이터
-    //   const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
-
-    //   return (
-    //     <span title={fullDate} className="cursor-pointer text-xs">
-    //       {shortDate}
-    //     </span>
-    //   );
-    // },
   },
   {
     // CFG 이름
@@ -110,7 +93,6 @@ const defaultColumns = (t) => [
         fullText.length > maxLength
           ? fullText.slice(0, maxLength) + '...'
           : fullText;
-
       return (
         <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
@@ -129,7 +111,6 @@ const defaultColumns = (t) => [
         fullText.length > maxLength
           ? fullText.slice(0, maxLength) + '...'
           : fullText;
-
       return (
         <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
@@ -156,7 +137,6 @@ const defaultColumns = (t) => [
     ),
   },
   {
-    // 수정 요형
     accessorKey: 'modif_type',
     header: t('ConfigGridL.ModificationType'),
     cell: ({ getValue }) => {
@@ -166,7 +146,6 @@ const defaultColumns = (t) => [
         fullText.length > maxLength
           ? fullText.slice(0, maxLength) + '...'
           : fullText;
-
       return (
         <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
@@ -185,7 +164,6 @@ const defaultColumns = (t) => [
         fullText.length > maxLength
           ? fullText.slice(0, maxLength) + '...'
           : fullText;
-
       return (
         <span title={fullText} className="cursor-pointer text-xs">
           {shortText}
@@ -195,31 +173,18 @@ const defaultColumns = (t) => [
   },
 ];
 
-// 기본 데이터 (테이블에 표시될 데이터)
-const defaultData = [
-  {
-    upload_date: '2023-12-25',
-    name: 'HippoLog',
-    version: '1',
-    country: 'KOR',
-    logType: 'None',
-    summary: 'Real Log',
-    map: '',
-  },
-  {
-    upload_date: '2023-12-30',
-    name: 'HippoLog1',
-    version: '2',
-    country: 'KOR',
-    logType: 'None',
-    summary: 'Real Log',
-    map: '',
-  },
-];
-
 const ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 개수
 
 // ConfigGridL 컴포넌트 정의
+
+/**
+ * ConfigGridL 컴포넌트
+ * @param {Object} props - 컴포넌트 속성
+ * @param {Array} props.list - 테이블에 표시할 데이터 리스트
+ * @param {Function} props.onSelectionChange - 선택된 행 변경 시 호출되는 콜백 함수
+ * @param {Function} props.onCellDoubleClick - 셀 더블 클릭 시 호출되는 콜백 함수
+ * @returns {JSX.Element} - 구성된 ConfigGridL 컴포넌트
+ */
 const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const { t } = useTranslation();
   const columns = useMemo(() => defaultColumns(t), [t]);
@@ -264,12 +229,10 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const table = useReactTable({
     data: displayedData,
     columns,
-    state: {
-      sorting, // 정렬 상태 추가
-    },
-    onSortingChange: setSorting, // 정렬 변경 핸들러 추가
+    state: { sorting },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(), // 정렬된 데이터 모델 추가
+    getSortedRowModel: getSortedRowModel(),
   });
 
   useEffect(() => {

@@ -19,33 +19,54 @@ import { addAdmin, updateAdmin } from '../../service/api_services';
 import useToast from '../../hooks/useToast';
 import { ToastTypes } from '../../context/ToastProvider';
 
+// 초기 요청 객체
 const initialRequest = {
-  seq: 0,
-  admin_id: '',
-  admin_use_yn: 'Y',
+  seq: 0, // 관리자 고유 번호
+  admin_id: '', // 관리자 아이디
+  admin_use_yn: 'Y', // 사용 여부 ('Y': 사용, 'N': 미사용)
 };
 
+/**
+ * 여러 클래스 이름을 조합하는 함수
+ * @param {string[]} classes - 클래스 이름 배열
+ * @returns {string} - 조합된 클래스 이름 문자열
+ */
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
+/**
+ * 관리자 추가 및 수정 모달 컴포넌트
+ * @param {Object} props - 컴포넌트 속성
+ * @param {Function} props.callRefresh - 데이터를 새로고침하는 부모 컴포넌트 함수
+ * @returns {JSX.Element} - 관리자 추가 및 수정 모달
+ */
 const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
-  const { showToast } = useToast();
+  const { showToast } = useToast(); // Toast 메시지 훅
 
-  const [request, setRequest] = useState(initialRequest);
-  const [open, setOpen] = useState(false);
-  const [enabled, setEnabled] = useState(true);
-  const [errorMsg, setErrorMessage] = useState('');
-  const [updateMode, setUpdateMode] = useState(false);
+  const [request, setRequest] = useState(initialRequest); // 요청 데이터 상태
+  const [open, setOpen] = useState(false); // 모달 열림/닫힘 상태
+  const [enabled, setEnabled] = useState(true); // 관리자 사용 여부 상태
+  const [errorMsg, setErrorMessage] = useState(''); // 에러 메시지 상태
+  const [updateMode, setUpdateMode] = useState(false); // 수정 모드 여부
 
-  const inputAdminIdRef = useRef();
+  const inputAdminIdRef = useRef(); // 관리자 아이디 입력 필드 참조
 
+  /**
+   * 부모 컴포넌트에서 호출 가능한 메서드 정의
+   */
   useImperativeHandle(ref, () => ({
+    /**
+     * 모달 표시
+     */
     show() {
-      //   console.log('SHOW MODAL ===>');
       clearValues();
       setOpen(true);
     },
+    /**
+     * 관리자 정보 수정 모드로 설정
+     * @param {Object} adminInfo - 관리자 정보 객체
+     */
     update(adminInfo) {
       clearValues();
       console.log('[update][adminInfo] ', adminInfo);
@@ -65,13 +86,16 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
     },
   }));
 
+  /**
+   * 입력 필드 초기화
+   */
   const clearValues = () => {
     setRequest(initialRequest);
     setErrorMessage('');
   };
 
   /**
-   * 데이터 저장 함수
+   * 관리자 정보 저장 함수
    */
   const saveAdmin = async () => {
     if (isEmpty(request.admin_id) || !request.admin_id.trim()) {

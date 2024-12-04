@@ -3,6 +3,22 @@ import { useTranslation } from 'react-i18next';
 import TMap from '../../pages/mapPages/TMap';
 import Error from '../alerts/Error';
 
+/**
+ * TMapHandler 컴포넌트
+ * - TMap 컴포넌트를 조건에 따라 렌더링
+ * - 선택된 좌표 또는 기본 위치 데이터를 지도에 표시
+ * - 국가 코드에서 'KOR' 이외의 값을 허용하지 않음
+ * 
+ * @param {object} props - 컴포넌트에 전달되는 속성
+ * @param {object} props.selectedCoords - 선택된 좌표 (위도 및 경도)
+ * @param {object} props.tmapLocation - TMap 기본 위치 데이터
+ * @param {Array} props.routeFullCoords - 전체 경로 데이터
+ * @param {Array} props.spaceFullCoords - 전체 공간 데이터
+ * @param {Array} props.country - 국가 코드 배열
+ * @param {Array} props.checkedNode - 선택된 노드 데이터
+ * @param {object} props.clickedNode - 클릭된 노드 데이터
+ * @param {function} props.routeColors - 경로 색상 처리 함수
+ */
 export default function TMapHandler({
   selectedCoords,
   tmapLocation,
@@ -11,37 +27,37 @@ export default function TMapHandler({
   country,
   checkedNode,
   clickedNode,
-  routeColors = () =>{},
+  routeColors = () => {},
 }) {
-  /**
-   *  TMap 지도 표출 컴포넌트
-   *
-   * selectedCoords가 null이 아닌 경우, 해당 좌표(lat, lng)를 TMap 컴포넌트에 전달하여 지도에 해당 좌표를 표시하고,
-   * 그렇지 않으면 tmapLocation 좌표만 TMap 컴포넌트에 전달하여 기본 위치를 지도에 표시합니다.
-   */
-
-  const [error, setError] = useState(false);
-  const [errorValue, setErrorValue] = useState('');
+  const [error, setError] = useState(false); // 오류 상태
+  const [errorValue, setErrorValue] = useState(''); // 오류 메시지 상태
   const { t } = useTranslation();
 
-  // country 배열에서 "KOR" 이외의 값이 있는지 확인하는 함수
+  /**
+   * 국가 코드 배열에서 'KOR' 이외의 값이 있는지 확인
+   * @param {Array} countries - 국가 코드 배열
+   * @returns {boolean} - 'KOR' 이외의 값이 포함되어 있으면 true
+   */
   const containsNonKOR = (countries) => {
     return countries.some((item) => item !== 'KOR');
   };
 
-  // country 배열에 "KOR" 이외의 값이 있을 때 에러 알림 설정
+  /**
+   * 국가 코드 배열에 따라 오류 상태 업데이트
+   */
   useEffect(() => {
     if (Array.isArray(country) && containsNonKOR(country)) {
       setError(true);
-      setErrorValue(t('TMap.KoreaRegionOnlyError'));
+      setErrorValue(t('TMap.KoreaRegionOnlyError')); // 한국 지역만 허용하는 오류 메시지
     } else {
       setError(false);
       setErrorValue('');
     }
-  }, [country]);
+  }, [country, t]);
+
   return (
     <>
-      {error && <Error errorMessage={errorValue} />}
+      {error && <Error errorMessage={errorValue} />} {/* 오류 메시지 표시 */}
       {selectedCoords && tmapLocation ? (
         <TMap
           lat={selectedCoords.lat}

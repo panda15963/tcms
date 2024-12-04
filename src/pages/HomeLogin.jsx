@@ -11,40 +11,44 @@ import { isEmpty } from 'lodash';
 import { getAdmin } from '../service/api_services';
 
 export default function Login() {
-  const { t } = useTranslation;
-  const navigate = useNavigate();
+  const { t } = useTranslation; // 다국어 번역 훅
+  const navigate = useNavigate(); // 페이지 이동을 위한 네비게이션 훅
 
-  const { setLoading } = useLoadingBar();
-  const { login } = useAuth();
-  const { showToast } = useToast();
+  const { setLoading } = useLoadingBar(); // 로딩 상태 관리 훅
+  const { login } = useAuth(); // 로그인 상태 관리 훅
+  const { showToast } = useToast(); // 토스트 메시지 표시 훅
 
-  const idRef = useRef();
-  const passRef = useRef();
-  const btnLoginRef = useRef();
+  const idRef = useRef(); // 아이디 입력 필드 참조
+  const passRef = useRef(); // 비밀번호 입력 필드 참조
+  const btnLoginRef = useRef(); // 로그인 버튼 참조
 
-  let cancelconds;
+  let cancelconds; // 취소 토큰 저장
 
   const initialRequest = {
-    admin_id: '',
-    password: '',
+    admin_id: '', // 초기 admin ID
+    password: '', // 초기 비밀번호
   };
 
-  const [request, setRequest] = useState(initialRequest);
-  const [showPass, setShowPass] = useState(false);
-  const [authMethod, setAuthMethod] = useState('FIDO'); // FIDO가 기본 선택
-  const [otpCode, setOtpCode] = useState(''); // OTP 번호 상태
+  const [request, setRequest] = useState(initialRequest); // 입력된 요청 상태 관리
+  const [showPass, setShowPass] = useState(false); // 비밀번호 표시 여부 상태
+  const [authMethod, setAuthMethod] = useState('FIDO'); // 인증 방법 기본값 (FIDO)
+  const [otpCode, setOtpCode] = useState(''); // OTP 코드 상태
   // const [mpassType, setMpassType] = (useState < 1) | (2 > 2); // 1 === otp, 2 === fido
   // const [fidoModalOpen, setFidoModalOpen] = useState(false);
   // const [params, setParams] = {}
 
   useEffect(() => {
-    idRef.current.focus();
+    idRef.current.focus(); // 컴포넌트 마운트 시 아이디 입력 필드에 포커스
   }, []);
 
   const clearFieldValues = () => {
-    setRequest(initialRequest);
+    setRequest(initialRequest); // 입력 필드 초기화
   };
 
+  /**
+   * 로그인 요청 처리 함수
+   * @param {Event} e - 이벤트 객체
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -171,6 +175,9 @@ export default function Login() {
     // }
   };
 
+  /**
+   * 비밀번호 표시 상태 관리
+   */
   const handleMouseUp = () => {
     setShowPass(false);
   };
@@ -179,6 +186,11 @@ export default function Login() {
     setShowPass(true);
   };
 
+  /**
+   * 엔터 키로 입력 필드 간 이동 처리
+   * @param {Event} e - 이벤트 객체
+   * @param {string} id - 입력 필드 ID
+   */
   const handleKeyDown = (e, id) => {
     // console.log("🚀 ~ handleKeyDown ~ id:", id);
     // console.log("e ==> ", e);
@@ -191,6 +203,9 @@ export default function Login() {
     }
   };
 
+  /**
+   * 로그인 없이 홈페이지로 이동
+   */
   const handleGoHomeWithoutLogin = () => {
     navigate('/main/map'); // 홈페이지 경로로 이동
   };
@@ -199,6 +214,7 @@ export default function Login() {
     <>
       <div className="relative h-screen w-screen bg-cover bg-center">
         <div className="flex h-full w-full">
+          {/* 배경 이미지 */}
           <img
             src={Background}
             alt="background"
@@ -210,7 +226,7 @@ export default function Login() {
               <div className="w-full">
                 <div className="w-full justify-center py-12 transform scale-90">
                   <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                    {/* TestCourse ManagementSystem */}
+                    {/* 헤더 텍스트 */}
                     <h1 className="text-5xl font-bold tracking-tight text-gray-900">
                       TestCourse
                     </h1>
@@ -221,21 +237,15 @@ export default function Login() {
 
                   <div className="bg-white px-2 py-12 sm:px-2 mt-10 sm:mx-auto sm:w-full sm:max-w-md">
                     <div className="space-y-6">
+                      {/* 아이디 입력 필드 */}
                       <div>
-                        <div className="flex">
-                          <label className="block text-base font-semibold leading-6 text-gray-700">
-                            아이디
-                          </label>
-                          <label className="ml-1 text-base font-semibold leading-6 text-red-500">
-                            {' '}
-                            *
-                          </label>
-                        </div>
+                        <label className="block text-base font-semibold leading-6 text-gray-700">
+                          아이디
+                        </label>
                         <div className="mt-2">
                           <input
                             className="block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3"
                             placeholder="아이디를 입력하세요"
-                            required
                             ref={idRef}
                             id="userId"
                             name="userId"
@@ -243,28 +253,21 @@ export default function Login() {
                             autoComplete="off"
                             value={request.admin_id}
                             onKeyDown={(e) => handleKeyDown(e, 'id')}
-                            onChange={(e) => {
-                              setRequest((preVal) => {
-                                return {
-                                  ...preVal,
-                                  admin_id: e.target.value,
-                                };
-                              });
-                            }}
+                            onChange={(e) =>
+                              setRequest((prev) => ({
+                                ...prev,
+                                admin_id: e.target.value,
+                              }))
+                            }
                           />
                         </div>
                       </div>
 
+                      {/* 비밀번호 입력 필드 */}
                       <div>
-                        <div className="flex">
-                          <label className="block text-base font-semibold leading-6 text-gray-700">
-                            비밀번호
-                          </label>
-                          <label className="ml-1 text-base font-semibold leading-6 text-red-500">
-                            {' '}
-                            *
-                          </label>
-                        </div>
+                        <label className="block text-base font-semibold leading-6 text-gray-700">
+                          비밀번호
+                        </label>
                         <div className="relative w-full max-w-md mt-2">
                           <input
                             placeholder="비밀번호를 입력하세요"
@@ -276,14 +279,12 @@ export default function Login() {
                             type={showPass ? 'text' : 'password'}
                             value={request.password}
                             onKeyDown={(e) => handleKeyDown(e, 'pass')}
-                            onChange={(e) => {
-                              setRequest((preVal) => {
-                                return {
-                                  ...preVal,
-                                  password: e.target.value,
-                                };
-                              });
-                            }}
+                            onChange={(e) =>
+                              setRequest((prev) => ({
+                                ...prev,
+                                password: e.target.value,
+                              }))
+                            }
                           />
                           <button
                             className="absolute inset-y-0 right-0 flex items-center pr-3"
@@ -291,20 +292,16 @@ export default function Login() {
                             onMouseUp={handleMouseUp}
                             onMouseLeave={handleMouseUp}
                           >
-                            {showPass && (
-                              <FaRegEye
-                                className="-ml-0.5 h-5 w-5 text-gray-400"
-                                aria-hidden="true"
-                              />
-                            )}
-                            {!showPass && (
+                            {showPass ? (
+                              <FaRegEye className="-ml-0.5 h-5 w-5 text-gray-400" />
+                            ) : (
                               <FaRegEyeSlash className="-ml-0.5 h-5 w-5 text-gray-400" />
                             )}
                           </button>
                         </div>
                       </div>
 
-                      {/* FIDO/OTP 선택 및 OTP 입력 */}
+                      {/* 인증 방법 선택 */}
                       <div className="mt-4">
                         <label className="block text-base font-semibold leading-6 text-gray-700">
                           인증 방법 선택
@@ -330,8 +327,6 @@ export default function Login() {
                           >
                             OTP
                           </button>
-
-                          {/* OTP 입력 필드: OTP가 선택된 경우에만 나타남 */}
                           {authMethod === 'OTP' && (
                             <input
                               type="text"
@@ -344,6 +339,7 @@ export default function Login() {
                         </div>
                       </div>
 
+                      {/* 로그인 버튼 */}
                       <div>
                         <button
                           ref={btnLoginRef}
@@ -354,7 +350,7 @@ export default function Login() {
                         </button>
                       </div>
 
-                      {/* 로그인 없이 바로 홈페이지로 이동 버튼 */}
+                      {/* 메인 페이지 이동 버튼 */}
                       <div>
                         <button
                           className="flex w-full justify-center items-center rounded-lg bg-gray-400 px-3 py-4 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 mt-4"
