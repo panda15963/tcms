@@ -272,7 +272,6 @@ const HereMap = ({
    * @param {string} type - 엔터티 유형 ("routes" 또는 "spaces")
    */
   const renderEntities = (coords, type) => {
-    console.log('Rendering entities:', type);
     clearEntities(type); // Clear previous entities
 
     if (!mapInstance.current || !coords) return;
@@ -372,6 +371,7 @@ const HereMap = ({
     const initializeMap = () => {
       if (!window.H) {
         console.error('HERE Maps API is not loaded');
+        console.log('HERE Maps API loaded:', window.H);
         return;
       }
       if (!apiKey) {
