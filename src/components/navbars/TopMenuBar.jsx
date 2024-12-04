@@ -24,6 +24,8 @@ import { DEGToDEC } from '../calculateCoords/ConvertsDEG';
 import { useTranslation } from 'react-i18next';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
+import spaceIcon from '../../assets/icons/spaceicon.ico';
+
 const TopMenuBar = ({
   checkedNodes,
   handleRouteData,
@@ -202,7 +204,10 @@ const TopMenuBar = ({
         />
       );
     } else if (selectedAPI?.name === 'ROUTO') {
-      console.log('Rendering GoogleMapHandler with routeFullCoords:', routeFullCoords);
+      console.log(
+        'Rendering GoogleMapHandler with routeFullCoords:',
+        routeFullCoords
+      );
       return (
         <RoutoMapHandler
           key="routo"
@@ -724,10 +729,16 @@ const TopMenuBar = ({
                           onClick={() => spaceModalRef.current.show()}
                           className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
                         >
-                          <HiOutlineDocumentSearch
+                          <img
+                            src={spaceIcon}
+                            alt="Space Search Icon"
+                            className="object-contain"
+                            style={{ width: '100%', height: '100%' }} // 이미지 버튼 안에 꽉 차게
+                          />
+                          {/* <HiOutlineDocumentSearch
                             className="h-5 w-5 text-white"
                             aria-hidden="true"
-                          />
+                          /> */}
                         </button>
                       </div>
                       <SpaceModal
