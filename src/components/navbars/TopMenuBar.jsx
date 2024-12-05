@@ -24,6 +24,11 @@ import { DEGToDEC } from '../calculateCoords/ConvertsDEG';
 import { useTranslation } from 'react-i18next';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
+import spaceIcon from '../../assets/icons/spaceicon.ico';
+import downloadIcon from '../../assets/icons/downloadicon.ico';
+import clearIcon from '../../assets/icons/mapclearicon.ico';
+import searchIcon from '../../assets/icons/searchicon.ico';
+
 const TopMenuBar = ({
   checkedNodes,
   handleRouteData,
@@ -202,7 +207,10 @@ const TopMenuBar = ({
         />
       );
     } else if (selectedAPI?.name === 'ROUTO') {
-      console.log('Rendering GoogleMapHandler with routeFullCoords:', routeFullCoords);
+      console.log(
+        'Rendering GoogleMapHandler with routeFullCoords:',
+        routeFullCoords
+      );
       return (
         <RoutoMapHandler
           key="routo"
@@ -676,12 +684,19 @@ const TopMenuBar = ({
                             <button
                               type="button"
                               onClick={() => storeModalRef.current.show()}
-                              className="inset-y-5 px-3 flex items-center border-1 rounded-md p-2 bg-gray-700"
+                              // className="inset-y-5 px-3 flex items-center border-1 rounded-md p-2 bg-gray-700"
+                              className="flex rounded-md p-0.5 w-9 bg-gray-800"
                             >
-                              <FaMagnifyingGlass
+                              <img
+                                src={searchIcon}
+                                alt="Search Icon"
+                                className="object-contain"
+                                style={{ width: '100%', height: '100%' }} // 이미지 버튼 안에 꽉 차게
+                              />
+                              {/* <FaMagnifyingGlass
                                 className="h-5 w-5 text-gray-400"
                                 aria-hidden="true"
-                              />
+                              /> */}
                             </button>
                           </div>
                         </div>
@@ -701,12 +716,19 @@ const TopMenuBar = ({
                         <button
                           type="button"
                           onClick={() => logModalRef.current.show()}
-                          className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                          // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                          className="flex rounded-md p-0.5 w-9 bg-gray-800"
                         >
-                          <HiOutlineDocumentSearch
+                          <img
+                            src={downloadIcon}
+                            alt="Download Icon"
+                            className="object-contain"
+                            style={{ width: '100%', height: '100%' }} // 이미지 버튼 안에 꽉 차게
+                          />
+                          {/* <HiOutlineDocumentSearch
                             className="h-5 w-5 text-white"
                             aria-hidden="true"
-                          />
+                          /> */}
                         </button>
                       </div>
                       <LogModal
@@ -722,12 +744,19 @@ const TopMenuBar = ({
                         <button
                           type="button"
                           onClick={() => spaceModalRef.current.show()}
-                          className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                          // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                          className="flex rounded-md p-0.5 w-9 bg-gray-800"
                         >
-                          <HiOutlineDocumentSearch
+                          <img
+                            src={spaceIcon}
+                            alt="Space Search Icon"
+                            className="object-contain"
+                            style={{ width: '100%', height: '100%' }} // 이미지 버튼 안에 꽉 차게
+                          />
+                          {/* <HiOutlineDocumentSearch
                             className="h-5 w-5 text-white"
                             aria-hidden="true"
-                          />
+                          /> */}
                         </button>
                       </div>
                       <SpaceModal
@@ -744,12 +773,19 @@ const TopMenuBar = ({
                         <button
                           type="button"
                           onClick={handleMapClear}
-                          className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                          // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                          className="flex rounded-md p-0.5 w-9 bg-gray-800"
                         >
-                          <HiOutlineRefresh
+                          <img
+                            src={clearIcon}
+                            alt="Clear Icon"
+                            className="object-contain"
+                            style={{ width: '100%', height: '100%' }} // 이미지 버튼 안에 꽉 차게
+                          />
+                          {/* <HiOutlineRefresh
                             className="h-5 w-5 text-white"
                             aria-hidden="true"
-                          />
+                          /> */}
                         </button>
                       </div>
                       <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10">

@@ -77,7 +77,7 @@ export default function MapAPIsLists({ setSelectedAPI }) {
                 <img
                   src={selected.logo}
                   alt={selected.name}
-                  className="h-5 w-5"
+                  className="h-5 w-5 mr-1"
                 />
                 <span className="block truncate">{selected.name}</span>{' '}
               </div>
