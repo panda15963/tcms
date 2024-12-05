@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { ko, enUS } from 'date-fns/locale'; // 한국어와 영어 로케일 추가
+import { ko, enUS } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
  */
 const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
   const { i18n } = useTranslation();
-
+  
   // 현재 언어에 따라 DatePicker의 locale 설정
   const currentLocale = i18n.language === 'kor' ? ko : enUS;
 
@@ -28,7 +28,7 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
     }
   }, [startDate, startsDate]);
 
-  /**
+    /**
    * 종료 날짜가 변경될 때 부모 컴포넌트로 전달
    */
   useEffect(() => {
@@ -37,15 +37,24 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
     }
   }, [endDate, endsDate]);
 
+  const CustomButton = React.forwardRef(({ value, onClick }, ref) => (
+    <button
+      className="border py-1 px-4 bg-white text-black rounded-md cursor-default"
+      onClick={onClick}
+      ref={ref}
+    >
+      {value || 'Select Date'}
+    </button>
+  ));
+
   return (
     <div className="flex items-center">
       {/* 시작 날짜 선택기 */}
       <div className="flex items-center gap-0">
-        <label className="text-sm font-semibold text-white whitespace-nowrap">
+      <label className="text-sm font-semibold text-white whitespace-nowrap">
           {/* 다국어 레이블 */}
         </label>
         <DatePicker
-          className="border py-1 border-black text-center rounded-md w-32 h-10"
           selected={startDate} // 선택된 시작 날짜
           onChange={(date) => startsDate(date || new Date())} // 날짜 선택 시 부모로 전달
           selectsStart
@@ -53,26 +62,26 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
           endDate={endDate}
           maxDate={endDate} // 종료 날짜를 초과하지 않도록 설정
           locale={currentLocale} // 동적으로 설정된 로케일
+          customInput={<CustomButton />} // 커스텀 버튼 추가
         />
       </div>
 
-      {/* 물결표 (~) */}
       <span className="pl-2 text-lg text-white font-bold">~</span>
 
       {/* 종료 날짜 선택기 */}
       <div className="pl-2 flex items-center gap-0">
-        <label className="text-sm font-semibold text-white whitespace-nowrap">
+      <label className="text-sm font-semibold text-white whitespace-nowrap">
           {/* 다국어 레이블 */}
         </label>
         <DatePicker
-          className="border border-black py-1 text-center rounded-md w-32 h-10"
           selected={endDate} // 선택된 종료 날짜
-          onChange={(date) => endsDate(date || new Date())} // 날짜 선택 시 부모로 전달
+          onChange={(date) => endsDate(date || new Date())}  // 날짜 선택 시 부모로 전달
           selectsEnd
           startDate={startDate}
           endDate={endDate}
           maxDate={new Date()} // 오늘 날짜를 초과하지 않도록 설정
           locale={currentLocale} // 동적으로 설정된 로케일
+          customInput={<CustomButton />} // 커스텀 버튼 추가
         />
       </div>
     </div>

@@ -87,8 +87,6 @@ export default function TomTomMap({
   const markerRef = useRef(null); // 중심 마커를 참조하기 위한 ref
   const routeLayerIds = useRef([]); // 경로 레이어 ID를 저장하여 관리
   const routeMarkers = useRef([]); // 시작 및 종료 마커 저장
-  const previousColorsRef = useRef([]); // 이전 경로 색상 추적
-  const previousRouteRef = useRef([]); // 이전 경로 상태 추적
   const [searchMarker, setSearchMarker] = useState(null); // 검색된 마커 상태
 
   /**
@@ -293,114 +291,73 @@ export default function TomTomMap({
    * @param {Array} routeFullCoords - 모든 경로 객체 배열 (좌표 포함)
    */
   const drawRoutes = (map, routeFullCoords = []) => {
-    // 지도 스타일이 아직 로드되지 않았다면 로드 완료 후 다시 호출
-    if (!map.isStyleLoaded()) {
-      map.on('style.load', () => {
-        map.once('style.load', () => drawRoutes(map, routeFullCoords));
-      });
-      return;
-    }
-
-    // 유효한 경로 데이터가 아니면 종료
-    if (!routeFullCoords || !Array.isArray(routeFullCoords)) {
-      console.error('Invalid routeFullCoords');
-      return;
-    }
-
-    // 기존 경로, 마커, 색상 초기화
+    // 기존 경로 및 마커를 모두 제거
     clearRoutesAndMarkers(map);
-    previousColorsRef.current = []; // 색상 배열 초기화
 
-    // 비활성화된 경로 인덱스 찾기
-    const deactivatedRoutes = findDeactivatedRoutes(
-      previousRouteRef.current,
-      routeFullCoords
-    );
+    // 모든 경로를 포함할 수 있는 범위를 생성
+    const bounds = new tt.LngLatBounds();
 
-    // 비활성화된 경로에 null 삽입
-    const { routesWithNulls } = insertNullsAtDeactivatedIndices(
-      routeFullCoords,
-      deactivatedRoutes
-    );
+    // 각 경로를 반복하며 맵에 렌더링
+    routeFullCoords.forEach((route, index) => {
+      if (!route || !route.coords || route.coords.length === 0) return; // 경로가 유효하지 않으면 스킵
 
-    // 유효한 경로 데이터인지 확인
-    if (!Array.isArray(routesWithNulls)) {
-      console.error('Invalid routesWithNulls');
-      return;
-    }
-
-    // 이전 경로 참조 업데이트
-    previousRouteRef.current = routesWithNulls;
-
-    // 각 경로를 순회하며 지도에 추가
-    routesWithNulls.forEach((route, index) => {
-      if (!route) {
-        // 비활성화된 경로는 스킵
-        return;
-      }
-
-      if (!route.coords || route.coords.length === 0) {
-        console.error(`Invalid coordinates for route ${index}`);
-        return;
-      }
-
-      // 경로 좌표 배열 생성
+      // 경로의 좌표를 매핑 (경도, 위도 배열로 변환)
       const coordinates = route.coords.map((coord) => [coord.lng, coord.lat]);
 
-      // 시작 마커 추가
+      // 각 좌표를 범위에 추가
+      coordinates.forEach((coord) => bounds.extend(coord));
+
+      // 시작 지점 마커 생성
       const startMarker = new tt.Marker({
-        element: createCustomMarker(Start_Point),
+        element: createCustomMarker(Start_Point), // 커스텀 마커 요소 생성
       })
         .setLngLat(coordinates[0])
-        .addTo(map);
+        .addTo(map); // 시작 좌표에 마커 추가
 
-      // 종료 마커 추가
+      // 끝 지점 마커 생성
       const endMarker = new tt.Marker({
-        element: createCustomMarker(End_Point),
+        element: createCustomMarker(End_Point), // 커스텀 마커 요소 생성
       })
         .setLngLat(coordinates[coordinates.length - 1])
-        .addTo(map);
+        .addTo(map); // 끝 좌표에 마커 추가
 
-      routeMarkers.current.push(startMarker, endMarker); // 마커 저장
+      // 마커를 참조 배열에 저장
+      routeMarkers.current.push(startMarker, endMarker);
 
-      // GeoJSON 데이터를 생성하여 경로 레이어 추가
+      // 경로의 GeoJSON 객체 생성
       const geoJsonRoute = {
         type: 'Feature',
         geometry: {
           type: 'LineString',
-          coordinates: coordinates,
+          coordinates, // 경로 좌표
         },
       };
 
+      // 맵에 추가할 새로운 경로 레이어 ID 생성
       const newRouteLayerId = `route-${index}-${Date.now()}`;
       routeLayerIds.current.push(newRouteLayerId);
 
-      // 경로 색상 설정
-      const routeColor = colors[index % colors.length];
-      previousColorsRef.current.push(routeColor);
-
-      // 지도에 레이어 추가
+      // 맵에 레이어 추가 (경로 시각화)
       map.addLayer({
         id: newRouteLayerId,
-        type: 'line',
+        type: 'line', // 라인 타입
         source: {
           type: 'geojson',
-          data: geoJsonRoute,
+          data: geoJsonRoute, // GeoJSON 데이터 사용
         },
         paint: {
-          'line-color': routeColor,
-          'line-width': 5,
+          'line-color': colors[index % colors.length], // 라인 색상 지정 (순환 색상 배열)
+          'line-width': 5, // 라인 두께
         },
       });
-
-      // 지도 범위를 경로 좌표에 맞게 조정
-      const bounds = new tt.LngLatBounds();
-      coordinates.forEach((coord) => {
-        bounds.extend(coord);
-      });
-
-      map.fitBounds(bounds, { padding: 50 });
     });
+
+    // 유효한 경로가 있을 경우 계산된 범위에 맞게 맵 화면 조정
+    if (!bounds.isEmpty()) {
+      map.fitBounds(bounds, { padding: 50 }); // 맵 경계를 패딩 50으로 조정
+    } else {
+      console.error('No valid routes to display'); // 유효한 경로가 없을 경우 에러 출력
+    }
   };
 
   /**
