@@ -12,22 +12,6 @@ export default function Logs() {
   const pcName = location.state?.pcname || '전체'; // PC 이름 (기본값: "전체")
   const toolName = location.state?.toolname || '전체'; // 도구 이름 (기본값: "전체")
   const [data, setData] = useState(initialData.result || []); // 데이터 상태 관리
-  const [timer, setTimer] = useState(30); // 30초 타이머
-
-  /**
-   * 타이머 로직
-   * 타이머가 0에 도달하면 데이터를 자동으로 새로고침합니다
-   */
-  useEffect(() => {
-    if (timer > 0) {
-      const countdown = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(countdown); // 컴포넌트 언마운트 시 인터벌 정리
-    } else {
-      handleRefresh(); // 타이머가 0에 도달하면 데이터 새로고침 실행
-    }
-  }, [timer]);
 
   /**
    * 컴포넌트 마운트 시 초기 데이터 설정
@@ -58,7 +42,6 @@ export default function Logs() {
     } else {
       console.log('No new data found, keeping existing data'); // 데이터 없음 로그
     }
-    setTimer(30); // Reset the timer on refresh
   };
 
   /**
@@ -95,14 +78,6 @@ export default function Logs() {
           {t('Logs.ToolLogs')}
         </h1>
         <div className="flex items-center space-x-4">
-          {/* 타이머 UI 표시 */}
-          <div className="w-32 h-4 bg-gray-200 rounded border border-gray-500">
-            <div
-              className="h-full bg-blue-500 rounded border border-blue-500"
-              style={{ width: `${(timer / 30) * 100}%` }} // 타이머 퍼센트 계산
-            ></div>
-          </div>
-          <span className="text-gray-700">{timer}s</span> {/* 남은 시간 표시 */}
           <button
             onClick={handleRefresh} // 새로고침 버튼
             className="flex items-center px-4 py-2 border border-black bg-white text-gray-900 rounded-lg shadow"

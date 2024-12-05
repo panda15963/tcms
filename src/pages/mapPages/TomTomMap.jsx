@@ -87,8 +87,6 @@ export default function TomTomMap({
   const markerRef = useRef(null); // 중심 마커를 참조하기 위한 ref
   const routeLayerIds = useRef([]); // 경로 레이어 ID를 저장하여 관리
   const routeMarkers = useRef([]); // 시작 및 종료 마커 저장
-  const previousColorsRef = useRef([]); // 이전 경로 색상 추적
-  const previousRouteRef = useRef([]); // 이전 경로 상태 추적
   const [searchMarker, setSearchMarker] = useState(null); // 검색된 마커 상태
 
   /**
@@ -293,93 +291,46 @@ export default function TomTomMap({
    * @param {Array} routeFullCoords - 모든 경로 객체 배열 (좌표 포함)
    */
   const drawRoutes = (map, routeFullCoords = []) => {
-    // 지도 스타일이 아직 로드되지 않았다면 로드 완료 후 다시 호출
-    if (!map.isStyleLoaded()) {
-      map.on('style.load', () => {
-        map.once('style.load', () => drawRoutes(map, routeFullCoords));
-      });
-      return;
-    }
-
-    // 유효한 경로 데이터가 아니면 종료
-    if (!routeFullCoords || !Array.isArray(routeFullCoords)) {
-      console.error('Invalid routeFullCoords');
-      return;
-    }
-
-    // 기존 경로, 마커, 색상 초기화
+    // Clear existing routes and markers
     clearRoutesAndMarkers(map);
-    previousColorsRef.current = []; // 색상 배열 초기화
-
-    // 비활성화된 경로 인덱스 찾기
-    const deactivatedRoutes = findDeactivatedRoutes(
-      previousRouteRef.current,
-      routeFullCoords
-    );
-
-    // 비활성화된 경로에 null 삽입
-    const { routesWithNulls } = insertNullsAtDeactivatedIndices(
-      routeFullCoords,
-      deactivatedRoutes
-    );
-
-    // 유효한 경로 데이터인지 확인
-    if (!Array.isArray(routesWithNulls)) {
-      console.error('Invalid routesWithNulls');
-      return;
-    }
-
-    // 이전 경로 참조 업데이트
-    previousRouteRef.current = routesWithNulls;
-
-    // 각 경로를 순회하며 지도에 추가
-    routesWithNulls.forEach((route, index) => {
-      if (!route) {
-        // 비활성화된 경로는 스킵
-        return;
-      }
-
-      if (!route.coords || route.coords.length === 0) {
-        console.error(`Invalid coordinates for route ${index}`);
-        return;
-      }
-
-      // 경로 좌표 배열 생성
-      const coordinates = route.coords.map((coord) => [coord.lng, coord.lat]);
-
-      // 시작 마커 추가
+  
+    // Create a bounds object to encompass all routes
+    const bounds = new tt.LngLatBounds();
+  
+    // Iterate through each route and render it on the map
+    routeFullCoords.forEach((route, index) => {
+      if (!route || !route.coords || route.coords.length === 0) return;
+  
+      // Map coordinates for the route
+      const coordinates = route.coords.map(coord => [coord.lng, coord.lat]);
+  
+      // Add each coordinate to the bounds
+      coordinates.forEach(coord => bounds.extend(coord));
+  
+      // Create start and end markers
       const startMarker = new tt.Marker({
         element: createCustomMarker(Start_Point),
-      })
-        .setLngLat(coordinates[0])
-        .addTo(map);
-
-      // 종료 마커 추가
+      }).setLngLat(coordinates[0]).addTo(map);
+  
       const endMarker = new tt.Marker({
         element: createCustomMarker(End_Point),
-      })
-        .setLngLat(coordinates[coordinates.length - 1])
-        .addTo(map);
-
-      routeMarkers.current.push(startMarker, endMarker); // 마커 저장
-
-      // GeoJSON 데이터를 생성하여 경로 레이어 추가
+      }).setLngLat(coordinates[coordinates.length - 1]).addTo(map);
+  
+      routeMarkers.current.push(startMarker, endMarker);
+  
+      // Create a GeoJSON object for the route
       const geoJsonRoute = {
         type: 'Feature',
         geometry: {
           type: 'LineString',
-          coordinates: coordinates,
+          coordinates,
         },
       };
-
+  
+      // Add the route to the map
       const newRouteLayerId = `route-${index}-${Date.now()}`;
       routeLayerIds.current.push(newRouteLayerId);
-
-      // 경로 색상 설정
-      const routeColor = colors[index % colors.length];
-      previousColorsRef.current.push(routeColor);
-
-      // 지도에 레이어 추가
+  
       map.addLayer({
         id: newRouteLayerId,
         type: 'line',
@@ -388,20 +339,19 @@ export default function TomTomMap({
           data: geoJsonRoute,
         },
         paint: {
-          'line-color': routeColor,
+          'line-color': colors[index % colors.length],
           'line-width': 5,
         },
       });
-
-      // 지도 범위를 경로 좌표에 맞게 조정
-      const bounds = new tt.LngLatBounds();
-      coordinates.forEach((coord) => {
-        bounds.extend(coord);
-      });
-
-      map.fitBounds(bounds, { padding: 50 });
     });
-  };
+  
+    // Fit the map to the calculated bounds if there are valid routes
+    if (!bounds.isEmpty()) {
+      map.fitBounds(bounds, { padding: 50 });
+    } else {
+      console.error('No valid routes to display');
+    }
+  };  
 
   /**
    * 커스텀 마커를 생성하는 헬퍼 함수

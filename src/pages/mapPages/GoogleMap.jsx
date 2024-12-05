@@ -48,11 +48,11 @@ function calculateBounds(coordsArray) {
 export default function GoogleMap({
   lat,
   lng,
-  locationCoords = () => {}, // Callback function to pass coordinates
-  routeFullCoords, // Contains coords for polyline
-  clickedNode, // Selected route to center the map on
+  locationCoords = () => {},
+  routeFullCoords,
+  clickedNode,
   error = () => {},
-  routeColors = () => {}, // Callback function to pass route colors
+  routeColors = () => {},
   spaceFullCoords,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
@@ -66,11 +66,9 @@ export default function GoogleMap({
   const initialMarkerRef = useRef(null); // 초기 마커 참조
   const { t } = useTranslation(); // 다국어 번역 훅
   const [previousRouteCoords, setPreviousRouteCoords] = useState([]);
-  const [adjustedRouteCoords, setAdjustedRouteCoords] = useState([]);
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
-  const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
+  const [isClickedNodeActive, setIsClickedNodeActive] = useState(false);
 
-  // Memoize the callback functions
   const memoizedLocationCoords = useCallback(locationCoords, []);
 
   // 마커 및 폴리라인 정리 함수
@@ -189,18 +187,63 @@ export default function GoogleMap({
       if (removedIndex !== -1) {
         const newAdjustedCoords = [...previousSpaceCoords]; // 이전 공간 좌표 복사
         newAdjustedCoords[removedIndex] = null; // 제거된 위치를 null로 설정
-        setAdjustedSpaceCoords(newAdjustedCoords); // 조정된 좌표 상태 업데이트
       }
-    } else {
-      setAdjustedSpaceCoords(spaceFullCoords); // 조정된 공간 좌표를 현재 공간 좌표로 설정
     }
 
     setPreviousSpaceCoords(spaceFullCoords); // 이전 공간 좌표 상태를 현재 값으로 업데이트
   }, [spaceFullCoords]); // spaceFullCoords가 변경될 때마다 실행
 
+  const renderSpace = (space, bounds) => {
+    clearSpacePolylines();
+    clearSpaceMarkers();
+
+    space.forEach((space, index) => {
+      if (space && space.coords && space.coords.length > 0) {
+        const polylinePath = space.coords.map((coord) => ({
+          lat: coord.lat,
+          lng: coord.lng,
+        }));
+        const polylineColor = routeColors[index % routeColors.length];
+
+        const polyline = new window.google.maps.Polyline({
+          path: polylinePath,
+          geodesic: true,
+          strokeColor: polylineColor,
+          strokeOpacity: 0.8,
+          strokeWeight: 5,
+        });
+        polyline.setMap(map);
+        spacePolylinesRef.current.push(polyline);
+        // Add start and end markers
+        const startMarker = new window.google.maps.Marker({
+          position: polylinePath[0],
+          map: map,
+          icon: Start_Point,
+        });
+        const endMarker = new window.google.maps.Marker({
+          position: polylinePath[polylinePath.length - 1],
+          map: map,
+          icon: End_Point,
+        });
+        spaceMarkerRefs.current.push(startMarker, endMarker);
+        polylinePath.forEach((coord) => {
+          bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+        });
+      }
+    });
+  };
+
   // 공간 데이터 표시
   useEffect(() => {
-    if (!map) return; // 지도 인스턴스가 없으면 종료
+    if (!map) {
+      console.warn('Map instance is not initialized.');
+      return; // 지도 인스턴스가 없으면 종료
+    }
+
+    if (!spaceFullCoords || spaceFullCoords.length === 0) {
+      console.warn('spaceFullCoords is empty or undefined.');
+      return; // 공간 데이터가 없으면 종료
+    }
 
     // 이전에 그려진 공간 경로 및 마커 제거
     clearSpacePolylines();
@@ -208,8 +251,9 @@ export default function GoogleMap({
 
     const spaceCoords = []; // 공간 좌표를 저장할 배열
     const spaceMarkers = []; // 공간 마커를 저장할 배열
+    const bounds = new window.google.maps.LatLngBounds();
 
-    adjustedSpaceCoords.forEach((space, index) => {
+    spaceFullCoords.forEach((space, index) => {
       if (space && space.coords && space.coords.length > 0) {
         // 공간 데이터가 유효한지 확인
         spaceCoords.push(...space.coords); // 공간의 모든 좌표를 추가
@@ -224,7 +268,7 @@ export default function GoogleMap({
           space.coords[space.coords.length - 1].lng
         );
 
-        spaceMarkers.push(startMarker, goalMarker); // 마커 좌표 추가
+        spaceMarkers.push(startMarker, goalMarker);
 
         // 폴리라인 경로 설정
         const polylinePath = space.coords.map((coord) => ({
@@ -244,7 +288,14 @@ export default function GoogleMap({
         });
 
         polyline.setMap(map); // 지도에 폴리라인 추가
-        spacePolylinesRef.current.push(polyline); // 폴리라인 참조 저장
+        spacePolylinesRef.current.push(polyline);
+
+        // 지도 경계 확장
+        polylinePath.forEach((coord) => {
+          bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+        });
+      } else {
+        console.warn(`Invalid space data at index ${index}:`, space);
       }
     });
 
@@ -254,16 +305,17 @@ export default function GoogleMap({
         const spaceMarker = new window.google.maps.Marker({
           position: marker,
           map: map,
-          icon: index % 2 === 0 ? Start_Point : End_Point, // 시작/종료 아이콘
+          icon: index % 2 === 0 ? Start_Point : End_Point,
         });
-        spaceMarkerRefs.current.push(spaceMarker); // 마커 참조 저장
+        spaceMarkerRefs.current.push(spaceMarker);
       });
 
       // 공간의 좌표에 맞게 지도 범위 설정
-      const bounds = calculateBounds(spaceCoords);
       map.fitBounds(bounds);
+    } else {
+      console.warn('No valid space coordinates found.');
     }
-  }, [adjustedSpaceCoords, map, routeColors]); // 의존성 배열: adjustedSpaceCoords, map, routeColors
+  }, [spaceFullCoords, map, routeColors]); // 의존성 배열
 
   // 이전 경로 데이터와 현재 경로 데이터 비교하여 제거된 경로의 인덱스를 찾는 함수
   const findRemovedRouteIndex = (prevCoords, currentCoords) => {
@@ -293,58 +345,25 @@ export default function GoogleMap({
         // 제거된 인덱스를 null로 설정하여 새 배열 생성
         const newAdjustedCoords = [...previousRouteCoords];
         newAdjustedCoords[removedIndex] = null;
-        setAdjustedRouteCoords(newAdjustedCoords); // 업데이트된 경로 설정
       }
-    } else {
-      // 경로가 제거되지 않은 경우 adjustedRouteCoords를 routeFullCoords와 동기화
-      setAdjustedRouteCoords(routeFullCoords);
     }
 
     setPreviousRouteCoords(routeFullCoords); // 이전 경로 상태 업데이트
   }, [routeFullCoords]); // 의존성 배열: routeFullCoords
 
   // routeFullCoords를 지도에 그리는 useEffect
-  useEffect(() => {
-    if (!map) {
-      console.warn('Map instance is not initialized'); // 지도 인스턴스가 없을 때 경고
-      return;
-    }
-
-    if (!routeFullCoords || routeFullCoords.length === 0) {
-      console.warn('No routeFullCoords available'); // 경로 데이터가 없을 때 경고
-      return;
-    }
-
-    // 이전 경로 폴리라인 및 마커 제거
+  const renderRoutes = (routes, bounds) => {
     clearRoutePolylines();
     clearRouteMarkers();
 
-    const routeCoords = []; // 경로 좌표 저장
-    const routeMarkers = []; // 경로 마커 저장
-
-    adjustedRouteCoords.forEach((route, index) => {
+    routes.forEach((route, index) => {
       if (route && route.coords && route.coords.length > 0) {
-        routeCoords.push(...route.coords); // 경로 좌표 추가
-
-        // 시작 및 종료 마커 생성
-        const startMarker = calculateCenterAndMarker(
-          route.coords[0].lat,
-          route.coords[0].lng
-        );
-        const goalMarker = calculateCenterAndMarker(
-          route.coords[route.coords.length - 1].lat,
-          route.coords[route.coords.length - 1].lng
-        );
-
-        routeMarkers.push(startMarker, goalMarker); // 마커 좌표 추가
-
-        // 폴리라인 경로 설정
         const polylinePath = route.coords.map((coord) => ({
           lat: coord.lat,
           lng: coord.lng,
         }));
 
-        const polylineColor = routeColors[index % routeColors.length]; // 색상 선택
+        const polylineColor = routeColors[index % routeColors.length];
 
         const polyline = new window.google.maps.Polyline({
           path: polylinePath,
@@ -354,27 +373,87 @@ export default function GoogleMap({
           strokeWeight: 5,
         });
 
-        polyline.setMap(map); // 지도에 폴리라인 추가
-        routePolylinesRef.current.push(polyline); // 폴리라인 참조 저장
+        polyline.setMap(map);
+        routePolylinesRef.current.push(polyline);
+
+        // Add start and end markers
+        const startMarker = new window.google.maps.Marker({
+          position: polylinePath[0],
+          map: map,
+          icon: Start_Point,
+        });
+        const endMarker = new window.google.maps.Marker({
+          position: polylinePath[polylinePath.length - 1],
+          map: map,
+          icon: End_Point,
+        });
+
+        routeMarkerRefs.current.push(startMarker, endMarker);
+
+        // Extend bounds
+        polylinePath.forEach((coord) => {
+          bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+        });
       }
     });
+  };
 
-    if (routeCoords.length > 0) {
-      // 경로 마커를 지도에 추가
-      routeMarkers.forEach((marker, index) => {
-        const routeMarker = new window.google.maps.Marker({
-          position: marker,
-          map: map,
-          icon: index % 2 === 0 ? Start_Point : End_Point, // 시작/종료 아이콘
-        });
-        routeMarkerRefs.current.push(routeMarker); // 마커 참조 저장
-      });
+  // 경로 변경 처리
+  useEffect(() => {
+    if (!map) return;
 
-      // 경로 좌표에 맞게 지도 범위 설정
-      const bounds = calculateBounds(routeCoords);
-      map.fitBounds(bounds);
+    // 공간 검색에서 로그 검색으로 전환할 때 공간 경로 및 마커 초기화
+    if (routeFullCoords.length > 0) {
+      console.log('로그 검색으로 전환. 공간 데이터 초기화 중.');
+      clearSpacePolylines(); // 공간 폴리라인 초기화
+      clearSpaceMarkers(); // 공간 마커 초기화
     }
-  }, [adjustedRouteCoords, map, routeColors]); // 의존성 배열: adjustedRouteCoords, map, routeColors
+
+    const bounds = new window.google.maps.LatLngBounds();
+
+    if (isClickedNodeActive && clickedNode) {
+      // 클릭된 경로만 표시
+      const startCoord = clickedNode.start_coord.split(',').map(Number); // 시작 좌표 분리
+      const goalCoord = clickedNode.goal_coord.split(',').map(Number); // 종료 좌표 분리
+
+      const clickedRoute = [
+        {
+          coords: [
+            { lat: startCoord[1], lng: startCoord[0] }, // 시작 좌표
+            { lat: goalCoord[1], lng: goalCoord[0] }, // 종료 좌표
+          ],
+        },
+      ];
+
+      renderRoutes(clickedRoute, bounds); // 클릭된 경로 렌더링
+      map.fitBounds(bounds); // 지도의 경계를 경로에 맞게 조정
+      console.log('클릭된 경로만 표시 중');
+    } else {
+      // 모든 경로 표시
+      renderRoutes(routeFullCoords, bounds); // 모든 경로 렌더링
+      if (!bounds.isEmpty()) {
+        map.fitBounds(bounds); // 지도의 경계를 경로에 맞게 조정
+        console.log('모든 경로 표시 중');
+      }
+    }
+  }, [routeFullCoords, clickedNode, isClickedNodeActive, map]);
+
+  // clickedNode 상태 업데이트
+  useEffect(() => {
+    if (clickedNode) {
+      setIsClickedNodeActive(true); // 클릭된 노드가 있는 경우 활성 상태로 설정
+    } else {
+      setIsClickedNodeActive(false); // 클릭된 노드가 없는 경우 비활성 상태로 설정
+    }
+  }, [clickedNode]);
+
+  // 새로운 검색 시 clickedNode를 초기화하고 모든 경로 표시
+  useEffect(() => {
+    if (routeFullCoords.length > 0 || spaceFullCoords.length > 0) {
+      console.log('새로운 경로 또는 공간 데이터로 인해 clickedNode 초기화');
+      setIsClickedNodeActive(false); // clickedNode 비활성화
+    }
+  }, [routeFullCoords, spaceFullCoords]);
 
   // clickedNode 변경 시 지도의 중심을 업데이트하는 useEffect
   useEffect(() => {
@@ -383,19 +462,29 @@ export default function GoogleMap({
       !clickedNode ||
       !clickedNode.start_coord ||
       !clickedNode.goal_coord
-    )
+    ) {
       return;
+    }
 
-    const startCoord = clickedNode.start_coord.split(',').map(Number); // 시작 좌표
-    const goalCoord = clickedNode.goal_coord.split(',').map(Number); // 종료 좌표
+    const startCoord = clickedNode.start_coord.split(',').map(Number);
+    const goalCoord = clickedNode.goal_coord.split(',').map(Number);
     const routeCoords = [
       { lat: startCoord[1], lng: startCoord[0] },
       { lat: goalCoord[1], lng: goalCoord[0] },
     ];
 
-    const bounds = calculateBounds(routeCoords); // 경로에 맞게 지도 범위 계산
-    map.fitBounds(bounds); // 지도 범위 설정
-  }, [clickedNode, map]); // 의존성 배열: clickedNode, map
+    const bounds = calculateBounds(routeCoords);
+    console.log('Fitting bounds to clickedNode:', bounds);
+    map.fitBounds(bounds);
+  }, [clickedNode, map]);
+
+  // routeFullCoords 또는 spaceFullCoords가 변경될 때 clickedNode를 초기화
+  useEffect(() => {
+    if (routeFullCoords.length > 0 || spaceFullCoords.length > 0) {
+      console.log('새로운 경로 또는 공간 데이터로 인해 clickedNode 초기화');
+      clickedNode = null; // clickedNode를 null로 초기화
+    }
+  }, [routeFullCoords, spaceFullCoords]);
 
   return <div ref={mapRef} style={{ height: '87.8vh' }} />;
 }
