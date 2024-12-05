@@ -85,12 +85,10 @@ export default function RoutoMap({
 
   const mapRef = useRef(null); // 지도 인스턴스를 참조하기 위한 ref
   const markerRef = useRef(null); // 중심 마커를 참조하기 위한 ref
-  const zoomSetRef = useRef(false); // 줌 설정 상태 추적
 
   const startMarkerRef = useRef([]); // 여러 시작 마커를 위한 ref
   const finishMarkerRef = useRef([]); // 여러 종료 마커를 위한 ref
-  const polylineRef = useRef([]); // 폴리라인을 저장하기 위한 ref
-  const spaceMarkerRef = useRef([]); // 공간 마커를 참조하기 위한 ref
+  const routePolylineRef = useRef([]); // Polylines for routes
 
   /**
    * 위도와 경도가 변경될 때 지도의 중심 좌표를 업데이트하는 useEffect
@@ -160,76 +158,65 @@ export default function RoutoMap({
   }, [clickedNode]);
 
   /**
-   * 이전 경로 색상을 저장하는 ref
-   */
-  const previousColorsRef = useRef([]); // 경로 색상 추적을 위한 ref
-
-  /**
    * 경로 데이터를 가져와 지도에 업데이트하는 useEffect
    */
   useEffect(() => {
     async function fetchRoutesAndUpdateMap() {
       const { Tmapv2 } = window;
 
-      const newColors = []; // 새로운 경로 색상을 저장할 배열
+      // 기존 경로 마커와 폴리라인 삭제
+      startMarkerRef.current.forEach((marker) => marker.setMap(null));
+      finishMarkerRef.current.forEach((marker) => marker.setMap(null));
+      routePolylineRef.current.forEach((polyline) => polyline.setMap(null));
 
-      // 기존 시작 마커, 종료 마커 및 폴리라인 제거
-      if (startMarkerRef.current.length) {
-        startMarkerRef.current.forEach((marker) => marker.setMap(null));
-        startMarkerRef.current = [];
-      }
-      if (finishMarkerRef.current.length) {
-        finishMarkerRef.current.forEach((marker) => marker.setMap(null));
-        finishMarkerRef.current = [];
-      }
-      if (polylineRef.current.length) {
-        polylineRef.current.forEach((polyline) => polyline.setMap(null));
-        polylineRef.current = [];
-      }
+      // ref 초기화
+      startMarkerRef.current = [];
+      finishMarkerRef.current = [];
+      routePolylineRef.current = [];
+
+      // 선택된 경로를 위한 새로운 경계(bounds) 생성
+      let bounds = new Tmapv2.LatLngBounds();
 
       if (routeFullCoords && Array.isArray(routeFullCoords)) {
         routeFullCoords.forEach((route, index) => {
-          // 체크된 노드인지 확인
+          // 경로가 선택되었는지 확인
           const nodeChecked = checkedNodes.some(
             (node) => node.file_id === route.file_id
           );
-          if (!nodeChecked) return; // 체크되지 않은 노드는 스킵
+          if (!nodeChecked) return;
 
-          const coords = route.coords; // 경로의 좌표 가져오기
-          const parsedCoords = handleCoordinateInput(coords); // 좌표 파싱
+          // 선택된 경로의 좌표를 파싱
+          const parsedCoords = handleCoordinateInput(route.coords);
+          if (parsedCoords.length === 0) return;
 
-          if (parsedCoords.length === 0) {
-            console.warn('유효한 좌표가 없는 경로');
-            return;
-          }
+          // 좌표를 경계(bounds)에 추가
+          parsedCoords.forEach((coord) => {
+            bounds.extend(new Tmapv2.LatLng(coord.lat, coord.lng));
+          });
 
-          // 시작 및 종료 좌표 설정
-          const startCoord = parsedCoords[0];
-          const finishCoord = parsedCoords[parsedCoords.length - 1];
+          const startCoord = parsedCoords[0]; // 경로 시작 좌표
+          const finishCoord = parsedCoords[parsedCoords.length - 1]; // 경로 끝 좌표
 
-          // 시작 마커 추가
+          // 시작 마커 생성
           const startMarker = new Tmapv2.Marker({
             position: new Tmapv2.LatLng(startCoord.lat, startCoord.lng),
             map: mapRef.current,
-            icon: Start_Point, // 커스텀 시작점 아이콘
+            icon: Start_Point,
             iconSize: new Tmapv2.Size(32, 32),
           });
           startMarkerRef.current.push(startMarker);
 
-          // 종료 마커 추가
+          // 끝 마커 생성
           const finishMarker = new Tmapv2.Marker({
             position: new Tmapv2.LatLng(finishCoord.lat, finishCoord.lng),
             map: mapRef.current,
-            icon: End_Point, // 커스텀 종료점 아이콘
+            icon: End_Point,
             iconSize: new Tmapv2.Size(32, 32),
           });
           finishMarkerRef.current.push(finishMarker);
 
-          // 폴리라인 색상 선택
-          const color = routeColors[index % routeColors.length] || '#ff0000'; // 기본 색상 설정
-          newColors.push(color); // 색상 저장
-
-          // 폴리라인 생성
+          // 경로를 표시하는 폴리라인 생성
+          const color = routeColors[index % routeColors.length] || '#ff0000';
           const polylinePath = parsedCoords.map(
             (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
           );
@@ -239,41 +226,15 @@ export default function RoutoMap({
             strokeWeight: 5,
             map: mapRef.current,
           });
-          polylineRef.current.push(polyline);
-
-          // 지도 중심 설정
-          let latSum = 0;
-          let lngSum = 0;
-          let pointCount = 0;
-
-          parsedCoords.forEach(({ lat, lng }) => {
-            latSum += lat;
-            lngSum += lng;
-            pointCount++;
-          });
-
-          if (pointCount > 0) {
-            const avgLat = latSum / pointCount;
-            const avgLng = lngSum / pointCount;
-            const centerCoords = new Tmapv2.LatLng(avgLat, avgLng);
-            mapRef.current.setCenter(centerCoords);
-
-            if (!zoomSetRef.current) {
-              mapRef.current.setZoom(7); // 줌 한 번만 설정
-              zoomSetRef.current = true;
-            }
-          }
+          routePolylineRef.current.push(polyline);
         });
 
-        // 색상 변경 사항 확인 및 업데이트
-        if (
-          JSON.stringify(newColors) !==
-          JSON.stringify(previousColorsRef.current)
-        ) {
-          previousColorsRef.current = newColors; // 색상 참조 업데이트
+        // 선택된 경로에 맞게 지도 보기 조정
+        if (!bounds.isEmpty()) {
+          mapRef.current.fitBounds(bounds); // 항상 선택된 경로에 맞게 지도를 조정
+        } else {
+          console.warn('선택된 경로가 없거나 유효한 좌표를 찾을 수 없습니다.');
         }
-      } else {
-        console.warn('routeFullCoords가 null이거나 배열이 아닙니다');
       }
     }
 
@@ -281,120 +242,6 @@ export default function RoutoMap({
       fetchRoutesAndUpdateMap();
     }
   }, [routeFullCoords, checkedNodes]);
-
-  /**
-   * 공간 데이터를 가져와 지도에 업데이트하는 useEffect
-   */
-  useEffect(() => {
-    async function fetchSpacesAndUpdateMap() {
-      const { Tmapv2 } = window;
-
-      const newColors = []; // 새로운 공간 색상을 저장할 배열
-
-      // 기존 공간 마커 및 폴리라인 제거
-      if (spaceMarkerRef.current.length) {
-        spaceMarkerRef.current.forEach((marker) => marker.setMap(null));
-        spaceMarkerRef.current = [];
-      }
-      if (polylineRef.current.length) {
-        polylineRef.current.forEach((polyline) => polyline.setMap(null));
-        polylineRef.current = [];
-      }
-
-      if (spaceFullCoords && Array.isArray(spaceFullCoords)) {
-        spaceFullCoords.forEach((space, index) => {
-          // 체크된 노드인지 확인
-          const spaceChecked = checkedNodes.some(
-            (node) => node.file_id === space.file_id
-          );
-          if (!spaceChecked) return; // 체크되지 않은 공간은 스킵
-
-          const parsedCoords = handleCoordinateInput(space.coords); // 좌표 파싱
-          if (parsedCoords.length === 0) {
-            console.warn('유효한 좌표가 없는 공간');
-            return;
-          }
-
-          // 시작 및 종료 좌표 설정
-          const startCoord = parsedCoords[0];
-          const finishCoord = parsedCoords[parsedCoords.length - 1];
-
-          // 시작 마커 추가
-          const startMarker = new Tmapv2.Marker({
-            position: new Tmapv2.LatLng(startCoord.lat, startCoord.lng),
-            map: mapRef.current,
-            icon: Start_Point, // 커스텀 시작점 아이콘
-            iconSize: new Tmapv2.Size(32, 32),
-          });
-          spaceMarkerRef.current.push(startMarker);
-
-          // 종료 마커 추가
-          const finishMarker = new Tmapv2.Marker({
-            position: new Tmapv2.LatLng(finishCoord.lat, finishCoord.lng),
-            map: mapRef.current,
-            icon: End_Point, // 커스텀 종료점 아이콘
-            iconSize: new Tmapv2.Size(32, 32),
-          });
-          spaceMarkerRef.current.push(finishMarker);
-
-          // 폴리라인 색상 선택
-          const color = routeColors[index % routeColors.length] || '#0000ff'; // 기본 색상 설정
-          newColors.push(color); // 색상 저장
-
-          // 폴리라인 생성
-          const polylinePath = parsedCoords.map(
-            (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
-          );
-          const polyline = new Tmapv2.Polyline({
-            path: polylinePath,
-            strokeColor: color,
-            strokeWeight: 4,
-            map: mapRef.current,
-          });
-          polylineRef.current.push(polyline);
-        });
-
-        // 지도 중심 설정
-        let latSum = 0;
-        let lngSum = 0;
-        let pointCount = 0;
-
-        spaceFullCoords.forEach((space) => {
-          space.coords.forEach(({ lat, lng }) => {
-            latSum += lat;
-            lngSum += lng;
-            pointCount++;
-          });
-        });
-
-        if (pointCount > 0) {
-          const avgLat = latSum / pointCount;
-          const avgLng = lngSum / pointCount;
-          const centerCoords = new Tmapv2.LatLng(avgLat, avgLng);
-          mapRef.current.setCenter(centerCoords);
-
-          if (!zoomSetRef.current) {
-            mapRef.current.setZoom(10); // 줌 한 번만 설정
-            zoomSetRef.current = true;
-          }
-        }
-
-        // 색상 변경 사항 확인 및 업데이트
-        if (
-          JSON.stringify(newColors) !==
-          JSON.stringify(previousColorsRef.current)
-        ) {
-          previousColorsRef.current = newColors; // 색상 참조 업데이트
-        }
-      } else {
-        console.warn('spaceFullCoords가 null이거나 배열이 아닙니다');
-      }
-    }
-
-    if (spaceFullCoords) {
-      fetchSpacesAndUpdateMap();
-    }
-  }, [spaceFullCoords, checkedNodes]);
 
   /**
    * 지도의 중심 좌표와 마커를 업데이트하는 함수
