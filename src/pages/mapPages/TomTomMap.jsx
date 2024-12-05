@@ -291,67 +291,74 @@ export default function TomTomMap({
    * @param {Array} routeFullCoords - 모든 경로 객체 배열 (좌표 포함)
    */
   const drawRoutes = (map, routeFullCoords = []) => {
-    // Clear existing routes and markers
+    // 기존 경로 및 마커를 모두 제거
     clearRoutesAndMarkers(map);
-  
-    // Create a bounds object to encompass all routes
+
+    // 모든 경로를 포함할 수 있는 범위를 생성
     const bounds = new tt.LngLatBounds();
-  
-    // Iterate through each route and render it on the map
+
+    // 각 경로를 반복하며 맵에 렌더링
     routeFullCoords.forEach((route, index) => {
-      if (!route || !route.coords || route.coords.length === 0) return;
-  
-      // Map coordinates for the route
-      const coordinates = route.coords.map(coord => [coord.lng, coord.lat]);
-  
-      // Add each coordinate to the bounds
-      coordinates.forEach(coord => bounds.extend(coord));
-  
-      // Create start and end markers
+      if (!route || !route.coords || route.coords.length === 0) return; // 경로가 유효하지 않으면 스킵
+
+      // 경로의 좌표를 매핑 (경도, 위도 배열로 변환)
+      const coordinates = route.coords.map((coord) => [coord.lng, coord.lat]);
+
+      // 각 좌표를 범위에 추가
+      coordinates.forEach((coord) => bounds.extend(coord));
+
+      // 시작 지점 마커 생성
       const startMarker = new tt.Marker({
-        element: createCustomMarker(Start_Point),
-      }).setLngLat(coordinates[0]).addTo(map);
-  
+        element: createCustomMarker(Start_Point), // 커스텀 마커 요소 생성
+      })
+        .setLngLat(coordinates[0])
+        .addTo(map); // 시작 좌표에 마커 추가
+
+      // 끝 지점 마커 생성
       const endMarker = new tt.Marker({
-        element: createCustomMarker(End_Point),
-      }).setLngLat(coordinates[coordinates.length - 1]).addTo(map);
-  
+        element: createCustomMarker(End_Point), // 커스텀 마커 요소 생성
+      })
+        .setLngLat(coordinates[coordinates.length - 1])
+        .addTo(map); // 끝 좌표에 마커 추가
+
+      // 마커를 참조 배열에 저장
       routeMarkers.current.push(startMarker, endMarker);
-  
-      // Create a GeoJSON object for the route
+
+      // 경로의 GeoJSON 객체 생성
       const geoJsonRoute = {
         type: 'Feature',
         geometry: {
           type: 'LineString',
-          coordinates,
+          coordinates, // 경로 좌표
         },
       };
-  
-      // Add the route to the map
+
+      // 맵에 추가할 새로운 경로 레이어 ID 생성
       const newRouteLayerId = `route-${index}-${Date.now()}`;
       routeLayerIds.current.push(newRouteLayerId);
-  
+
+      // 맵에 레이어 추가 (경로 시각화)
       map.addLayer({
         id: newRouteLayerId,
-        type: 'line',
+        type: 'line', // 라인 타입
         source: {
           type: 'geojson',
-          data: geoJsonRoute,
+          data: geoJsonRoute, // GeoJSON 데이터 사용
         },
         paint: {
-          'line-color': colors[index % colors.length],
-          'line-width': 5,
+          'line-color': colors[index % colors.length], // 라인 색상 지정 (순환 색상 배열)
+          'line-width': 5, // 라인 두께
         },
       });
     });
-  
-    // Fit the map to the calculated bounds if there are valid routes
+
+    // 유효한 경로가 있을 경우 계산된 범위에 맞게 맵 화면 조정
     if (!bounds.isEmpty()) {
-      map.fitBounds(bounds, { padding: 50 });
+      map.fitBounds(bounds, { padding: 50 }); // 맵 경계를 패딩 50으로 조정
     } else {
-      console.error('No valid routes to display');
+      console.error('No valid routes to display'); // 유효한 경로가 없을 경우 에러 출력
     }
-  };  
+  };
 
   /**
    * 커스텀 마커를 생성하는 헬퍼 함수
