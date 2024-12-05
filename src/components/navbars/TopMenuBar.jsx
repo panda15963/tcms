@@ -685,7 +685,7 @@ const TopMenuBar = ({
                               type="button"
                               onClick={() => storeModalRef.current.show()}
                               // className="inset-y-5 px-3 flex items-center border-1 rounded-md p-2 bg-gray-700"
-                              className="flex rounded-md w-9 bg-gray-800"
+                              className="flex rounded-md p-0.5 w-9 bg-gray-800"
                             >
                               <img
                                 src={searchIcon}
@@ -717,7 +717,7 @@ const TopMenuBar = ({
                           type="button"
                           onClick={() => logModalRef.current.show()}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex rounded-md p-1 w-9 bg-gray-800"
+                          className="flex rounded-md p-0.5 w-9 bg-gray-800"
                         >
                           <img
                             src={downloadIcon}
@@ -745,7 +745,7 @@ const TopMenuBar = ({
                           type="button"
                           onClick={() => spaceModalRef.current.show()}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex rounded-md p-1 w-9 bg-gray-800"
+                          className="flex rounded-md p-0.5 w-9 bg-gray-800"
                         >
                           <img
                             src={spaceIcon}
@@ -774,7 +774,7 @@ const TopMenuBar = ({
                           type="button"
                           onClick={handleMapClear}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex rounded-md p-1 w-9 bg-gray-800"
+                          className="flex rounded-md p-0.5 w-9 bg-gray-800"
                         >
                           <img
                             src={clearIcon}
