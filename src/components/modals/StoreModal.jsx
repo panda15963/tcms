@@ -24,7 +24,7 @@ const StoreModal = forwardRef(
       onDataReceiveBack, // 부모 컴포넌트로 데이터를 전달하는 콜백 함수
       chosenMapAPIs, // 선택된 지도 API 정보
     },
-    ref,
+    ref
   ) => {
     const [open, setOpen] = useState(false); // 모달의 열림 상태를 관리
     const [searches, setSearches] = useState([]); // 검색 결과를 저장하는 상태
@@ -169,7 +169,8 @@ const StoreModal = forwardRef(
               >
                 <DialogPanel className="relative rounded-lg shadow-xl bg-white">
                   {/* 모달 헤더 */}
-                  <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
+                  {/* <div className="flex justify-between py-2 px-5 bg-blue-900 rounded-t-lg"> */}
+                  <div className="flex justify-between py-3 px-5 bg-blue-900 rounded-t-lg">
                     <h1 className="font-semibold pl-3 text-white">
                       {t('StoreModal.ModalName')}
                     </h1>
@@ -188,6 +189,7 @@ const StoreModal = forwardRef(
                             as="h3"
                             className="text-base font-semibold leading-6"
                           >
+                            {/* 검색어 */}
                             {t('StoreModal.SearchName')}
                           </DialogTitle>
                           {/* 검색 입력 필드 */}

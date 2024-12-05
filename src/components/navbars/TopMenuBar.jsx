@@ -665,33 +665,39 @@ const TopMenuBar = ({
                         {t('TopMenuBar.MapSelection')}
                       </label>
                       <MapAPIsLists setSelectedAPI={setSelectedAPI} />
-                      <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3 ">
+                      {/* <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3 "> */}
+                      <label className="px-2 py-2 pl-11 text-sm font-bold text-white">
                         {/* 지점 검색 */}
                         {t('TopMenuBar.StoreSearch')}
                       </label>
                       <div className="flex flex-1 justify-center lg:justify-end">
-                        <div className="w-full max-w-lg lg:max-w-xs">
-                          <div className="inset-y-0 flex items-center px-2">
+                        <div className="w-full max-w-lg lg:max-w-xs pl-0">
+                          <div className="inset-y-0 flex items-center px-1">
                             <input
                               type="text"
                               onChange={handleChange}
                               onKeyDown={handleKeyDown}
                               value={inputValue}
-                              style={{ width: '170px' }}
+                              style={{ width: '175px' }}
                               className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
+                              // 지점을 입력해 주세요
                               placeholder={t('Common.SearchPlaceholder')}
                             />
                             <button
                               type="button"
                               onClick={() => storeModalRef.current.show()}
                               // className="inset-y-5 px-3 flex items-center border-1 rounded-md p-2 bg-gray-700"
-                              className="flex rounded-md p-0.5 w-9 bg-gray-800"
+                              className="flex items-center rounded-md p-0.5 w-9 h-9 bg-gray-700"
                             >
                               <img
                                 src={searchIcon}
                                 alt="Search Icon"
                                 className="object-contain"
-                                style={{ width: '100%', height: '100%' }} // 이미지 버튼 안에 꽉 차게
+                                style={{
+                                  width: '90%',
+                                  height: '90%',
+                                  marginLeft: '1.5px',
+                                }} // 이미지 버튼 안에 꽉 차게
                               />
                               {/* <FaMagnifyingGlass
                                 className="h-5 w-5 text-gray-400"
@@ -709,7 +715,7 @@ const TopMenuBar = ({
                         chosenMapAPIs={selectedAPI}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label className="rounded-md px-2 py-2 text-sm font-bold text-white">
+                        <label className="rounded-md px-2 py-2 pr-2 text-sm font-bold text-white">
                           {/* 로그 검색 */}
                           {t('TopMenuBar.LogSearch')}
                         </label>
@@ -717,7 +723,7 @@ const TopMenuBar = ({
                           type="button"
                           onClick={() => logModalRef.current.show()}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex rounded-md p-0.5 w-9 bg-gray-800"
+                          className="flex rounded-md p-0.5 w-9  bg-gray-700"
                         >
                           <img
                             src={downloadIcon}
@@ -737,7 +743,7 @@ const TopMenuBar = ({
                         ref={logModalRef}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
+                        <label className="rounded-md px-3 py-2 pr-2 text-sm font-bold text-white whitespace-nowrap">
                           {/* 공간 검색 */}
                           {t('TopMenuBar.SpaceSearch')}
                         </label>
@@ -745,7 +751,7 @@ const TopMenuBar = ({
                           type="button"
                           onClick={() => spaceModalRef.current.show()}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex rounded-md p-0.5 w-9 bg-gray-800"
+                          className="flex rounded-md p-0.5 w-9 bg-gray-700"
                         >
                           <img
                             src={spaceIcon}
@@ -774,7 +780,7 @@ const TopMenuBar = ({
                           type="button"
                           onClick={handleMapClear}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex rounded-md p-0.5 w-9 bg-gray-800"
+                          className="flex rounded-md p-0.5 w-9 bg-gray-700"
                         >
                           <img
                             src={clearIcon}

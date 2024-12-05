@@ -113,13 +113,13 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     SA: t('Continents.SouthAmerica'), // 남미
   };
 
- // 모달 상태 및 조건 관리
- const [cond, setCond] = useState(initialCond); // 검색 조건
- const [configCond, setConfigCond] = useState(initialConfigCond); // 화면 정보 조건
- const [error, setError] = useState(null); // 에러 상태
- const [errorValue, setErrorValue] = useState(''); // 에러 메시지
- const [open, setOpen] = useState(false); // 모달 열림 상태
- const [activeTab, setActiveTab] = useState('route'); // 활성 탭 ('route' 또는 'batch')
+  // 모달 상태 및 조건 관리
+  const [cond, setCond] = useState(initialCond); // 검색 조건
+  const [configCond, setConfigCond] = useState(initialConfigCond); // 화면 정보 조건
+  const [error, setError] = useState(null); // 에러 상태
+  const [errorValue, setErrorValue] = useState(''); // 에러 메시지
+  const [open, setOpen] = useState(false); // 모달 열림 상태
+  const [activeTab, setActiveTab] = useState('route'); // 활성 탭 ('route' 또는 'batch')
 
   // 검색필드 리스트 관련
   const [selectedSearchFields, setSelectedSearchFields] = useState([]); // 경로탭 검색필드
@@ -299,7 +299,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    */
   const FIND_META = async (inputCond) => {
     setLoading(true);
-        try {
+    try {
       await MapLogService.FIND_META_10100({
         cond: inputCond,
       }).then((res) => {
@@ -903,7 +903,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
             `Failed to download log file for meta_id ${file.meta_id}:`,
             error
           );
-          setLoading(false);        }
+          setLoading(false);
+        }
       }
 
       try {
@@ -1264,7 +1265,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                         setOpen(false);
                       }}
                     >
-                      <MdClose className="text-white" size={16} />
+                      <MdClose className="text-white" size={20} />
                     </button>
                   </div>
                 )}
