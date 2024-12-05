@@ -85,10 +85,20 @@ export default function RoutoMap({
 
   const mapRef = useRef(null); // 지도 인스턴스를 참조하기 위한 ref
   const markerRef = useRef(null); // 중심 마커를 참조하기 위한 ref
+  const zoomSetRef = useRef(false); // 줌 설정 상태 추적
 
   const startMarkerRef = useRef([]); // 여러 시작 마커를 위한 ref
   const finishMarkerRef = useRef([]); // 여러 종료 마커를 위한 ref
+  const spaceMarkerRef = useRef([]); // 공간 마커를 참조하기 위한 ref
   const routePolylineRef = useRef([]); // Polylines for routes
+  const spacePolylineRef = useRef([]); // Polylines for spaces
+
+  console.log('routeFullCoords:', routeFullCoords);
+  console.log('spaceFullCoords:', spaceFullCoords);
+  console.log('checkedNodes:', checkedNodes);
+  console.log('clickedNode:', clickedNode);
+  console.log('searchedLocation:', searchedLocation);
+  console.log('routeColors:', routeColors);
 
   /**
    * 위도와 경도가 변경될 때 지도의 중심 좌표를 업데이트하는 useEffect
@@ -156,6 +166,11 @@ export default function RoutoMap({
       }
     }
   }, [clickedNode]);
+
+  /**
+   * 이전 경로 색상을 저장하는 ref
+   */
+  const previousColorsRef = useRef([]); // 경로 색상 추적을 위한 ref
 
   /**
    * 경로 데이터를 가져와 지도에 업데이트하는 useEffect
@@ -237,11 +252,118 @@ export default function RoutoMap({
         }
       }
     }
-
+    
     if (routeFullCoords) {
       fetchRoutesAndUpdateMap();
     }
   }, [routeFullCoords, checkedNodes]);
+
+  /**
+   * 공간 데이터를 가져와 지도에 업데이트하는 useEffect
+   */
+  useEffect(() => {
+    async function fetchSpacesAndUpdateMap() {
+      const { Tmapv2 } = window;
+
+      const newColors = []; // Store new colors for spaces
+
+      // Clear existing space markers and polylines
+      if (spaceMarkerRef.current.length) {
+        spaceMarkerRef.current.forEach((marker) => marker.setMap(null));
+        spaceMarkerRef.current = [];
+      }
+      if (spacePolylineRef.current.length) {
+        spacePolylineRef.current.forEach((polyline) => polyline.setMap(null));
+        spacePolylineRef.current = [];
+      }
+
+      if (spaceFullCoords && Array.isArray(spaceFullCoords)) {
+        spaceFullCoords.forEach((space, index) => {
+          const spaceChecked = checkedNodes.some(
+            (node) => node.file_id === space.file_id
+          );
+          if (!spaceChecked) return;
+
+          const parsedCoords = handleCoordinateInput(space.coords);
+          if (parsedCoords.length === 0) {
+            console.warn('No valid coordinates found for space');
+            return;
+          }
+
+          const startCoord = parsedCoords[0];
+          const finishCoord = parsedCoords[parsedCoords.length - 1];
+
+          const startMarker = new Tmapv2.Marker({
+            position: new Tmapv2.LatLng(startCoord.lat, startCoord.lng),
+            map: mapRef.current,
+            icon: Start_Point,
+            iconSize: new Tmapv2.Size(32, 32),
+          });
+          spaceMarkerRef.current.push(startMarker);
+
+          const finishMarker = new Tmapv2.Marker({
+            position: new Tmapv2.LatLng(finishCoord.lat, finishCoord.lng),
+            map: mapRef.current,
+            icon: End_Point,
+            iconSize: new Tmapv2.Size(32, 32),
+          });
+          spaceMarkerRef.current.push(finishMarker);
+
+          const color = routeColors[index % routeColors.length] || '#0000ff';
+          newColors.push(color);
+
+          const polylinePath = parsedCoords.map(
+            (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
+          );
+          const polyline = new Tmapv2.Polyline({
+            path: polylinePath,
+            strokeColor: color,
+            strokeWeight: 4,
+            map: mapRef.current,
+          });
+          spacePolylineRef.current.push(polyline);
+        });
+
+        // Set map center and zoom
+        let latSum = 0;
+        let lngSum = 0;
+        let pointCount = 0;
+
+        spaceFullCoords.forEach((space) => {
+          space.coords.forEach(({ lat, lng }) => {
+            latSum += lat;
+            lngSum += lng;
+            pointCount++;
+          });
+        });
+
+        if (pointCount > 0) {
+          const avgLat = latSum / pointCount;
+          const avgLng = lngSum / pointCount;
+          const centerCoords = new Tmapv2.LatLng(avgLat, avgLng);
+          mapRef.current.setCenter(centerCoords);
+
+          if (!zoomSetRef.current) {
+            mapRef.current.setZoom(10); // Set zoom only once
+            zoomSetRef.current = true;
+          }
+        }
+
+        if (
+          JSON.stringify(newColors) !==
+          JSON.stringify(previousColorsRef.current)
+        ) {
+          previousColorsRef.current = newColors;
+        }
+      } else {
+        console.warn('spaceFullCoords is null or not an array');
+      }
+    }
+
+    if (spaceFullCoords) {
+      fetchSpacesAndUpdateMap();
+    }
+  }, [spaceFullCoords, checkedNodes]);
 
   /**
    * 지도의 중심 좌표와 마커를 업데이트하는 함수
