@@ -723,13 +723,17 @@ const TopMenuBar = ({
                           type="button"
                           onClick={() => logModalRef.current.show()}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex rounded-md p-0.5 w-9  bg-gray-700"
+                          className="flex items-center rounded-md p-0.5 w-9 h-9  bg-gray-700"
                         >
                           <img
                             src={downloadIcon}
                             alt="Download Icon"
                             className="object-contain"
-                            style={{ width: '100%', height: '100%' }} // 이미지 버튼 안에 꽉 차게
+                            style={{
+                              width: '90%',
+                              height: '90%',
+                              marginLeft: '1.5px',
+                            }} // 이미지 버튼 안에 꽉 차게
                           />
                           {/* <HiOutlineDocumentSearch
                             className="h-5 w-5 text-white"
@@ -751,13 +755,17 @@ const TopMenuBar = ({
                           type="button"
                           onClick={() => spaceModalRef.current.show()}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex rounded-md p-0.5 w-9 bg-gray-700"
+                          className="flex items-center rounded-md p-0.5 w-9 h-9 bg-gray-700"
                         >
                           <img
                             src={spaceIcon}
                             alt="Space Search Icon"
                             className="object-contain"
-                            style={{ width: '100%', height: '100%' }} // 이미지 버튼 안에 꽉 차게
+                            style={{
+                              width: '90%',
+                              height: '90%',
+                              marginLeft: '1.5px',
+                            }} // 이미지 버튼 안에 꽉 차게
                           />
                           {/* <HiOutlineDocumentSearch
                             className="h-5 w-5 text-white"
@@ -773,20 +781,24 @@ const TopMenuBar = ({
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
                         <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap">
-                          {/* 지도 초기회*/}
+                          {/* 지도 초기화*/}
                           {t('TopMenuBar.MapClear')}
                         </label>
                         <button
                           type="button"
                           onClick={handleMapClear}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex rounded-md p-0.5 w-9 bg-gray-700"
+                          className="flex items-center rounded-md p-0.5 w-9 h-9 bg-gray-700"
                         >
                           <img
                             src={clearIcon}
                             alt="Clear Icon"
                             className="object-contain"
-                            style={{ width: '100%', height: '100%' }} // 이미지 버튼 안에 꽉 차게
+                            style={{
+                              width: '90%',
+                              height: '90%',
+                              marginLeft: '1.5px',
+                            }} // 이미지 버튼 안에 꽉 차게
                           />
                           {/* <HiOutlineRefresh
                             className="h-5 w-5 text-white"
