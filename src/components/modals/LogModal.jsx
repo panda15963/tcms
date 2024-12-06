@@ -140,7 +140,9 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const [listRouteCount, setListRouteCount] = useState(0); // 경로탭 총 결과 카운트
   const [listConfigCount, setListConfigCount] = useState(0); // 화면정보탭 총 결과 카운트
   const [selectedRoutes, setSelectedRoutes] = useState([]); // 경로탭 체크박스 선택
-  const [selectedLogList, setSelectedLogList] = useState(initialList); // 화면정보탭 체크박스 선택
+
+  const [selectedTccfg, setSelectedTccfg] = useState(initialList); // 화면정보탭 체크박스 선택 (왼쪽)
+  const [selectedLogList, setSelectedLogList] = useState(initialList); // 화면정보탭 체크박스 선택 (오른쪽)
 
   // 모달창 상태 관리
   const [isRouteModalOpen, setIsRouteModalOpen] = useState(false); // 경로 모달 상태 관리
@@ -809,6 +811,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setListConfig(initialList);
 
     setSelectedRoutes();
+    setSelectedTccfg();
     setSelectedLogList();
 
     setSelectedSearchFields([]);
@@ -1006,6 +1009,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setListConfig(initialList);
 
     setSelectedRoutes();
+    setSelectedTccfg();
     setSelectedLogList();
 
     setSelectedSearchFields([]);
@@ -1055,6 +1059,8 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         '🚀 ~ handleLeftSelectionChange ~ combinedLogList:',
         combinedLogList
       );
+
+      setSelectedTccfg(selectedRows);
       setSelectedLogList(combinedLogList); // 전체 합쳐진 loglist 설정
     }
   };
@@ -1083,18 +1089,59 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 화면정보탭 다운로드
    */
   const handleConfigDownload = async () => {
-    const dataToDownload = selectedLogList;
+    console.log('🚀 ~ handleConfigDownload ~ selectedTccfg:', selectedTccfg);
+    console.log(
+      '🚀 ~ handleConfigDownload ~ selectedLogList:',
+      selectedLogList
+    );
+
     setLoading(true);
 
+    // selectedTccfg 처리 및 다운로드
+    for (const tccfg of selectedTccfg) {
+      console.log('tccfg.tccfg_id ==>', tccfg.tccfg_id);
+
+      try {
+        const response = await nonAuthInstance.get(
+          `/download/tccfg?tccfg_id=${tccfg.tccfg_id}`,
+          { responseType: 'json' }
+        );
+
+        console.log('tccfg.tccfg_name', tccfg.tccfg_name);
+
+        const filename =
+          tccfg.tccfg_name && tccfg.tccfg_name.trim()
+            ? `${tccfg.tccfg_name.trim()}.lowtccfg`
+            : 'default.lowtccfg';
+        const jsonBlob = new Blob([JSON.stringify(response.data, null, 2)], {
+          type: 'application/json',
+        });
+        const jsonUrl = window.URL.createObjectURL(jsonBlob);
+        const jsonLink = document.createElement('a');
+        jsonLink.href = jsonUrl;
+        jsonLink.download = filename;
+        document.body.appendChild(jsonLink);
+        jsonLink.click();
+        document.body.removeChild(jsonLink);
+        window.URL.revokeObjectURL(jsonUrl);
+      } catch (error) {
+        console.error(
+          `Failed to download tccfg file for tccfg_id ${tccfg.tccfg_id}:`,
+          error
+        );
+        setLoading(false);
+      }
+    }
+
     const resultList = await Promise.all(
-      dataToDownload.map(async (log) => {
+      selectedLogList.map(async (log) => {
         const condTmp = {
           meta_id: log.meta_id,
         };
 
-        console.log('🚀 ~ dataToDownload.map ~ condTmp:', condTmp);
+        console.log('🚀 ~ selectedLogList.map ~ condTmp:', condTmp);
         const result = await FIND_META_ID(condTmp);
-        console.log('🚀 ~ dataToDownload.map ~ result:', result);
+        console.log('🚀 ~ selectedLogList.map ~ result:', result);
 
         return result;
       })
@@ -1214,6 +1261,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         onClose={() => {
           setList(initialList);
           setListConfig(initialList);
+          setSelectedTccfg(initialList);
           setSelectedLogList(initialList);
           setOpen(false);
         }}
@@ -1257,6 +1305,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                       onClick={() => {
                         setList(initialList);
                         setListConfig(initialList);
+                        setSelectedTccfg(initialList);
                         setSelectedLogList(initialList);
                         setSelectedSearchFields([]);
                         setSelectedSearchFieldsConfig([]);

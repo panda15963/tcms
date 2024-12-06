@@ -56,6 +56,7 @@ const ConfigModal = ({
 
   const [configList, setConfigList] = useState([]); // 화면정보탭 조회 리스트
   const [selectConfigs, setSelectConfigs] = useState(initialList); // 체크박스 선택 상태
+  const [selectedTccfg, setSelectedTccfg] = useState(initialList); // 화면정보탭 체크박스 선택 (왼쪽)
   const [selectConfigDetail, setSelectConfigDetail] = useState(initialList); // 선택된 상세 설정
 
   // configList 데이터 변경 시 로그 출력
@@ -173,6 +174,8 @@ const ConfigModal = ({
         return acc.concat(row.loglist || []);
       }, []);
       console.log('🚀 ~ combinedLogList:', combinedLogList);
+
+      setSelectedTccfg(selectedRows);
       setSelectConfigs(combinedLogList);
     }
   };
@@ -261,7 +264,169 @@ const ConfigModal = ({
    * 화면정보탭 버전 모아보기 다운로드
    */
   const handleConfigDetailDownload = async () => {
-    // 다운로드 관련 코드
+    console.log(
+      '🚀 ~ handleConfigDetailDownload ~ selectedTccfg:',
+      selectedTccfg
+    );
+    console.log(
+      '🚀 ~ handleConfigDetailDownload ~ selectConfigs:',
+      selectConfigs
+    );
+
+    setLoading(true);
+
+    // selectedTccfg 처리 및 다운로드
+    for (const tccfg of selectedTccfg) {
+      console.log('tccfg.tccfg_id ==>', tccfg.tccfg_id);
+
+      try {
+        const response = await nonAuthInstance.get(
+          `/download/tccfg?tccfg_id=${tccfg.tccfg_id}`,
+          { responseType: 'json' }
+        );
+
+        console.log('tccfg.tccfg_name', tccfg.tccfg_name);
+
+        const filename =
+          tccfg.tccfg_name && tccfg.tccfg_name.trim()
+            ? `${tccfg.tccfg_name.trim()}.lowtccfg`
+            : 'default.lowtccfg';
+        const jsonBlob = new Blob([JSON.stringify(response.data, null, 2)], {
+          type: 'application/json',
+        });
+        const jsonUrl = window.URL.createObjectURL(jsonBlob);
+        const jsonLink = document.createElement('a');
+        jsonLink.href = jsonUrl;
+        jsonLink.download = filename;
+        document.body.appendChild(jsonLink);
+        jsonLink.click();
+        document.body.removeChild(jsonLink);
+        window.URL.revokeObjectURL(jsonUrl);
+      } catch (error) {
+        console.error(
+          `Failed to download tccfg file for tccfg_id ${tccfg.tccfg_id}:`,
+          error
+        );
+        setLoading(false);
+      }
+    }
+
+    const resultList = await Promise.all(
+      selectConfigs.map(async (log) => {
+        const condTmp = {
+          meta_id: log.meta_id, // 각 log에서 meta_id 추출
+        };
+        console.log('🚀 ~ selectConfigs.map ~ condTmp:', condTmp);
+        const result = await FIND_META_ID(condTmp);
+        console.log('🚀 ~ selectConfigs.map ~ result:', result);
+        return result;
+      })
+    );
+
+    // resultList를 평탄화(flatten)하여 단일 배열로 변환
+    const flatResultList = resultList.flat();
+    console.log(
+      '🚀 ~ handleConfigDetailDownload ~ flatResultList:',
+      flatResultList
+    );
+
+    // JSON 파일 다운로드 추가
+    for (const item of flatResultList) {
+      try {
+        // 각 item의 filename 속성에 따라 파일명 지정
+        const filename = item.file_name
+          ? `${item.file_name}.meta`
+          : 'flatResultList.meta';
+        const jsonBlob = new Blob([JSON.stringify(item, null, 2)], {
+          type: 'application/json',
+        });
+        const jsonUrl = window.URL.createObjectURL(jsonBlob);
+        const jsonLink = document.createElement('a');
+
+        jsonLink.href = jsonUrl;
+        jsonLink.download = filename; // 지정된 파일명으로 다운로드
+        document.body.appendChild(jsonLink);
+        jsonLink.click();
+        document.body.removeChild(jsonLink);
+        window.URL.revokeObjectURL(jsonUrl);
+      } catch (error) {
+        console.error(
+          `Failed to download JSON file for ${
+            item.filename || 'flatResultList'
+          }:`,
+          error
+        );
+        setLoading(false);
+      }
+    }
+
+    for (const file of flatResultList) {
+      try {
+        // sequence 0 = 로그파일
+        const logResponse = await nonAuthInstance.get(
+          `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
+          { responseType: 'blob' }
+        );
+
+        console.log('logResponse ==>', logResponse);
+
+        const logBlob = new Blob([logResponse.data]);
+        const logUrl = window.URL.createObjectURL(logBlob);
+        const logLink = document.createElement('a');
+
+        console.log('logBlob', logBlob);
+        console.log('logUrl', logUrl);
+        console.log('logLink', logLink);
+
+        console.log('file', file);
+
+        logLink.href = logUrl;
+        logLink.download = file.logPath.split('/').pop();
+        document.body.appendChild(logLink);
+        logLink.click();
+        document.body.removeChild(logLink);
+        window.URL.revokeObjectURL(logUrl);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(`Log file for meta_id ${file.meta_id} not found.`);
+        } else {
+          console.error(
+            `Failed to download log file for meta_id ${file.meta_id}:`,
+            error
+          );
+        }
+        setLoading(false);
+      }
+
+      try {
+        // sequence 1 = 이미지파일
+        const imageResponse = await nonAuthInstance.get(
+          `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
+          { responseType: 'blob' }
+        );
+
+        const imageBlob = new Blob([imageResponse.data]);
+        const imageUrl = window.URL.createObjectURL(imageBlob);
+        const imageLink = document.createElement('a');
+        imageLink.href = imageUrl;
+        imageLink.download = file.imagePath.split('/').pop();
+        document.body.appendChild(imageLink);
+        imageLink.click();
+        document.body.removeChild(imageLink);
+        window.URL.revokeObjectURL(imageUrl);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error(`Image file for meta_id ${file.meta_id} not found.`);
+        } else {
+          console.error(
+            `Failed to download image file for meta_id ${file.meta_id}:`,
+            error
+          );
+        }
+        setLoading(false);
+      }
+    }
+    setLoading(false);
   };
 
   return (
