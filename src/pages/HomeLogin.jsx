@@ -264,9 +264,15 @@ export default function Login() {
                     <div className="space-y-6">
                       {/* 아이디 입력 필드 */}
                       <div>
-                        <label className="block text-base font-semibold leading-6 text-gray-700">
-                          아이디
-                        </label>
+                        <div className="flex">
+                          <label className="block text-base font-semibold leading-6 text-gray-700">
+                            아이디
+                          </label>
+                          <label className="ml-1 text-base font-semibold leading-6 text-red-500">
+                            {' '}
+                            *
+                          </label>
+                        </div>
                         <div className="mt-2">
                           <input
                             className="block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3 outline-none"
