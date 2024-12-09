@@ -1,4 +1,6 @@
-import { axiosInstance, nonAuthInstance } from '../server/MapAxiosConfig';
+// import { axiosInstance, axiosInstance } from '../server/MapAxiosConfig';
+
+import { axiosInstance } from '../server/axios_config';
 
 /**
  * 맵 데이터 관련 요청 서비스
@@ -11,7 +13,7 @@ const MapLogService = {
    */
   MAIN_COUNTRY: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .get('/main/country', cond, {
         cancelToken,
       })
@@ -42,7 +44,7 @@ const MapLogService = {
    */
   MAIN_FEATURE: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .get('/main/feature', cond, {
         cancelToken,
       })
@@ -78,7 +80,7 @@ const MapLogService = {
    */
   MAIN_TARGET: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .get('/main/target', cond, {
         cancelToken,
       })
@@ -109,7 +111,7 @@ const MapLogService = {
    */
   MAIN_TAG: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .get('/main/tag', cond, {
         cancelToken,
       })
@@ -140,7 +142,7 @@ const MapLogService = {
    */
   FIND_META: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .post('/find/findMeta/10003', cond, {
         cancelToken,
       })
@@ -171,7 +173,7 @@ const MapLogService = {
    */
   FIND_META_10009: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .post('/find/findMeta/10009', cond, {
         cancelToken,
       })
@@ -202,7 +204,7 @@ const MapLogService = {
    */
   FIND_META_10100: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .post('/find/findMeta/10100', cond, {
         cancelToken,
       })
@@ -233,7 +235,7 @@ const MapLogService = {
    */
   FIND_TCCFG_10003: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .post('/find/findTccfg/10003', cond, {
         cancelToken,
       })
@@ -266,7 +268,7 @@ const MapLogService = {
     console.log('obj', obj);
 
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .get('/find/sameorigin/tccfg', cond, {
         cancelToken,
       })
@@ -297,7 +299,7 @@ const MapLogService = {
    */
   SPACE_INTERPOLATION: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .get(`/space/interpolation/${cond.file_id}`, {
         cancelToken,
         params: cond, // cond의 다른 값들은 query params로 사용 가능
@@ -327,7 +329,7 @@ const MapLogService = {
    */
   DOWNLOAD_TCCFG: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .get(`/download/tccfg`, {
         cancelToken,
         params: cond, // cond의 다른 값들은 query params로 사용 가능
@@ -357,7 +359,7 @@ const MapLogService = {
    */
   FIND_SPACE: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .post('/find/space', cond, {
         cancelToken,
       })
@@ -390,7 +392,7 @@ const MapLogService = {
     const { cond, cancelToken } = obj;
     const { meta_id, ...otherParams } = cond; // cond에서 meta_id 추출, 나머지 파라미터는 유지
 
-    const result = await nonAuthInstance
+    const result = await axiosInstance
       .get(`/find/meta/${meta_id}`, {
         params: otherParams, // 나머지 파라미터는 쿼리스트링으로 전달
         cancelToken,

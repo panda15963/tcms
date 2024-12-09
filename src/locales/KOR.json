@@ -349,5 +349,19 @@
   },
   "ToolList": {
     "All": "전체"
+  },
+  "modal": {
+    "fido": "FIDO 인증",
+    "addDevice": "단말 정보 입력",
+    "deviceInfo": "Device Information",
+    "userInfo": "User information",
+    "modifyIssue": "이슈 위치정보 수정",
+    "issueImg": "Issue Image",
+    "dltList": "로그 파일 목록",
+    "sec": "초"
+  },
+  "msg": {
+    "authExpired": "인증시간이 만료되었습니다.",
+    "authError": "인증에 실패하였습니다."
   }
 }
