@@ -27,8 +27,10 @@ export const AuthProvider = ({ children }) => {
 
   // 로그아웃 함수
   const logout = () => {
-    setAuth(null); // 인증 상태 초기화
-    localStorage.removeItem('user'); // 로컬 스토리지에서 사용자 데이터 제거
+    setAuth(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('ACCESS_TOKEN');
+    localStorage.removeItem('REFRESH_TOKEN');
   };
 
   const isAuthenticated = !!auth; // 사용자 인증 여부 확인

@@ -3,7 +3,7 @@ import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck, FaSearch } from 'react-icons/fa';
 import MainGrid from '../tables/mapTables/MainGrid';
-import { nonAuthInstance } from '../../server/MapAxiosConfig';
+// import { axiosInstance } from '../../server/MapAxiosConfig';
 import MapLogService from '../../service/MapLogService';
 import MultipleSelectDropDown from '../dropdowns/mapMenus/MultipleSelectDropDown';
 import { isEmpty } from 'lodash';
@@ -19,6 +19,7 @@ import useDidMount from '../../hooks/useDidMount';
 import useLoading from '../../hooks/useLoading';
 import RouteModal from './RouteModal';
 import ConfigModal from './ConfigModal';
+import { axiosInstance } from '../../server/axios_config';
 
 /**
  * 로그 검색
@@ -879,7 +880,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     for (const file of dataToDownload) {
       try {
         // sequence 0 = 로그파일
-        const logResponse = await nonAuthInstance.get(
+        const logResponse = await axiosInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
           { responseType: 'blob' }
         );
@@ -912,7 +913,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
       try {
         // sequence 1 = 이미지파일
-        const imageResponse = await nonAuthInstance.get(
+        const imageResponse = await axiosInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
           { responseType: 'blob' }
         );
@@ -1102,7 +1103,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       console.log('tccfg.tccfg_id ==>', tccfg.tccfg_id);
 
       try {
-        const response = await nonAuthInstance.get(
+        const response = await axiosInstance.get(
           `/download/tccfg?tccfg_id=${tccfg.tccfg_id}`,
           { responseType: 'json' }
         );
@@ -1184,7 +1185,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     for (const file of flatResultList) {
       try {
         // sequence 0 = 로그파일
-        const logResponse = await nonAuthInstance.get(
+        const logResponse = await axiosInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
           { responseType: 'blob' }
         );
@@ -1221,7 +1222,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
       try {
         // sequence 1 = 이미지파일
-        const imageResponse = await nonAuthInstance.get(
+        const imageResponse = await axiosInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
           { responseType: 'blob' }
         );

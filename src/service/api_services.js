@@ -1,10 +1,8 @@
 import axios from 'axios';
-import { nonAuthInstance } from '../server/MapAxiosConfig';
+import { axiosInstance } from '../server/axios_config';
 
-/**
- * 취소 토큰 생성 함수
- * @returns {Object} - 취소 토큰과 취소 함수가 포함된 객체 반환
- */
+// import { axiosInstance } from '../server/MapAxiosConfig';
+
 const createCancelToken = () => {
   let cancel;
   const token = new axios.CancelToken((c) => {
@@ -13,110 +11,128 @@ const createCancelToken = () => {
   return { token, cancel };
 };
 
-/**
- * 관리자 정보 가져오기
- * @param {string} adminId - 가져올 관리자 ID
- * @returns {Object} - 요청 결과 데이터와 취소 함수 포함
- */
-export async function getAdmin(adminId) {
+export async function tryLogin(data) {
   try {
-    const { token, cancel } = createCancelToken();
-    const response = await nonAuthInstance.get(`/admin/${adminId}`, {
-      cancelToken: token,
-    });
-    return { data: response.data, cancel };
+    // const { token, cancel } = createCancelToken();
+    console.log('[login][data] => ', data);
+    const response = await axiosInstance.post(`/auth/login`, data);
+    return { data: response.data };
   } catch (error) {
-    // 에러 처리
+    // Error handling
     if (axios.isCancel(error)) {
-      console.log('[getAdmin] 요청 취소됨 : ', error.message);
-      return { data: null, error: '요청이 취소되었습니다.' };
+      console.log('[login] Request canceled : ', error.message);
+      return { data: null, error: 'Request was canceled' };
     }
-    console.log('[getAdmin] 요청 에러 : ', error);
+    console.log('[login] Request error : ', error);
     return { data: null, error: error };
   }
 }
 
 /**
- * 모든 관리자 목록 가져오기
- * @returns {Object} - 요청 결과 데이터와 취소 함수 포함
+ * Mpass FIDO 인증 확인하는 함수
+ * @param {MpassFidoRequestDto} data
+ * @returns
  */
-export async function getAdmins() {
+export async function getLoginMpassFido(data) {
+  try {
+    // const { token, cancel } = createCancelToken();
+    console.log('[getLoginMpassFido][data] => ', data);
+    const response = await axiosInstance.post(`/auth/fido/get`, data);
+    return { data: response.data };
+  } catch (error) {
+    // Error handling
+    if (axios.isCancel(error)) {
+      console.log('[getLoginMpassFido] Request canceled : ', error.message);
+      return { data: null, error: 'Request was canceled' };
+    }
+    console.log('[getLoginMpassFido] Request error : ', error);
+    return { data: null, error: error };
+  }
+}
+
+export async function getAdmin(adminId) {
   try {
     const { token, cancel } = createCancelToken();
-    const response = await nonAuthInstance.get(`/admin/admins`, {
+    const response = await axiosInstance.get(`/admin/${adminId}`, {
       cancelToken: token,
     });
     return { data: response.data, cancel };
   } catch (error) {
-    // 에러 처리
+    // Error handling
     if (axios.isCancel(error)) {
-      console.log('[getAdmins] 요청 취소됨 : ', error.message);
-      return { data: null, error: '요청이 취소되었습니다.' };
+      console.log('[getAdmin] Request canceled : ', error.message);
+      return { data: null, error: 'Request was canceled' };
     }
-    console.log('[getAdmins] 요청 에러 : ', error);
+    console.log('[getAdmin] Request error : ', error);
+    return { data: null, error: error };
+  }
+}
+
+export async function getAdmins() {
+  try {
+    const { token, cancel } = createCancelToken();
+    const response = await axiosInstance.get(`/admin/admins`, {
+      cancelToken: token,
+    });
+    return { data: response.data, cancel };
+  } catch (error) {
+    // Error handling
+    if (axios.isCancel(error)) {
+      console.log('[getAdmins] Request canceled : ', error.message);
+      return { data: null, error: 'Request was canceled' };
+    }
+    console.log('[getAdmins] Request error : ', error);
     return { data: null, error: error.message };
   }
 }
 
-/**
- * 관리자 추가
- * @param {Object} data - 추가할 관리자 데이터
- * @returns {Object} - 요청 결과 데이터
- */
 export async function addAdmin(data) {
   try {
+    // const { token, cancel } = createCancelToken();
     console.log('[addAdmin][data] => ', data);
-    const response = await nonAuthInstance.put(`/admin/add`, data);
+    const response = await axiosInstance.put(`/admin/add`, data);
     return { data: response.data };
   } catch (error) {
-    // 에러 처리
+    // Error handling
     if (axios.isCancel(error)) {
-      console.log('[addAdmin] 요청 취소됨 : ', error.message);
-      return { data: null, error: '요청이 취소되었습니다.' };
+      console.log('[addAdmin] Request canceled : ', error.message);
+      return { data: null, error: 'Request was canceled' };
     }
-    console.log('[addAdmin] 요청 에러 : ', error);
+    console.log('[addAdmin] Request error : ', error);
     return { data: null, error: error };
   }
 }
 
-/**
- * 관리자 정보 업데이트
- * @param {Object} data - 업데이트할 관리자 데이터
- * @returns {Object} - 요청 결과 데이터
- */
 export async function updateAdmin(data) {
   try {
+    // const { token, cancel } = createCancelToken();
     console.log('[updateAdmin][data] => ', data);
-    const response = await nonAuthInstance.post(`/admin/update`, data);
+    const response = await axiosInstance.post(`/admin/update`, data);
     return { data: response.data };
   } catch (error) {
-    // 에러 처리
+    // Error handling
     if (axios.isCancel(error)) {
-      console.log('[updateAdmin] 요청 취소됨 : ', error.message);
-      return { data: null, error: '요청이 취소되었습니다.' };
+      console.log('[updateAdmin] Request canceled : ', error.message);
+      return { data: null, error: 'Request was canceled' };
     }
-    console.log('[updateAdmin] 요청 에러 : ', error);
+    console.log('[updateAdmin] Request error : ', error);
     return { data: null, error: error };
   }
 }
 
-/**
- * 관리자 삭제
- * @param {string} adminId - 삭제할 관리자 ID
- * @returns {Object} - 요청 결과 데이터
- */
 export async function deleteAdmin(adminId) {
   try {
+    // const { token, cancel } = createCancelToken();
     console.log('[deleteAdmin][adminId] => ', adminId);
-    const response = await nonAuthInstance.delete(`/admin/` + adminId);
+    const response = await axiosInstance.delete(`/admin/` + adminId);
     return { data: response.data };
   } catch (error) {
-    // 에러 처리
+    // Error handling
     if (axios.isCancel(error)) {
-      console.log('[deleteAdmin] 요청 취소됨 : ', error.message);
-      return { data: null, error: '요청이 취소되었습니다.' };
+      console.log('[deleteAdmin] Request canceled : ', error.message);
+      return { data: null, error: 'Request was canceled' };
     }
-    console.log('[deleteAdmin] 요청 에러 : ', error);
+    console.log('[deleteAdmin] Request error : ', error);
     return { data: null, error: error };
   }
 }

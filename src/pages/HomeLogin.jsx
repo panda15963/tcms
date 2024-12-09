@@ -7,8 +7,27 @@ import useToast from '../hooks/useToast';
 import { FaRegEyeSlash, FaRegEye } from 'react-icons/fa';
 import { ToastTypes } from '../context/ToastProvider';
 import { useTranslation } from 'react-i18next';
-import { isEmpty } from 'lodash';
-import { getAdmin } from '../service/api_services';
+import { isEmpty, isNumber } from 'lodash';
+import { getAdmin, tryLogin } from '../service/api_services';
+import { FidoModal } from '../components/modals/FidoModal';
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
+const initialRequest = {
+  user_id: '',
+  pw: '',
+  mpass_type: 2, // 1:OTP , 2:FIDO
+  otp: '',
+  request_type: 1, //웹
+};
+
+const initFidoParams = {
+  userId: '',
+  loginKey: '',
+  requestType: 1,
+};
 
 export default function Login() {
   const { t } = useTranslation; // 다국어 번역 훅
@@ -24,15 +43,12 @@ export default function Login() {
 
   let cancelconds; // 취소 토큰 저장
 
-  const initialRequest = {
-    admin_id: '', // 초기 admin ID
-    password: '', // 초기 비밀번호
-  };
-
   const [request, setRequest] = useState(initialRequest); // 입력된 요청 상태 관리
   const [showPass, setShowPass] = useState(false); // 비밀번호 표시 여부 상태
   const [authMethod, setAuthMethod] = useState('FIDO'); // 인증 방법 기본값 (FIDO)
   const [otpCode, setOtpCode] = useState(''); // OTP 코드 상태
+  const [showFidoModal, setShowFidoModal] = useState(false);
+  const [fidoParams, setFidoParams] = useState(initFidoParams);
   // const [mpassType, setMpassType] = (useState < 1) | (2 > 2); // 1 === otp, 2 === fido
   // const [fidoModalOpen, setFidoModalOpen] = useState(false);
   // const [params, setParams] = {}
@@ -45,6 +61,22 @@ export default function Login() {
     setRequest(initialRequest); // 입력 필드 초기화
   };
 
+  useEffect(() => {
+    if (request.mpass_type === 2 && !isEmpty(request.otp)) {
+      setRequest((preVal) => {
+        return {
+          ...preVal,
+          otp: '',
+        };
+      });
+    }
+  }, [request.mpass_type]);
+
+  const isFidoLoginType = () => {
+    console.log('[isFidoLoginTyep][request] => ', request);
+    return request && request.mpass_type && request.mpass_type === 2;
+  };
+
   /**
    * 로그인 요청 처리 함수
    * @param {Event} e - 이벤트 객체
@@ -54,31 +86,83 @@ export default function Login() {
 
     console.log('[handleSubmit][START] ==> ');
     let checkReturn = false;
-    if (isEmpty(request.admin_id)) {
+    if (isEmpty(request.user_id)) {
       showToast(ToastTypes.WARNING, '안내', '아이디를 입력해 주세요.');
+      checkReturn = true;
+    }
+    if (!isFidoLoginType && isEmpty(request.otp)) {
+      showToast(ToastTypes.WARNING, '안내', 'OTP번호를 입력해 주세요.');
       checkReturn = true;
     }
 
     if (checkReturn) return;
 
     setLoading(true);
-    console.log('[Login][Admin id] => ', request.admin_id);
+    console.log('[LOGIN][Request object] => ');
+    console.table(request);
 
-    const { data, cancel, error } = await getAdmin(request.admin_id);
+    const { data, cancel, error } = await tryLogin(request);
     console.log('🚀 ~ handleSubmit ~ data:', data);
     cancelconds = cancel;
     if (data) {
+      setLoading(false);
       console.log('[Login data]', data);
-      if (!isEmpty(data)) {
-        const adminInfo = {
-          seq: data.seq,
-          admin_id: data.admin_id,
-          admin_use_yn: data.admin_use_yn,
-        };
-        login(adminInfo);
-        handleGoHomeWithoutLogin();
+      if (!isEmpty(data) && data.code === 2000 && !isEmpty(data.result)) {
+        //FIDO 인증
+        if (isFidoLoginType()) {
+          console.log('[FIDO 인증][START] ===>');
+          setFidoParams((preVal) => {
+            return {
+              ...preVal,
+              userId: request.user_id,
+              loginKey: data.result.loginKey,
+            };
+          });
+          setShowFidoModal(true);
+        }
+        //OTP 인증
+        else {
+          console.log('[OTP 인증][START] ===>');
+          const accessToken = data.result.accessToken;
+          const refreshToken = data.result.refreshToken;
+          if (accessToken && !isEmpty(accessToken)) {
+            console.log('🚀 ~ jwtToken:', accessToken);
+            const decodedToken = jwtDecode(accessToken);
+            console.log('🚀 ~ decodedToken:', decodedToken);
+            console.log('Decoded token adminInfo ', decodedToken.admin_info);
+
+            //Set token to LOCALSTORAGE
+            localStorage.setItem('ACCESS_TOKEN', accessToken);
+            localStorage.setItem('REFRESH_TOKEN', refreshToken);
+
+            //관리자 정보를 저장한다
+            if (decodedToken.admin_info && !isEmpty(decodedToken.admin_info)) {
+              const adminInfo = {
+                seq: decodedToken.admin_info.seq,
+                admin_id: decodedToken.admin_info.admin_id,
+                admin_use_yn: decodedToken.admin_info.admin_use_yn,
+              };
+              login(adminInfo);
+            }
+            //Routing to HOME
+            handleGoHomeWithoutLogin();
+          } else {
+            showToast(
+              ToastTypes.ERROR,
+              '오류',
+              '토큰 정보를 못 찾았습니다. 다시 시도해 주십시오!'
+            );
+          }
+        }
+      } else {
+        showToast(
+          ToastTypes.ERROR,
+          '오류',
+          '로그인 도중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+        );
       }
     } else if (error) {
+      setLoading(false);
       console.log('[Login][Error] ==> ', error);
       if (
         error.status === 404 &&
@@ -97,82 +181,10 @@ export default function Login() {
         showToast(
           ToastTypes.ERROR,
           '오류',
-          '로그인할때 서버에 올 났습니다. \n' + error
+          '로그인할때 서버에 오류 났습니다. \n' + error
         );
       }
     }
-
-    setLoading(false);
-
-    // try {
-    //   //Call api auth endpoint
-    //   setLoading(true);
-    //   console.log('[Authentication request] ', request);
-    //   await authenticate(request).then((response) => {
-    //     console.log(
-    //       '🚀 ~ file: Login.jsx:63 ~ handleSubmit ~ response:',
-    //       response,
-    //     );
-    //     if (response && response.data && response.data.resultCode === 200) {
-    //       if (response.data.detail && isString(response.data.detail)) {
-    //         const token = response.data.detail;
-    //         const decodedToken = jwtDecode(token);
-    //         console.log('🚀 ~ awaitauthenticate ~ decodedToken:', decodedToken);
-    //         Cookies.set('access-token', token, { expires: 1 });
-    //         const adminInfo = {
-    //           admin_seq: decodedToken.sub ?? '',
-    //           admin_id: decodedToken.admin_id,
-    //           admin_level_cd: decodedToken.admin_level_cd,
-    //           admin_level_nm: decodedToken.admin_level_nm,
-    //           admin_name: decodedToken.admin_name,
-    //           admin_type: decodedToken.admin_type,
-    //         };
-    //         axiosInstance.interceptors.request.use(
-    //           (config) => {
-    //             config.headers['Authorization'] = `Bearer ${token}`;
-    //             return config;
-    //           },
-    //           (error) => {
-    //             return Promise.reject(error);
-    //           },
-    //         );
-    //         setLoading(false);
-
-    //         login(adminInfo);
-    //         // setAuth(adminInfo);
-    //         if (
-    //           adminInfo.admin_level_cd === ROLES.Admin ||
-    //           adminInfo.admin_level_cd === ROLES.Volunteer
-    //         ) {
-    //           // navigate('/ad/dashboard', { replace: true });
-    //         } else {
-    //           // navigate('/user/dashboard', { replace: true });
-    //         }
-    //       }
-    //     } else if (response.data && response.data.resultCode === 404) {
-    //       setLoading(false);
-    //       showToast(
-    //         ToastTypes.ERROR,
-    //         '실패',
-    //         '아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
-    //       );
-    //     } else {
-    //       showToast(
-    //         ToastTypes.ERROR,
-    //         '실패',
-    //         '아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
-    //       );
-    //     }
-    //   });
-    // } catch (e) {
-    //   setLoading(false);
-    //   console.log('Error complicated to login => ', e);
-    //   showToast(
-    //     ToastTypes.ERROR,
-    //     '실패',
-    //     '아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.',
-    //   );
-    // }
   };
 
   /**
@@ -210,6 +222,19 @@ export default function Login() {
     navigate('/main/map'); // 홈페이지 경로로 이동
   };
 
+  const handleLoginSuccess = (data) => {
+    console.log('[handleLoginSuccess][START] ==> ');
+    console.log('[handleLoginSuccess][data] ==> ', data);
+    if (data && !isEmpty(data)) {
+      localStorage.setItem('ACCESS_TOKEN', data.accessToken);
+      localStorage.setItem('REFRESH_TOKEN', data.refreshToken);
+
+      handleGoHomeWithoutLogin();
+    }
+
+    console.log('[handleLoginSuccess][END] ==> ');
+  };
+
   return (
     <>
       <div className="relative h-screen w-screen bg-cover bg-center">
@@ -244,7 +269,7 @@ export default function Login() {
                         </label>
                         <div className="mt-2">
                           <input
-                            className="block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3"
+                            className="block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3 outline-none"
                             placeholder="아이디를 입력하세요"
                             ref={idRef}
                             id="userId"
@@ -253,38 +278,49 @@ export default function Login() {
                             autoComplete="off"
                             value={request.admin_id}
                             onKeyDown={(e) => handleKeyDown(e, 'id')}
-                            onChange={(e) =>
-                              setRequest((prev) => ({
-                                ...prev,
-                                admin_id: e.target.value,
-                              }))
-                            }
+                            onChange={(e) => {
+                              setRequest((preVal) => {
+                                return {
+                                  ...preVal,
+                                  user_id: e.target.value,
+                                };
+                              });
+                            }}
                           />
                         </div>
                       </div>
 
                       {/* 비밀번호 입력 필드 */}
                       <div>
-                        <label className="block text-base font-semibold leading-6 text-gray-700">
-                          비밀번호
-                        </label>
+                        <div className="flex">
+                          <label className="block text-base font-semibold leading-6 text-gray-700">
+                            비밀번호
+                          </label>
+                          <label className="ml-1 text-base font-semibold leading-6 text-red-500">
+                            {' '}
+                            *
+                          </label>
+                        </div>
                         <div className="relative w-full max-w-md mt-2">
                           <input
                             placeholder="비밀번호를 입력하세요"
-                            className="block w-full rounded-lg shadow border-0 py-3 text-gray-900  ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3"
+                            className="block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3 outline-none"
                             required
                             ref={passRef}
                             id="password"
                             name="password"
+                            maxLength={20}
                             type={showPass ? 'text' : 'password'}
-                            value={request.password}
+                            value={request.pw}
                             onKeyDown={(e) => handleKeyDown(e, 'pass')}
-                            onChange={(e) =>
-                              setRequest((prev) => ({
-                                ...prev,
-                                password: e.target.value,
-                              }))
-                            }
+                            onChange={(e) => {
+                              setRequest((preVal) => {
+                                return {
+                                  ...preVal,
+                                  pw: e.target.value,
+                                };
+                              });
+                            }}
                           />
                           <button
                             className="absolute inset-y-0 right-0 flex items-center pr-3"
@@ -292,9 +328,13 @@ export default function Login() {
                             onMouseUp={handleMouseUp}
                             onMouseLeave={handleMouseUp}
                           >
-                            {showPass ? (
-                              <FaRegEye className="-ml-0.5 h-5 w-5 text-gray-400" />
-                            ) : (
+                            {showPass && (
+                              <FaRegEye
+                                className="-ml-0.5 h-5 w-5 text-gray-400"
+                                aria-hidden="true"
+                              />
+                            )}
+                            {!showPass && (
                               <FaRegEyeSlash className="-ml-0.5 h-5 w-5 text-gray-400" />
                             )}
                           </button>
@@ -309,33 +349,69 @@ export default function Login() {
                         <div className="flex items-center space-x-4 mt-2">
                           <button
                             className={`px-4 py-2 rounded-lg ${
-                              authMethod === 'FIDO'
+                              request.mpass_type === 2
                                 ? 'bg-blue-900 text-white'
                                 : 'bg-gray-200 text-gray-600'
                             }`}
-                            onClick={() => setAuthMethod('FIDO')}
+                            onClick={() => {
+                              setRequest((preVal) => {
+                                return {
+                                  ...preVal,
+                                  mpass_type: 2,
+                                };
+                              });
+                              setAuthMethod('FIDO');
+                            }}
                           >
                             FIDO
                           </button>
                           <button
                             className={`px-4 py-2 rounded-lg ${
-                              authMethod === 'OTP'
+                              request.mpass_type === 1
                                 ? 'bg-blue-900 text-white'
                                 : 'bg-gray-200 text-gray-600'
                             }`}
-                            onClick={() => setAuthMethod('OTP')}
+                            onClick={() => {
+                              setRequest((preVal) => {
+                                return {
+                                  ...preVal,
+                                  mpass_type: 1,
+                                };
+                              });
+                              setAuthMethod('OTP');
+                            }}
                           >
                             OTP
                           </button>
-                          {authMethod === 'OTP' && (
-                            <input
-                              type="text"
-                              className="block w-full max-w-xs rounded-lg border-0 py-2 px-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6"
-                              placeholder="OTP 번호 입력"
-                              value={otpCode}
-                              onChange={(e) => setOtpCode(e.target.value)}
-                            />
-                          )}
+                          <input
+                            type="number"
+                            className={classNames(
+                              request.mpass_type === 2
+                                ? 'cursor-not-allowed'
+                                : 'cursor-default',
+                              'block w-full max-w-xs rounded-lg border-0 py-2 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 disabled:placeholder-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 outline-none'
+                            )}
+                            disabled={request.mpass_type === 2}
+                            placeholder="OTP 번호 입력"
+                            value={request.otp}
+                            maxLength={8}
+                            onChange={(e) => {
+                              // console.log('OTP Val => ', e.target.value);
+                              const parsedOtp = parseInt(e.target.value);
+                              // console.log('OTP Val => ', isNumber(parsedOtp));
+                              if (
+                                isNumber(parsedOtp) &&
+                                e.target.value.length <= 8
+                              ) {
+                                setRequest((preVal) => {
+                                  return {
+                                    ...preVal,
+                                    otp: e.target.value,
+                                  };
+                                });
+                              }
+                            }}
+                          />
                         </div>
                       </div>
 
@@ -350,15 +426,25 @@ export default function Login() {
                         </button>
                       </div>
 
+                      {showFidoModal && (
+                        <FidoModal
+                          open={showFidoModal}
+                          onClose={() => setShowFidoModal(false)}
+                          params={fidoParams}
+                          setFidoParams={setFidoParams}
+                          handleLoginSuccess={handleLoginSuccess}
+                        />
+                      )}
+
                       {/* 메인 페이지 이동 버튼 */}
-                      <div>
+                      {/* <div>
                         <button
                           className="flex w-full justify-center items-center rounded-lg bg-gray-400 px-3 py-4 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 mt-4"
                           onClick={handleGoHomeWithoutLogin}
                         >
                           메인페이지로 이동
                         </button>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                   {/* <div className="flex justify-center mt-10">
