@@ -1,6 +1,6 @@
 // import { axiosInstance, nonAuthInstance } from '../server/StatAxiosConfig';
 
-import { axiosInstance } from '../server/axios_config';
+import { axiosInstance, changePortStat } from '../server/axios_config';
 
 /**
  * 통계 및 정보 요청 서비스
@@ -13,6 +13,7 @@ const StatLogService = {
    */
   TOOL_SETTINGS: async (obj) => {
     const { cond, cancelToken } = obj;
+    // changePortStat();
     const result = await axiosInstance
       .post('/statistics/tool-settings', cond, {
         cancelToken,
