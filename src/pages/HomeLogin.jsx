@@ -239,9 +239,15 @@ export default function Login() {
                     <div className="space-y-6">
                       {/* 아이디 입력 필드 */}
                       <div>
-                        <label className="block text-base font-semibold leading-6 text-gray-700">
-                          아이디
-                        </label>
+                        <div className="flex">
+                          <label className="block text-base font-semibold leading-6 text-gray-700">
+                            아이디
+                          </label>
+                          <label className="ml-1 text-base font-semibold leading-6 text-red-500">
+                            {' '}
+                            *
+                          </label>
+                        </div>
                         <div className="mt-2">
                           <input
                             className="block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3"
@@ -253,21 +259,29 @@ export default function Login() {
                             autoComplete="off"
                             value={request.admin_id}
                             onKeyDown={(e) => handleKeyDown(e, 'id')}
-                            onChange={(e) =>
-                              setRequest((prev) => ({
-                                ...prev,
-                                admin_id: e.target.value,
-                              }))
-                            }
+                            onChange={(e) => {
+                              setRequest((preVal) => {
+                                return {
+                                  ...preVal,
+                                  admin_id: e.target.value,
+                                };
+                              });
+                            }}
                           />
                         </div>
                       </div>
 
                       {/* 비밀번호 입력 필드 */}
                       <div>
-                        <label className="block text-base font-semibold leading-6 text-gray-700">
-                          비밀번호
-                        </label>
+                        <div className="flex">
+                          <label className="block text-base font-semibold leading-6 text-gray-700">
+                            비밀번호
+                          </label>
+                          <label className="ml-1 text-base font-semibold leading-6 text-red-500">
+                            {' '}
+                            *
+                          </label>
+                        </div>
                         <div className="relative w-full max-w-md mt-2">
                           <input
                             placeholder="비밀번호를 입력하세요"
@@ -279,12 +293,14 @@ export default function Login() {
                             type={showPass ? 'text' : 'password'}
                             value={request.password}
                             onKeyDown={(e) => handleKeyDown(e, 'pass')}
-                            onChange={(e) =>
-                              setRequest((prev) => ({
-                                ...prev,
-                                password: e.target.value,
-                              }))
-                            }
+                            onChange={(e) => {
+                              setRequest((preVal) => {
+                                return {
+                                  ...preVal,
+                                  password: e.target.value,
+                                };
+                              });
+                            }}
                           />
                           <button
                             className="absolute inset-y-0 right-0 flex items-center pr-3"
@@ -292,10 +308,11 @@ export default function Login() {
                             onMouseUp={handleMouseUp}
                             onMouseLeave={handleMouseUp}
                           >
-                            {showPass ? (
-                              <FaRegEye className="-ml-0.5 h-5 w-5 text-gray-400" />
-                            ) : (
-                              <FaRegEyeSlash className="-ml-0.5 h-5 w-5 text-gray-400" />
+                            {showPass && (
+                              <FaRegEye
+                                className="-ml-0.5 h-5 w-5 text-gray-400"
+                                aria-hidden="true"
+                              />
                             )}
                           </button>
                         </div>
