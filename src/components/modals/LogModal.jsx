@@ -867,7 +867,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         document.body.removeChild(jsonLink);
         window.URL.revokeObjectURL(jsonUrl);
 
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (error) {
         console.error(
           `Failed to download JSON file for ${
@@ -902,7 +902,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         document.body.removeChild(logLink);
         window.URL.revokeObjectURL(logUrl);
 
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (error) {
         if (error.response && error.response.status === 404) {
           console.error(`Log file for meta_id ${file.meta_id} not found.`);
@@ -932,7 +932,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         document.body.removeChild(imageLink);
         window.URL.revokeObjectURL(imageUrl);
 
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (error) {
         if (error.response && error.response.status === 404) {
           console.error(`Image file for meta_id ${file.meta_id} not found.`);

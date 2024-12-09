@@ -326,7 +326,7 @@ const SpaceModal = forwardRef(
           window.URL.revokeObjectURL(jsonUrl);
 
           // 다운로드 간의 간격을 조정
-          await new Promise((resolve) => setTimeout(resolve, 100)); // 100ms 대기
+          await new Promise((resolve) => setTimeout(resolve, 500)); // 100ms 대기
         } catch (error) {
           console.error(
             `Failed to download JSON file for ${
@@ -360,7 +360,7 @@ const SpaceModal = forwardRef(
           document.body.removeChild(logLink);
           window.URL.revokeObjectURL(logUrl);
 
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 500));
         } catch (error) {
           if (error.response && error.response.status === 404) {
             console.error(`Log file for meta_id ${file.meta_id} not found.`);
@@ -389,7 +389,7 @@ const SpaceModal = forwardRef(
           document.body.removeChild(imageLink);
           window.URL.revokeObjectURL(imageUrl);
 
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 500));
         } catch (error) {
           if (error.response && error.response.status === 404) {
             console.error(`Image file for meta_id ${file.meta_id} not found.`);
