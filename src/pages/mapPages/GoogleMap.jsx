@@ -240,14 +240,14 @@ export default function GoogleMap({
       return; // 지도 인스턴스가 없으면 종료
     }
 
-    if (!spaceFullCoords || spaceFullCoords.length === 0) {
-      console.warn('spaceFullCoords is empty or undefined.');
-      return; // 공간 데이터가 없으면 종료
-    }
-
     // 이전에 그려진 공간 경로 및 마커 제거
     clearSpacePolylines();
     clearSpaceMarkers();
+
+    if (!spaceFullCoords || spaceFullCoords.length === 0) {
+      console.log('spaceFullCoords is empty, clearing all markers and paths.');
+      return; // 공간 데이터가 없으면 종료
+    }
 
     const spaceCoords = []; // 공간 좌표를 저장할 배열
     const spaceMarkers = []; // 공간 마커를 저장할 배열

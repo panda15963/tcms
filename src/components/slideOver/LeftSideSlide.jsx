@@ -30,7 +30,6 @@ export default function LeftSideSlide({
 
   useEffect(() => {
     if (isCleared) {
-      console.log('LeftSideSlide: Clear event received');
       // Clear 동작 처리
       setRowsData();
       setOpen(false);

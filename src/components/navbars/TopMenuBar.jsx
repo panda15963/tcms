@@ -128,9 +128,6 @@ const TopMenuBar = ({
       setRouteFullCoords(null); // 경로 데이터 초기화
       setSpaceFullCoords(null); // 공간 데이터 초기화
       setCurrentApi(selectedAPI); // 현재 API 설정
-      setSuccessValue(
-        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`
-      ); // 성공 메시지
     }
   }, [selectedAPI, setCurrentApi]);
 
@@ -189,9 +186,6 @@ const TopMenuBar = ({
       filteredRouteFullCoords = mergeByFileId(routeFullCoords, checkedNodes);
     }
 
-    console.log('routeColors ==>', routeColors);
-    console.log(checkedNodes);
-
     // 선택된 지도 API에 따라 적절한 지도 핸들러 반환
     if (selectedAPI?.name === 'GOOGLE') {
       return (
@@ -207,10 +201,6 @@ const TopMenuBar = ({
         />
       );
     } else if (selectedAPI?.name === 'ROUTO') {
-      console.log(
-        'Rendering GoogleMapHandler with routeFullCoords:',
-        routeFullCoords
-      );
       return (
         <RoutoMapHandler
           key="routo"
