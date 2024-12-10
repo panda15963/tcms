@@ -160,37 +160,53 @@ export default function TomTomMap({
    */
   useEffect(() => {
     if (mapRef.current) {
-      // 유효한 경로 및 공간 배열 생성
-      const validRouteFullCoords = Array.isArray(routeFullCoords)
-        ? routeFullCoords
-        : [];
-      const validSpaceFullCoords = Array.isArray(spaceFullCoords)
-        ? spaceFullCoords
-        : [];
+      const map = mapRef.current;
 
-      // checkedNodes에 따라 경로 필터링 (선택된 노드가 없으면 모든 경로 표시)
-      const routesToDraw =
-        checkedNodes.length === 0
-          ? validRouteFullCoords
-          : validRouteFullCoords.filter((route) =>
-              checkedNodes.some((node) => node.file_id === route.file_id)
-            );
+      // routeFullCoords 또는 spaceFullCoords가 null이거나 빈 배열일 경우 경로와 마커 제거
+      if (
+        (!routeFullCoords || routeFullCoords.length === 0) &&
+        (!spaceFullCoords || spaceFullCoords.length === 0)
+      ) {
+        console.log('No valid routes or spaces; clearing map.');
+        clearRoutesAndMarkers(map); // 기존 경로와 마커 제거
+        return; // 함수 종료
+      }
 
-      // checkedNodes에 따라 공간 필터링 (선택된 노드가 없으면 모든 공간 표시)
-      const spacesToDraw =
-        checkedNodes.length === 0
-          ? validSpaceFullCoords
-          : validSpaceFullCoords.filter((space) =>
-              checkedNodes.some((node) => node.file_id === space.file_id)
-            );
+      // 유효한 경로와 공간 데이터를 필터링
+      const validRouteCoords =
+        Array.isArray(routeFullCoords) && routeFullCoords.length > 0
+          ? routeFullCoords.filter(
+              (route) =>
+                route &&
+                route.coords &&
+                route.coords.length > 0 &&
+                (checkedNodes.length === 0 ||
+                  checkedNodes.some((node) => node.file_id === route.file_id))
+            )
+          : [];
+      const validSpaceCoords =
+        Array.isArray(spaceFullCoords) && spaceFullCoords.length > 0
+          ? spaceFullCoords.filter(
+              (space) =>
+                space &&
+                space.coords &&
+                space.coords.length > 0 &&
+                (checkedNodes.length === 0 ||
+                  checkedNodes.some((node) => node.file_id === space.file_id))
+            )
+          : [];
 
-      // 필터링된 경로와 공간을 결합
-      const combinedCoords = [...routesToDraw, ...spacesToDraw];
-
-      // 지도에 경로와 공간 다시 그리기
-      drawRoutes(mapRef.current, combinedCoords);
+      // 스타일이 로드된 경우 바로 그리기
+      if (map.isStyleLoaded()) {
+        drawRoutes(map, [...validRouteCoords, ...validSpaceCoords]);
+      } else {
+        // 스타일이 로드되지 않은 경우 이벤트 리스너 등록
+        map.once('style.load', () => {
+          drawRoutes(map, [...validRouteCoords, ...validSpaceCoords]);
+        });
+      }
     }
-  }, [routeFullCoords, checkedNodes, spaceFullCoords]);
+  }, [routeFullCoords, spaceFullCoords, checkedNodes]);
 
   /**
    * 지도에서 기존 경로 레이어와 마커를 제거하는 함수
@@ -294,10 +310,10 @@ export default function TomTomMap({
     // 기존 경로 및 마커를 모두 제거
     clearRoutesAndMarkers(map);
 
-    // Wait for style to load before drawing routes
+    // 지도 스타일이 로드되지 않은 경우, 로드 후에 실행되도록 설정
     if (!map.isStyleLoaded()) {
       map.once('style.load', () => {
-        drawRoutes(map, routeFullCoords);
+        drawRoutes(map, routeFullCoords); // 스타일 로드 후 다시 실행
       });
       return;
     }
