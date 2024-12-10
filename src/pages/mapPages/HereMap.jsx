@@ -261,9 +261,11 @@ const HereMap = ({
     const midLat = pointCount > 0 ? totalLat / pointCount : 0;
     const midLng = pointCount > 0 ? totalLng / pointCount : 0;
 
-    // 지도 중심을 계산된 중심점으로 설정하고 줌 레벨을 조정
-    mapInstance.current.setCenter({ lat: midLat, lng: midLng });
-    mapInstance.current.setZoom(10);
+    if (clickedNode === null) {
+      // 지도 중심을 계산된 중심점으로 설정하고 줌 레벨을 조정
+      mapInstance.current.setCenter({ lat: midLat, lng: midLng });
+      mapInstance.current.setZoom(10);
+    }
   };
 
   /**

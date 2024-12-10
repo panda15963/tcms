@@ -30,7 +30,6 @@ export default function LeftSideSlide({
 
   useEffect(() => {
     if (isCleared) {
-      console.log('LeftSideSlide: Clear event received');
       // Clear 동작 처리
       setRowsData();
       setOpen(false);
@@ -88,7 +87,7 @@ export default function LeftSideSlide({
     }
   }, [onMapChange]);
 
-  // 지도 변경에 따라 필터링된 데이터 적용
+  // 맵 변경에 따라 필터링된 데이터 적용
   useEffect(() => {
     if (onMapChange?.name === 'ROUTO' || onMapChange?.name === 'TMAP') {
       console.log('onMapChange is ROUTO or TMAP, applying filters.');
@@ -105,21 +104,28 @@ export default function LeftSideSlide({
       );
 
       setRowsData(filteredByName); // 필터링된 데이터 저장
-
-      // 필터링된 데이터가 존재하면 패널 열기
-      if (filteredByName.length > 0) {
-        setOpen(true);
-      }
     } else {
       // 기본 데이터 설정
       setRowsData(data); // 전체 데이터를 rowsData에 설정
-
-      // 데이터가 있으면 패널 열기
-      if (data.length > 0) {
-        setOpen(true);
-      }
     }
   }, [data, onMapChange]);
+
+  // 새로운 데이터가 제공되면 자동으로 패널 열기
+  useEffect(() => {
+    console.log('왼쪽 사이드 슬라이드 data ==>', data);
+
+    if (data && data.length > 0 && !onMapChange) {
+      setOpen(true);
+    }
+  }, [data]);
+
+  // 맵이 변경되면 데이터 초기화
+  useEffect(() => {
+    if (onMapChange) {
+      setRowsData([]); // 데이터 초기화
+      setOpen(false); // 패널 닫기
+    }
+  }, [onMapChange]);
 
   return (
     <div className="flex">

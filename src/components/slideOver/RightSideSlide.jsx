@@ -13,7 +13,6 @@ export default function RightSideSlide({ data, onMapChange, isCleared }) {
 
   useEffect(() => {
     if (isCleared) {
-      console.log('RightSideSlide: Clear event received');
       // Clear 동작 처리
       setExpandedRows();
       setRowsData();

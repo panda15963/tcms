@@ -294,6 +294,14 @@ export default function TomTomMap({
     // 기존 경로 및 마커를 모두 제거
     clearRoutesAndMarkers(map);
 
+    // Wait for style to load before drawing routes
+    if (!map.isStyleLoaded()) {
+      map.once('style.load', () => {
+        drawRoutes(map, routeFullCoords);
+      });
+      return;
+    }
+
     // 모든 경로를 포함할 수 있는 범위를 생성
     const bounds = new tt.LngLatBounds();
 

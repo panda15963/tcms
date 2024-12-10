@@ -46,9 +46,6 @@ export default function GoogleMapHandler({
     checkedFileIds.includes(route.file_id)
   );
 
-  console.log('routeFullCoords:', routeFullCoords);
-  console.log('checkedNode:', checkedNode);
-
   // 선택된 공간 필터링
   const filteredSpaces = (spaceFullCoords ?? []).filter((space) =>
     checkedFileIds.includes(space.file_id)
