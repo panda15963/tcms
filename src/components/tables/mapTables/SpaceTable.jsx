@@ -112,7 +112,7 @@ const SpaceTableHeaderList = (t) => [
     cell: ({ row }) => {
       const imagePath = row.original.imagePath;
       const [showModal, setShowModal] = useState(false);
-      
+
       const adjustImagePath = (baseURL, imagePath) => {
         if (baseURL.includes('192.168.0.88')) {
           return `/images${imagePath.replace('/testcourse/image', '')}`;
@@ -264,16 +264,18 @@ const SpaceTable = ({ list, onSelectionChange }) => {
             </tr>
           ))}
         </tbody>
-      </table> 
+      </table>
 
       {/* 더 많은 항목 보기 버튼 */}
       {displayedData.length < validList.length && (
-        <button
-          onClick={handleLoadMore}
-          className="mt-1 px-2 py-1 bg-blue-500 text-white rounded"
-        >
-          {t('SpaceTable.LoadMore')}
-        </button>
+        <div className="flex justify-center mt-1">
+          <button
+            onClick={handleLoadMore}
+            className="mt-1 px-2 py-1 bg-blue-500 text-white rounded"
+          >
+            {t('SpaceTable.LoadMore')}
+          </button>
+        </div>
       )}
     </div>
   );
