@@ -3,7 +3,6 @@ import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck, FaSearch } from 'react-icons/fa';
 import MainGrid from '../tables/mapTables/MainGrid';
-// import { axiosInstance } from '../../server/MapAxiosConfig';
 import MapLogService from '../../service/MapLogService';
 import MultipleSelectDropDown from '../dropdowns/mapMenus/MultipleSelectDropDown';
 import { isEmpty } from 'lodash';
@@ -1523,11 +1522,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           onClick={onFindMeta}
                         >
                           <FaSearch
-                            className="h-4 w-5 text-sky-500"
+                            className="h-4 w-5 text-blue-900"
                             aria-hidden="true"
                           />
                           {/* 경로 -> 검색 버튼 */}
-                          <span className="text-sm text-sky-500 font-bold">
+                          <span className="text-sm text-blue-900 font-bold">
                             {t('LogModal.Find')}
                           </span>
                         </button>
@@ -1569,20 +1568,20 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           {isDirect ? (
                             <>
                               <FaDownload
-                                className="h-4 w-5 text-sky-500"
+                                className="h-4 w-5 text-blue-900"
                                 aria-hidden="true"
                               />
-                              <span className="text-sm text-sky-500 font-bold">
+                              <span className="text-sm text-blue-900 font-bold">
                                 {t('LogModal.Download')}
                               </span>
                             </>
                           ) : (
                             <>
                               <FaCheck
-                                className="h-4 w-5 text-sky-500"
+                                className="h-4 w-5 text-blue-900"
                                 aria-hidden="true"
                               />
-                              <span className="text-sm text-sky-500 font-bold">
+                              <span className="text-sm text-blue-900 font-bold">
                                 {t('LogModal.Select')}
                               </span>
                             </>
@@ -1720,10 +1719,10 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           onClick={onFindTccfg}
                         >
                           <FaSearch
-                            className="h-4 w-5 text-sky-500"
+                            className="h-4 w-5 text-blue-900"
                             aria-hidden="true"
                           />
-                          <span className="text-sm text-sky-500 font-bold">
+                          <span className="text-sm text-blue-900 font-bold">
                             {/* 화면정보탭 검색 */}
                             {t('LogModal.Find')}
                           </span>
@@ -1783,20 +1782,20 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           {isDirect ? (
                             <>
                               <FaDownload
-                                className="h-4 w-5 text-sky-500"
+                                className="h-4 w-5 text-blue-900"
                                 aria-hidden="true"
                               />
-                              <span className="text-sm text-sky-500 font-bold">
+                              <span className="text-sm text-blue-900 font-bold">
                                 {t('LogModal.Download')}
                               </span>
                             </>
                           ) : (
                             <>
                               <FaCheck
-                                className="h-4 w-5 text-sky-500"
+                                className="h-4 w-5 text-blue-900"
                                 aria-hidden="true"
                               />
-                              <span className="text-sm text-sky-500 font-bold">
+                              <span className="text-sm text-blue-900 font-bold">
                                 {t('LogModal.Select')}
                               </span>
                             </>

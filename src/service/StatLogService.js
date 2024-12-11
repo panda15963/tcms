@@ -1,4 +1,4 @@
-// import { axiosInstance, nonAuthInstance } from '../server/StatAxiosConfig';
+// import { axiosInstance, axiosInstance } from '../server/StatAxiosConfig';
 
 import { axiosInstance, changePortStat } from '../server/axios_config';
 

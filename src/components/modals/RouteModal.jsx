@@ -3,9 +3,9 @@ import { Dialog } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck, FaDownload } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-import { nonAuthInstance } from '../../server/MapAxiosConfig';
 import MapLogService from '../../service/MapLogService';
 import MainGridDetail from '../tables/mapTables/MainGridDetail';
+import { axiosInstance } from '../../server/axios_config';
 
 /**
  * 경로탭 버전 모아보기
@@ -67,10 +67,14 @@ const RouteModal = ({
   const FIND_SAMEORIGIN_META = async () => {
     setLoading(true);
     try {
-      const response = await nonAuthInstance.get(
-        `/find/sameorigin/meta?group_id=${data.group_id}&meta_id=${data.origin_meta_id}`
+      const response = await axiosInstance.get(
+        `/find/sameorigin/meta?group_id=${-1}&meta_id=${data.origin_meta_id}`
       );
       console.log('🚀 ~ constFIND_SAMEORIGIN_META= ~ response:', response);
+      console.log(
+        '🚀 ~ constFIND_SAMEORIGIN_META= ~ data.origin_meta_id:',
+        data.origin_meta_id
+      );
 
       setRouteList((prevState) => {
         return {
@@ -207,7 +211,7 @@ const RouteModal = ({
     for (const file of selectRoutes) {
       try {
         // sequence 0 = 로그파일
-        const logResponse = await nonAuthInstance.get(
+        const logResponse = await axiosInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
           { responseType: 'blob' }
         );
@@ -235,7 +239,7 @@ const RouteModal = ({
 
       try {
         // sequence 1 = 이미지파일
-        const imageResponse = await nonAuthInstance.get(
+        const imageResponse = await axiosInstance.get(
           `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
           { responseType: 'blob' }
         );
@@ -309,20 +313,20 @@ const RouteModal = ({
               {isDirect ? (
                 <>
                   <FaDownload
-                    className="h-4 w-5 text-sky-500"
+                    className="h-4 w-5 text-blue-900"
                     aria-hidden="true"
                   />
-                  <span className="text-sm text-sky-500 font-bold">
+                  <span className="text-sm text-blue-900 font-bold">
                     {t('LogModal.Download')}
                   </span>
                 </>
               ) : (
                 <>
                   <FaCheck
-                    className="h-4 w-5 text-sky-500"
+                    className="h-4 w-5 text-blue-900"
                     aria-hidden="true"
                   />
-                  <span className="text-sm text-sky-500 font-bold">
+                  <span className="text-sm text-blue-900 font-bold">
                     {t('LogModal.Select')}
                   </span>
                 </>
