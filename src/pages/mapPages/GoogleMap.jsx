@@ -133,33 +133,54 @@ export default function GoogleMap({
   // 지도 중심 업데이트
   useEffect(() => {
     if (map) {
-      const newCenter = calculateCenterAndMarker(lat, lng);
-      const isDefaultLocation =
-        newCenter.lat === parseFloat(process.env.REACT_APP_LATITUDE) &&
-        newCenter.lng === parseFloat(process.env.REACT_APP_LONGITUDE);
+      const defaultCoords = {
+        lat: parseFloat(process.env.REACT_APP_LATITUDE),
+        lng: parseFloat(process.env.REACT_APP_LONGITUDE),
+      };
+      const defaultZoom = parseInt(process.env.REACT_APP_ZOOM, 10) || 12;
 
-      if (
-        newCenter.lat !== map.getCenter().lat() ||
-        newCenter.lng !== map.getCenter().lng()
-      ) {
+      const calculateCenterAndMarker = (lat, lng) => ({
+        lat: parseFloat(lat) || defaultCoords.lat,
+        lng: parseFloat(lng) || defaultCoords.lng,
+      });
+
+      // Calculate new center based on lat, lng
+      const newCenter = calculateCenterAndMarker(lat, lng);
+
+      // Check if there are no routes or spaces
+      if (routeFullCoords.length === 0 && spaceFullCoords.length === 0) {
+        console.log('Resetting to default coordinates.');
+
+        // Reset map center and zoom
+        map.setCenter(newCenter);
+        map.setZoom(defaultZoom);
+
+        // Clear all markers and polylines
+        clearSpacePolylines();
+        clearSpaceMarkers();
+        clearRoutePolylines();
+        clearRouteMarkers();
+        clearMarkers();
+
+        // Check if the map center is at the default location
+        const isDefaultLocation =
+          newCenter.lat === defaultCoords.lat &&
+          newCenter.lng === defaultCoords.lng;
+
+        if (!isDefaultLocation) {
+          // Add a new marker if not at the default location
+          const marker = new window.google.maps.Marker({
+            position: newCenter,
+            map: map,
+          });
+          markerRefs.current.push(marker);
+        }
+      } else {
+        // If there are routes or spaces, ensure the map is centered correctly
         map.setCenter(newCenter);
       }
-
-      // 기본 위치에서는 마커 제거
-      if (isDefaultLocation) {
-        clearMarkers();
-      } else {
-        clearMarkers();
-
-        // 새로운 마커 추가
-        const marker = new window.google.maps.Marker({
-          position: newCenter,
-          map: map,
-        });
-        markerRefs.current.push(marker);
-      }
     }
-  }, [lat, lng, map]);
+  }, [routeFullCoords, spaceFullCoords, lat, lng, map]);
 
   const findRemovedSpaceIndex = (prevCoords, currentCoords) => {
     for (let i = 0; i < prevCoords.length; i++) {
@@ -482,7 +503,7 @@ export default function GoogleMap({
   useEffect(() => {
     if (routeFullCoords.length > 0 || spaceFullCoords.length > 0) {
       console.log('새로운 경로 또는 공간 데이터로 인해 clickedNode 초기화');
-      clickedNode = null; // clickedNode를 null로 초기화
+      setIsClickedNodeActive(false);
     }
   }, [routeFullCoords, spaceFullCoords]);
 

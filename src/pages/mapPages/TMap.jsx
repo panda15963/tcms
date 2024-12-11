@@ -160,11 +160,6 @@ export default function RoutoMap({
   }, [clickedNode]);
 
   /**
-   * 이전 경로 색상을 저장하는 ref
-   */
-  const previousColorsRef = useRef([]); // 경로 색상 추적을 위한 ref
-
-  /**
    * 경로 데이터를 가져와 지도에 업데이트하는 useEffect
    */
   useEffect(() => {
@@ -180,6 +175,16 @@ export default function RoutoMap({
       startMarkerRef.current = [];
       finishMarkerRef.current = [];
       routePolylineRef.current = [];
+
+      if (!routeFullCoords || routeFullCoords.length === 0) {
+        const defaultCenter = new Tmapv2.LatLng(
+          parseFloat(process.env.REACT_APP_LATITUDE),
+          parseFloat(process.env.REACT_APP_LONGITUDE)
+        );
+        mapRef.current.setCenter(defaultCenter);
+        mapRef.current.setZoom(10);
+        return;
+      }
 
       // 선택된 경로를 위한 새로운 경계(bounds) 생성
       let bounds = new Tmapv2.LatLngBounds();
@@ -256,7 +261,7 @@ export default function RoutoMap({
   useEffect(() => {
     async function fetchSpacesAndUpdateMap() {
       const { Tmapv2 } = window;
-  
+
       // 기존에 추가된 마커와 폴리라인 제거
       if (spaceMarkerRef.current.length) {
         spaceMarkerRef.current.forEach((marker) => marker.setMap(null));
@@ -266,7 +271,17 @@ export default function RoutoMap({
         spacePolylineRef.current.forEach((polyline) => polyline.setMap(null));
         spacePolylineRef.current = [];
       }
-  
+
+      if (!spaceFullCoords || spaceFullCoords.length === 0) {
+        const defaultCenter = new Tmapv2.LatLng(
+          parseFloat(process.env.REACT_APP_LATITUDE),
+          parseFloat(process.env.REACT_APP_LONGITUDE)
+        );
+        mapRef.current.setCenter(defaultCenter);
+        mapRef.current.setZoom(17);
+        return;
+      }
+
       // spaceFullCoords가 null이거나 배열이 아니면 함수 종료
       if (!spaceFullCoords || !Array.isArray(spaceFullCoords)) {
         console.warn(
@@ -274,9 +289,9 @@ export default function RoutoMap({
         );
         return;
       }
-  
+
       const newColors = []; // 새롭게 추가된 색상을 저장할 배열
-  
+
       // spaceFullCoords 데이터를 처리
       spaceFullCoords.forEach((space, index) => {
         // 해당 공간이 체크 상태인지 확인
@@ -284,18 +299,18 @@ export default function RoutoMap({
           (node) => node.file_id === space.file_id
         );
         if (!spaceChecked) return; // 체크되지 않은 공간은 스킵
-  
+
         // 공간 좌표를 파싱
         const parsedCoords = handleCoordinateInput(space.coords);
         if (parsedCoords.length === 0) {
           console.warn('유효한 좌표가 없습니다.'); // 유효하지 않은 좌표에 대한 경고
           return;
         }
-  
+
         // 시작 좌표와 끝 좌표 설정
         const startCoord = parsedCoords[0]; // 시작 좌표
         const finishCoord = parsedCoords[parsedCoords.length - 1]; // 끝 좌표
-  
+
         // 시작 마커 추가
         const startMarker = new Tmapv2.Marker({
           position: new Tmapv2.LatLng(startCoord.lat, startCoord.lng),
@@ -304,7 +319,7 @@ export default function RoutoMap({
           iconSize: new Tmapv2.Size(32, 32),
         });
         spaceMarkerRef.current.push(startMarker);
-  
+
         // 끝 마커 추가
         const finishMarker = new Tmapv2.Marker({
           position: new Tmapv2.LatLng(finishCoord.lat, finishCoord.lng),
@@ -313,11 +328,11 @@ export default function RoutoMap({
           iconSize: new Tmapv2.Size(32, 32),
         });
         spaceMarkerRef.current.push(finishMarker);
-  
+
         // 폴리라인 색상 설정
         const color = routeColors[index % routeColors.length] || '#0000ff';
         newColors.push(color);
-  
+
         // 폴리라인 생성
         const polylinePath = parsedCoords.map(
           (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
@@ -325,17 +340,17 @@ export default function RoutoMap({
         const polyline = new Tmapv2.Polyline({
           path: polylinePath,
           strokeColor: color, // 폴리라인 색상
-          strokeWeight: 4, // 폴리라인 두께
+          strokeWeight: 5, // 폴리라인 두께
           map: mapRef.current,
         });
         spacePolylineRef.current.push(polyline);
       });
-  
+
       // 맵의 줌과 센터 위치 업데이트
       let latSum = 0;
       let lngSum = 0;
       let pointCount = 0;
-  
+
       spaceFullCoords.forEach((space) => {
         space.coords.forEach(({ lat, lng }) => {
           latSum += lat;
@@ -343,13 +358,13 @@ export default function RoutoMap({
           pointCount++;
         });
       });
-  
+
       if (pointCount > 0) {
         const avgLat = latSum / pointCount; // 모든 좌표의 평균 위도 계산
         const avgLng = lngSum / pointCount; // 모든 좌표의 평균 경도 계산
         const centerCoords = new Tmapv2.LatLng(avgLat, avgLng);
         mapRef.current.setCenter(centerCoords); // 맵의 중심 좌표 설정
-  
+
         // 맵의 줌 레벨을 한 번만 설정
         if (!zoomSetRef.current) {
           mapRef.current.setZoom(10);
@@ -357,10 +372,9 @@ export default function RoutoMap({
         }
       }
     }
-  
+
     fetchSpacesAndUpdateMap();
   }, [spaceFullCoords, checkedNodes]); // spaceFullCoords와 checkedNodes가 변경될 때마다 실행
-  
 
   /**
    * 지도의 중심 좌표와 마커를 업데이트하는 함수

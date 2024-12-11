@@ -54,12 +54,17 @@ const TopMenuBar = ({
   const [destinations, setDestinations] = useState([]); // 도착 좌표 리스트
   const [routeFullCoords, setRouteFullCoords] = useState(null); // 전체 경로 데이터
   const [spaceFullCoords, setSpaceFullCoords] = useState(null); // 전체 공간 데이터
+  const [clickedNodes, setClickedNodes] = useState(null); // 클릭된 노드 데이터
 
   const storeModalRef = useRef(); // StoreModal 참조
   const logModalRef = useRef(); // LogModal 참조
   const spaceModalRef = useRef(); // SpaceModal 참조
 
   const { t } = useTranslation(); // 다국어 번역 훅
+
+  useEffect(() => {
+    setClickedNodes(clickedNode);
+  }, [clickedNode]);
 
   /**
    * 검색 입력값 변경 핸들러
@@ -196,7 +201,7 @@ const TopMenuBar = ({
           routeFullCoords={routeFullCoords} // 원본 경로 데이터
           spaceFullCoords={spaceFullCoords} // 공간 데이터
           checkedNode={checkedNodes} // 선택된 노드 데이터
-          clickedNode={clickedNode} // 클릭된 노드 데이터
+          clickedNode={clickedNodes} // 클릭된 노드 데이터
           routeColors={routeColors} // 경로 색상
         />
       );
@@ -262,7 +267,7 @@ const TopMenuBar = ({
           routeFullCoords={routeFullCoords} // 원본 경로 데이터
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
-          clickedNode={clickedNode}
+          clickedNode={clickedNodes}
           routeColors={routeColors}
         />
       );
@@ -630,6 +635,7 @@ const TopMenuBar = ({
     setSpaceFullCoords(null);
     setConvertedCoords({ lat: '', lng: '' });
     setDisplayCoords(null);
+    setClickedNodes(null);
     setOrigins([]);
     setDestinations([]);
     if (typeof routeColors === 'function') {

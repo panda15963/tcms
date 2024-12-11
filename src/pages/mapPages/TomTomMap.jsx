@@ -88,6 +88,8 @@ export default function TomTomMap({
   const routeLayerIds = useRef([]); // 경로 레이어 ID를 저장하여 관리
   const routeMarkers = useRef([]); // 시작 및 종료 마커 저장
   const [searchMarker, setSearchMarker] = useState(null); // 검색된 마커 상태
+  const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
+  const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
 
   /**
    * 위도(lat)와 경도(lng)가 변경될 때 중심 좌표를 업데이트
@@ -120,6 +122,8 @@ export default function TomTomMap({
         markerRef.current = new tt.Marker()
           .setLngLat([center.lng, center.lat]) // 현재 중심 좌표
           .addTo(mapRef.current); // 지도에 마커 추가
+
+        console.log('center', center);
       }
 
       // 지도 스타일이 로드된 후 경로를 그림
@@ -143,14 +147,29 @@ export default function TomTomMap({
     }
 
     if (lat && lng) {
+      // Fly to the searched location first
+      mapRef.current.flyTo({
+        center: [lng, lat],
+        zoom: 15, // 적절한 줌 레벨
+      });
+
+      // Create a new marker for the searched location
       const newMarker = new tt.Marker()
         .setLngLat([lng, lat])
         .addTo(mapRef.current);
 
-      setSearchMarker(newMarker); // 검색된 마커 상태 업데이트
-      mapRef.current.flyTo({
-        center: [lng, lat],
-        zoom: 15, // 적절한 줌 레벨
+      setSearchMarker(newMarker); // Store the marker in state
+
+      // Reset to the default center after a brief delay to ensure the user sees the searched location
+      mapRef.current.once('moveend', () => {
+        mapRef.current.flyTo({
+          center: [defaultLng, defaultLat],
+          zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨
+        });
+
+        // Remove the search marker after resetting the map
+        newMarker.remove();
+        setSearchMarker(null);
       });
     }
   }, [lat, lng]);
@@ -162,45 +181,54 @@ export default function TomTomMap({
     if (mapRef.current) {
       const map = mapRef.current;
 
-      // routeFullCoords 또는 spaceFullCoords가 null이거나 빈 배열일 경우 경로와 마커 제거
-      if (
-        (!routeFullCoords || routeFullCoords.length === 0) &&
-        (!spaceFullCoords || spaceFullCoords.length === 0)
-      ) {
-        console.log('No valid routes or spaces; clearing map.');
-        clearRoutesAndMarkers(map); // 기존 경로와 마커 제거
-        return; // 함수 종료
+      // Check if either routeFullCoords or spaceFullCoords is null or empty
+      const hasValidRouteCoords =
+        Array.isArray(routeFullCoords) && routeFullCoords.length > 0;
+      const hasValidSpaceCoords =
+        Array.isArray(spaceFullCoords) && spaceFullCoords.length > 0;
+
+      if (!hasValidRouteCoords && !hasValidSpaceCoords) {
+        console.log('No valid routes or spaces; returning to default center.');
+
+        // Clear existing routes and markers
+        clearRoutesAndMarkers(map);
+
+        // Reset map center to default coordinates
+        map.flyTo({
+          center: [defaultLng, defaultLat],
+          zoom: Number(process.env.REACT_APP_ZOOM),
+        });
+
+        return; // Exit effect early
       }
 
-      // 유효한 경로와 공간 데이터를 필터링
-      const validRouteCoords =
-        Array.isArray(routeFullCoords) && routeFullCoords.length > 0
-          ? routeFullCoords.filter(
-              (route) =>
-                route &&
-                route.coords &&
-                route.coords.length > 0 &&
-                (checkedNodes.length === 0 ||
-                  checkedNodes.some((node) => node.file_id === route.file_id))
-            )
-          : [];
-      const validSpaceCoords =
-        Array.isArray(spaceFullCoords) && spaceFullCoords.length > 0
-          ? spaceFullCoords.filter(
-              (space) =>
-                space &&
-                space.coords &&
-                space.coords.length > 0 &&
-                (checkedNodes.length === 0 ||
-                  checkedNodes.some((node) => node.file_id === space.file_id))
-            )
-          : [];
+      // Filter valid route and space coordinates based on checkedNodes
+      const validRouteCoords = hasValidRouteCoords
+        ? routeFullCoords.filter(
+            (route) =>
+              route &&
+              route.coords &&
+              route.coords.length > 0 &&
+              (checkedNodes.length === 0 ||
+                checkedNodes.some((node) => node.file_id === route.file_id))
+          )
+        : [];
 
-      // 스타일이 로드된 경우 바로 그리기
+      const validSpaceCoords = hasValidSpaceCoords
+        ? spaceFullCoords.filter(
+            (space) =>
+              space &&
+              space.coords &&
+              space.coords.length > 0 &&
+              (checkedNodes.length === 0 ||
+                checkedNodes.some((node) => node.file_id === space.file_id))
+          )
+        : [];
+
+      // Draw routes and spaces on the map
       if (map.isStyleLoaded()) {
         drawRoutes(map, [...validRouteCoords, ...validSpaceCoords]);
       } else {
-        // 스타일이 로드되지 않은 경우 이벤트 리스너 등록
         map.once('style.load', () => {
           drawRoutes(map, [...validRouteCoords, ...validSpaceCoords]);
         });
