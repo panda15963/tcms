@@ -37,6 +37,7 @@ export default function RoutoMap({
   routeFullCoords,
   spaceFullCoords,
   clickedNode,
+  onClearMap,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 좌표 상태 관리
@@ -143,6 +144,56 @@ export default function RoutoMap({
       }
     }
   }, [clickedNode]);
+
+  /**
+   * 지도 초기화 관련 UseEffect
+   */
+  useEffect(() => {
+    console.log('onClearMap =>', onClearMap);
+
+    if (onClearMap == true) {
+      clearRoutesAndMarkers();
+      clearSpaceAndMarkers();
+
+      mapRef.current = new routo.maps.Map('map', {
+        center: { lat: center.lat, lng: center.lng },
+        zoom: Number(process.env.REACT_APP_ZOOM),
+      });
+    }
+  }, [onClearMap]);
+
+  useEffect(() => {
+    console.log('[spaceFullCoords] ===>', spaceFullCoords);
+    console.log('[spaceFullCoords] ===>', spaceFullCoords.length);
+  }, [spaceFullCoords]);
+
+  const resetMap = () => {
+    // 모든 경로와 마커 제거
+    clearRoutesAndMarkers();
+    clearSpaceAndMarkers();
+
+    // 지도 중심과 줌 수준을 초기화
+    if (mapRef.current) {
+      const defaultCenter = calculateCenterAndMarker(); // 초기 중심 좌표
+      mapRef.current.setCenter(defaultCenter);
+      mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM)); // 기본 줌 수준
+    }
+
+    // 마커도 초기화
+    if (markerRef.current) {
+      markerRef.current.setMap(null);
+      markerRef.current = null; // 마커 객체 초기화
+    }
+
+    // 상태 초기화
+    setRouteObjects([]);
+    setRouteMarkers([]);
+    setSpaceObjects([]);
+    setSpaceMarkers([]);
+    setAdjustedRouteCoords([]);
+    setAdjustedSpaceCoords([]);
+    setFocusedNode(null);
+  };
 
   /**
    * 경로와 마커를 모두 삭제하는 함수

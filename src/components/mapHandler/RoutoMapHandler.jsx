@@ -7,7 +7,7 @@ import Error from '../alerts/Error';
  * RoutoMapHandler 컴포넌트
  * - 특정 좌표 및 경로 데이터를 RoutoMap에 전달하여 지도 렌더링
  * - 한국(KOR) 외의 국가 데이터가 포함될 경우 오류 표시
- * 
+ *
  * @param {object} props - 컴포넌트에 전달되는 속성
  * @param {object} props.selectedCoords - 선택된 좌표 (위도 및 경도)
  * @param {object} props.routoLocation - RoutoMap 위치 데이터
@@ -27,10 +27,13 @@ export default function RoutoMapHandler({
   clickedNode,
   routeColors = () => {}, // 기본값: 빈 함수
   spaceFullCoords,
+  onClearMap,
 }) {
   const [error, setError] = useState(false); // 오류 상태
   const [errorValue, setErrorValue] = useState(''); // 오류 메시지
   const { t } = useTranslation();
+
+  console.log('핸들러 onClearMap', onClearMap);
 
   /**
    * 국가 코드 배열에 'KOR' 외의 값이 포함되었는지 확인
@@ -78,6 +81,7 @@ export default function RoutoMapHandler({
           clickedNode={clickedNode}
           routeColors={routeColors}
           spaceFullCoords={filteredSpaces} // 필터링된 공간 전달
+          onClearMap={onClearMap}
         />
       ) : selectedCoords && routoLocation ? (
         <RoutoMap
@@ -86,6 +90,7 @@ export default function RoutoMapHandler({
           locationCoords={routoLocation}
           routeColors={routeColors}
           spaceFullCoords={filteredSpaces}
+          onClearMap={onClearMap}
         />
       ) : !selectedCoords && routoLocation ? (
         <RoutoMap
@@ -95,6 +100,7 @@ export default function RoutoMapHandler({
           clickedNode={clickedNode}
           routeColors={routeColors}
           spaceFullCoords={filteredSpaces} // 필터링된 공간 전달
+          onClearMap={onClearMap}
         />
       ) : routoLocation ? (
         <RoutoMap locationCoords={routoLocation} />
