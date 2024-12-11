@@ -55,6 +55,7 @@ const TopMenuBar = ({
   const [routeFullCoords, setRouteFullCoords] = useState(null); // 전체 경로 데이터
   const [spaceFullCoords, setSpaceFullCoords] = useState(null); // 전체 공간 데이터
   const [clickedNodes, setClickedNodes] = useState(null); // 클릭된 노드 데이터
+  const [onClearMap, setOnClearMap] = useState(false);
 
   const storeModalRef = useRef(); // StoreModal 참조
   const logModalRef = useRef(); // LogModal 참조
@@ -216,6 +217,7 @@ const TopMenuBar = ({
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
           routeColors={routeColors}
+          onClearMap={onClearMap}
         />
       );
     } else if (selectedAPI?.name === 'TMAP') {
@@ -642,6 +644,9 @@ const TopMenuBar = ({
       routeColors([]);
     }
     handleClearClick();
+
+    setOnClearMap(true); // RoutoMap 초기화 이벤트 발생
+    setTimeout(() => setOnClearMap(false), 100); // 100ms 후 다시 false로 설정
   };
 
   return (
