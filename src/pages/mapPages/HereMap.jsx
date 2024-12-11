@@ -48,6 +48,9 @@ const HereMap = ({
   const [adjustedRouteCoords, setAdjustedRouteCoords] = useState([]); // 조정된 경로 좌표 상태
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]); // 이전 공간 좌표 상태
   const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]); // 조정된 공간 좌표 상태
+  const [getCentered, setCentered] = useState(false); // 지도 중심 조정 상태
+  const [disableCentering, setDisableCentering] = useState(false); // 자동 중심 조정 비활성화 상태
+  const [clickedCoords, setClickedCoords] = useState(null);
   const apiKey = process.env.REACT_APP_HERE_MAP_API; // HERE Maps API 키
 
   /**
@@ -56,23 +59,81 @@ const HereMap = ({
    * @param {number} longitude - 경도 값
    */
   const centerMapOnLatLng = (latitude, longitude) => {
-    if (mapInstance.current && latitude && longitude) {
-      if (markerRef.current) {
-        mapInstance.current.removeObject(markerRef.current);
-      }
+    if (!mapInstance.current) {
+      console.error('Map instance is not initialized');
+      return;
+    }
+
+    if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+      console.error('Invalid coordinates provided:', latitude, longitude);
+      return;
+    }
+
+    // 기존 마커 제거
+    if (markerRef.current) {
+      mapInstance.current.removeObject(markerRef.current);
+      console.log('Existing marker removed');
+    }
+
+    // 새 마커 추가
+    const searchMarker = new H.map.Marker({ lat: latitude, lng: longitude });
+    mapInstance.current.addObject(searchMarker);
+    markerRef.current = searchMarker;
+
+    console.log('New marker added:', searchMarker);
+
+    // 지도 중심 설정
+    setTimeout(() => {
       mapInstance.current.setCenter({ lat: latitude, lng: longitude });
-      const searchMarker = new H.map.Marker({ lat: latitude, lng: longitude });
-      mapInstance.current.addObject(searchMarker);
-      markerRef.current = searchMarker;
+      console.log(`Map centered to: ${latitude}, ${longitude}`);
+    }, 100); // 딜레이를 추가해 다른 작업 이후에 중심 설정
+  };
+
+  /**
+   * 지도 중심과 줌을 설정하는 함수
+   * @param {number} latitude - 위도 값
+   * @param {number} longitude - 경도 값
+   * @param {number} [zoomLevel] - 줌 레벨 (옵션)
+   */
+
+  const centerMapWithoutMarker = (latitude, longitude, zoomLevel) => {
+    if (mapInstance.current && latitude && longitude) {
+      mapInstance.current.setCenter({ lat: latitude, lng: longitude });
+
+      if (typeof zoomLevel === 'number') {
+        mapInstance.current.setZoom(zoomLevel);
+      }
     }
   };
 
   // lat과 lng가 변경될 때마다 지도 중심을 업데이트
   useEffect(() => {
-    if (lat && lng) {
+    if (clickedCoords || disableCentering) {
+      console.log('Centering disabled or clickedCoords set. Skipping center update.');
+      return;
+    }
+  
+    if (lat === undefined || lng === undefined) {
+      clearMarkers();
+    } else if (!getCentered) {
       centerMapOnLatLng(lat, lng);
     }
-  }, [lat, lng]);
+  }, [lat, lng, getCentered, clickedCoords, disableCentering]);
+  
+
+  // routeFullCoords와 spaceFullCoords가 빈 리스트일 경우 지도 중심 초기화
+  useEffect(() => {
+    if (routeFullCoords.length === 0 && spaceFullCoords.length === 0) {
+      clearEntities('routes');
+      clearEntities('spaces');
+      if (!disableCentering) {
+        const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE) || 0;
+        const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE) || 0;
+        const defaultZoom = Number(process.env.REACT_APP_ZOOM) || 17;
+        centerMapWithoutMarker(defaultLat, defaultLng, defaultZoom);
+      }
+    }
+  }, [routeFullCoords, spaceFullCoords, disableCentering]);
 
   /**
    * 이전 경로 또는 공간 데이터에서 제거된 인덱스를 찾는 함수
@@ -204,57 +265,61 @@ const HereMap = ({
     );
   }, [spaceFullCoords]);
 
+  useEffect(() => {
+    if (spaceFullCoords.length > 0) {
+      setDisableCentering(false); // 공간 검색 시 자동 중심 조정을 활성화
+    }
+  }, [spaceFullCoords]);
+
   /**
    * 지도에 표시된 엔티티(좌표들)를 중심으로 지도 중심 및 줌을 조정하는 함수
    * @param {Array} coords - 좌표 배열
    */
-  const fitMapToEntities = (coords) => {
-    // 좌표 배열이 비어있거나 지도 인스턴스가 초기화되지 않은 경우 함수 종료
-    if (!coords || coords.length === 0 || !mapInstance.current) return;
+  const fitMapToEntities = (coords, type) => {
+    if (
+      !coords ||
+      coords.length === 0 ||
+      !mapInstance.current ||
+      disableCentering
+    ) {
+      return; // disableCentering이 true라면 중심 설정을 건너뜁니다.
+    }
 
-    // null 값을 제외한 유효한 좌표만 필터링
-    const validCoords = coords.filter((coord) => coord !== null);
-    console.log('Valid coords for fitMapToEntities:', validCoords);
+    const validCoords = coords.filter(
+      (coord) => coord !== null && coord.coords?.length > 0
+    );
 
-    // 유효한 좌표가 없을 경우 지도 상의 엔티티를 제거하고 종료
     if (validCoords.length === 0) {
-      clearEntities('routes'); // 경로 데이터 제거
-      clearEntities('spaces'); // 공간 데이터 제거
+      console.warn(
+        'fitMapToEntities: No valid entities found after filtering.'
+      );
+      clearEntities(type);
       return;
     }
 
-    let bounds = null; // 지도 경계 초기화
-    let totalLat = 0; // 위도의 합
-    let totalLng = 0; // 경도의 합
-    let pointCount = 0; // 좌표의 총 개수
+    let bounds = null;
+    let totalLat = 0;
+    let totalLng = 0;
+    let pointCount = 0;
 
-    // 각 좌표를 반복하며 경계를 확장하고 중심점을 계산
     validCoords.forEach((coord) => {
-      if (Array.isArray(coord.coords)) {
-        coord.coords.forEach((point) => {
-          if (
-            point &&
-            typeof point.lat === 'number' &&
-            typeof point.lng === 'number'
-          ) {
-            totalLat += point.lat; // 위도를 누적
-            totalLng += point.lng; // 경도를 누적
-            pointCount += 1; // 유효한 좌표의 개수 증가
+      coord.coords.forEach((point) => {
+        if (
+          point &&
+          typeof point.lat === 'number' &&
+          typeof point.lng === 'number'
+        ) {
+          totalLat += point.lat;
+          totalLng += point.lng;
+          pointCount += 1;
 
-            // 지도 경계를 초기화하거나 확장
-            if (!bounds) {
-              bounds = new H.geo.Rect(
-                point.lat,
-                point.lng,
-                point.lat,
-                point.lng
-              );
-            } else {
-              bounds.mergePoint({ lat: point.lat, lng: point.lng });
-            }
+          if (!bounds) {
+            bounds = new H.geo.Rect(point.lat, point.lng, point.lat, point.lng);
+          } else {
+            bounds.mergePoint({ lat: point.lat, lng: point.lng });
           }
-        });
-      }
+        }
+      });
     });
 
     // 중심점 계산
@@ -267,6 +332,33 @@ const HereMap = ({
       mapInstance.current.setZoom(10);
     }
   };
+
+  // 엔티티를 지우고 다시 렌더링하는 함수
+  const resetAndRenderEntities = (coords, type) => {
+    clearEntities(type); // 이전 엔티티 제거
+    renderEntities(coords, type); // 새 엔티티 렌더링
+  };
+
+  // 상태 초기화와 함께 `fitMapToEntities` 호출
+  useEffect(() => {
+    setCentered(false); // 상태 초기화
+    if (routeFullCoords.length > 0) {
+      fitMapToEntities(routeFullCoords, 'routes'); // 경로 중심 설정
+      resetAndRenderEntities(routeFullCoords, 'routes'); // 경로 렌더링
+    }
+
+    if (spaceFullCoords.length > 0) {
+      fitMapToEntities(spaceFullCoords, 'spaces'); // 공간 중심 설정
+      resetAndRenderEntities(spaceFullCoords, 'spaces'); // 공간 렌더링
+    }
+  }, [routeFullCoords, spaceFullCoords]);
+
+  // 로그 검색 및 공간 검색 전환 시 상태 초기화
+  useEffect(() => {
+    if (!getCentered) {
+      setCentered(false);
+    }
+  }, [routeFullCoords, spaceFullCoords]);
 
   /**
    * 지도에 엔터티(경로 및 공간)를 렌더링하는 함수
@@ -321,18 +413,44 @@ const HereMap = ({
   };
 
   /**
+   * 지도에서 모든 마커를 제거하는 함수
+   */
+  const clearMarkers = () => {
+    if (markerRef.current) {
+      mapInstance.current.removeObject(markerRef.current);
+      markerRef.current = null; // Clear the search marker
+    }
+
+    Object.keys(markerRefs.current).forEach((key) => {
+      markerRefs.current[key].forEach((marker) =>
+        mapInstance.current.removeObject(marker)
+      );
+      markerRefs.current[key] = []; // Clear route and space markers
+    });
+  };
+
+  /**
    * 이전 엔터티를 제거하는 함수
    * @param {string} type - 엔터티 유형 ("routes" 또는 "spaces")
    */
-  const clearEntities = (type) => {
-    polylineRefs.current[type].forEach((polyline) =>
-      mapInstance.current.removeObject(polyline)
-    );
-    markerRefs.current[type].forEach((marker) =>
-      mapInstance.current.removeObject(marker)
-    );
-    polylineRefs.current[type] = [];
-    markerRefs.current[type] = [];
+  const clearEntities = (type, clearSearchMarker = false) => {
+    if (polylineRefs.current[type]) {
+      polylineRefs.current[type].forEach((polyline) =>
+        mapInstance.current.removeObject(polyline)
+      );
+      polylineRefs.current[type] = [];
+    }
+
+    if (markerRefs.current[type]) {
+      markerRefs.current[type].forEach((marker) =>
+        mapInstance.current.removeObject(marker)
+      );
+      markerRefs.current[type] = [];
+    }
+
+    if (clearSearchMarker) {
+      clearMarkers();
+    }
   };
 
   // 초기 지도 로드 및 설정
@@ -357,6 +475,10 @@ const HereMap = ({
 
     const loadScript = (src) => {
       return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) {
+          resolve(); // Script already loaded
+          return;
+        }
         const script = document.createElement('script');
         script.src = src;
         script.async = true;
@@ -364,9 +486,9 @@ const HereMap = ({
         script.onload = resolve;
         script.onerror = () => {
           console.error(`Failed to load script: ${src}`);
-          reject();
+          reject(new Error(`Failed to load script: ${src}`));
         };
-        document.body.appendChild(script);
+        document.head.appendChild(script);
       });
     };
 
@@ -392,7 +514,7 @@ const HereMap = ({
           mapRef.current,
           defaultLayers.vector.normal.map,
           {
-            zoom: Number(process.env.REACT_APP_ZOOM) || 14,
+            zoom: Number(process.env.REACT_APP_ZOOM) || 17,
             center: initialCoords,
           }
         );
@@ -409,6 +531,10 @@ const HereMap = ({
             evt.currentPointer.viewportX,
             evt.currentPointer.viewportY
           );
+          console.log('Clicked coordinates:', clickedCoords);
+          setClickedCoords(clickedCoords); // 클릭된 좌표 저장
+          setDisableCentering(true); // 중심 자동 조정 비활성화
+
           if (typeof locationCoords === 'function') {
             locationCoords({ lat: clickedCoords.lat, lng: clickedCoords.lng });
           }
@@ -428,7 +554,7 @@ const HereMap = ({
       )
       .then(() => initializeMap())
       .catch((error) =>
-        console.error('Failed to load HERE Maps API scripts', error)
+        console.error('Failed to load HERE Maps API scripts:', error)
       );
   }, []);
 
