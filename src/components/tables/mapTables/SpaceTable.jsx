@@ -271,7 +271,7 @@ const SpaceTable = ({ list, onSelectionChange }) => {
         <div className="flex justify-center mt-1">
           <button
             onClick={handleLoadMore}
-            className="mt-1 px-2 py-1 bg-blue-500 text-white rounded"
+            className="mt-1 px-2 py-1 bg-blue-900 text-white rounded"
           >
             {t('SpaceTable.LoadMore')}
           </button>
