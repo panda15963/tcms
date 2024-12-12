@@ -29,68 +29,38 @@ export default function TMapHandler({
   clickedNode,
   routeColors = () => {},
 }) {
-  const [error, setError] = useState(false); // 오류 상태
-  const [errorValue, setErrorValue] = useState(''); // 오류 메시지 상태
-  const { t } = useTranslation();
+  const [error, setError] = useState(false); // 오류 상태 관리
+  const [errorValue, setErrorValue] = useState(''); // 오류 메시지 상태 관리
+  const { t } = useTranslation(); // 다국어 지원을 위한 useTranslation 훅
 
-  /**
-   * 국가 코드 배열에서 'KOR' 이외의 값이 있는지 확인
-   * @param {Array} countries - 국가 코드 배열
-   * @returns {boolean} - 'KOR' 이외의 값이 포함되어 있으면 true
-   */
-  const containsNonKOR = (countries) => {
-    return countries.some((item) => item !== 'KOR');
-  };
-
-  /**
-   * 국가 코드 배열에 따라 오류 상태 업데이트
-   */
+  // 국가 코드 검증
   useEffect(() => {
-    if (Array.isArray(country) && containsNonKOR(country)) {
-      setError(true);
-      setErrorValue(t('TMap.KoreaRegionOnlyError')); // 한국 지역만 허용하는 오류 메시지
+    if (Array.isArray(country) && country.some((item) => item !== 'KOR')) {
+      setError(true); // 오류 상태 설정
+      setErrorValue(t('TMap.KoreaRegionOnlyError')); // 오류 메시지 설정
     } else {
-      setError(false);
-      setErrorValue('');
+      setError(false); // 오류 상태 초기화
+      setErrorValue(''); // 오류 메시지 초기화
     }
   }, [country, t]);
 
+  // 오류가 있을 경우 오류 메시지 컴포넌트를 반환
+  if (error) return <Error errorMessage={errorValue} />;
+
+  // 위치 정보가 없을 경우 메시지 반환
+  if (!tmapLocation) return <div>지도를 표시할 수 없습니다. 위치 정보가 없습니다.</div>;
+
+  // TMap 컴포넌트를 렌더링
   return (
-    <>
-      {error && <Error errorMessage={errorValue} />} {/* 오류 메시지 표시 */}
-      {selectedCoords && tmapLocation ? (
-        <TMap
-          lat={selectedCoords.lat}
-          lng={selectedCoords.lng}
-          locationCoords={tmapLocation}
-          routeFullCoords={routeFullCoords}
-          checkedNodes={checkedNode}
-          clickedNode={clickedNode}
-          routeColors={routeColors}
-          spaceFullCoords={spaceFullCoords}
-        />
-      ) : selectedCoords && tmapLocation ? (
-        <TMap
-          lat={selectedCoords.lat}
-          lng={selectedCoords.lng}
-          locationCoords={tmapLocation}
-          routeColors={routeColors}
-          spaceFullCoords={spaceFullCoords}
-        />
-      ) : !selectedCoords && tmapLocation ? (
-        <TMap
-          locationCoords={tmapLocation}
-          routeFullCoords={routeFullCoords}
-          checkedNodes={checkedNode}
-          clickedNode={clickedNode}
-          routeColors={routeColors}
-          spaceFullCoords={spaceFullCoords}
-        />
-      ) : tmapLocation ? (
-        <TMap locationCoords={tmapLocation} />
-      ) : (
-        <div>지도를 표시할 수 없습니다. 위치 정보가 없습니다.</div>
-      )}
-    </>
+    <TMap
+      lat={selectedCoords?.lat} // 선택된 위도
+      lng={selectedCoords?.lng} // 선택된 경도
+      locationCoords={tmapLocation} // TMap 위치 데이터
+      routeFullCoords={routeFullCoords} // 전체 경로 데이터
+      spaceFullCoords={spaceFullCoords} // 전체 공간 데이터
+      checkedNodes={checkedNode} // 선택된 노드 데이터
+      clickedNode={clickedNode} // 클릭된 노드 데이터
+      routeColors={routeColors} // 경로 색상 처리 함수
+    />
   );
 }

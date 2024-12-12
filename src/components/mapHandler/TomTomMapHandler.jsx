@@ -23,42 +23,20 @@ export default function TomTomMapHandler({
   clickedNode,
   routeColors = () => {},
 }) {
+  if (!tomtomLocation) {
+    return <div>지도를 표시할 수 없습니다. 위치 정보가 없습니다.</div>;
+  }
+
   return (
-    <>
-      {/* 조건에 따라 적절한 TomTomMap 컴포넌트를 렌더링 */}
-      {selectedCoords && tomtomLocation ? (
-        <TomTomMap
-          lat={selectedCoords.lat}
-          lng={selectedCoords.lng}
-          locationCoords={tomtomLocation}
-          routeFullCoords={routeFullCoords}
-          checkedNodes={checkedNode}
-          clickedNode={clickedNode}
-          routeColors={routeColors}
-          spaceFullCoords={spaceFullCoords}
-        />
-      ) : selectedCoords && tomtomLocation ? (
-        <TomTomMap
-          lat={selectedCoords.lat}
-          lng={selectedCoords.lng}
-          locationCoords={tomtomLocation}
-          routeColors={routeColors}
-          spaceFullCoords={spaceFullCoords}
-        />
-      ) : !selectedCoords && tomtomLocation ? (
-        <TomTomMap
-          locationCoords={tomtomLocation}
-          routeFullCoords={routeFullCoords}
-          checkedNodes={checkedNode}
-          clickedNode={clickedNode}
-          routeColors={routeColors}
-          spaceFullCoords={spaceFullCoords}
-        />
-      ) : tomtomLocation ? (
-        <TomTomMap locationCoords={tomtomLocation} />
-      ) : (
-        <div>지도를 표시할 수 없습니다. 위치 정보가 없습니다.</div>
-      )}
-    </>
+    <TomTomMap
+      lat={selectedCoords?.lat}
+      lng={selectedCoords?.lng}
+      locationCoords={tomtomLocation}
+      routeFullCoords={routeFullCoords}
+      spaceFullCoords={spaceFullCoords}
+      checkedNodes={checkedNode}
+      clickedNode={clickedNode}
+      routeColors={routeColors}
+    />
   );
 }

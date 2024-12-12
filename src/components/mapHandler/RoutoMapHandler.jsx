@@ -19,36 +19,23 @@ import Error from '../alerts/Error';
  * @param {Array} props.spaceFullCoords - 전체 공간 데이터
  */
 export default function RoutoMapHandler({
-  selectedCoords,
-  routoLocation,
-  routeFullCoords = [], // 기본값: 빈 배열
-  country,
-  checkedNode = [], // 기본값: 빈 배열
-  clickedNode,
-  routeColors = () => {}, // 기본값: 빈 함수
-  spaceFullCoords,
-  onClearMap,
+  selectedCoords, // 선택된 좌표 (위도 및 경도)
+  routoLocation, // RoutoMap 위치 데이터
+  routeFullCoords = [], // 전체 경로 데이터 (기본값: 빈 배열)
+  country, // 국가 코드 배열
+  checkedNode = [], // 선택된 노드 데이터 (기본값: 빈 배열)
+  clickedNode, // 클릭된 노드 데이터
+  routeColors = () => {}, // 경로 색상 처리 함수 (기본값: 빈 함수)
+  spaceFullCoords, // 전체 공간 데이터
+  onClearMap, // 지도를 초기화하는 함수
 }) {
   const [error, setError] = useState(false); // 오류 상태
   const [errorValue, setErrorValue] = useState(''); // 오류 메시지
   const { t } = useTranslation();
 
-  console.log('핸들러 onClearMap', onClearMap);
-
-  /**
-   * 국가 코드 배열에 'KOR' 외의 값이 포함되었는지 확인
-   * @param {Array} countries - 국가 코드 배열
-   * @returns {boolean} - 'KOR' 외의 값이 포함되어 있으면 true
-   */
-  const containsNonKOR = (countries) => {
-    return countries?.some((item) => item !== 'KOR'); // null 오류 방지
-  };
-
-  /**
-   * 국가 코드에 따라 오류 상태 업데이트
-   */
+  // 국가 코드 배열에 'KOR' 외의 값이 포함되어 있는지 확인
   useEffect(() => {
-    if (Array.isArray(country) && containsNonKOR(country)) {
+    if (country?.some((item) => item !== 'KOR')) {
       setError(true);
       setErrorValue(t('RoutoMap.KoreaRegionOnlyError')); // 한국 지역만 허용하는 오류 메시지
     } else {
@@ -57,56 +44,35 @@ export default function RoutoMapHandler({
     }
   }, [country, t]);
 
-  // checkedNode에서 file_id를 안전하게 추출하고 필터링
-  const checkedFileIds = checkedNode?.map((node) => node.file_id);
-  const filteredRoutes =
-    routeFullCoords?.filter((route) =>
-      checkedFileIds?.includes(route.file_id)
-    ) || []; // 기본값: 빈 배열
-  const filteredSpaces =
-    spaceFullCoords?.filter((space) =>
-      checkedFileIds?.includes(space.file_id)
-    ) || []; // 기본값: 빈 배열
+  // checkedNode에서 file_id를 추출하고 필터링
+  const checkedFileIds = checkedNode.map((node) => node.file_id);
+  const filteredRoutes = (routeFullCoords || []).filter((route) =>
+    checkedFileIds.includes(route.file_id)
+  );
 
+  const filteredSpaces = (spaceFullCoords || []).filter((space) =>
+    checkedFileIds.includes(space.file_id)
+  );
+
+  // 오류가 있을 경우 오류 메시지 컴포넌트 표시
+  if (error) return <Error errorMessage={errorValue} />;
+
+  // 위치 정보가 없을 경우 대체 메시지 표시
+  if (!routoLocation)
+    return <div>지도를 표시할 수 없습니다. 위치 정보가 없습니다.</div>;
+
+  // RoutoMap 컴포넌트 렌더링
   return (
-    <>
-      {error && <Error errorMessage={errorValue} />} {/* 오류 메시지 표시 */}
-      {selectedCoords && routoLocation ? (
-        <RoutoMap
-          lat={selectedCoords.lat}
-          lng={selectedCoords.lng}
-          locationCoords={routoLocation}
-          checkedNodes={checkedNode} // 선택된 노드 전달
-          routeFullCoords={filteredRoutes} // 필터링된 경로 전달
-          clickedNode={clickedNode}
-          routeColors={routeColors}
-          spaceFullCoords={filteredSpaces} // 필터링된 공간 전달
-          onClearMap={onClearMap}
-        />
-      ) : selectedCoords && routoLocation ? (
-        <RoutoMap
-          lat={selectedCoords.lat}
-          lng={selectedCoords.lng}
-          locationCoords={routoLocation}
-          routeColors={routeColors}
-          spaceFullCoords={filteredSpaces}
-          onClearMap={onClearMap}
-        />
-      ) : !selectedCoords && routoLocation ? (
-        <RoutoMap
-          locationCoords={routoLocation}
-          checkedNodes={checkedNode} // 선택된 노드 전달
-          routeFullCoords={filteredRoutes} // 필터링된 경로 전달
-          clickedNode={clickedNode}
-          routeColors={routeColors}
-          spaceFullCoords={filteredSpaces} // 필터링된 공간 전달
-          onClearMap={onClearMap}
-        />
-      ) : routoLocation ? (
-        <RoutoMap locationCoords={routoLocation} />
-      ) : (
-        <div>지도를 표시할 수 없습니다. 위치 정보가 없습니다.</div>
-      )}
-    </>
+    <RoutoMap
+      lat={selectedCoords?.lat} // 선택된 위도
+      lng={selectedCoords?.lng} // 선택된 경도
+      locationCoords={routoLocation} // 위치 데이터
+      checkedNodes={checkedNode} // 선택된 노드 데이터 전달
+      routeFullCoords={filteredRoutes} // 필터링된 경로 데이터 전달
+      clickedNode={clickedNode} // 클릭된 노드 데이터 전달
+      routeColors={routeColors} // 경로 색상 처리 함수 전달
+      spaceFullCoords={filteredSpaces} // 필터링된 공간 데이터 전달
+      onClearMap={onClearMap} // 지도 초기화 함수 전달
+    />
   );
 }
