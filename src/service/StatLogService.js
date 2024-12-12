@@ -1,6 +1,6 @@
-// import { axiosInstance, nonAuthInstance } from '../server/StatAxiosConfig';
+// import { axiosInstanceStat, axiosInstanceStat } from '../server/StatAxiosConfig';
 
-import { axiosInstance, changePortStat } from '../server/axios_config';
+import { axiosInstanceStat } from '../server/axios_config';
 
 /**
  * 통계 및 정보 요청 서비스
@@ -14,7 +14,7 @@ const StatLogService = {
   TOOL_SETTINGS: async (obj) => {
     const { cond, cancelToken } = obj;
     // changePortStat();
-    const result = await axiosInstance
+    const result = await axiosInstanceStat
       .post('/statistics/tool-settings', cond, {
         cancelToken,
       })
@@ -27,9 +27,9 @@ const StatLogService = {
           // 응답이 오지 않은 경우 처리
           alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
           return error.request;
-        } else if (axiosInstance.isCancel(error)) {
+        } else if (axiosInstanceStat.isCancel(error)) {
           // 취소되면 이곳이 발동된다.
-          // axiosInstance 요청이 취소되어버린경우 처리
+          // axiosInstanceStat 요청이 취소되어버린경우 처리
           return console.log('취소', error);
         }
         // return rejectWithValue(error.response.data);
@@ -44,7 +44,7 @@ const StatLogService = {
    */
   TOOL_LOGS: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await axiosInstance
+    const result = await axiosInstanceStat
       .post('/statistics/tool-logs', cond, {
         cancelToken,
       })
@@ -57,9 +57,9 @@ const StatLogService = {
           // 응답이 오지 않은 경우 처리
           alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
           return error.request;
-        } else if (axiosInstance.isCancel(error)) {
+        } else if (axiosInstanceStat.isCancel(error)) {
           // 취소되면 이곳이 발동된다.
-          // axiosInstance 요청이 취소되어버린경우 처리
+          // axiosInstanceStat 요청이 취소되어버린경우 처리
           return console.log('취소', error);
         }
         // return rejectWithValue(error.response.data);
@@ -74,7 +74,7 @@ const StatLogService = {
    */
   FUNCTION_COUNT: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await axiosInstance
+    const result = await axiosInstanceStat
       .post('/statistics/function-count', cond, {
         cancelToken,
       })
@@ -87,9 +87,9 @@ const StatLogService = {
           // 응답이 오지 않은 경우 처리
           alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
           return error.request;
-        } else if (axiosInstance.isCancel(error)) {
+        } else if (axiosInstanceStat.isCancel(error)) {
           // 취소되면 이곳이 발동된다.
-          // axiosInstance 요청이 취소되어버린경우 처리
+          // axiosInstanceStat 요청이 취소되어버린경우 처리
           return console.log('취소', error);
         }
         // return rejectWithValue(error.response.data);
@@ -104,7 +104,7 @@ const StatLogService = {
    */
   EXECUTION_COUNT: async (obj) => {
     const { cond, cancelToken } = obj;
-    const result = await axiosInstance
+    const result = await axiosInstanceStat
       .post('/statistics/execution-count', cond, {
         cancelToken,
       })
@@ -117,9 +117,9 @@ const StatLogService = {
           // 응답이 오지 않은 경우 처리
           alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
           return error.request;
-        } else if (axiosInstance.isCancel(error)) {
+        } else if (axiosInstanceStat.isCancel(error)) {
           // 취소되면 이곳이 발동된다.
-          // axiosInstance 요청이 취소되어버린경우 처리
+          // axiosInstanceStat 요청이 취소되어버린경우 처리
           return console.log('취소', error);
         }
         // return rejectWithValue(error.response.data);
@@ -132,7 +132,7 @@ const StatLogService = {
    * @returns {Promise<Object>} - API 응답 데이터
    */
   LIVE_TOOL: async () => {
-    const result = await axiosInstance
+    const result = await axiosInstanceStat
       .get('/statistics/live-tool')
       .catch((error) => {
         console.log('error', error);
@@ -143,9 +143,9 @@ const StatLogService = {
           // 응답이 오지 않은 경우 처리
           alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
           return error.request;
-        } else if (axiosInstance.isCancel(error)) {
+        } else if (axiosInstanceStat.isCancel(error)) {
           // 취소되면 이곳이 발동된다.
-          // axiosInstance 요청이 취소되어버린경우 처리
+          // axiosInstanceStat 요청이 취소되어버린경우 처리
           return console.log('취소', error);
         }
         // return rejectWithValue(error.response.data);
@@ -158,7 +158,7 @@ const StatLogService = {
    * @returns {Promise<Object>} - API 응답 데이터
    */
   LIVE_TC: async () => {
-    const result = await axiosInstance
+    const result = await axiosInstanceStat
       .get('/statistics/live-tc')
       .catch((error) => {
         console.log('error', error);
@@ -169,9 +169,9 @@ const StatLogService = {
           // 응답이 오지 않은 경우 처리
           alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
           return error.request;
-        } else if (axiosInstance.isCancel(error)) {
+        } else if (axiosInstanceStat.isCancel(error)) {
           // 취소되면 이곳이 발동된다.
-          // axiosInstance 요청이 취소되어버린경우 처리
+          // axiosInstanceStat 요청이 취소되어버린경우 처리
           return console.log('취소', error);
         }
         // return rejectWithValue(error.response.data);
@@ -184,23 +184,25 @@ const StatLogService = {
    * @returns {Promise<Object>} - API 응답 데이터
    */
   PCNAMES: async () => {
-    const result = await axiosInstance.get('/info/pcnames').catch((error) => {
-      console.log('error', error);
-      if (error.response) {
-        alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
-        return error.response;
-      } else if (error.request) {
-        // 응답이 오지 않은 경우 처리
-        alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
-        return error.request;
-      } else if (axiosInstance.isCancel(error)) {
-        // 취소되면 이곳이 발동된다.
-        // axiosInstance 요청이 취소되어버린경우 처리
-        return console.log('취소', error);
-      }
-      // return rejectWithValue(error.response.data);
-      return error;
-    });
+    const result = await axiosInstanceStat
+      .get('/info/pcnames')
+      .catch((error) => {
+        console.log('error', error);
+        if (error.response) {
+          alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
+          return error.response;
+        } else if (error.request) {
+          // 응답이 오지 않은 경우 처리
+          alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
+          return error.request;
+        } else if (axiosInstanceStat.isCancel(error)) {
+          // 취소되면 이곳이 발동된다.
+          // axiosInstanceStat 요청이 취소되어버린경우 처리
+          return console.log('취소', error);
+        }
+        // return rejectWithValue(error.response.data);
+        return error;
+      });
     return result.data;
   },
   /**
@@ -208,23 +210,25 @@ const StatLogService = {
    * @returns {Promise<Object>} - API 응답 데이터
    */
   TOOLNAMES: async () => {
-    const result = await axiosInstance.get('/info/toolnames').catch((error) => {
-      console.log('error', error);
-      if (error.response) {
-        alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
-        return error.response;
-      } else if (error.request) {
-        // 응답이 오지 않은 경우 처리
-        alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
-        return error.request;
-      } else if (axiosInstance.isCancel(error)) {
-        // 취소되면 이곳이 발동된다.
-        // axiosInstance 요청이 취소되어버린경우 처리
-        return console.log('취소', error);
-      }
-      // return rejectWithValue(error.response.data);
-      return error;
-    });
+    const result = await axiosInstanceStat
+      .get('/info/toolnames')
+      .catch((error) => {
+        console.log('error', error);
+        if (error.response) {
+          alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
+          return error.response;
+        } else if (error.request) {
+          // 응답이 오지 않은 경우 처리
+          alert('처리에 실패했습니다.\n확인 후 다시 처리해 주십시오.');
+          return error.request;
+        } else if (axiosInstanceStat.isCancel(error)) {
+          // 취소되면 이곳이 발동된다.
+          // axiosInstanceStat 요청이 취소되어버린경우 처리
+          return console.log('취소', error);
+        }
+        // return rejectWithValue(error.response.data);
+        return error;
+      });
     return result.data;
   },
 };

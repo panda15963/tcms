@@ -1,5 +1,3 @@
-// import { axiosInstance, axiosInstance } from '../server/MapAxiosConfig';
-
 import { axiosInstance } from '../server/axios_config';
 
 /**

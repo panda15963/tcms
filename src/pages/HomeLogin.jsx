@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { isEmpty, isNumber } from 'lodash';
 import { getAdmin, tryLogin } from '../service/api_services';
 import { FidoModal } from '../components/modals/FidoModal';
+import { jwtDecode } from 'jwt-decode';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -228,6 +229,20 @@ export default function Login() {
     if (data && !isEmpty(data)) {
       localStorage.setItem('ACCESS_TOKEN', data.accessToken);
       localStorage.setItem('REFRESH_TOKEN', data.refreshToken);
+
+      const decodedToken = jwtDecode(data.accessToken);
+      console.log('🚀 ~ decodedToken:', decodedToken);
+      console.log('Decoded token adminInfo ', decodedToken.admin_info);
+
+      //관리자 정보를 저장한다
+      if (decodedToken.admin_info && !isEmpty(decodedToken.admin_info)) {
+        const adminInfo = {
+          seq: decodedToken.admin_info.seq,
+          admin_id: decodedToken.admin_info.admin_id,
+          admin_use_yn: decodedToken.admin_info.admin_use_yn,
+        };
+        login(adminInfo);
+      }
 
       handleGoHomeWithoutLogin();
     }

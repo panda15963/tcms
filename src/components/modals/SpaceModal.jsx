@@ -9,10 +9,10 @@ import MapComponent from '../mapAssist/MapComponent';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
 import { FaDownload } from 'react-icons/fa6';
-import { nonAuthInstance } from '../../server/MapAxiosConfig';
 import Error from '../alerts/Error';
 import { isEmpty } from 'lodash';
 import useLoading from '../../hooks/useLoading';
+import { axiosInstance } from '../../server/axios_config';
 
 /**
  * 공간 검색
@@ -340,7 +340,7 @@ const SpaceModal = forwardRef(
       for (const file of checkedLists) {
         try {
           // sequence 0 = 로그파일
-          const logResponse = await nonAuthInstance.get(
+          const logResponse = await axiosInstance.get(
             `/download/logfile?meta_id=${file.meta_id}&sequence=0`,
             { responseType: 'blob' }
           );
@@ -374,7 +374,7 @@ const SpaceModal = forwardRef(
 
         try {
           // sequence 1 = 이미지파일
-          const imageResponse = await nonAuthInstance.get(
+          const imageResponse = await axiosInstance.get(
             `/download/logfile?meta_id=${file.meta_id}&sequence=1`,
             { responseType: 'blob' }
           );
@@ -445,6 +445,7 @@ const SpaceModal = forwardRef(
                   {!isDirect && (
                     <div className="flex justify-between py-3 px-5 bg-blue-900 rounded-t-lg">
                       <h1 className="text-sm font-semibold text-white">
+                        {/* 공간 검색 */}
                         {t('SpaceModal.ModalSearch')}
                       </h1>
                       <button
@@ -564,10 +565,10 @@ const SpaceModal = forwardRef(
                         {isDirect ? (
                           <>
                             <FaDownload
-                              className="h-4 w-5 text-sky-500"
+                              className="h-4 w-5 text-blue-900"
                               aria-hidden="true"
                             />
-                            <span className="text-base text-sky-500 font-bold">
+                            <span className="text-base text-blue-900 font-bold">
                               {/* 다운로드 */}
                               {t('SpaceModal.Download')}
                             </span>
@@ -575,10 +576,10 @@ const SpaceModal = forwardRef(
                         ) : (
                           <>
                             <FaCheck
-                              className="h-4 w-5 text-sky-500"
+                              className="h-4 w-5 text-blue-900"
                               aria-hidden="true"
                             />
-                            <span className="text-base text-sky-500 font-bold">
+                            <span className="text-base text-blue-900 font-bold">
                               {/* 선택 */}
                               {t('SpaceModal.Select')}
                             </span>

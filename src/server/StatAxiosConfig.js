@@ -23,7 +23,7 @@
 // });
 
 // // 인증이 필요 없는 요청을 위한 Axios 인스턴스 생성
-// export const nonAuthInstance = axios.create({
+// export const axiosInstance = axios.create({
 //   /**
 //    * [Swagger API Server]
 //    * 이 인스턴스는 인증이 필요 없는 요청에 사용됩니다.

@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { axiosInstance } from '../server/axios_config';
 
-// import { axiosInstance } from '../server/MapAxiosConfig';
-
 const createCancelToken = () => {
   let cancel;
   const token = new axios.CancelToken((c) => {
