@@ -139,7 +139,7 @@ export default function RoutoMap({
       const { lat: searchedLat, lng: searchedLng } = searchedLocation; // 검색된 좌표 추출
       const newCenter = new window.Tmapv2.LatLng(searchedLat, searchedLng); // 새 중심 생성
       mapRef.current.setCenter(newCenter); // 지도 중심 업데이트
-      mapRef.current.setZoom(10); // 줌 레벨 설정 (옵션)
+      mapRef.current.setZoom(process.env.REACT_APP_ZOOM); // 줌 레벨 설정 (옵션)
     }
   }, [searchedLocation]);
 
@@ -182,7 +182,7 @@ export default function RoutoMap({
           parseFloat(process.env.REACT_APP_LONGITUDE)
         );
         mapRef.current.setCenter(defaultCenter);
-        mapRef.current.setZoom(10);
+        mapRef.current.setZoom(process.env.REACT_APP_ZOOM);
         return;
       }
 

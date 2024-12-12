@@ -122,8 +122,6 @@ export default function TomTomMap({
         markerRef.current = new tt.Marker()
           .setLngLat([center.lng, center.lat]) // 현재 중심 좌표
           .addTo(mapRef.current); // 지도에 마커 추가
-
-        console.log('center', center);
       }
 
       // 지도 스타일이 로드된 후 경로를 그림
