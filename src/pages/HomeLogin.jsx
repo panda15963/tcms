@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { isEmpty, isNumber } from 'lodash';
 import { getAdmin, tryLogin } from '../service/api_services';
 import { FidoModal } from '../components/modals/FidoModal';
+import { jwtDecode } from 'jwt-decode';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
