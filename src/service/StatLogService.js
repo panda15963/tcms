@@ -13,7 +13,7 @@ const StatLogService = {
    */
   TOOL_SETTINGS: async (obj) => {
     const { cond, cancelToken } = obj;
-    // changePortStat();
+    changePortStat();
     const result = await axiosInstance
       .post('/statistics/tool-settings', cond, {
         cancelToken,
@@ -44,6 +44,7 @@ const StatLogService = {
    */
   TOOL_LOGS: async (obj) => {
     const { cond, cancelToken } = obj;
+    changePortStat();
     const result = await axiosInstance
       .post('/statistics/tool-logs', cond, {
         cancelToken,
@@ -74,6 +75,7 @@ const StatLogService = {
    */
   FUNCTION_COUNT: async (obj) => {
     const { cond, cancelToken } = obj;
+    changePortStat();
     const result = await axiosInstance
       .post('/statistics/function-count', cond, {
         cancelToken,
@@ -104,6 +106,7 @@ const StatLogService = {
    */
   EXECUTION_COUNT: async (obj) => {
     const { cond, cancelToken } = obj;
+    changePortStat();
     const result = await axiosInstance
       .post('/statistics/execution-count', cond, {
         cancelToken,
@@ -132,6 +135,7 @@ const StatLogService = {
    * @returns {Promise<Object>} - API 응답 데이터
    */
   LIVE_TOOL: async () => {
+    changePortStat();
     const result = await axiosInstance
       .get('/statistics/live-tool')
       .catch((error) => {
@@ -158,6 +162,7 @@ const StatLogService = {
    * @returns {Promise<Object>} - API 응답 데이터
    */
   LIVE_TC: async () => {
+    changePortStat();
     const result = await axiosInstance
       .get('/statistics/live-tc')
       .catch((error) => {
@@ -184,6 +189,7 @@ const StatLogService = {
    * @returns {Promise<Object>} - API 응답 데이터
    */
   PCNAMES: async () => {
+    changePortStat();
     const result = await axiosInstance.get('/info/pcnames').catch((error) => {
       console.log('error', error);
       if (error.response) {
@@ -208,6 +214,7 @@ const StatLogService = {
    * @returns {Promise<Object>} - API 응답 데이터
    */
   TOOLNAMES: async () => {
+    changePortStat();
     const result = await axiosInstance.get('/info/toolnames').catch((error) => {
       console.log('error', error);
       if (error.response) {
