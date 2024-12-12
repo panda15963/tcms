@@ -118,28 +118,33 @@ export default function StoreTable({ stores = [], onDataReceive }) {
       </table>
 
       {/* 페이지 네비게이션 */}
-      <div className="flex items-center font-bold justify-between border-gray-200 bg-white py-3 sm:px-6">
+      <div className="flex flex-col font-bold border-gray-200 bg-white py-3 sm:px-6">
         {/* 지점 수 및 페이지 정보 */}
-        {stores.length === 1 ? (
-          <span className="text-sm px-5 text-gray-700">
-            {t('StoreTable.OneStore')}
-          </span>
-        ) : stores.length === 0 ? (
-          <span className="text-sm px-5 text-gray-700">
-            {t('StoreTable.NoStores')}
-          </span>
-        ) : (
-          <span className="text-sm px-5 text-gray-700">
-            {t('StoreTable.PaginationText', {
-              first: indexOfFirstStore + 1,
-              last: Math.min(indexOfLastStore, stores.length),
-              total: stores.length,
-            })}
-          </span>
-        )}
+        <div className="text-center mb-2">
+          {stores.length === 1 ? (
+            <span className="text-sm px-5 text-gray-700">
+              {t('StoreTable.OneStore')}
+            </span>
+          ) : stores.length === 0 ? (
+            <span className="text-sm px-5 text-gray-700">
+              {t('StoreTable.NoStores')}
+            </span>
+          ) : (
+            <span className="text-sm px-5 text-gray-700">
+              {t('StoreTable.PaginationText', {
+                first: indexOfFirstStore + 1,
+                last: Math.min(indexOfLastStore, stores.length),
+                total: stores.length,
+              })}
+            </span>
+          )}
+        </div>
 
         {/* 페이지 버튼 */}
-        <nav aria-label="Pagination" className="flex items-center">
+        <nav
+          aria-label="Pagination"
+          className="flex items-center justify-center space-x-2"
+        >
           <button
             className={`relative inline-flex items-center rounded-md px-4 py-2 text-sm font-bold text-black bg-white border border-black ${
               indexOfFirstStore === 0
@@ -158,9 +163,7 @@ export default function StoreTable({ stores = [], onDataReceive }) {
               <button
                 key={number}
                 className={`relative inline-flex items-center rounded-md px-4 py-2 text-sm font-bold text-black bg-white border border-black ${
-                  currentPage === number
-                    ? 'bg-gray-400'
-                    : 'hover:bg-slate-200'
+                  currentPage === number ? 'bg-gray-400' : 'hover:bg-slate-200'
                 }`}
                 onClick={() => paginate(number)}
               >
