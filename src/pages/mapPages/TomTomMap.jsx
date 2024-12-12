@@ -143,34 +143,30 @@ export default function TomTomMap({
   // 검색된 위치에 마커 추가
   useEffect(() => {
     if (searchMarker) {
-      searchMarker.remove(); // 이전 마커 제거
+      searchMarker.remove();
     }
 
     if (lat && lng) {
-      // Fly to the searched location first
       mapRef.current.flyTo({
         center: [lng, lat],
-        zoom: 15, // 적절한 줌 레벨
+        zoom: 15,
       });
 
-      // Create a new marker for the searched location
       const newMarker = new tt.Marker()
         .setLngLat([lng, lat])
         .addTo(mapRef.current);
 
       setSearchMarker(newMarker); // Store the marker in state
-
-      // Reset to the default center after a brief delay to ensure the user sees the searched location
-      mapRef.current.once('moveend', () => {
-        mapRef.current.flyTo({
-          center: [defaultLng, defaultLat],
-          zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨
-        });
-
-        // Remove the search marker after resetting the map
-        newMarker.remove();
-        setSearchMarker(null);
+    } else {
+      mapRef.current.flyTo({
+        center: [defaultLng, defaultLat],
+        zoom: Number(process.env.REACT_APP_ZOOM),
       });
+
+      if (searchMarker) {
+        searchMarker.remove();
+        setSearchMarker(null);
+      }
     }
   }, [lat, lng]);
 
