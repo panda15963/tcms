@@ -230,6 +230,20 @@ export default function Login() {
       localStorage.setItem('ACCESS_TOKEN', data.accessToken);
       localStorage.setItem('REFRESH_TOKEN', data.refreshToken);
 
+      const decodedToken = jwtDecode(data.accessToken);
+      console.log('🚀 ~ decodedToken:', decodedToken);
+      console.log('Decoded token adminInfo ', decodedToken.admin_info);
+
+      //관리자 정보를 저장한다
+      if (decodedToken.admin_info && !isEmpty(decodedToken.admin_info)) {
+        const adminInfo = {
+          seq: decodedToken.admin_info.seq,
+          admin_id: decodedToken.admin_info.admin_id,
+          admin_use_yn: decodedToken.admin_info.admin_use_yn,
+        };
+        login(adminInfo);
+      }
+
       handleGoHomeWithoutLogin();
     }
 
