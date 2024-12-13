@@ -25,6 +25,7 @@ export default function GoogleMapHandler({
   clickedNode,
   routeColors = () => {},
   spaceFullCoords = [],
+  onClearMap,
 }) {
   const [isError, setIsError] = useState(false); // 오류 상태
   const [errorText, setErrorText] = useState(null); // 오류 메시지 상태
@@ -54,9 +55,10 @@ export default function GoogleMapHandler({
   if (isError) return <Error errorMessage={errorText} />;
 
   // googleLocation이 없을 경우 오류 메시지 컴포넌트를 반환
-  if (!googleLocation)
+  if (!googleLocation) {
     return <Error message="지도를 표시할 수 없습니다. 위치 정보가 없습니다." />;
-
+  }
+  
   // GoogleMap 컴포넌트 렌더링
   return (
     <GoogleMap
@@ -68,6 +70,7 @@ export default function GoogleMapHandler({
       error={handleError} // 오류 처리 함수
       routeColors={routeColors} // 경로 색상 처리 함수
       spaceFullCoords={filteredSpaces} // 필터링된 공간 데이터
+      onClearMap={onClearMap}
     />
   );
 }

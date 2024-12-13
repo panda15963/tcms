@@ -204,6 +204,7 @@ const TopMenuBar = ({
           checkedNode={checkedNodes} // 선택된 노드 데이터
           clickedNode={clickedNodes} // 클릭된 노드 데이터
           routeColors={routeColors} // 경로 색상
+          onClearMap={onClearMap} // 지도 초기화 함수
         />
       );
     } else if (selectedAPI?.name === 'ROUTO') {

@@ -54,6 +54,7 @@ export default function GoogleMap({
   error = () => {},
   routeColors = () => {},
   spaceFullCoords,
+  onClearMap,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
   const [map, setMap] = useState(null); // 지도 인스턴스 상태 관리
@@ -113,14 +114,6 @@ export default function GoogleMap({
 
       setMap(mapInstance);
 
-      // 초기 마커 추가
-      const initialMarker = new window.google.maps.Marker({
-        position: initialCoords,
-        map: mapInstance,
-      });
-      initialMarkerRef.current = initialMarker;
-      markerRefs.current.push(initialMarker);
-
       // 지도 클릭 이벤트 리스너 추가
       mapInstance.addListener('click', (event) => {
         const clickedLat = event.latLng.lat();
@@ -144,55 +137,101 @@ export default function GoogleMap({
         lng: parseFloat(lng) || defaultCoords.lng,
       });
 
-      // Calculate new center based on lat, lng
+      /// 위도(lat)와 경도(lng)를 기반으로 새로운 중심 좌표 계산
       const newCenter = calculateCenterAndMarker(lat, lng);
 
-      // Check if there are no routes or spaces
-      if (routeFullCoords.length === 0 && spaceFullCoords.length === 0) {
-        console.log('Resetting to default coordinates.');
+      if (
+        map &&
+        lat !== undefined &&
+        lng !== undefined &&
+        !isNaN(lat) &&
+        !isNaN(lng)
+      ) {
+        // onClearMap이 false인 경우 마커를 추가하거나 업데이트
+        if (!initialMarkerRef.current) {
+          initialMarkerRef.current = new window.google.maps.Marker({
+            position: newCenter,
+            map: map,
+            title: 'Initial Marker',
+          });
+        } else {
+          initialMarkerRef.current.setPosition(newCenter);
+        }
 
-        // Reset map center and zoom
+        // 지도 중심 업데이트
+        map.setCenter(newCenter);
+      } else {
+        // onClearMap이 true인 경우 모든 마커를 제거
+        if (onClearMap) {
+          // 초기 마커 제거
+          if (initialMarkerRef.current) {
+            initialMarkerRef.current.setMap(null); // 지도에서 제거
+            initialMarkerRef.current = null; // 참조 초기화
+          }
+
+          // 추가로 markerRefs 배열의 모든 마커 제거
+          markerRefs.current.forEach((marker) => {
+            if (marker) {
+              marker.setMap(null); // 지도에서 제거
+            }
+          });
+          markerRefs.current = []; // 배열 초기화
+
+          // 지도 중심을 기본값으로 재설정
+          const defaultCenter = {
+            lat: parseFloat(process.env.REACT_APP_LATITUDE) || 0,
+            lng: parseFloat(process.env.REACT_APP_LONGITUDE) || 0,
+          };
+          map.setCenter(defaultCenter);
+          map.setZoom(parseInt(process.env.REACT_APP_ZOOM, 10) || 12);
+
+          return; // 이후 로직을 실행하지 않음
+        }
+      }
+
+      // 경로(route)와 공간(space) 데이터가 모두 없는지 확인
+      if (onClearMap === true) {
+        // 지도 중심과 줌을 기본값으로 재설정
         map.setCenter(newCenter);
         map.setZoom(defaultZoom);
 
-        // Clear all markers and polylines
-        clearSpacePolylines();
-        clearSpaceMarkers();
-        clearRoutePolylines();
-        clearRouteMarkers();
-        clearMarkers();
+        // 모든 마커와 폴리라인 제거
+        clearSpacePolylines(); // 공간 관련 폴리라인 제거
+        clearSpaceMarkers(); // 공간 관련 마커 제거
+        clearRoutePolylines(); // 경로 관련 폴리라인 제거
+        clearRouteMarkers(); // 경로 관련 마커 제거
+        clearMarkers(); // 기타 모든 마커 제거
 
-        // Check if the map center is at the default location
+        // 현재 지도 중심이 기본 위치인지 확인
         const isDefaultLocation =
           newCenter.lat === defaultCoords.lat &&
           newCenter.lng === defaultCoords.lng;
 
         if (!isDefaultLocation) {
-          // Add a new marker if not at the default location
+          // 기본 위치가 아닐 경우, 새 마커 추가
           const marker = new window.google.maps.Marker({
             position: newCenter,
             map: map,
           });
-          markerRefs.current.push(marker);
+          markerRefs.current.push(marker); // 새 마커를 markerRefs 배열에 추가
         }
-      } else {
-        // If there are routes or spaces, ensure the map is centered correctly
-        map.setCenter(newCenter);
       }
     }
-  }, [routeFullCoords, spaceFullCoords, lat, lng, map]);
+  }, [routeFullCoords, spaceFullCoords, lat, lng, map, onClearMap]);
 
+  // 이전 공간 데이터(prevCoords)와 현재 공간 데이터(currentCoords)를 비교하여 제거된 공간의 인덱스를 찾음
   const findRemovedSpaceIndex = (prevCoords, currentCoords) => {
     for (let i = 0; i < prevCoords.length; i++) {
       const prevRoute = prevCoords[i];
+      // 이전 경로가 현재 경로에 포함되지 않은지 확인
       const isRouteRemoved = !currentCoords.some(
         (route) => route.file_id === prevRoute.file_id
       );
       if (isRouteRemoved) {
-        return i;
+        return i; // 제거된 경로의 인덱스를 반환
       }
     }
-    return -1;
+    return -1; // 제거된 경로가 없으면 -1 반환
   };
 
   useEffect(() => {
@@ -257,7 +296,6 @@ export default function GoogleMap({
   // 공간 데이터 표시
   useEffect(() => {
     if (!map) {
-      console.warn('Map instance is not initialized.');
       return; // 지도 인스턴스가 없으면 종료
     }
 
@@ -266,7 +304,6 @@ export default function GoogleMap({
     clearSpaceMarkers();
 
     if (!spaceFullCoords || spaceFullCoords.length === 0) {
-      console.log('spaceFullCoords is empty, clearing all markers and paths.');
       return; // 공간 데이터가 없으면 종료
     }
 
@@ -425,7 +462,6 @@ export default function GoogleMap({
 
     // 공간 검색에서 로그 검색으로 전환할 때 공간 경로 및 마커 초기화
     if (routeFullCoords.length > 0) {
-      console.log('로그 검색으로 전환. 공간 데이터 초기화 중.');
       clearSpacePolylines(); // 공간 폴리라인 초기화
       clearSpaceMarkers(); // 공간 마커 초기화
     }
@@ -448,13 +484,11 @@ export default function GoogleMap({
 
       renderRoutes(clickedRoute, bounds); // 클릭된 경로 렌더링
       map.fitBounds(bounds); // 지도의 경계를 경로에 맞게 조정
-      console.log('클릭된 경로만 표시 중');
     } else {
       // 모든 경로 표시
       renderRoutes(routeFullCoords, bounds); // 모든 경로 렌더링
       if (!bounds.isEmpty()) {
         map.fitBounds(bounds); // 지도의 경계를 경로에 맞게 조정
-        console.log('모든 경로 표시 중');
       }
     }
   }, [routeFullCoords, clickedNode, isClickedNodeActive, map]);
@@ -471,7 +505,6 @@ export default function GoogleMap({
   // 새로운 검색 시 clickedNode를 초기화하고 모든 경로 표시
   useEffect(() => {
     if (routeFullCoords.length > 0 || spaceFullCoords.length > 0) {
-      console.log('새로운 경로 또는 공간 데이터로 인해 clickedNode 초기화');
       setIsClickedNodeActive(false); // clickedNode 비활성화
     }
   }, [routeFullCoords, spaceFullCoords]);
@@ -495,14 +528,12 @@ export default function GoogleMap({
     ];
 
     const bounds = calculateBounds(routeCoords);
-    console.log('Fitting bounds to clickedNode:', bounds);
     map.fitBounds(bounds);
   }, [clickedNode, map]);
 
   // routeFullCoords 또는 spaceFullCoords가 변경될 때 clickedNode를 초기화
   useEffect(() => {
     if (routeFullCoords.length > 0 || spaceFullCoords.length > 0) {
-      console.log('새로운 경로 또는 공간 데이터로 인해 clickedNode 초기화');
       setIsClickedNodeActive(false);
     }
   }, [routeFullCoords, spaceFullCoords]);
