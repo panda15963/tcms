@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
-import { FaCheck } from 'react-icons/fa';
+import { FaCheck, FaSearch } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import SpaceTable from '../tables/mapTables/SpaceTable';
 import MapLogService from '../../service/MapLogService';
@@ -529,12 +529,20 @@ const SpaceModal = forwardRef(
                       {/* 찾기 버튼과 결과 개수 */}
                       <div className="flex items-center justify-start mt-1">
                         <button
-                          className="text-base w-[100px] py-1 bg-blue-900 text-white rounded"
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
                           onClick={handleFindClick}
                         >
-                          {t('SpaceModal.Find')}
+                          <FaSearch
+                            className="h-4 w-5 text-blue-900"
+                            aria-hidden="true"
+                          />
+                          <span className="text-sm text-blue-900 font-bold">
+                            {/* 조회 */}
+                            {t('SpaceModal.Find')}
+                          </span>
                         </button>
                         <span className="text-sm ml-4 text-gray-600">
+                          {/* 총 결과 */}
                           {t('LogModal.TotalResults')}: {listCount}
                         </span>
                       </div>

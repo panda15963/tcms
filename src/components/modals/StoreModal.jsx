@@ -15,6 +15,7 @@ import { TomTomSearch } from '../searchResults/TomTomSearch';
 import { BaiduSearch } from '../searchResults/BaiduSearch';
 import { HereSearch } from '../searchResults/HereSearch';
 import { useTranslation } from 'react-i18next';
+import { FaSearch } from 'react-icons/fa';
 
 const StoreModal = forwardRef(
   (
@@ -167,11 +168,15 @@ const StoreModal = forwardRef(
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <DialogPanel className="relative rounded-lg shadow-xl bg-white">
+                <DialogPanel
+                  className="relative rounded-lg shadow-xl bg-white"
+                  style={{ width: '800px' }}
+                >
                   {/* 모달 헤더 */}
                   {/* <div className="flex justify-between py-2 px-5 bg-blue-900 rounded-t-lg"> */}
                   <div className="flex justify-between py-3 px-5 bg-blue-900 rounded-t-lg">
-                    <h1 className="font-semibold pl-3 text-white">
+                    <h1 className="text-sm font-semibold text-white pt-0.5">
+                      {/* 지점 검색 */}
                       {t('StoreModal.ModalName')}
                     </h1>
                     <MdClose
@@ -181,36 +186,32 @@ const StoreModal = forwardRef(
                     />
                   </div>
                   {/* 검색 UI */}
-                  <div className="p-5">
-                    <div className="text-center">
-                      <div className="mt-2">
-                        <div className="grid grid-cols-3 px-4 items-center">
-                          <DialogTitle
-                            as="h3"
-                            className="text-base font-semibold leading-6"
-                          >
-                            {/* 검색어 */}
-                            {t('StoreModal.SearchName')}
-                          </DialogTitle>
-                          {/* 검색 입력 필드 */}
-                          <input
-                            type="text"
-                            className="pl-4 border border-black text-black p-1 rounded-md"
-                            placeholder={t('Common.SearchPlaceholder')}
-                            defaultValue={bringValue}
-                            onKeyPress={handleEnter} // Enter 키 눌림 감지
-                            onChange={(e) => setSearchQuery(e.target.value)} // 입력 값 업데이트
-                          />
-                          {/* 검색 버튼 */}
-                          <button
-                            className="font-bold rounded w-24 justify-self-center p-1 border border-black ring-gray-400 hover:border-blue_ncs hover:text-blue_ncs hover:ring-blue_ncs"
-                            onClick={handleEvent} // 검색 버튼 클릭 시 검색 실행
-                          >
-                            {t('Common.Search')}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-center gap-2 px-1 py-2">
+                    <label className=" text-sm ml-1 font-semibold text-slate-700 px-2">
+                      {/* 검색어 */}
+                      {t('StoreModal.SearchName')}
+                    </label>
+                    <input
+                      type="text"
+                      className="pl-4 border border-black text-black p-1 rounded-md flex-grow max-w-md"
+                      placeholder={t('Common.SearchPlaceholder')}
+                      defaultValue={bringValue}
+                      onKeyPress={handleEnter} // Enter 키 눌림 감지
+                      onChange={(e) => setSearchQuery(e.target.value)} // 입력 값 업데이트
+                    />
+                    <button
+                      className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 mr-1.5 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                      onClick={handleEvent}
+                    >
+                      <FaSearch
+                        className="h-4 w-5 text-blue-900"
+                        aria-hidden="true"
+                      />
+                      <span className="text-sm text-blue-900 font-bold">
+                        {/* 조회 */}
+                        {t('Common.Search')}
+                      </span>
+                    </button>
                   </div>
                   {/* 검색 결과를 테이블로 표시 */}
                   <div className="p-3">
