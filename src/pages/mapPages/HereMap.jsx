@@ -109,17 +109,18 @@ const HereMap = ({
   // lat과 lng가 변경될 때마다 지도 중심을 업데이트
   useEffect(() => {
     if (clickedCoords || disableCentering) {
-      console.log('Centering disabled or clickedCoords set. Skipping center update.');
+      console.log(
+        'Centering disabled or clickedCoords set. Skipping center update.'
+      );
       return;
     }
-  
+
     if (lat === undefined || lng === undefined) {
       clearMarkers();
     } else if (!getCentered) {
       centerMapOnLatLng(lat, lng);
     }
   }, [lat, lng, getCentered, clickedCoords, disableCentering]);
-  
 
   // routeFullCoords와 spaceFullCoords가 빈 리스트일 경우 지도 중심 초기화
   useEffect(() => {
@@ -341,16 +342,25 @@ const HereMap = ({
 
   // 상태 초기화와 함께 `fitMapToEntities` 호출
   useEffect(() => {
-    setCentered(false); // 상태 초기화
-    if (routeFullCoords.length > 0) {
-      fitMapToEntities(routeFullCoords, 'routes'); // 경로 중심 설정
-      resetAndRenderEntities(routeFullCoords, 'routes'); // 경로 렌더링
-    }
+    const resetAndDisplayAllEntities = () => {
+      // Clear existing entities
+      clearEntities('routes');
+      clearEntities('spaces');
 
-    if (spaceFullCoords.length > 0) {
-      fitMapToEntities(spaceFullCoords, 'spaces'); // 공간 중심 설정
-      resetAndRenderEntities(spaceFullCoords, 'spaces'); // 공간 렌더링
-    }
+      // Render new routes
+      if (routeFullCoords.length > 0) {
+        renderEntities(routeFullCoords, 'routes'); // 경로 렌더링
+        fitMapToEntities(routeFullCoords, 'routes'); // 경로 데이터가 있을 때만 중심 조정
+      }
+
+      // Render new spaces
+      if (spaceFullCoords.length > 0) {
+        renderEntities(spaceFullCoords, 'spaces'); // 공간 렌더링
+        fitMapToEntities(spaceFullCoords, 'spaces'); // 공간 데이터가 있을 때만 중심 조정
+      }
+    };
+
+    resetAndDisplayAllEntities();
   }, [routeFullCoords, spaceFullCoords]);
 
   // 로그 검색 및 공간 검색 전환 시 상태 초기화

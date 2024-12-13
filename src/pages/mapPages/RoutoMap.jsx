@@ -138,9 +138,9 @@ export default function RoutoMap({
    */
   useEffect(() => {
     if (mapRef.current && Array.isArray(adjustedSpaceCoords)) {
-      clearSpaceAndMarkers(); // 기존 공간 경로와 마커 제거
+      clearSpaceAndMarkers(); // Clear existing markers and routes
       if (adjustedSpaceCoords.length > 0) {
-        drawSpaceRoutes(mapRef.current, adjustedSpaceCoords); // 새로운 공간 경로 그리기
+        drawSpaceRoutes(mapRef.current, adjustedSpaceCoords); // Draw new routes
       }
     }
   }, [adjustedSpaceCoords]);
@@ -162,12 +162,11 @@ export default function RoutoMap({
         bounds.extend(new routo.maps.LatLng(startLat, startLng));
         bounds.extend(new routo.maps.LatLng(goalLat, goalLng));
 
-        mapRef.current.fitBounds(bounds); // Focus on clickedNode
-        setFocusedNode(clickedNode); // Mark this node as focused
-
-        if (markerRef.current) {
-          markerRef.current.setMap(null); // Optionally hide the marker
-        }
+        // Add a slight delay to ensure the map has time to render before fitting the bounds
+        setTimeout(() => {
+          mapRef.current.fitBounds(bounds); // Focus on clickedNode
+          setFocusedNode(clickedNode); // Mark this node as focused
+        }, 100);
       }
     }
   }, [clickedNode]);
@@ -176,9 +175,7 @@ export default function RoutoMap({
    * 지도 초기화 관련 UseEffect
    */
   useEffect(() => {
-    console.log('onClearMap =>', onClearMap);
-
-    if (onClearMap == true) {
+    if (onClearMap) {
       clearRoutesAndMarkers();
       clearSpaceAndMarkers();
 
@@ -186,41 +183,13 @@ export default function RoutoMap({
         center: { lat: center.lat, lng: center.lng },
         zoom: Number(process.env.REACT_APP_ZOOM),
       });
+
+      // onClearMap 상태 리셋
+      setTimeout(() => {
+        onClearMap = false; // 부모 컴포넌트에서 상태 리셋
+      }, 100);
     }
   }, [onClearMap]);
-
-  useEffect(() => {
-    console.log('[spaceFullCoords] ===>', spaceFullCoords);
-    console.log('[spaceFullCoords] ===>', spaceFullCoords.length);
-  }, [spaceFullCoords]);
-
-  const resetMap = () => {
-    // 모든 경로와 마커 제거
-    clearRoutesAndMarkers();
-    clearSpaceAndMarkers();
-
-    // 지도 중심과 줌 수준을 초기화
-    if (mapRef.current) {
-      const defaultCenter = calculateCenterAndMarker(); // 초기 중심 좌표
-      mapRef.current.setCenter(defaultCenter);
-      mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM)); // 기본 줌 수준
-    }
-
-    // 마커도 초기화
-    if (markerRef.current) {
-      markerRef.current.setMap(null);
-      markerRef.current = null; // 마커 객체 초기화
-    }
-
-    // 상태 초기화
-    setRouteObjects([]);
-    setRouteMarkers([]);
-    setSpaceObjects([]);
-    setSpaceMarkers([]);
-    setAdjustedRouteCoords([]);
-    setAdjustedSpaceCoords([]);
-    setFocusedNode(null);
-  };
 
   /**
    * 경로와 마커를 모두 삭제하는 함수
@@ -313,6 +282,10 @@ export default function RoutoMap({
    * @param {Array} routeFullCoords 전체 경로 좌표 배열
    */
   const drawCheckedRoutes = (mapInstance, routeFullCoords) => {
+    if (!Array.isArray(routeFullCoords) || routeFullCoords.length === 0) {
+      console.warn('No routes to center on.');
+      return;
+    }
     clearRoutesAndMarkers(); // 기존 경로와 마커 삭제
 
     const newRouteObjects = [];
@@ -614,11 +587,11 @@ export default function RoutoMap({
    * 경로 좌표가 변경될 때 기존 경로와 마커를 제거하고 새로운 경로와 마커를 그리는 useEffect
    */
   useEffect(() => {
-    if (!focusedNode && mapRef.current && Array.isArray(adjustedRouteCoords)) {
-      clearRoutesAndMarkers();
-      drawCheckedRoutes(mapRef.current, adjustedRouteCoords);
+    if (routeFullCoords.length > 0) {
+      clearRoutesAndMarkers(); // 기존 경로 및 마커 제거
+      drawCheckedRoutes(mapRef.current, routeFullCoords);
     }
-  }, [mapRef.current, adjustedRouteCoords, focusedNode]);
+  }, [adjustedRouteCoords]);
 
   /**
    * 좌표가 변경될 때 지도 중심과 마커를 업데이트하는 useEffect
