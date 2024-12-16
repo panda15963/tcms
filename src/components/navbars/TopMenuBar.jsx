@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { HiOutlineDocumentSearch, HiOutlineRefresh } from 'react-icons/hi';
+import { HiOutlineDocumentSearch } from 'react-icons/hi';
 import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
 import { FaMagnifyingGlass, FaXmark, FaBars } from 'react-icons/fa6';
 import {
@@ -24,13 +24,9 @@ import { DEGToDEC } from '../calculateCoords/ConvertsDEG';
 import { useTranslation } from 'react-i18next';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
-import spaceIcon from '../../assets/icons/spaceicon.ico';
 import spaceIcon2 from '../../assets/icons/spaceicon2.png';
-import downloadIcon from '../../assets/icons/downloadicon.ico';
 import downloadIcon2 from '../../assets/icons/downloadicon2.png';
-import clearIcon from '../../assets/icons/mapclearicon.ico';
 import clearIcon2 from '../../assets/icons/mapclearicon2.png';
-import searchIcon from '../../assets/icons/searchicon.ico';
 import searchIcon2 from '../../assets/icons/searchicon2.png';
 
 const TopMenuBar = ({
@@ -887,7 +883,7 @@ const TopMenuBar = ({
                   </div>
                 </div>
                 <div className="flex items-center sm:hidden">
-                  {/* Mobile menu button */}
+                  {/* 모바일 버전 */}
                   <DisclosureButton className="relative inline-flex items-center justify-between rounded-md p-2 text-gray-400 right-2 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                     <span className="absolute -inset-0.5" />
                     {open ? (
@@ -1036,7 +1032,7 @@ const TopMenuBar = ({
         )}
       </Disclosure>
       <div className="map-container">
-        {/* Show either the map for coordinates or the map for routes */}
+        {/* 좌표나 경로를 보여주기 위한 지도 표출 */}
         {selectedAPI && handleChoosingMapAPIs()}
       </div>
     </>

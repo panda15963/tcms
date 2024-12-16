@@ -244,21 +244,13 @@ const NavBar = () => {
             </Link>
 
             {/* 대시보드 */}
-            <Disclosure as="div">
-              <DisclosureButton className="flex justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
-                {t('NavBar.Dashboard')}
-                <FaAngleDown className="h-6 w-6" aria-hidden="true" />
-              </DisclosureButton>
-              <DisclosurePanel className="px-3 py-1 text-sm text-gray-700">
-                <Link
-                  to="/main/dashboard"
-                  className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
-                  onClick={() => handleLinkClick('/main/dashboard')}
-                >
-                  {t('NavBar.UsageRate')}
-                </Link>
-              </DisclosurePanel>
-            </Disclosure>
+            <Link
+              to="/main/dashboard"
+              className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
+              onClick={() => handleLinkClick('/main/dashboard')}
+            >
+              {t('NavBar.Dashboard')}
+            </Link>
             {/* 관리 */}
             <Disclosure as="div">
               <DisclosureButton className="flex justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
@@ -285,11 +277,13 @@ const NavBar = () => {
           </div>
           {/* 사용자 메뉴 */}
           <div className="px-2 pb-3 border-t border-gray-200">
-            <img
+            <svg
+              fill="currentColor"
+              viewBox="0 0 24 24"
               className="h-10 w-10 rounded-full ml-3 mt-3"
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              alt="Profile Picture"
-            />
+            >
+              <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
             {userDropMenus.map((page) => (
               <span
                 key={page.id}

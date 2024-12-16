@@ -26,7 +26,6 @@
   },
   "NavBar": {
     "Dashboard": "Dashboard",
-    "UsageRate": "Usage Rate",
     "Management": "Management",
     "AdminManagement": "Admin Management",
     "UserManagement": "User Management",
