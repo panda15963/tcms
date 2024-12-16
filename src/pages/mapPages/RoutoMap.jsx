@@ -28,6 +28,12 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {number} lat
  * @param {number} lng
  * @param {function} locationCoords
+ * @param {function} routeColors
+ * @param {Array} routeFullCoords
+ * @param {Array} spaceFullCoords
+ * @param {object} clickedNode
+ * @param {function} onClearMap
+ * @returns {JSX.Element}
  */
 export default function RoutoMap({
   lat,
@@ -53,6 +59,7 @@ export default function RoutoMap({
   const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
   const [focusedNode, setFocusedNode] = useState(null);
   const [maintainedCoords, setMaintainedCoords] = useState(false);
+  const routesColors = useRef(new Map());
 
   /**
    * 경로가 제거되었을 때 이를 감지하고 adjustedRouteCoords를 업데이트하는 effect
@@ -319,7 +326,10 @@ export default function RoutoMap({
           });
 
           // 경로를 그리기 위한 Polyline 생성
-          const strokeColor = routeColors[index % routeColors.length]; // 경로 색상 설정
+          const strokeColor =
+            routesColors.current.get(route.file_id) ||
+            routeColors[index % routeColors.length];
+          routesColors.current.set(route.file_id, strokeColor);
           const polyline = new routo.maps.Polyline({
             path: routePath,
             geodesic: true,
@@ -432,7 +442,10 @@ export default function RoutoMap({
             bounds.extend(new routo.maps.LatLng(point.lat, point.lng));
           });
 
-          const strokeColor = routeColors[index % routeColors.length];
+          const strokeColor =
+            routesColors.current.get(space.file_id) ||
+            routeColors[index % routeColors.length];
+          routesColors.current.set(space.file_id, strokeColor);
           const polyline = new routo.maps.Polyline({
             path: spacePath,
             geodesic: true,

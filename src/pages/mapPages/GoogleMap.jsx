@@ -56,8 +56,10 @@ export default function GoogleMap({
   spaceFullCoords,
   onClearMap,
 }) {
+  const { t } = useTranslation(); // 다국어 번역 훅
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
   const [map, setMap] = useState(null); // 지도 인스턴스 상태 관리
+  const routesColors = useRef(new Map());
   const mapRef = useRef(null); // 지도 DOM 참조
   const spaceMarkerRefs = useRef([]); // 공간 마커 참조 배열
   const spacePolylinesRef = useRef([]); // 공간 폴리라인 참조 배열
@@ -65,7 +67,6 @@ export default function GoogleMap({
   const routePolylinesRef = useRef([]); // 경로 폴리라인 참조 배열
   const markerRefs = useRef([]); // 일반 마커 참조 배열
   const initialMarkerRef = useRef(null); // 초기 마커 참조
-  const { t } = useTranslation(); // 다국어 번역 훅
   const [previousRouteCoords, setPreviousRouteCoords] = useState([]);
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
   const [isClickedNodeActive, setIsClickedNodeActive] = useState(false);
@@ -335,7 +336,10 @@ export default function GoogleMap({
         }));
 
         // 현재 인덱스에 따라 폴리라인 색상 선택
-        const polylineColor = routeColors[index % routeColors.length];
+        const polylineColor =
+          routesColors.current.get(space.file_id) ||
+          routeColors[index % routeColors.length];
+        routesColors.current.set(space.file_id, polylineColor);
 
         const polyline = new window.google.maps.Polyline({
           path: polylinePath,
@@ -421,7 +425,10 @@ export default function GoogleMap({
           lng: coord.lng,
         }));
 
-        const polylineColor = routeColors[index % routeColors.length];
+        const polylineColor =
+          routesColors.current.get(route.file_id) ||
+          routeColors[index % routeColors.length];
+        routesColors.current.set(route.file_id, polylineColor);
 
         const polyline = new window.google.maps.Polyline({
           path: polylinePath,

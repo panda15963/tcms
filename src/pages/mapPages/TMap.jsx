@@ -79,9 +79,10 @@ export default function RoutoMap({
   checkedNodes,
   clickedNode,
   searchedLocation,
-  routeColors = [],
+  routeColors = () => {},
   onClearMap,
 }) {
+  const routesColors = useRef(new Map());
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 상태 관리
 
@@ -180,7 +181,7 @@ export default function RoutoMap({
         return;
       }
 
-      // Clear existing markers and polylines
+      // 존재하는 마커와 폴리라인 제거
       if (routeMarkerRef.current.length) {
         routeMarkerRef.current.forEach((marker) => marker.setMap(null));
         routeMarkerRef.current = [];
@@ -190,7 +191,6 @@ export default function RoutoMap({
         routePolylineRef.current = [];
       }
 
-      // If routeFullCoords is invalid, exit
       if (!routeFullCoords || !Array.isArray(routeFullCoords)) {
         console.warn('routeFullCoords is not valid.');
         return;
@@ -216,7 +216,7 @@ export default function RoutoMap({
         const startCoord = parsedCoords[0];
         const finishCoord = parsedCoords[parsedCoords.length - 1];
 
-        // Add start marker
+        // 시작 마커 추가
         const startMarker = new Tmapv2.Marker({
           position: new Tmapv2.LatLng(startCoord.lat, startCoord.lng),
           map: mapRef.current,
@@ -225,7 +225,7 @@ export default function RoutoMap({
         });
         routeMarkerRef.current.push(startMarker);
 
-        // Add finish marker
+        // 끝 마커 추가
         const finishMarker = new Tmapv2.Marker({
           position: new Tmapv2.LatLng(finishCoord.lat, finishCoord.lng),
           map: mapRef.current,
@@ -234,11 +234,15 @@ export default function RoutoMap({
         });
         routeMarkerRef.current.push(finishMarker);
 
-        // Create polyline
-        const color = routeColors[index % routeColors.length] || '#ff0000';
+        const color =
+          routesColors.current.get(route.file_id) ||
+          routeColors[index % routeColors.length];
+        routesColors.current.set(route.file_id, color);
+
         const polylinePath = parsedCoords.map(
           (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
         );
+        // 폴리라인 생성
         const polyline = new Tmapv2.Polyline({
           path: polylinePath,
           strokeColor: color,
@@ -350,7 +354,10 @@ export default function RoutoMap({
         spaceMarkerRef.current.push(finishMarker);
 
         // 폴리라인 생성
-        const color = routeColors[index % routeColors.length] || '#0000ff';
+        const color =
+          routesColors.current.get(space.file_id) ||
+          routeColors[index % routeColors.length];
+        routesColors.current.set(space.file_id, color);
         const polylinePath = parsedCoords.map(
           (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
         );

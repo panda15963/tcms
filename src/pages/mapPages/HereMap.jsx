@@ -33,11 +33,12 @@ const HereMap = ({
   lng,
   locationCoords = () => {}, // 지도 클릭 시 호출되는 콜백 함수
   routeFullCoords, // 경로 전체 좌표
-  routeColors, // 경로 색상 배열
+  routeColors = () => {}, // 경로 색상 배열
   clickedNode, // 선택된 노드 데이터
   spaceFullCoords, // 공간 전체 좌표
   checkedNode, // 선택된 노드 상태
 }) => {
+  const routesColors = useRef(new Map());
   const mapRef = useRef(null); // 지도 DOM 요소 참조
   const mapInstance = useRef(null); // HERE 지도 인스턴스 참조
   const platformInstance = useRef(null); // HERE 플랫폼 인스턴스 참조
@@ -347,13 +348,13 @@ const HereMap = ({
       clearEntities('routes');
       clearEntities('spaces');
 
-      // Render new routes
+      // 새로운 경로 렌더링
       if (routeFullCoords.length > 0) {
         renderEntities(routeFullCoords, 'routes'); // 경로 렌더링
         fitMapToEntities(routeFullCoords, 'routes'); // 경로 데이터가 있을 때만 중심 조정
       }
 
-      // Render new spaces
+      // 새로운 공간 렌더링
       if (spaceFullCoords.length > 0) {
         renderEntities(spaceFullCoords, 'spaces'); // 공간 렌더링
         fitMapToEntities(spaceFullCoords, 'spaces'); // 공간 데이터가 있을 때만 중심 조정
@@ -389,13 +390,13 @@ const HereMap = ({
             lineString.pushPoint({ lat: point.lat, lng: point.lng })
           );
 
-          const color =
-            routeColors && routeColors[index % routeColors.length]
-              ? routeColors[index % routeColors.length]
-              : '#0000FF';
+          const polylineColor =
+            routesColors.current.get(coord.file_id) ||
+            routeColors[index % routeColors.length];
+          routesColors.current.set(coord.file_id, polylineColor);
 
           const polyline = new H.map.Polyline(lineString, {
-            style: { lineWidth: 5, strokeColor: color },
+            style: { lineWidth: 5, strokeColor: polylineColor },
           });
           mapInstance.current.addObject(polyline);
           polylineRefs.current[type].push(polyline);

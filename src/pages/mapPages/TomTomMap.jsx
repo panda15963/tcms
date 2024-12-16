@@ -5,29 +5,6 @@ import End_Point from '../../assets/images/multi_end_point.svg'; // Import your 
 import Start_Point from '../../assets/images/multi_start_point.svg'; // Import your custom Start Point icon
 import '../../style/MapStyle.css';
 
-const colors = [
-  '#0000FF', // 파란색
-  '#00FF00', // 초록색
-  '#FF0000', // 빨간색
-  '#00FFFF', // 청록색
-  '#FFFF00', // 노란색
-  '#FF00FF', // 자홍색
-  '#0080FF', // 밝은 파란색
-  '#80FF00', // 연두색
-  '#ff0075', // 빨간색 비슷
-  '#98ff98', // 연한 녹색
-  '#FFA500', // 주황색
-  '#8811FF', // 보라색
-  '#8080FF', // 연한 보라색
-  '#88FF80', // 밝은 연녹색
-  '#ffae00', // 황금색
-  '#008828', // 밝은 하늘색
-  '#50664e', // 짙은 초록색
-  '#790963', // 짙은 보라색
-  '#32437a', // 짙은 파란색
-  '#415e45', // 짙은 녹색
-];
-
 /**
  * 중심 좌표와 마커 좌표를 계산하는 함수
  * @param {number} lat - 위도 값
@@ -80,6 +57,7 @@ export default function TomTomMap({
   checkedNodes,
   clickedNode,
   spaceFullCoords,
+  routeColors = () => {},
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 상태 관리
@@ -90,6 +68,7 @@ export default function TomTomMap({
   const [searchMarker, setSearchMarker] = useState(null); // 검색된 마커 상태
   const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
   const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
+  const routesColors = useRef(new Map());
 
   /**
    * 위도(lat)와 경도(lng)가 변경될 때 중심 좌표를 업데이트
@@ -329,80 +308,63 @@ export default function TomTomMap({
    * @param {Array} routeFullCoords - 모든 경로 객체 배열 (좌표 포함)
    */
   const drawRoutes = (map, routeFullCoords = []) => {
-    // 기존 경로 및 마커를 모두 제거
     clearRoutesAndMarkers(map);
 
-    // 지도 스타일이 로드되지 않은 경우, 로드 후에 실행되도록 설정
-    if (!map.isStyleLoaded()) {
-      map.once('style.load', () => {
-        drawRoutes(map, routeFullCoords); // 스타일 로드 후 다시 실행
-      });
-      return;
-    }
-
-    // 모든 경로를 포함할 수 있는 범위를 생성
     const bounds = new tt.LngLatBounds();
 
-    // 각 경로를 반복하며 맵에 렌더링
     routeFullCoords.forEach((route, index) => {
-      if (!route || !route.coords || route.coords.length === 0) return; // 경로가 유효하지 않으면 스킵
+      if (!route || !route.coords || route.coords.length === 0) return;
 
-      // 경로의 좌표를 매핑 (경도, 위도 배열로 변환)
       const coordinates = route.coords.map((coord) => [coord.lng, coord.lat]);
-
-      // 각 좌표를 범위에 추가
       coordinates.forEach((coord) => bounds.extend(coord));
 
-      // 시작 지점 마커 생성
       const startMarker = new tt.Marker({
-        element: createCustomMarker(Start_Point), // 커스텀 마커 요소 생성
+        element: createCustomMarker(Start_Point),
       })
         .setLngLat(coordinates[0])
-        .addTo(map); // 시작 좌표에 마커 추가
+        .addTo(map);
 
-      // 끝 지점 마커 생성
       const endMarker = new tt.Marker({
-        element: createCustomMarker(End_Point), // 커스텀 마커 요소 생성
+        element: createCustomMarker(End_Point),
       })
         .setLngLat(coordinates[coordinates.length - 1])
-        .addTo(map); // 끝 좌표에 마커 추가
+        .addTo(map);
 
-      // 마커를 참조 배열에 저장
       routeMarkers.current.push(startMarker, endMarker);
 
-      // 경로의 GeoJSON 객체 생성
       const geoJsonRoute = {
         type: 'Feature',
         geometry: {
           type: 'LineString',
-          coordinates, // 경로 좌표
+          coordinates,
         },
       };
 
-      // 맵에 추가할 새로운 경로 레이어 ID 생성
       const newRouteLayerId = `route-${index}-${Date.now()}`;
       routeLayerIds.current.push(newRouteLayerId);
 
-      // 맵에 레이어 추가 (경로 시각화)
+      const routeColor =
+        routesColors.current.get(route.file_id) || routeColors[index % routeColors.length];
+      routesColors.current.set(route.file_id, routeColor);
+
       map.addLayer({
         id: newRouteLayerId,
-        type: 'line', // 라인 타입
+        type: 'line',
         source: {
           type: 'geojson',
-          data: geoJsonRoute, // GeoJSON 데이터 사용
+          data: geoJsonRoute,
         },
         paint: {
-          'line-color': colors[index % colors.length], // 라인 색상 지정 (순환 색상 배열)
-          'line-width': 5, // 라인 두께
+          'line-color': routeColor,
+          'line-width': 5,
         },
       });
     });
 
-    // 유효한 경로가 있을 경우 계산된 범위에 맞게 맵 화면 조정
     if (!bounds.isEmpty()) {
-      map.fitBounds(bounds, { padding: 50 }); // 맵 경계를 패딩 50으로 조정
+      map.fitBounds(bounds, { padding: 50 });
     } else {
-      console.error('No valid routes to display'); // 유효한 경로가 없을 경우 에러 출력
+      console.error('No valid routes to display');
     }
   };
 
