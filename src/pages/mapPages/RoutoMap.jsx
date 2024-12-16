@@ -54,14 +54,6 @@ export default function RoutoMap({
   const [focusedNode, setFocusedNode] = useState(null);
   const [maintainedCoords, setMaintainedCoords] = useState(false);
 
-  console.log(maintainedCoords);
-
-  console.log('routeFullCoords:', routeFullCoords);
-  console.log('spaceFullCoords:', spaceFullCoords);
-  console.log('clickedNode:', clickedNode);
-  console.log('onClearMap:', onClearMap);
-
-
   /**
    * 경로가 제거되었을 때 이를 감지하고 adjustedRouteCoords를 업데이트하는 effect
    */
@@ -225,7 +217,7 @@ export default function RoutoMap({
   useEffect(() => {
     const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
     const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
-  
+
     // spaceFullCoords와 routeFullCoords가 빈 리스트일 때 기본 좌표로 돌아가기
     if (!maintainedCoords) {
       setCenter({ lat: defaultLat, lng: defaultLng }); // 기본 좌표로 설정
@@ -239,7 +231,6 @@ export default function RoutoMap({
   }, [spaceFullCoords, routeFullCoords, maintainedCoords]);
 
   /**
-   * clearSpaceAndMarkers
    * 공간 경로와 마커를 지도에서 제거하는 함수
    */
   const clearSpaceAndMarkers = () => {
@@ -575,8 +566,6 @@ export default function RoutoMap({
       mapRef.current.addListener('click', (event) => {
         const clickedLat = event.latLng.lat();
         const clickedLng = event.latLng.lng();
-
-        console.log('Clicked coordinates:', clickedLat, clickedLng);
         setMaintainedCoords(true); // 클릭한 좌표 유지
         // 부모 컴포넌트로 클릭된 좌표 전달
         locationCoords({ lat: clickedLat, lng: clickedLng });
@@ -585,16 +574,6 @@ export default function RoutoMap({
       if (Array.isArray(spaceFullCoords)) {
         drawSpaceRoutes(mapRef.current, spaceFullCoords);
       }
-
-      // 중심 좌표 업데이트 방지
-      const preventRecenter = () => {
-        if (mapRef.current) {
-          mapRef.current.setOptions({ draggable: true }); // 지도 드래그 가능
-          mapRef.current.setCenter({ lat: center.lat, lng: center.lng }); // 기존 중심 유지
-        }
-      };
-
-      preventRecenter(); // 초기 중심 유지
     }
 
     return () => {
