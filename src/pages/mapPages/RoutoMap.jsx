@@ -566,6 +566,7 @@ export default function RoutoMap({
       mapRef.current.addListener('click', (event) => {
         const clickedLat = event.latLng.lat();
         const clickedLng = event.latLng.lng();
+
         setMaintainedCoords(true); // 클릭한 좌표 유지
         // 부모 컴포넌트로 클릭된 좌표 전달
         locationCoords({ lat: clickedLat, lng: clickedLng });
@@ -573,6 +574,13 @@ export default function RoutoMap({
 
       if (Array.isArray(spaceFullCoords)) {
         drawSpaceRoutes(mapRef.current, spaceFullCoords);
+      }
+
+      // 중심 좌표 업데이트 방지
+      if (onClearMap) {
+        mapRef.current.setOptions({ draggable: true }); // 지도 드래그 가능
+        mapRef.current.setCenter({ lat: center.lat, lng: center.lng }); // 기존 중심 유지
+        mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM)); // 기존 줌 유지
       }
     }
 
