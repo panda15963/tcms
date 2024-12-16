@@ -25,9 +25,13 @@ import { useTranslation } from 'react-i18next';
 import Completion from '../alerts/Completion';
 import Error from '../alerts/Error';
 import spaceIcon from '../../assets/icons/spaceicon.ico';
+import spaceIcon2 from '../../assets/icons/spaceicon2.png';
 import downloadIcon from '../../assets/icons/downloadicon.ico';
+import downloadIcon2 from '../../assets/icons/downloadicon2.png';
 import clearIcon from '../../assets/icons/mapclearicon.ico';
+import clearIcon2 from '../../assets/icons/mapclearicon2.png';
 import searchIcon from '../../assets/icons/searchicon.ico';
+import searchIcon2 from '../../assets/icons/searchicon2.png';
 
 const TopMenuBar = ({
   checkedNodes,
@@ -682,10 +686,10 @@ const TopMenuBar = ({
                               type="button"
                               onClick={() => storeModalRef.current.show()}
                               // className="inset-y-5 px-3 flex items-center border-1 rounded-md p-2 bg-gray-700"
-                              className="flex items-center rounded-md p-0.5 w-9 h-9 bg-gray-700"
+                              className="flex items-center rounded-md p-0.5 w-9 h-9 bg-gray-800"
                             >
                               <img
-                                src={searchIcon}
+                                src={searchIcon2}
                                 alt="Search Icon"
                                 className="object-contain"
                                 style={{
@@ -718,10 +722,10 @@ const TopMenuBar = ({
                           type="button"
                           onClick={() => logModalRef.current.show()}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex items-center rounded-md p-0.5 w-9 h-9  bg-gray-700"
+                          className="flex items-center rounded-md p-0.5 w-9 h-9  bg-gray-800"
                         >
                           <img
-                            src={downloadIcon}
+                            src={downloadIcon2}
                             alt="Download Icon"
                             className="object-contain"
                             style={{
@@ -750,10 +754,10 @@ const TopMenuBar = ({
                           type="button"
                           onClick={() => spaceModalRef.current.show()}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex items-center rounded-md p-0.5 w-9 h-9 bg-gray-700"
+                          className="flex items-center rounded-md p-0.5 w-9 h-9 bg-gray-800"
                         >
                           <img
-                            src={spaceIcon}
+                            src={spaceIcon2}
                             alt="Space Search Icon"
                             className="object-contain"
                             style={{
@@ -783,10 +787,10 @@ const TopMenuBar = ({
                           type="button"
                           onClick={handleMapClear}
                           // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
-                          className="flex items-center rounded-md p-0.5 w-9 h-9 bg-gray-700"
+                          className="flex items-center rounded-md p-0.5 w-9 h-9 bg-gray-800"
                         >
                           <img
-                            src={clearIcon}
+                            src={clearIcon2}
                             alt="Clear Icon"
                             className="object-contain"
                             style={{
@@ -913,7 +917,7 @@ const TopMenuBar = ({
                       <button
                         type="button"
                         onClick={() => storeModalRef.current.show()}
-                        className="inset-y-5 px-3 flex items-center border-1 rounded-md p-2 bg-gray-700"
+                        className="inset-y-5 px-3 flex items-center border-1 rounded-md p-2 bg-gray-800"
                       >
                         <FaMagnifyingGlass
                           className="h-5 w-5 text-gray-400"
@@ -930,7 +934,7 @@ const TopMenuBar = ({
                   <button
                     type="button"
                     onClick={() => logModalRef.current.show()}
-                    className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                    className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-800"
                   >
                     <HiOutlineDocumentSearch
                       className="h-5 w-5 text-white"
@@ -945,7 +949,7 @@ const TopMenuBar = ({
                   <button
                     type="button"
                     // onClick={() => logModalRef.current.show()}
-                    className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                    className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-800"
                   >
                     <HiOutlineDocumentSearch
                       className="h-5 w-5 text-white"
@@ -973,7 +977,7 @@ const TopMenuBar = ({
                         <input
                           id="search"
                           name="lat"
-                          className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                          className="block w-36 rounded-md border-0 bg-gray-800 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                           placeholder={t('Common.Latitude')}
                           value={convertedCoords.lat}
                           onChange={handleCoordsChange}
@@ -991,7 +995,7 @@ const TopMenuBar = ({
                           />
                         </button>
                         <input
-                          className="block w-36 rounded-md border-0 bg-gray-700 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                          className="block w-36 rounded-md border-0 bg-gray-800 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                           placeholder={t('Common.Longitude')}
                           name="lng"
                           value={convertedCoords.lng}
