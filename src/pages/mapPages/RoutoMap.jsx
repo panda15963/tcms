@@ -52,6 +52,15 @@ export default function RoutoMap({
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
   const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
   const [focusedNode, setFocusedNode] = useState(null);
+  const [maintainedCoords, setMaintainedCoords] = useState(false);
+
+  console.log(maintainedCoords);
+
+  console.log('routeFullCoords:', routeFullCoords);
+  console.log('spaceFullCoords:', spaceFullCoords);
+  console.log('clickedNode:', clickedNode);
+  console.log('onClearMap:', onClearMap);
+
 
   /**
    * 경로가 제거되었을 때 이를 감지하고 adjustedRouteCoords를 업데이트하는 effect
@@ -157,15 +166,16 @@ export default function RoutoMap({
         .split(',')
         .map(parseFloat);
 
+      console.log(startLat, startLng, goalLat, goalLng);
+
       if (mapRef.current) {
         const bounds = new routo.maps.LatLngBounds();
         bounds.extend(new routo.maps.LatLng(startLat, startLng));
         bounds.extend(new routo.maps.LatLng(goalLat, goalLng));
 
-        // Add a slight delay to ensure the map has time to render before fitting the bounds
         setTimeout(() => {
-          mapRef.current.fitBounds(bounds); // Focus on clickedNode
-          setFocusedNode(clickedNode); // Mark this node as focused
+          mapRef.current.fitBounds(bounds);
+          setFocusedNode(clickedNode);
         }, 100);
       }
     }
@@ -213,23 +223,20 @@ export default function RoutoMap({
   };
 
   useEffect(() => {
-    const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE); // 환경 변수에서 기본 위도 값 가져오기
-    const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE); // 환경 변수에서 기본 경도 값 가져오기
-
-    if (spaceFullCoords.length === 0 && routeFullCoords.length === 0) {
-      // 공간 및 경로 좌표가 모두 빈 리스트일 때 기본 좌표로 돌아가기
-      const defaultCenter = { lat: defaultLat, lng: defaultLng };
-      setCenter(defaultCenter); // 중심 상태 업데이트
+    const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
+    const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
+  
+    // spaceFullCoords와 routeFullCoords가 빈 리스트일 때 기본 좌표로 돌아가기
+    if (!maintainedCoords) {
+      setCenter({ lat: defaultLat, lng: defaultLng }); // 기본 좌표로 설정
       if (mapRef.current) {
-        mapRef.current.setCenter(defaultCenter); // 지도 중심 좌표 업데이트
-        mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM)); // 기본 줌 수준 설정
+        mapRef.current.setCenter({ lat: defaultLat, lng: defaultLng });
+        mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM));
       }
-
-      // 모든 경로 및 마커 제거
       clearSpaceAndMarkers();
       clearRoutesAndMarkers();
     }
-  }, [spaceFullCoords, routeFullCoords]);
+  }, [spaceFullCoords, routeFullCoords, maintainedCoords]);
 
   /**
    * clearSpaceAndMarkers
@@ -524,7 +531,6 @@ export default function RoutoMap({
   };
 
   /**
-   * useEffect to initialize the map with a marker for the initial center
    * 초기 중심점으로 마커를 표시하며 지도를 초기화하는 useEffect
    */
   useEffect(() => {
@@ -564,11 +570,31 @@ export default function RoutoMap({
       }
 
       updateMarker(center); // 초기 마커 설정
-      attachClickListener(); // 클릭 리스너 연결
+
+      // 클릭 이벤트 리스너 추가
+      mapRef.current.addListener('click', (event) => {
+        const clickedLat = event.latLng.lat();
+        const clickedLng = event.latLng.lng();
+
+        console.log('Clicked coordinates:', clickedLat, clickedLng);
+        setMaintainedCoords(true); // 클릭한 좌표 유지
+        // 부모 컴포넌트로 클릭된 좌표 전달
+        locationCoords({ lat: clickedLat, lng: clickedLng });
+      });
 
       if (Array.isArray(spaceFullCoords)) {
         drawSpaceRoutes(mapRef.current, spaceFullCoords);
       }
+
+      // 중심 좌표 업데이트 방지
+      const preventRecenter = () => {
+        if (mapRef.current) {
+          mapRef.current.setOptions({ draggable: true }); // 지도 드래그 가능
+          mapRef.current.setCenter({ lat: center.lat, lng: center.lng }); // 기존 중심 유지
+        }
+      };
+
+      preventRecenter(); // 초기 중심 유지
     }
 
     return () => {
@@ -609,6 +635,7 @@ export default function RoutoMap({
   useEffect(() => {
     const newCenter = calculateCenterAndMarker(lat, lng); // 새로운 중심 좌표 계산
     setCenter(newCenter); // 중심 좌표 상태 업데이트
+    setMaintainedCoords(false); // 기본 상태로 돌아가는 조건 활성화
     if (mapRef.current) {
       mapRef.current.setCenter(newCenter); // 지도 중심 좌표 업데이트
     }

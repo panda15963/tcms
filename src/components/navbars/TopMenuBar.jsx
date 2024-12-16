@@ -148,8 +148,6 @@ const TopMenuBar = ({
     // 경로 데이터나 체크된 노드 데이터가 없을 경우 빈 배열 반환
     if (!routeFullCoords || !checkedNodes) return [];
 
-    console.log('checkedNodes ==>', checkedNodes);
-
     // routeFullCoords와 checkedNodes를 file_id 기준으로 병합
     const mergedData = routeFullCoords.map((route) => {
       const matchedNode = checkedNodes.find(
@@ -232,6 +230,7 @@ const TopMenuBar = ({
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
           routeColors={routeColors}
+          onClearMap={onClearMap}
         />
       );
     } else if (selectedAPI?.name === 'TOMTOM') {

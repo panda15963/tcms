@@ -137,7 +137,7 @@ export default function GoogleMap({
         lng: parseFloat(lng) || defaultCoords.lng,
       });
 
-      /// 위도(lat)와 경도(lng)를 기반으로 새로운 중심 좌표 계산
+      // 위도(lat)와 경도(lng)를 기반으로 새로운 중심 좌표 계산
       const newCenter = calculateCenterAndMarker(lat, lng);
 
       if (
