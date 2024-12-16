@@ -1,10 +1,13 @@
 import axios from 'axios';
+import useAuth from '../hooks/useAuth';
 
 const API_BASE_URL = process.env.REACT_APP_BASE_URL; // 환경 변수에서 API 서버의 기본 URL 가져오기
 const MAP_API_PORT = process.env.REACT_APP_MAP_API_PORT;
 const STAT_API_PORT = process.env.REACT_APP_STAT_API_PORT;
 
 const TIME_OUT = process.env.REACT_APP_TIMEOUT; // 환경 변수에서 요청 타임아웃 설정 가져오기
+
+let isRefreshing = false;
 
 // 인증이 필요한 요청을 위한 Axios 인스턴스 생성
 export const axiosInstance = axios.create({
@@ -79,14 +82,25 @@ axiosInstanceStat.interceptors.request.use(
   }
 );
 
-// axiosInstance.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     // Handle token expiration or other errors
-//     if (error.response && error.response.status === 401) {
-//       console.error('Unauthorized or Token Expired');
-//       // Optionally, redirect to login or refresh token
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    // Handle token expiration or other errors
+    if (error.response && error.response.status === 401) {
+      console.error('토큰 만료되었습니다.');
+      if (!isRefreshing) {
+        isRefreshing = true;
+        console.log('토큰 만료되었습니다.');
+        alert('세션이 만료되었습니다. 다시 로그인해 주세요.');
+
+        window.location.href = '/';
+        localStorage.removeItem('user');
+        localStorage.removeItem('ACCESS_TOKEN');
+        localStorage.removeItem('REFRESH_TOKEN');
+
+        isRefreshing = false;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
