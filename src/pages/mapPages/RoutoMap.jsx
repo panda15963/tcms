@@ -49,8 +49,8 @@ export default function RoutoMap({
   const [center, setCenter] = useState(initialCoords); // 지도 중심 좌표 상태 관리
   const mapRef = useRef(null); // 지도 인스턴스를 참조하기 위한 ref
   const markerRef = useRef(null); // 마커 인스턴스를 참조하기 위한 ref
-  const [routeObjects, setRouteObjects] = useState([]);
-  const [routeMarkers, setRouteMarkers] = useState([]);
+  const [routeObjects, setRouteObjects] = useState([]); // Store route objects for clearing
+  const [routeMarkers, setRouteMarkers] = useState([]); // Store markers for clearing
   const [spaceObjects, setSpaceObjects] = useState([]);
   const [spaceMarkers, setSpaceMarkers] = useState([]);
   const [previousRouteCoords, setPreviousRouteCoords] = useState([]);
@@ -621,7 +621,10 @@ export default function RoutoMap({
    */
   useEffect(() => {
     const newCenter = calculateCenterAndMarker(lat, lng); // 새로운 중심 좌표 계산
+    console.log('newCenter ==>', newCenter);
+
     setCenter(newCenter); // 중심 좌표 상태 업데이트
+    // setMaintainedCoords(false); // 기본 상태로 돌아가는 조건 활성화
     if (mapRef.current) {
       mapRef.current.setCenter(newCenter); // 지도 중심 좌표 업데이트
     }
