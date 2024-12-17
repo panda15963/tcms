@@ -419,7 +419,6 @@ export default function RoutoMap({
     if (Array.isArray(spaceFullCoords)) {
       adjustedSpaceCoords.forEach((space, index) => {
         if (!space) {
-          console.warn(`Index ${index}에서 null 공간 경로를 건너뜁니다.`); // null 공간 경로 무시
           return;
         }
 
@@ -487,7 +486,7 @@ export default function RoutoMap({
 
       // 모든 경로를 처리한 후 지도 범위 조정
       if (!focusedNode && !bounds.isEmpty()) {
-        mapInstance.fitBounds(bounds); // Only adjust bounds if no focusedNode
+        mapInstance.fitBounds(bounds);
       }
     } else {
       console.warn('spaceFullCoords는 배열이 아닙니다.'); // 잘못된 입력 형식 경고
@@ -585,10 +584,6 @@ export default function RoutoMap({
         locationCoords({ lat: clickedLat, lng: clickedLng });
       });
 
-      if (Array.isArray(spaceFullCoords)) {
-        drawSpaceRoutes(mapRef.current, spaceFullCoords);
-      }
-
       // 중심 좌표 업데이트 방지
       if (onClearMap) {
         mapRef.current.setOptions({ draggable: true }); // 지도 드래그 가능
@@ -605,9 +600,8 @@ export default function RoutoMap({
         markerRef.current.setMap(null);
         markerRef.current = null; // 마커 초기화
       }
-      clearSpaceAndMarkers(); // 공간 경로 및 마커 초기화
     };
-  }, [center, spaceFullCoords]);
+  }, [center]);
 
   /**
    * 경로 좌표가 변경될 때 기존 경로와 마커를 제거하고 새로운 경로와 마커를 그리는 useEffect
@@ -618,16 +612,6 @@ export default function RoutoMap({
       drawCheckedRoutes(mapRef.current, routeFullCoords);
     }
   }, [adjustedRouteCoords]);
-
-  /**
-   * 좌표가 변경될 때 지도 중심과 마커를 업데이트하는 useEffect
-   */
-  useEffect(() => {
-    if (!focusedNode && mapRef.current && Array.isArray(adjustedSpaceCoords)) {
-      clearSpaceAndMarkers();
-      drawSpaceRoutes(mapRef.current, adjustedSpaceCoords);
-    }
-  }, [mapRef.current, adjustedSpaceCoords, focusedNode]);
 
   /**
    * 위도(lat)와 경도(lng)가 변경될 때 지도 중심과 마커를 업데이트하는 useEffect
