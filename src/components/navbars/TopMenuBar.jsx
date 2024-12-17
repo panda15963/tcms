@@ -561,6 +561,8 @@ const TopMenuBar = ({
         result = DEGToDEC({ lat: latValue, lng: lngValue });
       }
 
+      console.log('result ==>', result);
+
       setSelectedCoords(result); // 변환된 좌표 저장
       setDisplayCoords(result); // 화면에 표시할 좌표 저장
     } else {
