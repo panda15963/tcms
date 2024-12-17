@@ -32,7 +32,7 @@ export default function RealTimeUsageTable({ data = [] }) {
   return (
     <div className="h-full w-full overflow-auto">
       <table className="w-full h-full table-auto border-collapse border border-gray-300">
-        <thead className="bg-gray-100 border-2">
+        <thead className="bg-gray-100 sticky top-0 z-10">
           <tr>
             {columns.map((header) => (
               <th
@@ -61,7 +61,8 @@ export default function RealTimeUsageTable({ data = [] }) {
                 className="px-4 py-3 border-2 text-center text-sm font-medium text-gray-700 whitespace-nowrap"
                 style={{ width: '200px', height: '30px' }}
               >
-                <ProgressBar data={row.processpercentage || 0} /> {/* 진행률 표시 */}
+                <ProgressBar data={row.processpercentage || 0} />{' '}
+                {/* 진행률 표시 */}
               </td>
             </tr>
           ))}

@@ -31,12 +31,6 @@ const formatRunStatus = (status) => {
   return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 };
 
-/**
- * UsageStatusTable 컴포넌트
- * @description 실행 상태 및 관련 정보를 테이블 형태로 표시
- * @param {Array} data - 테이블에 표시할 데이터
- * @returns {JSX.Element} UsageStatusTable 컴포넌트
- */
 export default function UsageStatusTable({ data }) {
   const { t } = useTranslation(); // 다국어 번역 훅
   const columns = useMemo(() => TableHeader(t), [t]); // 테이블 헤더 정의
@@ -45,53 +39,61 @@ export default function UsageStatusTable({ data }) {
 
   return (
     <div className="h-full w-full overflow-auto">
-      <table className="w-full h-full table-auto border-collapse border border-gray-300">
-        <thead className="bg-gray-100 border-2">
-          <tr>
-            {columns.map((header) => (
-              <th
-                key={header.id}
-                className="px-4 py-3 border-2 text-center text-sm font-semibold text-black uppercase tracking-wider whitespace-nowrap"
-              >
-                {header.name}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white">
-          {sanitizedData.map((data) => {
-            const normalizedStatus = formatRunStatus(data.runstatus.trim());
-            return (
-              <tr key={data.id}>
-                {[
-                  'PC',
-                  'toolname',
-                  'toolver',
-                  'starttime',
-                  'runtime',
-                  'runstatus',
-                  'runmessage',
-                ].map((field) => (
-                  <td
-                    key={`${data.id}-${field}`}
-                    className="border border-gray-300 px-6 py-4 text-lg text-gray-700 text-center"
-                    style={{ fontSize: '16px' }}
-                  >
-                    {field === 'runstatus' ? (
-                      <>
-                        {statusIcons[normalizedStatus] || '❓'}{' '}
-                        {normalizedStatus} {/* 상태 아이콘 및 텍스트 */}
-                      </>
-                    ) : (
-                      data[field] || '-' // 데이터가 없을 경우 '-' 표시
-                    )}
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="w-full h-[500px] overflow-y-auto border border-gray-300">
+        <table
+          className="w-full table-auto border-separate border-spacing-0"
+          style={{ borderCollapse: 'separate' }}
+        >
+          {/* Table Header */}
+          <thead className="bg-gray-100 sticky top-0">
+            <tr>
+              {columns.map((header) => (
+                <th
+                  key={header.id}
+                  className="px-4 py-3 border-l border-r border-gray-300 text-center text-sm font-semibold text-black uppercase tracking-wider whitespace-nowrap bg-gray-100 shadow-sm"
+                  style={{ boxShadow: '0 2px 2px -1px rgba(0, 0, 0, 0.1)' }}
+                >
+                  {header.name}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          {/* Table Body */}
+          <tbody className="bg-white -z-50">
+            {sanitizedData.map((data) => {
+              const normalizedStatus = formatRunStatus(data.runstatus.trim());
+              return (
+                <tr key={data.id}>
+                  {[
+                    'PC',
+                    'toolname',
+                    'toolver',
+                    'starttime',
+                    'runtime',
+                    'runstatus',
+                    'runmessage',
+                  ].map((field) => (
+                    <td
+                      key={`${data.id}-${field}`}
+                      className="border-t border-l border-r border-gray-300 px-6 py-4 text-lg text-gray-700 text-center"
+                    >
+                      {field === 'runstatus' ? (
+                        <>
+                          {statusIcons[normalizedStatus] || '❓'}{' '}
+                          {normalizedStatus}
+                        </>
+                      ) : (
+                        data[field] || '-'
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
