@@ -219,6 +219,9 @@ export default function RoutoMap({
       }
     });
     setRouteMarkers([]); // 마커 상태 초기화
+
+    // focusedNode 초기화
+    setFocusedNode(null); // 경계를 재조정할 수 있도록 리셋
   };
 
   useEffect(() => {
