@@ -252,18 +252,12 @@ export default function RoutoMap({
         routePolylineRef.current.push(polyline);
       });
 
-      if (selectedRouteCount === 1) {
-        // 하나의 경로가 선택되었을 때 줌 레벨을 더 자세히 설정
-        if (!bounds.isEmpty()) {
-          mapRef.current.fitBounds(bounds);
-          mapRef.current.setZoom(10); // 세부 줌 레벨 설정
-        }
-      } else if (selectedRouteCount > 1) {
-        // 여러 경로가 선택되었을 때 경계 맞춤
-        if (!bounds.isEmpty()) {
-          mapRef.current.fitBounds(bounds);
-        }
-      } else if (onClearMap) {
+      mapRef.current.fitBounds(bounds);
+      if (selectedRouteCount.length === 1) {
+        mapRef.current.setZoom(12); // Zoom closer if one route is selected
+      }
+
+      if (onClearMap) {
         // 기본 줌 레벨 설정
         const defaultCenter = new Tmapv2.LatLng(
           parseFloat(process.env.REACT_APP_LATITUDE),
