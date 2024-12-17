@@ -175,8 +175,6 @@ const defaultColumns = (t) => [
 
 const ITEMS_PER_PAGE = 20; // 한 번에 로드할 아이템 개수
 
-// ConfigGridL 컴포넌트 정의
-
 /**
  * ConfigGridL 컴포넌트
  * @param {Object} props - 컴포넌트 속성
@@ -196,6 +194,13 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
 
   // list.list가 배열인지 확인하고, 아니면 빈 배열로 초기화
   const validList = Array.isArray(list?.list) ? list.list : [];
+
+  useEffect(() => {
+    // 데이터가 변경되면 체크된 상태 초기화
+    setSelectedRows([]);
+    table.resetRowSelection(); // 선택된 행 상태 초기화
+  }, [list]); // list가 변경될 때 실행
+  
 
   // list 변경 시 초기 데이터를 설정
   useEffect(() => {

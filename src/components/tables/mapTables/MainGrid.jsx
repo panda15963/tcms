@@ -274,6 +274,13 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
     setPage((prevPage) => prevPage + 1);
   };
 
+  useEffect(() => {
+    // 데이터가 변경되면 체크된 상태 초기화
+    setSelectedRows([]);
+    table.resetRowSelection(); // 선택된 행 상태 초기화
+  }, [list]); // list가 변경될 때 실행
+  
+
   return (
     // <div className="my-2 h-96 block overflow-x-auto">
     <div className="my-2 h-[400px] block overflow-x-auto">

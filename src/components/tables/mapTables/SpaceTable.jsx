@@ -9,13 +9,13 @@ import {
 
 /**
  * SpaceTableHeaderList
- * @description 테이블의 기본 컬럼 정의
+ * @description 테이블의 기본 컬럼 정의 (헤더 및 셀 렌더링 로직)
  * @param {Function} t - 다국어 번역 함수
  * @returns {Array} 테이블 컬럼 배열
  */
 const SpaceTableHeaderList = (t) => [
   {
-    accessorKey: 'select',
+    accessorKey: 'select', // 체크박스 선택 열
     header: ({ table }) => (
       <input
         type="checkbox"
@@ -32,7 +32,7 @@ const SpaceTableHeaderList = (t) => [
     ),
   },
   {
-    accessorKey: 'upload_date',
+    accessorKey: 'upload_date', // 업로드 날짜 열
     header: ({ column }) => {
       const isSorted = column.getIsSorted(); // 정렬 상태 확인
       return (
@@ -57,9 +57,8 @@ const SpaceTableHeaderList = (t) => [
       );
     },
   },
-  // 파일 이름 컬럼
   {
-    accessorKey: 'file_name',
+    accessorKey: 'file_name', // 파일 이름 열
     header: t('SpaceTable.Name'),
     cell: ({ getValue }) => {
       const fullText = getValue(); // 전체 텍스트
@@ -76,21 +75,20 @@ const SpaceTableHeaderList = (t) => [
     },
   },
   {
-    accessorKey: 'version_id',
+    accessorKey: 'version_id', // 버전 ID 열
     header: t('SpaceTable.Version'),
   },
   {
-    accessorKey: 'country_str',
+    accessorKey: 'country_str', // 국가 열
     header: t('SpaceTable.Country'),
   },
-  // 로그 종류
   {
-    accessorKey: 'b_virtual',
+    accessorKey: 'b_virtual', // 로그 종류 열
     header: t('SpaceTable.LogType'),
     cell: ({ getValue }) => (getValue() === 0 ? 'Virtual Log' : 'Real Log'),
   },
   {
-    accessorKey: 'summary_str',
+    accessorKey: 'summary_str', // 요약 열
     header: t('SpaceTable.Summary'),
     cell: ({ getValue }) => {
       const fullText = getValue();
@@ -107,12 +105,13 @@ const SpaceTableHeaderList = (t) => [
     },
   },
   {
-    accessorKey: 'map',
+    accessorKey: 'map', // 지도 열
     header: t('Common.Map'),
     cell: ({ row }) => {
-      const imagePath = row.original.imagePath;
-      const [showModal, setShowModal] = useState(false);
+      const imagePath = row.original.imagePath; // 이미지 경로
+      const [showModal, setShowModal] = useState(false); // 이미지 확대 모달 상태
 
+      // 이미지 경로 조정 함수
       const adjustImagePath = (baseURL, imagePath) => {
         if (baseURL.includes('192.168.0.88')) {
           return `/images${imagePath.replace('/testcourse/image', '')}`;
@@ -126,7 +125,7 @@ const SpaceTableHeaderList = (t) => [
       };
 
       const baseURL = process.env.REACT_APP_MAPBASEURL.replace(
-        /:(8080|8090)\/api/,
+        /:(8080|8090)\/api/, // 포트와 API 경로 제거
         ''
       );
 
@@ -168,24 +167,26 @@ const SpaceTableHeaderList = (t) => [
   },
 ];
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 20; // 페이지당 아이템 수
 
 /**
  * SpaceTable 컴포넌트
- * @description 페이지 네이션과 정렬을 지원하는 테이블 컴포넌트
+ * @description 페이지네이션과 정렬을 지원하는 테이블
  * @param {Object} list - 데이터 리스트
  * @param {Function} onSelectionChange - 선택된 데이터 변경 핸들러
  * @returns {JSX.Element} SpaceTable 컴포넌트
  */
 const SpaceTable = ({ list, onSelectionChange }) => {
   const { t } = useTranslation();
-  const [displayedData, setDisplayedData] = useState([]);
-  const [page, setPage] = useState(1);
-  const [sorting, setSorting] = useState([]);
-  const columns = useMemo(() => SpaceTableHeaderList(t), [t]);
+  const [displayedData, setDisplayedData] = useState([]); // 표시할 데이터
+  const [page, setPage] = useState(1); // 현재 페이지
+  const [sorting, setSorting] = useState([]); // 정렬 상태
+  const [rowSelection, setRowSelection] = useState({}); // 선택된 행 상태
+  const columns = useMemo(() => SpaceTableHeaderList(t), [t]); // 컬럼 정의
 
   const validList = Array.isArray(list.list) ? list.list : [];
 
+  // 리스트 변경 시 상태 초기화
   useEffect(() => {
     if (validList.length > 0) {
       setDisplayedData(validList.slice(0, ITEMS_PER_PAGE));
@@ -193,8 +194,10 @@ const SpaceTable = ({ list, onSelectionChange }) => {
     } else if (displayedData.length > 0) {
       setDisplayedData([]);
     }
+    setRowSelection({}); // 선택된 행 초기화
   }, [validList]);
 
+  // 페이지네이션 핸들링
   useEffect(() => {
     if (page > 1) {
       const newItems = validList.slice(
@@ -205,24 +208,27 @@ const SpaceTable = ({ list, onSelectionChange }) => {
     }
   }, [page, validList]);
 
-  const handleLoadMore = () => setPage((prev) => prev + 1);
+  const handleLoadMore = () => setPage((prev) => prev + 1); // 더보기 버튼 핸들러
 
   const table = useReactTable({
     data: displayedData,
     columns,
     state: {
       sorting,
+      rowSelection, // 선택된 행 상태 전달
     },
-    onSortingChange: setSorting,
+    onSortingChange: setSorting, // 정렬 상태 업데이트
+    onRowSelectionChange: setRowSelection, // 선택된 행 상태 업데이트
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
 
+  // 선택된 행이 변경될 때 콜백 실행
   useEffect(() => {
     const rows = table.getSelectedRowModel().rows;
     const currentSelectedRows = rows.map((row) => row.original);
     onSelectionChange(currentSelectedRows);
-  }, [table.getSelectedRowModel().rows, onSelectionChange]);
+  }, [rowSelection, onSelectionChange]);
 
   return (
     <div className="overflow-auto h-[400px]" style={{ maxHeight: '500px' }}>
@@ -266,7 +272,7 @@ const SpaceTable = ({ list, onSelectionChange }) => {
         </tbody>
       </table>
 
-      {/* 더 많은 항목 보기 버튼 */}
+      {/* 더보기 버튼 */}
       {displayedData.length < validList.length && (
         <div className="flex justify-center mt-1">
           <button
