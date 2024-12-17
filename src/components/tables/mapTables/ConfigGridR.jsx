@@ -12,8 +12,18 @@ const defaultColumns = (t) => [
   {
     // CFG 이름 컬럼
     accessorKey: 'tccfg_name', // 데이터의 키를 지정
-    header: t('ConfigGridR.CFG_name'), // 다국어 처리된 헤더 이름
+    // header: t('ConfigGridR.CFG_name'), // 다국어 처리된 헤더 이름
     cell: ({ getValue }) => <span className="text-xs">{getValue()}</span>, // 셀 데이터를 표시
+    header: ({ column }) => {
+      return (
+        <div
+          className="flex items-center justify-center text-xs"
+          style={{ whiteSpace: 'nowrap' }} // 텍스트 줄바꿈 방지
+        >
+          <span>{t('ConfigGridR.CFG_name')}</span>
+        </div>
+      );
+    },
   },
   {
     // 범주 컬럼
