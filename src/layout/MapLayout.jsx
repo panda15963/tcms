@@ -6,8 +6,8 @@ import RightSideSlide from '../components/slideOver/RightSideSlide';
 
 /**
  * MapLayout 컴포넌트
- * 
- * 지도와 관련된 레이아웃을 구성하며, 상단 메뉴 바, 좌측 및 우측 슬라이드 패널, 
+ *
+ * 지도와 관련된 레이아웃을 구성하며, 상단 메뉴 바, 좌측 및 우측 슬라이드 패널,
  * 그리고 동적으로 렌더링되는 콘텐츠(Outlet)를 포함합니다.
  *
  * @returns {JSX.Element} 레이아웃 컴포넌트
@@ -18,6 +18,7 @@ export default function MapLayout() {
   const [clickedNode, setClickedNode] = useState(null);
   const [currentApi, setCurrentApi] = useState(null);
   const [routeColors, setRouteColors] = useState([]);
+  const [alertMessage, setAlertMessage] = useState('');
   const [isCleared, setIsCleared] = useState(false);
 
   // 메모이제이션: 상태 변경으로 인한 불필요한 리렌더링 방지
@@ -103,6 +104,22 @@ export default function MapLayout() {
     setTimeout(() => setIsCleared(false), 100); // Clear 상태를 짧은 시간 후 초기화 (선택 사항)
   };
 
+  const removeDuplicates = (data) => {
+    return data.reduce((acc, current) => {
+      const isDuplicate = acc.find((item) => item.file_id === current.file_id);
+      if (!isDuplicate) {
+        acc.push(current);
+      }
+      return acc;
+    }, []);
+  };
+
+  const uniqueRouteData = useMemo(() => {
+    const uniqueData = removeDuplicates(memoizedRouteData);
+    setAlertMessage(`Found ${uniqueData.length} unique routes.`);
+    return uniqueData;
+  }, [memoizedRouteData]);
+
   return (
     <>
       {/* 상단 메뉴 바 */}
@@ -123,7 +140,7 @@ export default function MapLayout() {
 
       {/* 좌측 슬라이드 패널 */}
       <LeftSideSlide
-        data={memoizedRouteData}
+        data={uniqueRouteData}
         onCheckedNodesChange={handleCheckedNodes}
         onClickedNode={handleClickedNode}
         onMapChange={currentApi}
@@ -131,9 +148,9 @@ export default function MapLayout() {
         isCleared={isCleared}
       />
 
-      {/* Right Slide Panel */}
+      {/* 우측 슬라이드  */}
       <RightSideSlide
-        data={memoizedRouteData}
+        data={uniqueRouteData}
         onMapChange={currentApi}
         isCleared={isCleared}
       />

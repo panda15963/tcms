@@ -165,8 +165,6 @@ export default function RoutoMap({
         .split(',')
         .map(parseFloat);
 
-      console.log(startLat, startLng, goalLat, goalLng);
-
       if (mapRef.current) {
         const bounds = new routo.maps.LatLngBounds();
         bounds.extend(new routo.maps.LatLng(startLat, startLng));

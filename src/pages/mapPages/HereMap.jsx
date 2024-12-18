@@ -66,14 +66,12 @@ const HereMap = ({
     }
 
     if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
-      console.error('Invalid coordinates provided:', latitude, longitude);
       return;
     }
 
     // 기존 마커 제거
     if (markerRef.current) {
       mapInstance.current.removeObject(markerRef.current);
-      console.log('Existing marker removed');
     }
 
     // 새 마커 추가
@@ -81,13 +79,11 @@ const HereMap = ({
     mapInstance.current.addObject(searchMarker);
     markerRef.current = searchMarker;
 
-    console.log('New marker added:', searchMarker);
-
     // 지도 중심 설정
     setTimeout(() => {
       mapInstance.current.setCenter({ lat: latitude, lng: longitude });
       console.log(`Map centered to: ${latitude}, ${longitude}`);
-    }, 100); // 딜레이를 추가해 다른 작업 이후에 중심 설정
+    }, 0); // 딜레이를 추가해 다른 작업 이후에 중심 설정
   };
 
   /**
@@ -96,7 +92,6 @@ const HereMap = ({
    * @param {number} longitude - 경도 값
    * @param {number} [zoomLevel] - 줌 레벨 (옵션)
    */
-
   const centerMapWithoutMarker = (latitude, longitude, zoomLevel) => {
     if (mapInstance.current && latitude && longitude) {
       mapInstance.current.setCenter({ lat: latitude, lng: longitude });
@@ -104,15 +99,16 @@ const HereMap = ({
       if (typeof zoomLevel === 'number') {
         mapInstance.current.setZoom(zoomLevel);
       }
+    } else {
+      console.error(
+        'Map instance not initialized or invalid coordinates provided'
+      );
     }
   };
 
   // lat과 lng가 변경될 때마다 지도 중심을 업데이트
   useEffect(() => {
     if (clickedCoords || disableCentering) {
-      console.log(
-        'Centering disabled or clickedCoords set. Skipping center update.'
-      );
       return;
     }
 
@@ -125,17 +121,26 @@ const HereMap = ({
 
   // routeFullCoords와 spaceFullCoords가 빈 리스트일 경우 지도 중심 초기화
   useEffect(() => {
-    if (routeFullCoords.length === 0 && spaceFullCoords.length === 0) {
+    const isAnyRouteChecked = routeFullCoords.some(
+      (route) => checkedNode[route.file_id] !== false
+    );
+    const isAnySpaceChecked = spaceFullCoords.length > 0;
+
+    if (!isAnyRouteChecked && !isAnySpaceChecked) {
       clearEntities('routes');
       clearEntities('spaces');
+
       if (!disableCentering) {
         const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE) || 0;
         const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE) || 0;
         const defaultZoom = Number(process.env.REACT_APP_ZOOM) || 17;
-        centerMapWithoutMarker(defaultLat, defaultLng, defaultZoom);
+
+        setTimeout(() => {
+          centerMapWithoutMarker(defaultLat, defaultLng, defaultZoom);
+        }, 0);
       }
     }
-  }, [routeFullCoords, spaceFullCoords, disableCentering]);
+  }, [routeFullCoords, spaceFullCoords, checkedNode, disableCentering]);
 
   /**
    * 이전 경로 또는 공간 데이터에서 제거된 인덱스를 찾는 함수
@@ -292,9 +297,6 @@ const HereMap = ({
     );
 
     if (validCoords.length === 0) {
-      console.warn(
-        'fitMapToEntities: No valid entities found after filtering.'
-      );
       clearEntities(type);
       return;
     }
@@ -333,12 +335,6 @@ const HereMap = ({
       mapInstance.current.setCenter({ lat: midLat, lng: midLng });
       mapInstance.current.setZoom(10);
     }
-  };
-
-  // 엔티티를 지우고 다시 렌더링하는 함수
-  const resetAndRenderEntities = (coords, type) => {
-    clearEntities(type); // 이전 엔티티 제거
-    renderEntities(coords, type); // 새 엔티티 렌더링
   };
 
   // 상태 초기화와 함께 `fitMapToEntities` 호출
@@ -505,12 +501,9 @@ const HereMap = ({
 
     const initializeMap = () => {
       if (!window.H) {
-        console.error('HERE Maps API is not loaded');
-        console.log('HERE Maps API loaded:', window.H);
         return;
       }
       if (!apiKey) {
-        console.error('HERE Maps API key is missing');
         return;
       }
       if (mapInstance.current) {
@@ -542,7 +535,7 @@ const HereMap = ({
             evt.currentPointer.viewportX,
             evt.currentPointer.viewportY
           );
-          console.log('Clicked coordinates:', clickedCoords);
+          
           setClickedCoords(clickedCoords); // 클릭된 좌표 저장
           setDisableCentering(true); // 중심 자동 조정 비활성화
 

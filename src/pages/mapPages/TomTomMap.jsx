@@ -133,7 +133,7 @@ export default function TomTomMap({
         .setLngLat([lng, lat])
         .addTo(mapRef.current);
 
-      setSearchMarker(newMarker); // Store the marker in state
+      setSearchMarker(newMarker);
     } else {
       mapRef.current.flyTo({
         center: [defaultLng, defaultLat],
@@ -154,58 +154,59 @@ export default function TomTomMap({
     if (mapRef.current) {
       const map = mapRef.current;
 
-      // Check if either routeFullCoords or spaceFullCoords is null or empty
+      // routeFullCoords와 spaceFullCoords가 유효한지 확인
       const hasValidRouteCoords =
         Array.isArray(routeFullCoords) && routeFullCoords.length > 0;
       const hasValidSpaceCoords =
         Array.isArray(spaceFullCoords) && spaceFullCoords.length > 0;
 
-      if (!hasValidRouteCoords && !hasValidSpaceCoords) {
-        console.log('No valid routes or spaces; returning to default center.');
+      // 유효한 경로와 공간이 없거나 checkedNodes가 비어있는 경우 기본 중심으로 돌아감
+      if (
+        (!hasValidRouteCoords && !hasValidSpaceCoords) ||
+        checkedNodes.length === 0
+      ) {
+        console.log('유효한 경로나 공간이 없습니다. 기본 중심으로 돌아갑니다.');
 
-        // Clear existing routes and markers
+        // 기존 경로와 마커 제거
         clearRoutesAndMarkers(map);
 
-        // Reset map center to default coordinates
+        // 지도의 중심을 기본 좌표로 재설정
         map.flyTo({
-          center: [defaultLng, defaultLat],
-          zoom: Number(process.env.REACT_APP_ZOOM),
+          center: [defaultLng, defaultLat], // 기본 경도와 위도로 설정
+          zoom: Number(process.env.REACT_APP_ZOOM), // 기본 줌 레벨로 설정
         });
 
-        return; // Exit effect early
+        return; // 효과 조기 종료
       }
 
-      // Filter valid route and space coordinates based on checkedNodes
+      // checkedNodes에 따라 유효한 경로 필터링
       const validRouteCoords = hasValidRouteCoords
         ? routeFullCoords.filter(
             (route) =>
-              route &&
-              route.coords &&
-              route.coords.length > 0 &&
-              (checkedNodes.length === 0 ||
-                checkedNodes.some((node) => node.file_id === route.file_id))
+              route && // 경로 객체가 유효한지 확인
+              route.coords && // 좌표 데이터가 존재하는지 확인
+              route.coords.length > 0 && // 좌표 배열이 비어있지 않은지 확인
+              checkedNodes.some((node) => node.file_id === route.file_id) // 선택된 노드와 일치하는 경로만 필터링
           )
         : [];
 
+      // checkedNodes에 따라 유효한 공간 필터링
       const validSpaceCoords = hasValidSpaceCoords
         ? spaceFullCoords.filter(
             (space) =>
-              space &&
-              space.coords &&
-              space.coords.length > 0 &&
-              (checkedNodes.length === 0 ||
-                checkedNodes.some((node) => node.file_id === space.file_id))
+              space && // 공간 객체가 유효한지 확인
+              space.coords && // 좌표 데이터가 존재하는지 확인
+              space.coords.length > 0 && // 좌표 배열이 비어있지 않은지 확인
+              checkedNodes.some((node) => node.file_id === space.file_id) // 선택된 노드와 일치하는 공간만 필터링
           )
         : [];
 
-      // Draw routes and spaces on the map
-      if (map.isStyleLoaded()) {
-        drawRoutes(map, [...validRouteCoords, ...validSpaceCoords]);
-      } else {
-        map.once('style.load', () => {
-          drawRoutes(map, [...validRouteCoords, ...validSpaceCoords]);
-        });
-      }
+      // 유효한 경로와 공간 데이터를 결합
+      const combinedCoords = [...validRouteCoords, ...validSpaceCoords];
+
+      // 기존 경로와 공간 제거 후 필터링된 데이터로 다시 그림
+      clearRoutesAndMarkers(map);
+      drawRoutes(map, combinedCoords);
     }
   }, [routeFullCoords, spaceFullCoords, checkedNodes]);
 
@@ -214,92 +215,22 @@ export default function TomTomMap({
    * @param {Object} map - 지도 인스턴스
    */
   const clearRoutesAndMarkers = (map) => {
-    // 경로 레이어 제거
+    // Remove route layers
     if (routeLayerIds.current.length > 0) {
       routeLayerIds.current.forEach((layerId) => {
         if (map.getLayer(layerId)) {
-          map.removeLayer(layerId); // 레이어 제거
-          map.removeSource(layerId); // 데이터 소스 제거
+          map.removeLayer(layerId);
+          map.removeSource(layerId);
         }
       });
-      routeLayerIds.current = []; // 레이어 ID 배열 초기화
+      routeLayerIds.current = [];
     }
 
-    // 마커 제거
+    // Remove markers
     if (routeMarkers.current.length > 0) {
-      routeMarkers.current.forEach((marker) => {
-        marker.remove(); // 지도에서 마커 제거
-      });
-      routeMarkers.current = []; // 마커 배열 초기화
+      routeMarkers.current.forEach((marker) => marker.remove());
+      routeMarkers.current = [];
     }
-  };
-
-  /**
-   * 이전 경로와 현재 경로를 비교하여 비활성화된 경로를 찾는 함수
-   * @param {Array} previousRoutes - 이전 경로 배열
-   * @param {Array} currentRoutes - 현재 경로 배열
-   * @returns {Array} - 비활성화된 경로의 인덱스 배열
-   */
-  const findDeactivatedRoutes = (previousRoutes, currentRoutes) => {
-    // 이전 경로 배열을 순회하며 비활성화된 경로의 인덱스를 확인
-    const deactivatedRoutes = previousRoutes
-      .map((route, index) => {
-        return currentRoutes.includes(route) ? null : index; // 현재 경로에 없는 경우 인덱스 반환
-      })
-      .filter((index) => index !== null); // null 값 제거
-
-    return deactivatedRoutes;
-  };
-
-  /**
-   * 비활성화된 경로의 인덱스에 null을 삽입하고 필요 시 복구하는 함수
-   * @param {Array} routeFullCoords - 전체 경로 배열
-   * @param {Array} deactivatedRoutes - 비활성화된 경로의 인덱스 배열
-   * @param {Array} removedRoutes - 복구를 위해 저장된 제거된 경로 데이터
-   * @returns {Object} - { routesWithNulls, removedRoutes }
-   */
-  const insertNullsAtDeactivatedIndices = (
-    routeFullCoords,
-    deactivatedRoutes,
-    removedRoutes = []
-  ) => {
-    let routesWithNulls = [...routeFullCoords]; // 원본 배열을 복사하여 작업
-
-    // 비활성화된 인덱스에 null 삽입
-    deactivatedRoutes.forEach((index) => {
-      if (index < routesWithNulls.length) {
-        // 원본 데이터를 저장하고 null 삽입
-        removedRoutes.push({ index, data: routesWithNulls[index] });
-        routesWithNulls.splice(index, 0, null);
-      } else {
-        routesWithNulls.push(null); // 배열 길이를 초과한 경우 null 추가
-      }
-    });
-
-    // 복구된 데이터를 removedRoutes에서 제거하고 원래 자리로 복구
-    removedRoutes.forEach(({ index, data }) => {
-      if (index < routesWithNulls.length && routesWithNulls[index] === null) {
-        routesWithNulls[index] = data; // null을 원래 데이터로 복구
-      }
-    });
-
-    // 복구가 완료된 데이터는 removedRoutes에서 제거
-    removedRoutes = removedRoutes.filter(({ index }) => {
-      return routesWithNulls[index] === null; // 여전히 null인 경우만 유지
-    });
-
-    // 중복된 마지막 요소 또는 불필요한 null 제거
-    if (
-      routesWithNulls.length > 1 &&
-      routesWithNulls[routesWithNulls.length - 1] ===
-        routesWithNulls[routesWithNulls.length - 2]
-    ) {
-      routesWithNulls.pop(); // 중복된 마지막 요소 제거
-    } else if (routesWithNulls[routesWithNulls.length - 1] === null) {
-      routesWithNulls.pop(); // 불필요한 null 제거
-    }
-
-    return { routesWithNulls, removedRoutes }; // 수정된 배열과 남은 데이터 반환
   };
 
   /**
@@ -308,6 +239,7 @@ export default function TomTomMap({
    * @param {Array} routeFullCoords - 모든 경로 객체 배열 (좌표 포함)
    */
   const drawRoutes = (map, routeFullCoords = []) => {
+    // 비활성화된 경로 제거
     clearRoutesAndMarkers(map);
 
     const bounds = new tt.LngLatBounds();
@@ -318,6 +250,7 @@ export default function TomTomMap({
       const coordinates = route.coords.map((coord) => [coord.lng, coord.lat]);
       coordinates.forEach((coord) => bounds.extend(coord));
 
+      // 시작 마커 및 종료 마커 추가
       const startMarker = new tt.Marker({
         element: createCustomMarker(Start_Point),
       })
@@ -344,7 +277,8 @@ export default function TomTomMap({
       routeLayerIds.current.push(newRouteLayerId);
 
       const routeColor =
-        routesColors.current.get(route.file_id) || routeColors[index % routeColors.length];
+        routesColors.current.get(route.file_id) ||
+        routeColors[index % routeColors.length];
       routesColors.current.set(route.file_id, routeColor);
 
       map.addLayer({

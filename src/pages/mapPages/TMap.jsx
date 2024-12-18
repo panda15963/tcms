@@ -254,7 +254,7 @@ export default function RoutoMap({
 
       mapRef.current.fitBounds(bounds);
       if (selectedRouteCount.length === 1) {
-        mapRef.current.setZoom(12); // Zoom closer if one route is selected
+        mapRef.current.setZoom(12);
       }
 
       if (onClearMap) {
@@ -265,6 +265,20 @@ export default function RoutoMap({
         );
         mapRef.current.setCenter(defaultCenter);
         mapRef.current.setZoom(process.env.REACT_APP_ZOOM);
+        zoomSetRef.current = true;
+      }
+    }
+
+    if (checkedNodes.length === 0 && mapRef.current) {
+      const { Tmapv2 } = window;
+      if (Tmapv2) {
+        // 기본 중심 좌표와 줌 설정
+        const defaultCenter = new Tmapv2.LatLng(
+          parseFloat(process.env.REACT_APP_LATITUDE),
+          parseFloat(process.env.REACT_APP_LONGITUDE)
+        );
+        mapRef.current.setCenter(defaultCenter);
+        mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM));
         zoomSetRef.current = true;
       }
     }
@@ -373,7 +387,7 @@ export default function RoutoMap({
         // 하나의 경로가 선택되었을 때 줌 레벨을 더 자세히 설정
         if (!bounds.isEmpty()) {
           mapRef.current.fitBounds(bounds);
-          mapRef.current.setZoom(process.env.REACT_APP_ZOOM); // 세부 줌 레벨 설정
+          mapRef.current.setZoom(14); // 세부 줌 레벨 설정
         }
       } else if (selectedRouteCount > 1) {
         // 여러 경로가 선택되었을 때 경계 맞춤
@@ -388,6 +402,20 @@ export default function RoutoMap({
         );
         mapRef.current.setCenter(defaultCenter);
         mapRef.current.setZoom(process.env.REACT_APP_ZOOM);
+        zoomSetRef.current = true;
+      }
+    }
+
+    if (checkedNodes.length === 0 && mapRef.current) {
+      const { Tmapv2 } = window;
+      if (Tmapv2) {
+        // 기본 중심 좌표와 줌 설정
+        const defaultCenter = new Tmapv2.LatLng(
+          parseFloat(process.env.REACT_APP_LATITUDE),
+          parseFloat(process.env.REACT_APP_LONGITUDE)
+        );
+        mapRef.current.setCenter(defaultCenter);
+        mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM));
         zoomSetRef.current = true;
       }
     }
