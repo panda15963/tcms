@@ -295,19 +295,17 @@ export default function TomTomMap({
           },
         });
       } else {
-        map.once('style.load', () => {
-          map.addLayer({
-            id: newRouteLayerId,
-            type: 'line',
-            source: {
-              type: 'geojson',
-              data: geoJsonRoute,
-            },
-            paint: {
-              'line-color': routeColor,
-              'line-width': 5,
-            },
-          });
+        map.addLayer({
+          id: newRouteLayerId,
+          type: 'line',
+          source: {
+            type: 'geojson',
+            data: geoJsonRoute,
+          },
+          paint: {
+            'line-color': routeColor,
+            'line-width': 5,
+          },
         });
       }
     });
