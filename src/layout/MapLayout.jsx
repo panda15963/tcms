@@ -93,32 +93,27 @@ export default function MapLayout() {
     [clickedNode]
   );
 
-  // currentApi 변경 시 실행되는 로직
-  useEffect(() => {
-    if (currentApi) {
-      // API 변경에 따른 처리 로직 작성
-    }
-  }, [currentApi]);
-
   const handleClear = () => {
     setIsCleared(true); // Clear 상태 업데이트
     setTimeout(() => setIsCleared(false), 100); // Clear 상태를 짧은 시간 후 초기화 (선택 사항)
   };
 
-  const removeDuplicates = (data) => {
-    return data.reduce((acc, current) => {
-      const isDuplicate = acc.find((item) => item.file_id === current.file_id);
-      if (!isDuplicate) {
-        acc.push(current);
-      }
-      return acc;
-    }, []);
-  };
+  // 중복 데이터 제거 함수
+  // const removeDuplicates = (data) => {
+  //   return data.reduce((acc, current) => {
+  //     const isDuplicate = acc.find((item) => item.file_id === current.file_id);
+  //     if (!isDuplicate) {
+  //       acc.push(current);
+  //     }
+  //     return acc;
+  //   }, []);
+  // };
 
-  const uniqueRouteData = useMemo(() => {
-    const uniqueData = removeDuplicates(memoizedRouteData);
-    return uniqueData;
-  }, [memoizedRouteData]);
+  // 중복 데이터 제거된 경로 데이터
+  // const uniqueRouteData = useMemo(() => {
+  //   const uniqueData = removeDuplicates(memoizedRouteData);
+  //   return uniqueData;
+  // }, [memoizedRouteData]);
 
   return (
     <>
@@ -140,7 +135,8 @@ export default function MapLayout() {
 
       {/* 좌측 슬라이드 패널 */}
       <LeftSideSlide
-        data={uniqueRouteData}
+        // data={uniqueRouteData}
+        data={memoizedRouteData}
         onCheckedNodesChange={handleCheckedNodes}
         onClickedNode={handleClickedNode}
         onMapChange={currentApi}
@@ -150,7 +146,8 @@ export default function MapLayout() {
 
       {/* 우측 슬라이드  */}
       <RightSideSlide
-        data={uniqueRouteData}
+        // data={uniqueRouteData}
+        data={memoizedRouteData}
         onMapChange={currentApi}
         isCleared={isCleared}
       />
