@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   flexRender,
@@ -188,14 +188,24 @@ const SpaceTable = ({ list, onSelectionChange }) => {
 
   // 리스트 변경 시 상태 초기화
   useEffect(() => {
-    if (validList.length > 0) {
-      setDisplayedData(validList.slice(0, ITEMS_PER_PAGE));
-      setPage(1);
-    } else if (displayedData.length > 0) {
-      setDisplayedData([]);
+    // 초기 데이터를 validList에서 가져와 ITEMS_PER_PAGE 만큼 슬라이스합니다.
+    const initialData = validList.slice(0, ITEMS_PER_PAGE);
+
+    // `validList`가 의미 있는 변경이 발생했는지 확인합니다.
+    // 이를 위해 ref를 사용하여 이전 상태와 비교합니다.
+    if (
+      validListRef.current !== JSON.stringify(validList) || // validList가 이전과 달라졌는지 확인
+      displayedData.length !== initialData.length || // 현재 표시 데이터의 길이가 초기 데이터와 다른지 확인
+      JSON.stringify(displayedData) !== JSON.stringify(initialData) // 현재 표시 데이터가 초기 데이터와 다른지 확인
+    ) {
+      validListRef.current = JSON.stringify(validList); // ref를 최신 validList로 업데이트
+      setDisplayedData(initialData); // 표시 데이터를 초기 데이터로 업데이트
+      setRowSelection({}); // 행 선택을 초기화
+      setPage(1); // 페이지를 첫 페이지로 초기화
     }
-    setRowSelection({}); // 선택된 행 초기화
-  }, [validList]);
+  }, [validList]); // validList가 변경될 때마다 이 useEffect가 실행됩니다.
+
+  const validListRef = useRef(JSON.stringify(validList));
 
   // 페이지네이션 핸들링
   useEffect(() => {

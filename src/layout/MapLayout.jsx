@@ -18,8 +18,9 @@ export default function MapLayout() {
   const [clickedNode, setClickedNode] = useState(null);
   const [currentApi, setCurrentApi] = useState(null);
   const [routeColors, setRouteColors] = useState([]);
-  const [alertMessage, setAlertMessage] = useState('');
   const [isCleared, setIsCleared] = useState(false);
+
+  console.log(currentApi);
 
   // 메모이제이션: 상태 변경으로 인한 불필요한 리렌더링 방지
   const memoizedRouteData = useMemo(() => routeData, [routeData]);
@@ -116,7 +117,6 @@ export default function MapLayout() {
 
   const uniqueRouteData = useMemo(() => {
     const uniqueData = removeDuplicates(memoizedRouteData);
-    setAlertMessage(`Found ${uniqueData.length} unique routes.`);
     return uniqueData;
   }, [memoizedRouteData]);
 

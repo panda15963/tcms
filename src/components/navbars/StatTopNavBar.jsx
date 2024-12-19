@@ -184,7 +184,7 @@ export default function StatTopMenuBar() {
   return (
     <Disclosure as="nav" className="bg-gray-800">
       <div className="mx-auto inset-x-0">
-        <div className="relative scale-90 flex h-[52px] z-50 items-center justify-start gap-5">
+        <div className="relative scale-90 flex h-[52px] z-40 items-center justify-start gap-5">
           {/* 통계 메뉴 */}
           <div className="flex items-center h-[52px] space-x-2">
             <label
