@@ -70,6 +70,17 @@ export default function TomTomMap({
   const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
   const routesColors = useRef(new Map());
 
+  useEffect(() => {
+    routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
+    checkedNodes = []; // 선택된 노드 배열을 빈 배열로 초기화
+    spaceFullCoords = []; // 공간 좌표 배열을 빈 배열로 초기화
+    routeColors = []; // 경로 색상 배열을 빈 배열로 초기화
+    clickedNode = null; // 클릭된 노드 값을 null로 초기화
+    lat = defaultLat; // 위도를 기본값으로 초기화
+    lng = defaultLng; // 경도를 기본값으로 초기화
+    place = null; // 선택된 장소 정보를 null로 초기화
+  }, []); // 빈 dependency 배열로 설정하여 컴포넌트 마운트 시 한 번만 실행
+
   /**
    * 위도(lat)와 경도(lng)가 변경될 때 중심 좌표를 업데이트
    */
@@ -281,33 +292,47 @@ export default function TomTomMap({
         routeColors[index % routeColors.length];
       routesColors.current.set(route.file_id, routeColor);
 
-      if (map.isStyleLoaded()) {
-        map.addLayer({
-          id: newRouteLayerId,
-          type: 'line',
-          source: {
-            type: 'geojson',
-            data: geoJsonRoute,
-          },
-          paint: {
-            'line-color': routeColor,
-            'line-width': 5,
-          },
-        });
-      } else {
-        map.addLayer({
-          id: newRouteLayerId,
-          type: 'line',
-          source: {
-            type: 'geojson',
-            data: geoJsonRoute,
-          },
-          paint: {
-            'line-color': routeColor,
-            'line-width': 5,
-          },
-        });
-      }
+      // if (map.isStyleLoaded()) {
+      //   map.addLayer({
+      //     id: newRouteLayerId,
+      //     type: 'line',
+      //     source: {
+      //       type: 'geojson',
+      //       data: geoJsonRoute,
+      //     },
+      //     paint: {
+      //       'line-color': routeColor,
+      //       'line-width': 5,
+      //     },
+      //   });
+      // } else {
+      //   map.on('styleloaded', () => {
+      //     map.addLayer({
+      //       id: newRouteLayerId,
+      //       type: 'line',
+      //       source: {
+      //         type: 'geojson',
+      //         data: geoJsonRoute,
+      //       },
+      //       paint: {
+      //         'line-color': routeColor,
+      //         'line-width': 5,
+      //       },
+      //     });
+      //   });
+      // }
+      map.addLayer({
+            id: newRouteLayerId,
+            type: 'line',
+            source: {
+              type: 'geojson',
+              data: geoJsonRoute,
+            },
+            paint: {
+              'line-color': routeColor,
+              'line-width': 5,
+            },
+          });
     });
 
     if (!bounds.isEmpty()) {
