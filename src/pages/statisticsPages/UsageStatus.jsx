@@ -65,7 +65,7 @@ export default function UsageStatus() {
   return (
     <div
       className="flex flex-col items-center justify-start pt-20 bg-gray-100 px-4 sm:px-6 lg:px-8"
-      style={{ height: '87.6vh' }} // 페이지 높이 설정
+      style={{ height: '87.5vh' }} // 페이지 높이 설정
     >
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
