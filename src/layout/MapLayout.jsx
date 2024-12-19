@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Outlet } from 'react-router-dom';
 import TopMenuBar from '../components/navbars/TopMenuBar';
 import LeftSideSlide from '../components/slideOver/LeftSideSlide';
@@ -19,9 +19,7 @@ export default function MapLayout() {
   const [currentApi, setCurrentApi] = useState(null);
   const [routeColors, setRouteColors] = useState([]);
   const [isCleared, setIsCleared] = useState(false);
-
-  console.log(currentApi);
-
+  
   // 메모이제이션: 상태 변경으로 인한 불필요한 리렌더링 방지
   const memoizedRouteData = useMemo(() => routeData, [routeData]);
   const memoizedCheckedNodes = useMemo(() => checkedNodes, [checkedNodes]);

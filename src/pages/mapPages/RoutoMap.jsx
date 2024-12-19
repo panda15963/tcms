@@ -325,7 +325,7 @@ export default function RoutoMap({
           routePath.forEach((point) => {
             bounds.extend(new routo.maps.LatLng(point.lat, point.lng));
           });
-
+          
           // 경로를 그리기 위한 Polyline 생성
           const strokeColor =
             routesColors.current.get(route.file_id) ||
@@ -619,8 +619,6 @@ export default function RoutoMap({
    */
   useEffect(() => {
     const newCenter = calculateCenterAndMarker(lat, lng); // 새로운 중심 좌표 계산
-    console.log('newCenter ==>', newCenter);
-
     setCenter(newCenter); // 중심 좌표 상태 업데이트
     // setMaintainedCoords(false); // 기본 상태로 돌아가는 조건 활성화
     if (mapRef.current) {
