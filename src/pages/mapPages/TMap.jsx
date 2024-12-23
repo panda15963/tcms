@@ -32,7 +32,6 @@ function handleCoordinateInput(input) {
       })
       .filter((coord) => coord !== null); // 유효하지 않은 좌표를 필터링
   } else {
-    console.error('좌표 배열 또는 문자열이 필요합니다:', input);
     return []; // 유효하지 않은 입력일 경우 빈 배열 반환
   }
 }
@@ -267,7 +266,7 @@ export default function Tmap({
       }
     }
 
-    if (checkedNodes.length === 0 && mapRef.current) {
+    if (checkedNodes.length === 0 && mapRef.current && onClearMap) {
       const { Tmapv2 } = window;
       if (Tmapv2) {
         // 기본 중심 좌표와 줌 설정
@@ -401,7 +400,7 @@ export default function Tmap({
       }
     }
 
-    if (checkedNodes.length === 0 && mapRef.current) {
+    if (checkedNodes.length === 0 && mapRef.current && onClearMap) {
       const { Tmapv2 } = window;
       if (Tmapv2) {
         // 기본 중심 좌표와 줌 설정
@@ -463,7 +462,7 @@ export default function Tmap({
     // 지도 클릭 이벤트 리스너 추가
     mapRef.current.addListener('click', (evt) => {
       const clickedLat = evt.latLng.lat(); // 클릭한 위치의 위도
-      const clickedLng = evt.latLng.lng(); // 클릭한 위치의 경도      
+      const clickedLng = evt.latLng.lng(); // 클릭한 위치의 경도
       locationCoords({ lat: clickedLat, lng: clickedLng }); // 부모로 클릭한 좌표 전달
     });
 
