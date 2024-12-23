@@ -58,7 +58,7 @@ function calculateCenterAndMarker(lat, lng) {
 }
 
 /**
- * RoutoMap 컴포넌트
+ * Tmap 컴포넌트
  * @param {number} lat - 지도 초기 중심의 위도
  * @param {number} lng - 지도 초기 중심의 경도
  * @param {function} locationCoords - 클릭한 좌표를 부모로 전달하는 함수
@@ -70,7 +70,7 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {Array} routeColors - 경로 색상의 배열
  * @param {function} onClearMap - 지도를 초기화하는 함수
  */
-export default function RoutoMap({
+export default function Tmap({
   lat,
   lng,
   locationCoords = () => {},
@@ -177,7 +177,6 @@ export default function RoutoMap({
       const { Tmapv2 } = window;
 
       if (!Tmapv2 || !mapRef.current) {
-        console.error('TMapv2 or map instance not initialized.');
         return;
       }
 
@@ -192,7 +191,6 @@ export default function RoutoMap({
       }
 
       if (!routeFullCoords || !Array.isArray(routeFullCoords)) {
-        console.warn('routeFullCoords is not valid.');
         return;
       }
 
@@ -315,9 +313,6 @@ export default function RoutoMap({
 
       // spaceFullCoords가 null이거나 배열이 아니면 함수 종료
       if (!spaceFullCoords || !Array.isArray(spaceFullCoords)) {
-        console.warn(
-          'spaceFullCoords가 null이거나 배열이 아닙니다. 모든 공간 데이터가 제거되었습니다.'
-        );
         return;
       }
 
@@ -468,7 +463,7 @@ export default function RoutoMap({
     // 지도 클릭 이벤트 리스너 추가
     mapRef.current.addListener('click', (evt) => {
       const clickedLat = evt.latLng.lat(); // 클릭한 위치의 위도
-      const clickedLng = evt.latLng.lng(); // 클릭한 위치의 경도
+      const clickedLng = evt.latLng.lng(); // 클릭한 위치의 경도      
       locationCoords({ lat: clickedLat, lng: clickedLng }); // 부모로 클릭한 좌표 전달
     });
 
