@@ -72,6 +72,13 @@ export default function GoogleMap({
   const [isClickedNodeActive, setIsClickedNodeActive] = useState(false);
   const [maintainedCoords, setMaintainedCoords] = useState(false);
 
+  useEffect(() => {
+    routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
+    spaceFullCoords = []; // 공간 좌표 배열을 빈 배열로 초기화
+    routeColors = []; // 경로 색상 배열을 빈 배열로 초기화
+    clickedNode = null; // 클릭된 노드 값을 null로 초기화
+  }, []); // 빈 dependency 배열로 설정하여 컴포넌트 마운트 시 한 번만 실행
+
   // 마커 및 폴리라인 정리 함수
   const clearSpacePolylines = () => {
     spacePolylinesRef.current.forEach((polyline) => polyline.setMap(null));

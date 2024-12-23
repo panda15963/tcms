@@ -61,6 +61,13 @@ export default function RoutoMap({
   const [maintainedCoords, setMaintainedCoords] = useState(false);
   const routesColors = useRef(new Map());
 
+  useEffect(() => {
+    routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
+    spaceFullCoords = []; // 공간 좌표 배열을 빈 배열로 초기화
+    routeColors = []; // 경로 색상 배열을 빈 배열로 초기화
+    clickedNode = null; // 클릭된 노드 값을 null로 초기화
+  }, []); // 빈 dependency 배열로 설정하여 컴포넌트 마운트 시 한 번만 실행
+
   /**
    * 경로가 제거되었을 때 이를 감지하고 adjustedRouteCoords를 업데이트하는 effect
    */
@@ -325,7 +332,7 @@ export default function RoutoMap({
           routePath.forEach((point) => {
             bounds.extend(new routo.maps.LatLng(point.lat, point.lng));
           });
-          
+
           // 경로를 그리기 위한 Polyline 생성
           const strokeColor =
             routesColors.current.get(route.file_id) ||
