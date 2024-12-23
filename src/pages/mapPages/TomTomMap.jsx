@@ -287,36 +287,6 @@ export default function TomTomMap({
         routesColors.current.get(route.file_id) ||
         routeColors[index % routeColors.length];
       routesColors.current.set(route.file_id, routeColor);
-
-      // if (map.isStyleLoaded()) {
-      //   map.addLayer({
-      //     id: newRouteLayerId,
-      //     type: 'line',
-      //     source: {
-      //       type: 'geojson',
-      //       data: geoJsonRoute,
-      //     },
-      //     paint: {
-      //       'line-color': routeColor,
-      //       'line-width': 5,
-      //     },
-      //   });
-      // } else {
-      //   map.on('styleloaded', () => {
-      //     map.addLayer({
-      //       id: newRouteLayerId,
-      //       type: 'line',
-      //       source: {
-      //         type: 'geojson',
-      //         data: geoJsonRoute,
-      //       },
-      //       paint: {
-      //         'line-color': routeColor,
-      //         'line-width': 5,
-      //       },
-      //     });
-      //   });
-      // }
       map.addLayer({
             id: newRouteLayerId,
             type: 'line',
