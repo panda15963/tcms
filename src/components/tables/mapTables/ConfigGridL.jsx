@@ -243,6 +243,7 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
   const previousSelectedRowsRef = useRef([]);
 
   useEffect(() => {
+    // 현재 선택된 행과 이전 선택된 행을 비교하여 업데이트
     if (
       JSON.stringify(currentSelectedRows) !==
       JSON.stringify(previousSelectedRowsRef.current)
@@ -251,7 +252,7 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
       setSelectedRows(currentSelectedRows); // 선택된 행 상태를 업데이트
       onSelectionChange(currentSelectedRows); // 선택 변경 시 콜백 함수 호출
     }
-  }, [currentSelectedRows, onSelectionChange]); // `selectedRows`를 의존성 배열에서 제거
+  }, [currentSelectedRows, onSelectionChange, selectedRows]);
 
   const handleCellClick = (rowData) => {
     console.log('Row clicked:', rowData);
