@@ -362,5 +362,11 @@
   "msg": {
     "authExpired": "인증시간이 만료되었습니다.",
     "authError": "인증에 실패하였습니다."
+  },
+  "UsageStatusTable": {
+    "NoDataFound": "조회된 데이터가 없습니다."
+  },
+  "RealTimeUsageTable": {
+    "NoDataFound": "조회된 데이터가 없습니다."
   }
 }

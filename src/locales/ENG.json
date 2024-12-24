@@ -362,5 +362,11 @@
   },
   "ToolList": {
     "All": "All"
+  },
+  "UsageStatusTable": {
+    "NoDataFound": "No Data Found."
+  },
+  "RealTimeUsageTable": {
+    "NoDataFound": "No Data Found."
   }
 }

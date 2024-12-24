@@ -95,7 +95,8 @@ export default function RealTime() {
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
         style={{ height: '60vh' }} // 테이블 높이 설정
       >
-        <RealTimeUsageTable data={data} /> {/* 데이터를 props로 전달 */}
+        {/* 데이터를 props로 전달 */}
+        <RealTimeUsageTable data={data} />
       </div>
     </div>
   );

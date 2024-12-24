@@ -45,27 +45,40 @@ export default function RealTimeUsageTable({ data = [] }) {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
-          {sanitizedData.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {['PC', 'toolname', 'toolver', 'starttime', 'runtime'].map(
-                (field) => (
-                  <td
-                    key={`${row.id || rowIndex}-${field}`}
-                    className="px-4 py-3 border-2 text-center text-sm font-medium text-gray-700 tracking-wide whitespace-nowrap"
-                  >
-                    {row[field] || '-'} {/* 데이터가 없을 경우 '-' 표시 */}
-                  </td>
-                )
-              )}
+          {sanitizedData.length > 0 ? (
+            sanitizedData.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {['PC', 'toolname', 'toolver', 'starttime', 'runtime'].map(
+                  (field) => (
+                    <td
+                      key={`${row.id || rowIndex}-${field}`}
+                      className="px-4 py-3 border-2 text-center text-sm font-medium text-gray-700 tracking-wide whitespace-nowrap"
+                    >
+                      {row[field] || '-'} {/* 데이터가 없을 경우 '-' 표시 */}
+                    </td>
+                  )
+                )}
+                <td
+                  className="px-4 py-3 border-2 text-center text-sm font-medium text-gray-700 whitespace-nowrap"
+                  style={{ width: '200px', height: '30px' }}
+                >
+                  {/* 진행률 표시 */}
+                  <ProgressBar data={row.processpercentage || 0} />
+                </td>
+              </tr>
+            ))
+          ) : (
+            // 데이터가 없을 경우 메시지 표시
+            <tr>
               <td
-                className="px-4 py-3 border-2 text-center text-sm font-medium text-gray-700 whitespace-nowrap"
-                style={{ width: '200px', height: '30px' }}
+                colSpan={columns.length}
+                className="text-center text-gray-500 px-4 py-3"
               >
-                <ProgressBar data={row.processpercentage || 0} />{' '}
-                {/* 진행률 표시 */}
+                {/* 원하는 메시지로 변경 가능 */}
+                {t('RealTimeUsageTable.NoDataFound')}
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

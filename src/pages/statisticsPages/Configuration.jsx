@@ -72,13 +72,7 @@ export default function Configuration() {
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
         style={{ height: '60vh' }} // 테이블 높이 설정
       >
-        {filteredData.length ? (
-          // 필터링된 데이터가 있으면 테이블 렌더링
-          <ConfigurationTable data={filteredData} />
-        ) : (
-          // 데이터가 없으면 "데이터 없음" 메시지 표시
-          <p>{t('Configuration.NoDataFound')}</p>
-        )}
+        <ConfigurationTable data={filteredData} />
       </div>
     </div>
   );

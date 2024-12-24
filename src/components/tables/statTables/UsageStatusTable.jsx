@@ -61,36 +61,48 @@ export default function UsageStatusTable({ data }) {
 
           {/* Table Body */}
           <tbody className="bg-white -z-50">
-            {sanitizedData.map((data) => {
-              const normalizedStatus = formatRunStatus(data.runstatus.trim());
-              return (
-                <tr key={data.id}>
-                  {[
-                    'PC',
-                    'toolname',
-                    'toolver',
-                    'starttime',
-                    'runtime',
-                    'runstatus',
-                    'runmessage',
-                  ].map((field) => (
-                    <td
-                      key={`${data.id}-${field}`}
-                      className="border-t border-l border-r border-gray-300 px-6 py-4 text-lg text-gray-700 text-center"
-                    >
-                      {field === 'runstatus' ? (
-                        <>
-                          {statusIcons[normalizedStatus] || '❓'}{' '}
-                          {normalizedStatus}
-                        </>
-                      ) : (
-                        data[field] || '-'
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
+            {sanitizedData.length > 0 ? (
+              sanitizedData.map((data) => {
+                const normalizedStatus = formatRunStatus(data.runstatus.trim());
+                return (
+                  <tr key={data.id}>
+                    {[
+                      'PC',
+                      'toolname',
+                      'toolver',
+                      'starttime',
+                      'runtime',
+                      'runstatus',
+                      'runmessage',
+                    ].map((field) => (
+                      <td
+                        key={`${data.id}-${field}`}
+                        className="border-t border-l border-r border-gray-300 px-6 py-4 text-lg text-gray-700 text-center"
+                      >
+                        {field === 'runstatus' ? (
+                          <>
+                            {statusIcons[normalizedStatus] || '❓'}{' '}
+                            {normalizedStatus}
+                          </>
+                        ) : (
+                          data[field] || '-'
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="text-center text-gray-500 px-6 py-4"
+                >
+                  {/* 원하는 메시지로 변경 가능 */}
+                  {t('UsageStatusTable.NoDataFound')}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

@@ -96,8 +96,8 @@ export default function UsageStatus() {
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
         style={{ height: '60vh' }} // 테이블 섹션 높이 설정
       >
-        <UsageStatusTable data={data} />{' '}
         {/* 데이터를 UsageStatusTable 컴포넌트에 전달 */}
+        <UsageStatusTable data={data} />{' '}
       </div>
     </div>
   );

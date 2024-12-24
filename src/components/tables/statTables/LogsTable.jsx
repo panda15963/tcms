@@ -44,26 +44,38 @@ export default function LogTable({ data }) {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-100">
-          {sanitizedData.map((row) => (
-            <tr key={row.id}>
-              {[
-                'pcname',
-                'toolname',
-                'toolver',
-                'exectime',
-                'loglevel',
-                'logdetail',
-              ].map((field) => (
-                <td
-                  key={`${row.id}-${field}`}
-                  className="px-4 py-3 border-2 text-center text-sm font-medium text-gray-700 whitespace-nowrap"
-                  style={{ width: '200px', height: '30px' }}
-                >
-                  {row[field] || '-'} {/* 데이터가 없을 경우 '-' 표시 */}
-                </td>
-              ))}
+          {sanitizedData.length > 0 ? (
+            sanitizedData.map((row) => (
+              <tr key={row.id}>
+                {[
+                  'pcname',
+                  'toolname',
+                  'toolver',
+                  'exectime',
+                  'loglevel',
+                  'logdetail',
+                ].map((field) => (
+                  <td
+                    key={`${row.id}-${field}`}
+                    className="px-4 py-3 border-2 text-center text-sm font-medium text-gray-700 whitespace-nowrap"
+                    style={{ width: '200px', height: '30px' }}
+                  >
+                    {row[field] || '-'} {/* 데이터가 없을 경우 '-' 표시 */}
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : (
+            // 조회 결과가 없을 경우 메시지 표시
+            <tr>
+              <td
+                colSpan={columns.length}
+                className="px-4 py-3 text-center text-gray-500"
+              >
+                {t('Logs.NoDataFound')} {/* 조회 결과가 없습니다 */}
+              </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
