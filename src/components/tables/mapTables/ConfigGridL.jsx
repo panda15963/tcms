@@ -4,7 +4,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -200,17 +200,13 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
     setSelectedRows([]);
     table.resetRowSelection(); // 선택된 행 상태 초기화
   }, [list]); // list가 변경될 때 실행
-  
 
   // list 변경 시 초기 데이터를 설정
   useEffect(() => {
-    if (validList.length > 0) {
+    if (validList.length > 0 && displayedData.length === 0) {
       setDisplayedData(validList.slice(0, ITEMS_PER_PAGE));
-      setPage(1);
-    } else {
-      setDisplayedData([]);
     }
-  }, [validList]);
+  }, [validList, displayedData.length]);
 
   // 페이지 변경 시 더 많은 데이터를 로드하여 기존 데이터에 추가
   useEffect(() => {
@@ -240,16 +236,22 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
     getSortedRowModel: getSortedRowModel(),
   });
 
-  useEffect(() => {
-    const currentSelectedRows = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original);
+  const currentSelectedRows = useMemo(() => {
+    return table.getSelectedRowModel().rows.map((row) => row.original);
+  }, [table]);
 
-    if (JSON.stringify(currentSelectedRows) !== JSON.stringify(selectedRows)) {
-      setSelectedRows(currentSelectedRows);
-      onSelectionChange(currentSelectedRows);
+  const previousSelectedRowsRef = useRef([]);
+
+  useEffect(() => {
+    if (
+      JSON.stringify(currentSelectedRows) !==
+      JSON.stringify(previousSelectedRowsRef.current)
+    ) {
+      previousSelectedRowsRef.current = currentSelectedRows; // 이전 선택된 행(ref)을 현재 선택된 행으로 업데이트
+      setSelectedRows(currentSelectedRows); // 선택된 행 상태를 업데이트
+      onSelectionChange(currentSelectedRows); // 선택 변경 시 콜백 함수 호출
     }
-  }, [table.getSelectedRowModel().rows, onSelectionChange]);
+  }, [currentSelectedRows, onSelectionChange]); // `selectedRows`를 의존성 배열에서 제거
 
   const handleCellClick = (rowData) => {
     console.log('Row clicked:', rowData);

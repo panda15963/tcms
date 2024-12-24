@@ -97,21 +97,21 @@ export default function MapLayout() {
   };
 
   // 중복 데이터 제거 함수
-  // const removeDuplicates = (data) => {
-  //   return data.reduce((acc, current) => {
-  //     const isDuplicate = acc.find((item) => item.file_id === current.file_id);
-  //     if (!isDuplicate) {
-  //       acc.push(current);
-  //     }
-  //     return acc;
-  //   }, []);
-  // };
+  const removeDuplicates = (data) => {
+    return data.reduce((acc, current) => {
+      const isDuplicate = acc.find((item) => item.file_id === current.file_id);
+      if (!isDuplicate) {
+        acc.push(current);
+      }
+      return acc;
+    }, []);
+  };
 
   // 중복 데이터 제거된 경로 데이터
-  // const uniqueRouteData = useMemo(() => {
-  //   const uniqueData = removeDuplicates(memoizedRouteData);
-  //   return uniqueData;
-  // }, [memoizedRouteData]);
+  const uniqueRouteData = useMemo(() => {
+    const uniqueData = removeDuplicates(memoizedRouteData);
+    return uniqueData;
+  }, [memoizedRouteData]);
 
   return (
     <>
@@ -133,8 +133,8 @@ export default function MapLayout() {
 
       {/* 좌측 슬라이드 패널 */}
       <LeftSideSlide
-        // data={uniqueRouteData}
-        data={memoizedRouteData}
+        data={uniqueRouteData}
+        // data={memoizedRouteData}
         onCheckedNodesChange={handleCheckedNodes}
         onClickedNode={handleClickedNode}
         onMapChange={currentApi}
@@ -144,8 +144,8 @@ export default function MapLayout() {
 
       {/* 우측 슬라이드  */}
       <RightSideSlide
-        // data={uniqueRouteData}
-        data={memoizedRouteData}
+        data={uniqueRouteData}
+        // data={memoizedRouteData}
         onMapChange={currentApi}
         isCleared={isCleared}
       />

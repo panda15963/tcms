@@ -306,19 +306,31 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         cond: inputCond,
       }).then((res) => {
         console.log('FIND_META_10100 of res ==>', res.findMeta);
-        setList((prevState) => {
-          return {
+        if (res.findMeta) {
+          setList((prevState) => {
+            return {
+              ...prevState,
+              list: res.findMeta,
+            };
+          });
+          setListRouteCount(res.findMeta.length);
+        } else {
+          setListRouteCount(0);
+          setList((prevState) => ({
             ...prevState,
-            list: res.findMeta,
-          };
-        });
-        setListRouteCount(res.findMeta.length);
+            list: [],
+          }));
+        }
         setLoading(false);
       });
     } catch (e) {
       console.log('FIND_META of error ==>', e);
       setLoading(false);
-      setListRouteCount(0); // 결과가 없으면 0으로 설정
+      setListRouteCount(0); // 결과가 없으면 0으로 설정정
+      setList((prevState) => ({
+        ...prevState,
+        list: [],
+      }));
     }
   };
 
@@ -627,23 +639,27 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const FIND_TCCFG = async (inputCond) => {
     setLoading(true);
     try {
-      await MapLogService.FIND_TCCFG_10003({
+      const res = await MapLogService.FIND_TCCFG_10003({
         cond: inputCond,
-      }).then((res) => {
-        console.log('FIND_TCCFG_10003 of res ==>', res);
-        setListConfig((prevState) => {
-          return {
-            ...prevState,
-            list: res.findTccfg,
-          };
-        });
-        setListConfigCount(res.findTccfg.length);
-        setLoading(false);
       });
+
+      console.log('FIND_TCCFG_10003 of res ==>', res);
+
+      if (res && Array.isArray(res.findTccfg)) {
+        setListConfig((prevState) => ({
+          ...prevState,
+          list: res.findTccfg,
+        }));
+        setListConfigCount(res.findTccfg.length);
+      } else {
+        console.error('Invalid or missing findTccfg field in response:', res);
+        setListConfigCount(0);
+      }
     } catch (e) {
       console.log('FIND_TCCFG_10003 of error ==>', e);
-      setLoading(false);
       setListConfigCount(0);
+    } finally {
+      setLoading(false);
     }
   };
 

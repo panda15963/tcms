@@ -22,18 +22,23 @@ function handleCoordinateInput(input) {
   if (Array.isArray(input)) {
     return input
       .map((coord) => {
-        if (typeof coord === 'object' && 'lat' in coord && 'lng' in coord) {
-          return coord; // 유효한 lat 및 lng 속성을 가진 객체일 경우 그대로 반환
+        if (
+          typeof coord === 'object' &&
+          coord.lat != null &&
+          coord.lng != null
+        ) {
+          return coord; // 유효한 {lat, lng} 객체 반환
         } else if (typeof coord === 'string') {
-          return parseCoordinates(coord); // 문자열일 경우 좌표로 변환
+          return parseCoordinates(coord); // 문자열을 파싱
         } else {
+          console.error('Invalid coordinate format:', coord);
           return null; // 유효하지 않은 경우 null 반환
         }
       })
-      .filter((coord) => coord !== null); // 유효하지 않은 좌표를 필터링
-  } else {
-    return []; // 유효하지 않은 입력일 경우 빈 배열 반환
+      .filter((coord) => coord !== null); // 유효하지 않은 좌표 필터링
   }
+  console.error('Input is not a valid array:', input);
+  return []; // 유효하지 않은 입력일 경우 빈 배열 반환
 }
 
 /**
@@ -93,6 +98,7 @@ export default function Tmap({
   const spaceMarkerRef = useRef([]); // 공간 마커를 참조하기 위한 ref
   const routePolylineRef = useRef([]); // 경로 폴리라인을 참조하기 위한 ref
   const spacePolylineRef = useRef([]); // 공간 폴리라인을 참조하기 위한 ref
+  const initialCoordsRef = useRef(initialCoords); // 초기 중심 좌표를 저장하는 useRef
 
   useEffect(() => {
     routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
@@ -275,21 +281,26 @@ export default function Tmap({
     }
 
     if (checkedNodes.length === 0 && mapRef.current && onClearMap) {
-      const { Tmapv2 } = window;
-      if (Tmapv2) {
-        // 기본 중심 좌표와 줌 설정
-        const defaultCenter = new Tmapv2.LatLng(
-          parseFloat(process.env.REACT_APP_LATITUDE),
-          parseFloat(process.env.REACT_APP_LONGITUDE)
-        );
-        mapRef.current.setCenter(defaultCenter);
-        mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM));
-        zoomSetRef.current = true;
-      }
+      resetMapToInitial();
     }
 
     fetchRoutesAndUpdateMap();
   }, [routeFullCoords, checkedNodes]);
+
+  /**
+   * 지도를 초기화하고 원래 좌표로 되돌리는 함수
+   */
+  function resetMapToInitial() {
+    const { Tmapv2 } = window;
+    if (mapRef.current && Tmapv2) {
+      const defaultCenter = new Tmapv2.LatLng(
+        initialCoordsRef.current.lat,
+        initialCoordsRef.current.lng
+      );
+      mapRef.current.setCenter(defaultCenter);
+      mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM));
+    }
+  }
 
   /**
    * 공간 데이터를 가져와 지도에 업데이트하는 useEffect
@@ -298,33 +309,24 @@ export default function Tmap({
     async function fetchSpacesAndUpdateMap() {
       const { Tmapv2 } = window;
 
-      // 기존에 추가된 마커와 폴리라인 제거
-      if (spaceMarkerRef.current.length) {
-        spaceMarkerRef.current.forEach((marker) => marker.setMap(null));
-        spaceMarkerRef.current = [];
-      }
-      if (spacePolylineRef.current.length) {
-        spacePolylineRef.current.forEach((polyline) => polyline.setMap(null));
-        spacePolylineRef.current = [];
+      if (!Tmapv2 || !mapRef.current) {
+        console.error('Tmapv2 or mapRef not available');
+        return;
       }
 
-      if (!zoomSetRef.current) {
-        const defaultCenter = new Tmapv2.LatLng(
-          parseFloat(process.env.REACT_APP_LATITUDE),
-          parseFloat(process.env.REACT_APP_LONGITUDE)
-        );
-        mapRef.current.setCenter(defaultCenter);
-        mapRef.current.setZoom(process.env.REACT_APP_ZOOM);
-        zoomSetRef.current = true; // 기본 줌이 설정되었음을 추적
-      }
+      // 기존 마커 및 폴리라인 제거
+      spaceMarkerRef.current.forEach((marker) => marker.setMap(null));
+      spaceMarkerRef.current = [];
+      spacePolylineRef.current.forEach((polyline) => polyline.setMap(null));
+      spacePolylineRef.current = [];
 
-      // spaceFullCoords가 null이거나 배열이 아니면 함수 종료
+      // 데이터 검증
       if (!spaceFullCoords || !Array.isArray(spaceFullCoords)) {
         return;
       }
 
       const bounds = new Tmapv2.LatLngBounds(); // 경계 설정
-      let selectedRouteCount = 0; // 선택된 경로 수 추적
+      let selectedRouteCount = 0;
 
       spaceFullCoords.forEach((space, index) => {
         const spaceChecked = checkedNodes.some(
@@ -332,16 +334,19 @@ export default function Tmap({
         );
         if (!spaceChecked) return;
 
-        selectedRouteCount++; // 선택된 경로 수 증가
+        selectedRouteCount++;
 
         const parsedCoords = handleCoordinateInput(space.coords);
-        if (parsedCoords.length === 0) return;
+        if (parsedCoords.length === 0) {
+          console.error('Parsed coordinates are empty for space:', space);
+          return;
+        }
 
+        // 경계 확장
         parsedCoords.forEach((coord) => {
-          bounds.extend(new Tmapv2.LatLng(coord.lat, coord.lng)); // 경계를 확장
+          bounds.extend(new Tmapv2.LatLng(coord.lat, coord.lng));
         });
 
-        // 시작 좌표와 끝 좌표 설정
         const startCoord = parsedCoords[0];
         const finishCoord = parsedCoords[parsedCoords.length - 1];
 
@@ -363,11 +368,12 @@ export default function Tmap({
         });
         spaceMarkerRef.current.push(finishMarker);
 
-        // 폴리라인 생성
+        // 폴리라인 추가
         const color =
           routesColors.current.get(space.file_id) ||
           routeColors[index % routeColors.length];
         routesColors.current.set(space.file_id, color);
+
         const polylinePath = parsedCoords.map(
           (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
         );
@@ -378,47 +384,17 @@ export default function Tmap({
           map: mapRef.current,
         });
         spacePolylineRef.current.push(polyline);
-
-        // 경계 업데이트
-        parsedCoords.forEach((coord) => {
-          bounds.extend(new Tmapv2.LatLng(coord.lat, coord.lng));
-        });
       });
 
-      if (selectedRouteCount === 1) {
-        // 하나의 경로가 선택되었을 때 줌 레벨을 더 자세히 설정
-        if (!bounds.isEmpty()) {
+      if (!bounds.isEmpty()) {
+        if (selectedRouteCount === 1) {
           mapRef.current.fitBounds(bounds);
           mapRef.current.setZoom(14); // 세부 줌 레벨 설정
-        }
-      } else if (selectedRouteCount > 1) {
-        // 여러 경로가 선택되었을 때 경계 맞춤
-        if (!bounds.isEmpty()) {
+        } else {
           mapRef.current.fitBounds(bounds);
         }
-      } else if (onClearMap) {
-        // 기본 줌 레벨 설정
-        const defaultCenter = new Tmapv2.LatLng(
-          parseFloat(process.env.REACT_APP_LATITUDE),
-          parseFloat(process.env.REACT_APP_LONGITUDE)
-        );
-        mapRef.current.setCenter(defaultCenter);
-        mapRef.current.setZoom(process.env.REACT_APP_ZOOM);
-        zoomSetRef.current = true;
-      }
-    }
-
-    if (checkedNodes.length === 0 && mapRef.current && onClearMap) {
-      const { Tmapv2 } = window;
-      if (Tmapv2) {
-        // 기본 중심 좌표와 줌 설정
-        const defaultCenter = new Tmapv2.LatLng(
-          parseFloat(process.env.REACT_APP_LATITUDE),
-          parseFloat(process.env.REACT_APP_LONGITUDE)
-        );
-        mapRef.current.setCenter(defaultCenter);
-        mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM));
-        zoomSetRef.current = true;
+      } else {
+        console.warn('Bounds are empty after processing spaces');
       }
     }
 
