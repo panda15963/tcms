@@ -97,35 +97,39 @@ const defaultColumns = (t) => [
     accessorKey: 'map',
     header: t('Common.Map'),
     cell: ({ row }) => {
-      const imagePath = row.original.imagePath;
       // 모디엠개발 : /testcourse/image/DESKTOP-6A267SH/20231214/HIP/20231124_083827_S_KOR_서울특별시_E_KOR_서울특별시.hip.png
       // 오토검증계 : /home/wasadmin/testcourse/image/DESKTOP-6A267SH/20231214/HIP/20231124_083827_S_KOR_서울특별시_E_KOR_서울특별시.hip.png
-      const [showModal, setShowModal] = useState(false);
 
-      // 현재 baseURL의 패턴을 보고 서버에 맞는 경로로 바꾸는 함수
-      const adjustImagePath = (baseURL, imagePath) => {
-        if (baseURL.includes('192.168.0.88')) {
-           // 서버가 192.168.0.88인 경우
+      const imagePath = row.original.imagePath;
+      const [showModal, setShowModal] = useState(false);
+      // 이미지 경로 조정 함수
+      const adjustImagePath = (serverKey, imagePath) => {
+        console.log('serverKey ==>', serverKey);
+        console.log('imagePath ==>', imagePath);
+
+        if (serverKey === 'localserver' || serverKey === 'developserver') {
+          // server1에 해당하는 경로 처리
           return `/images${imagePath.replace('/testcourse/image', '')}`;
-        } else if (baseURL.includes('10.5.35.121')) {
-          // 서버가 10.5.35.121인 경우
-          // return imagePath.replace('/home/wasadmin', '');
+        } else if (
+          serverKey === 'stageserver' ||
+          serverKey === 'productionserver'
+        ) {
+          // server2에 해당하는 경로 처리
           return `/images${imagePath.replace(
             '/home/wasadmin/testcourse/image',
             ''
           )}`;
         }
-        // 기본값 반환 (필요시 추가 설정 가능)
-        return imagePath;
+        return imagePath; // 기본값 반환
       };
 
-      // 포트 번호(:8080)와 '/api' 제거
+      const serverKey = process.env.REACT_APP_SERVER_KEY; // 서버 키 가져오기
       const baseURL = process.env.REACT_APP_MAPBASEURL.replace(
-        /:(8080|8090)\/api/,
+        /:(8080|8090)\/api/, // 포트와 API 경로 제거
         ''
       );
 
-      const adjustedImagePath = adjustImagePath(baseURL, imagePath);
+      const adjustedImagePath = adjustImagePath(serverKey, imagePath);
 
       return imagePath ? (
         <>
@@ -184,7 +188,6 @@ const defaultData = [
     map: '',
   },
 ];
-
 
 /**
  * MainGridDetail

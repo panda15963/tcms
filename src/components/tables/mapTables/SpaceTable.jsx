@@ -112,24 +112,33 @@ const SpaceTableHeaderList = (t) => [
       const [showModal, setShowModal] = useState(false); // 이미지 확대 모달 상태
 
       // 이미지 경로 조정 함수
-      const adjustImagePath = (baseURL, imagePath) => {
-        if (baseURL.includes('192.168.0.88')) {
+      const adjustImagePath = (serverKey, imagePath) => {
+        console.log('serverKey ==>', serverKey);
+        console.log('imagePath ==>', imagePath);
+
+        if (serverKey === 'localserver' || serverKey === 'developserver') {
+          // server1에 해당하는 경로 처리
           return `/images${imagePath.replace('/testcourse/image', '')}`;
-        } else if (baseURL.includes('10.5.35.121')) {
+        } else if (
+          serverKey === 'stageserver' ||
+          serverKey === 'productionserver'
+        ) {
+          // server2에 해당하는 경로 처리
           return `/images${imagePath.replace(
             '/home/wasadmin/testcourse/image',
             ''
           )}`;
         }
-        return imagePath;
+        return imagePath; // 기본값 반환
       };
 
+      const serverKey = process.env.REACT_APP_SERVER_KEY; // 서버 키 가져오기
       const baseURL = process.env.REACT_APP_MAPBASEURL.replace(
         /:(8080|8090)\/api/, // 포트와 API 경로 제거
         ''
       );
 
-      const adjustedImagePath = adjustImagePath(baseURL, imagePath);
+      const adjustedImagePath = adjustImagePath(serverKey, imagePath);
 
       return imagePath ? (
         <>
