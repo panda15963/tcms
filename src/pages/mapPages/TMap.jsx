@@ -188,12 +188,12 @@ export default function Tmap({
   useEffect(() => {
     async function fetchRoutesAndUpdateMap() {
       const { Tmapv2 } = window;
-
+  
       if (!Tmapv2 || !mapRef.current) {
         return;
       }
-
-      // 존재하는 마커와 폴리라인 제거
+  
+      // 기존 마커와 폴리라인 제거
       if (routeMarkerRef.current.length) {
         routeMarkerRef.current.forEach((marker) => marker.setMap(null));
         routeMarkerRef.current = [];
@@ -202,31 +202,37 @@ export default function Tmap({
         routePolylineRef.current.forEach((polyline) => polyline.setMap(null));
         routePolylineRef.current = [];
       }
-
+  
+      // 모든 경로가 선택 해제된 경우 초기화
+      if (checkedNodes.length === 0) {
+        resetMapToInitial();
+        return; // 이후 로직 실행 방지
+      }
+  
       if (!routeFullCoords || !Array.isArray(routeFullCoords)) {
         return;
       }
-
+  
       let bounds = new Tmapv2.LatLngBounds();
       let selectedRouteCount = 0;
-
+  
       routeFullCoords.forEach((route, index) => {
         const nodeChecked = checkedNodes.some(
           (node) => node.file_id === route.file_id
         );
         if (!nodeChecked) return;
-
+  
         selectedRouteCount++;
         const parsedCoords = handleCoordinateInput(route.coords);
         if (parsedCoords.length === 0) return;
-
+  
         parsedCoords.forEach((coord) => {
           bounds.extend(new Tmapv2.LatLng(coord.lat, coord.lng));
         });
-
+  
         const startCoord = parsedCoords[0];
         const finishCoord = parsedCoords[parsedCoords.length - 1];
-
+  
         // 시작 마커 추가
         const startMarker = new Tmapv2.Marker({
           position: new Tmapv2.LatLng(startCoord.lat, startCoord.lng),
@@ -235,7 +241,7 @@ export default function Tmap({
           iconSize: new Tmapv2.Size(32, 32),
         });
         routeMarkerRef.current.push(startMarker);
-
+  
         // 끝 마커 추가
         const finishMarker = new Tmapv2.Marker({
           position: new Tmapv2.LatLng(finishCoord.lat, finishCoord.lng),
@@ -244,12 +250,12 @@ export default function Tmap({
           iconSize: new Tmapv2.Size(32, 32),
         });
         routeMarkerRef.current.push(finishMarker);
-
+  
         const color =
           routesColors.current.get(route.file_id) ||
           routeColors[index % routeColors.length];
         routesColors.current.set(route.file_id, color);
-
+  
         const polylinePath = parsedCoords.map(
           (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
         );
@@ -262,28 +268,17 @@ export default function Tmap({
         });
         routePolylineRef.current.push(polyline);
       });
-
-      mapRef.current.fitBounds(bounds);
-      if (selectedRouteCount.length === 1) {
-        mapRef.current.setZoom(12);
-      }
-
-      if (onClearMap) {
-        // 기본 줌 레벨 설정
-        const defaultCenter = new Tmapv2.LatLng(
-          parseFloat(process.env.REACT_APP_LATITUDE),
-          parseFloat(process.env.REACT_APP_LONGITUDE)
-        );
-        mapRef.current.setCenter(defaultCenter);
-        mapRef.current.setZoom(process.env.REACT_APP_ZOOM);
-        zoomSetRef.current = true;
+  
+      if (!bounds.isEmpty()) {
+        if (selectedRouteCount === 1) {
+          mapRef.current.fitBounds(bounds);
+          mapRef.current.setZoom(12);
+        } else {
+          mapRef.current.fitBounds(bounds);
+        }
       }
     }
-
-    if (checkedNodes.length === 0 && mapRef.current && onClearMap) {
-      resetMapToInitial();
-    }
-
+  
     fetchRoutesAndUpdateMap();
   }, [routeFullCoords, checkedNodes]);
 

@@ -124,7 +124,6 @@ export default function MapLayout() {
         routeColors={routeColors}
         onClear={handleClear}
         handleSpaceData={
-          // Add handleSpaceData to props
           (data) => {
             setRouteData(data);
           }
@@ -134,7 +133,6 @@ export default function MapLayout() {
       {/* 좌측 슬라이드 패널 */}
       <LeftSideSlide
         data={uniqueRouteData}
-        // data={memoizedRouteData}
         onCheckedNodesChange={handleCheckedNodes}
         onClickedNode={handleClickedNode}
         onMapChange={currentApi}
@@ -145,7 +143,6 @@ export default function MapLayout() {
       {/* 우측 슬라이드  */}
       <RightSideSlide
         data={uniqueRouteData}
-        // data={memoizedRouteData}
         onMapChange={currentApi}
         isCleared={isCleared}
       />
