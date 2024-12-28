@@ -127,7 +127,7 @@ export default function StoreTable({ stores = [], onDataReceive }) {
             </span>
           ) : stores.length === 0 ? (
             <span className="text-sm px-5 text-gray-700">
-              {t('StoreTable.NoStores')}
+              {t('StoreTable.NoPages')}
             </span>
           ) : (
             <span className="text-sm px-5 text-gray-700">

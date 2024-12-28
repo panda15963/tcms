@@ -546,28 +546,45 @@ export default function RoutoMap({
    */
   useEffect(() => {
     const loadMapScript = () => {
+      const apiKey = process.env.REACT_APP_ROUTTO_MAP_API;
+
+      // API 키가 존재하며 예상된 형식을 따르는지 확인
+      if (
+        !apiKey ||
+        typeof apiKey !== 'string' ||
+        !/^[A-Za-z0-9_-]+$/.test(apiKey)
+      ) {
+        console.error('유효하지 않거나 누락된 Routo Map API 키입니다.');
+        return;
+      }
+
       const script = document.createElement('script');
-      script.src =
-        'https://api.routo.com/v2/maps/map?key=' +
-        process.env.REACT_APP_ROUTTO_MAP_API; // Routo Maps API 스크립트 로드
-      script.async = true;
+      const baseUrl = 'https://api.routo.com/v2/maps/map'; // Routo Maps API의 기본 URL
+      const url = new URL(baseUrl); // URL 객체를 사용하여 URL을 안전하게 생성
+      url.searchParams.append('key', apiKey); // API 키를 URL의 query parameter로 추가
+
+      script.src = url.toString(); // 안전하게 구성된 URL을 script의 src로 설정
+      script.async = true; // 비동기적으로 스크립트를 로드
+
       script.onload = () => {
+        // mapRef가 초기화되지 않은 경우 지도 인스턴스를 생성
         if (!mapRef.current) {
           mapRef.current = new routo.maps.Map(document.getElementById('map'), {
-            center: { lat: center.lat, lng: center.lng },
-            zoom: Number(process.env.REACT_APP_ZOOM),
+            center: { lat: center.lat, lng: center.lng }, // 초기 중심 좌표 설정
+            zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨 설정
           });
         }
 
-        updateMarker(center); // 초기 마커 설정
-        attachClickListener(); // 클릭 리스너 연결
+        updateMarker(center); // 초기 마커를 설정
+        attachClickListener(); // 지도 클릭 리스너를 연결
 
-        // 초기 공간 경로 렌더링
+        // 공간 경로를 초기 렌더링
         if (Array.isArray(spaceFullCoords)) {
-          drawSpaceRoutes(mapRef.current, spaceFullCoords);
+          drawSpaceRoutes(mapRef.current, spaceFullCoords); // 공간 경로를 지도에 그리기
         }
       };
-      document.body.appendChild(script);
+
+      document.body.appendChild(script); // script 태그를 body에 추가하여 스크립트를 로드
     };
 
     if (!window.routo) {

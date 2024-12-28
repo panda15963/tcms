@@ -137,15 +137,28 @@ export default function BaiduMap({
   useEffect(() => {
     let marker;
 
+    /**
+     * Baidu 지도 API를 로드하는 함수
+     */
     const loadBaiduMap = () => {
+      const apiKey = process.env.REACT_APP_BAIDU_MAP_API;
+
+      // 환경 변수 검증 (알파벳과 숫자만 허용)
+      if (!apiKey || !/^[A-Za-z0-9]+$/.test(apiKey)) {
+        console.error('유효하지 않거나 누락된 Baidu Map API 키입니다.');
+        return;
+      }
+
+      // 스크립트 동적 로드
       if (!window.BMapGL) {
         const script = document.createElement('script');
-        script.src = `https://api.map.baidu.com/api?v=3.0&type=webgl&ak=${process.env.REACT_APP_BAIDU_MAP_API}`;
-        script.onload = initializeMap;
-        script.onerror = () => console.error('Failed to load Baidu Map API');
+        script.src = `https://api.map.baidu.com/api?v=3.0&type=webgl&ak=${apiKey}`;
+        script.onload = initializeMap; // 성공 시 지도 초기화
+        script.onerror = () =>
+          console.error('Baidu Map API 로드에 실패했습니다.');
         document.head.appendChild(script);
       } else {
-        initializeMap();
+        initializeMap(); // 이미 로드된 경우 초기화만 수행
       }
     };
 

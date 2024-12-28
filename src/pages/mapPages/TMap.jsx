@@ -89,10 +89,10 @@ export default function Tmap({
   const routesColors = useRef(new Map());
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 상태 관리
+  const [shouldResetMap, setShouldResetMap] = useState(false);
 
   const mapRef = useRef(null); // 지도 인스턴스를 참조하기 위한 ref
   const markerRef = useRef(null); // 중심 마커를 참조하기 위한 ref
-  const zoomSetRef = useRef(false); // 줌 설정 상태 추적
 
   const routeMarkerRef = useRef([]); // 경로 마커를 참조하기 위한 ref
   const spaceMarkerRef = useRef([]); // 공간 마커를 참조하기 위한 ref
@@ -120,22 +120,36 @@ export default function Tmap({
    * TMap 스크립트를 로드하고 지도를 초기화하는 useEffect
    */
   useEffect(() => {
+    // 환경 변수에 TMAP API 키가 설정되어 있는지 확인
+    if (!process.env.REACT_APP_TMAP_API) {
+      console.error('TMAP API 키가 누락되었습니다!'); // API 키가 없을 경우 오류 출력
+      return; // 실행 중단
+    }
+
+    // Tmapv2 객체가 이미 로드되어 있는지 확인
     if (!window.Tmapv2) {
-      const scriptUrl = `https://api2.sktelecom.com/tmap/djs?version=1&appKey=${process.env.REACT_APP_TMAP_API}`;
+      // 스크립트 URL을 안전하게 생성
+      const scriptUrl = new URL('https://api2.sktelecom.com/tmap/djs'); // 기본 URL 설정
+      scriptUrl.searchParams.append('version', '1'); // URL에 버전 정보 추가
+      scriptUrl.searchParams.append('appKey', process.env.REACT_APP_TMAP_API); // API 키 추가
+
+      // <script> 태그 생성 및 속성 설정
       const script = document.createElement('script');
-      script.src = scriptUrl;
-      script.async = true;
+      script.src = scriptUrl.href; // 생성된 URL을 src로 설정
+      script.async = true; // 비동기 로드 설정
       script.onload = () => {
-        initMap(); // 지도 초기화 함수 호출
+        initMap(); // 스크립트 로드 완료 후 지도 초기화 함수 호출
       };
       script.onerror = () => {
-        console.error('TMap 스크립트 로드 실패:', scriptUrl);
+        console.error('TMap 스크립트 로드 실패:', scriptUrl.href); // 스크립트 로드 실패 시 오류 출력
       };
+
+      // <script> 태그를 <body>에 추가
       document.body.appendChild(script);
     } else {
-      initMap(); // TMap 객체가 이미 로드된 경우 지도 초기화
+      initMap(); // Tmapv2 객체가 이미 로드된 경우 지도 초기화 함수 호출
     }
-  }, []);
+  }, []); // 의존성 배열을 비워두어 컴포넌트가 마운트될 때 한 번만 실행
 
   /**
    * `center` 상태가 변경될 때 지도 중심과 마커를 업데이트하는 useEffect
@@ -188,11 +202,11 @@ export default function Tmap({
   useEffect(() => {
     async function fetchRoutesAndUpdateMap() {
       const { Tmapv2 } = window;
-  
+
       if (!Tmapv2 || !mapRef.current) {
         return;
       }
-  
+
       // 기존 마커와 폴리라인 제거
       if (routeMarkerRef.current.length) {
         routeMarkerRef.current.forEach((marker) => marker.setMap(null));
@@ -202,37 +216,38 @@ export default function Tmap({
         routePolylineRef.current.forEach((polyline) => polyline.setMap(null));
         routePolylineRef.current = [];
       }
-  
+
       // 모든 경로가 선택 해제된 경우 초기화
       if (checkedNodes.length === 0) {
-        resetMapToInitial();
-        return; // 이후 로직 실행 방지
+        setShouldResetMap(true);
+      } else {
+        setShouldResetMap(false); // 초기화 불필요
       }
-  
+
       if (!routeFullCoords || !Array.isArray(routeFullCoords)) {
         return;
       }
-  
+
       let bounds = new Tmapv2.LatLngBounds();
       let selectedRouteCount = 0;
-  
+
       routeFullCoords.forEach((route, index) => {
         const nodeChecked = checkedNodes.some(
           (node) => node.file_id === route.file_id
         );
         if (!nodeChecked) return;
-  
+
         selectedRouteCount++;
         const parsedCoords = handleCoordinateInput(route.coords);
         if (parsedCoords.length === 0) return;
-  
+
         parsedCoords.forEach((coord) => {
           bounds.extend(new Tmapv2.LatLng(coord.lat, coord.lng));
         });
-  
+
         const startCoord = parsedCoords[0];
         const finishCoord = parsedCoords[parsedCoords.length - 1];
-  
+
         // 시작 마커 추가
         const startMarker = new Tmapv2.Marker({
           position: new Tmapv2.LatLng(startCoord.lat, startCoord.lng),
@@ -241,7 +256,7 @@ export default function Tmap({
           iconSize: new Tmapv2.Size(32, 32),
         });
         routeMarkerRef.current.push(startMarker);
-  
+
         // 끝 마커 추가
         const finishMarker = new Tmapv2.Marker({
           position: new Tmapv2.LatLng(finishCoord.lat, finishCoord.lng),
@@ -250,12 +265,12 @@ export default function Tmap({
           iconSize: new Tmapv2.Size(32, 32),
         });
         routeMarkerRef.current.push(finishMarker);
-  
+
         const color =
           routesColors.current.get(route.file_id) ||
           routeColors[index % routeColors.length];
         routesColors.current.set(route.file_id, color);
-  
+
         const polylinePath = parsedCoords.map(
           (coord) => new Tmapv2.LatLng(coord.lat, coord.lng)
         );
@@ -268,7 +283,7 @@ export default function Tmap({
         });
         routePolylineRef.current.push(polyline);
       });
-  
+
       if (!bounds.isEmpty()) {
         if (selectedRouteCount === 1) {
           mapRef.current.fitBounds(bounds);
@@ -278,9 +293,15 @@ export default function Tmap({
         }
       }
     }
-  
+
     fetchRoutesAndUpdateMap();
   }, [routeFullCoords, checkedNodes]);
+
+  useEffect(() => {
+    if (shouldResetMap && onClearMap) {
+      resetMapToInitial(); // 초기화 실행
+    }
+  }, [shouldResetMap, onClearMap]);
 
   /**
    * 지도를 초기화하고 원래 좌표로 되돌리는 함수

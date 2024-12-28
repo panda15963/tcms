@@ -142,7 +142,8 @@
     "OneStore": "1개의 지점이 검색 되었습니다.",
     "PreviousButton": "이전",
     "NextButton": "다음",
-    "PaginationText": "{{first}}부터 {{last}}까지의 {{total}}개의 항목 표시"
+    "PaginationText": "{{first}}부터 {{last}}까지의 {{total}}개의 항목 표시",
+    "NoPages": "0부터 0까지의 0}개의 항목 표시"
   },
   "SpaceModal": {
     "ModalSearch": "공간 검색",

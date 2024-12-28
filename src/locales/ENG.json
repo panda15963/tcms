@@ -142,7 +142,8 @@
     "OneStore": "One Store found",
     "PreviousButton": "Previous",
     "NextButton": "Next",
-    "PaginationText": "Showing {{first}} to {{last}} of {{total}} stores"
+    "PaginationText": "Showing {{first}} to {{last}} of {{total}} stores",
+    "NoPages": "Showing 0 to 0 of 0 stores"
   },
   "SpaceModal": {
     "ModalSearch": "Modal Search",
