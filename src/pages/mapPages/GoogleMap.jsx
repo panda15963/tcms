@@ -428,63 +428,72 @@ export default function GoogleMap({
 
   // 경로 변경 처리
   useEffect(() => {
+    // 지도 객체(map)가 없는 경우 실행하지 않음
     if (!map) return;
-  
-    if (routeFullCoords.length === 0 && spaceFullCoords.length === 0 && lat === undefined && lng === undefined) {
-      // Clear all markers and polylines
-      clearRoutePolylines();
-      clearRouteMarkers();
-      clearSpacePolylines();
-      clearSpaceMarkers();
-      clearMarkers();
-  
-      // Reset map center and zoom level to default
+
+    // 경로(route) 및 공간(space) 데이터가 없고, 중심 좌표(lat, lng)가 설정되지 않은 경우
+    if (
+      routeFullCoords.length === 0 &&
+      spaceFullCoords.length === 0 &&
+      lat === undefined &&
+      lng === undefined
+    ) {
+      // 모든 마커와 폴리라인 제거
+      clearRoutePolylines(); // 경로 폴리라인 제거
+      clearRouteMarkers(); // 경로 마커 제거
+      clearSpacePolylines(); // 공간 폴리라인 제거
+      clearSpaceMarkers(); // 공간 마커 제거
+      clearMarkers(); // 기타 마커 제거
+
+      // 지도 중심 좌표 및 줌 레벨을 기본값으로 초기화
       const defaultCenter = {
-        lat: parseFloat(process.env.REACT_APP_LATITUDE) || 0,
-        lng: parseFloat(process.env.REACT_APP_LONGITUDE) || 0,
+        lat: parseFloat(process.env.REACT_APP_LATITUDE) || 0, // 기본 위도
+        lng: parseFloat(process.env.REACT_APP_LONGITUDE) || 0, // 기본 경도
       };
-      const defaultZoom = parseInt(process.env.REACT_APP_ZOOM, 10) || 12;
-  
-      map.setCenter(defaultCenter);
-      map.setZoom(defaultZoom);
-  
-      // Exit early since there are no routes or spaces
+      const defaultZoom = parseInt(process.env.REACT_APP_ZOOM, 10) || 12; // 기본 줌 레벨
+
+      map.setCenter(defaultCenter); // 지도 중심 설정
+      map.setZoom(defaultZoom); // 줌 레벨 설정
+
+      // 경로 및 공간 데이터가 없으므로 종료
       return;
     }
-  
+
+    // 지도 경계 설정 객체 생성
     const bounds = new window.google.maps.LatLngBounds();
-  
+
+    // 특정 노드가 선택된 경우
     if (isClickedNodeActive && clickedNode) {
-      // Handle clicked node case
-      const startCoord = clickedNode.start_coord.split(',').map(Number);
-      const goalCoord = clickedNode.goal_coord.split(',').map(Number);
-  
+      // 선택된 노드의 시작 및 도착 좌표를 처리
+      const startCoord = clickedNode.start_coord.split(',').map(Number); // 시작 좌표
+      const goalCoord = clickedNode.goal_coord.split(',').map(Number); // 도착 좌표
+
+      // 클릭된 노드의 경로를 정의
       const clickedRoute = [
         {
           coords: [
-            { lat: startCoord[1], lng: startCoord[0] },
-            { lat: goalCoord[1], lng: goalCoord[0] },
+            { lat: startCoord[1], lng: startCoord[0] }, // 시작 지점
+            { lat: goalCoord[1], lng: goalCoord[0] }, // 도착 지점
           ],
         },
       ];
-  
-      renderRoutes(clickedRoute, bounds);
-      map.fitBounds(bounds);
+
+      renderRoutes(clickedRoute, bounds); // 경로 렌더링
+      map.fitBounds(bounds); // 지도 경계를 선택된 노드 경로에 맞게 조정
     } else {
-      // Render all routes and spaces
-      renderRoutes(routeFullCoords, bounds);
+      // 모든 경로 및 공간 데이터를 렌더링
+      renderRoutes(routeFullCoords, bounds); // 경로 렌더링
       if (!bounds.isEmpty()) {
-        map.fitBounds(bounds);
+        map.fitBounds(bounds); // 경계가 비어있지 않으면 지도 경계 조정
       }
     }
   }, [
-    routeFullCoords,
-    spaceFullCoords,
-    clickedNode,
-    isClickedNodeActive,
-    map,
+    routeFullCoords, // 경로 데이터
+    spaceFullCoords, // 공간 데이터
+    clickedNode, // 클릭된 노드 데이터
+    isClickedNodeActive, // 클릭된 노드 활성 상태
+    map, // 지도 객체
   ]);
-  
 
   // clickedNode 상태 업데이트
   useEffect(() => {
