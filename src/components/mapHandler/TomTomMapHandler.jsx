@@ -13,6 +13,7 @@ import TomTomMap from '../../pages/mapPages/TomTomMap';
  * @param {Array} props.checkedNode - 선택된 노드 데이터
  * @param {object} props.clickedNode - 클릭된 노드 데이터
  * @param {function} props.routeColors - 경로 색상 처리 함수
+ * @param {function} props.onClearMap - 지도 초기화 함수
  */
 export default function TomTomMapHandler({
   selectedCoords,
@@ -22,6 +23,7 @@ export default function TomTomMapHandler({
   checkedNode,
   clickedNode,
   routeColors = () => {},
+  onClearMap,
 }) {
   if (!tomtomLocation) {
     return <div>지도를 표시할 수 없습니다. 위치 정보가 없습니다.</div>;
@@ -37,6 +39,7 @@ export default function TomTomMapHandler({
       checkedNodes={checkedNode}
       clickedNode={clickedNode}
       routeColors={routeColors}
+      onClearMap={onClearMap}
     />
   );
 }

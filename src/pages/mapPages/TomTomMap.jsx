@@ -47,6 +47,8 @@ const parseCoordinateString = (coordString) => {
  * @param {Array} checkedNodes - 선택된 노드 목록
  * @param {Object} clickedNode - 클릭된 노드 정보 (지도를 중심으로 이동)
  * @param {Array} spaceFullCoords - 공간 좌표 배열
+ * @param {Array} routeColors - 경로 색상 배열
+ * @param {function} onClearMap - 지도 초기화 함수
  */
 export default function TomTomMap({
   lat,
@@ -58,6 +60,7 @@ export default function TomTomMap({
   clickedNode,
   spaceFullCoords,
   routeColors = () => {},
+  onClearMap,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 상태 관리
@@ -125,6 +128,32 @@ export default function TomTomMap({
       initializeMap();
     }
   }, [center, routeFullCoords, place]); // center, routeFullCoords, place 변경 시 업데이트
+
+  useEffect(() => {
+    if (onClearMap) {
+      // 지도 중심과 줌을 기본값으로 재설정
+      if (mapRef.current) {
+        mapRef.current.flyTo({
+          center: [defaultLng, defaultLat], // 기본 좌표로 이동
+          zoom: Number(process.env.REACT_APP_ZOOM), // 기본 줌 레벨 설정
+        });
+
+        // 기존 마커와 경로 제거
+        clearRoutesAndMarkers(mapRef.current);
+
+        // 검색 마커도 초기화 (있는 경우)
+        if (searchMarker) {
+          searchMarker.remove(); // 기존 검색 마커 제거
+          setSearchMarker(null); // 검색 마커 상태 초기화
+        }
+      }
+
+      // `onClearMap` 상태를 false로 변경하여 반복 실행 방지
+      if (typeof onClearMap === 'function') {
+        onClearMap(false); // `onClearMap`이 상태 변경 함수인 경우
+      }
+    }
+  }, [onClearMap]); // `onClearMap` 값이 변경될 때마다 실행
 
   // 검색된 위치에 마커 추가
   useEffect(() => {
@@ -288,17 +317,17 @@ export default function TomTomMap({
         routeColors[index % routeColors.length];
       routesColors.current.set(route.file_id, routeColor);
       map.addLayer({
-            id: newRouteLayerId,
-            type: 'line',
-            source: {
-              type: 'geojson',
-              data: geoJsonRoute,
-            },
-            paint: {
-              'line-color': routeColor,
-              'line-width': 5,
-            },
-          });
+        id: newRouteLayerId,
+        type: 'line',
+        source: {
+          type: 'geojson',
+          data: geoJsonRoute,
+        },
+        paint: {
+          'line-color': routeColor,
+          'line-width': 5,
+        },
+      });
     });
 
     if (!bounds.isEmpty()) {

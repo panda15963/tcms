@@ -244,6 +244,7 @@ const TopMenuBar = ({
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
           routeColors={routeColors}
+          onClearMap={onClearMap}
         />
       );
     } else if (selectedAPI?.name === 'BAIDU') {
@@ -258,6 +259,7 @@ const TopMenuBar = ({
           spaceFullCoords={spaceFullCoords}
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
+          onClearMap={onClearMap}
         />
       );
     } else if (selectedAPI?.name === 'HERE') {
@@ -271,6 +273,7 @@ const TopMenuBar = ({
           checkedNode={checkedNodes}
           clickedNode={clickedNodes}
           routeColors={routeColors}
+          onClearMap={onClearMap}
         />
       );
     }

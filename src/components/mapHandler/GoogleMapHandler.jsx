@@ -71,6 +71,7 @@ export default function GoogleMapHandler({
       routeColors={routeColors} // 경로 색상 처리 함수
       spaceFullCoords={filteredSpaces} // 필터링된 공간 데이터
       onClearMap={onClearMap}
+      checkedNode={checkedNode} // 선택된 노드 데이터
     />
   );
 }

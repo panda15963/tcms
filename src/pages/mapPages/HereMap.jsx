@@ -27,6 +27,7 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {Object} clickedNode - 선택된 노드 데이터
  * @param {Array} spaceFullCoords - 공간 데이터를 나타내는 좌표 배열
  * @param {Object} checkedNode - 선택된 노드 데이터 상태
+ * @param {function} onClearMap - 지도 초기화 함수
  */
 const HereMap = ({
   lat,
@@ -37,6 +38,7 @@ const HereMap = ({
   clickedNode, // 선택된 노드 데이터
   spaceFullCoords, // 공간 전체 좌표
   checkedNode, // 선택된 노드 상태
+  onClearMap,
 }) => {
   const routesColors = useRef(new Map());
   const mapRef = useRef(null); // 지도 DOM 요소 참조
@@ -54,13 +56,13 @@ const HereMap = ({
   const [clickedCoords, setClickedCoords] = useState(null);
   const apiKey = process.env.REACT_APP_HERE_MAP_API; // HERE Maps API 키
 
-    useEffect(() => {
-      routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
-      checkedNode = []; // 선택된 노드 배열을 빈 배열로 초기화
-      spaceFullCoords = []; // 공간 좌표 배열을 빈 배열로 초기화
-      routeColors = []; // 경로 색상 배열을 빈 배열로 초기화
-      clickedNode = null; // 클릭된 노드 값을 null로 초기화
-    }, []); // 빈 dependency 배열로 설정하여 컴포넌트 마운트 시 한 번만 실행
+  useEffect(() => {
+    routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
+    checkedNode = []; // 선택된 노드 배열을 빈 배열로 초기화
+    spaceFullCoords = []; // 공간 좌표 배열을 빈 배열로 초기화
+    routeColors = []; // 경로 색상 배열을 빈 배열로 초기화
+    clickedNode = null; // 클릭된 노드 값을 null로 초기화
+  }, []); // 빈 dependency 배열로 설정하여 컴포넌트 마운트 시 한 번만 실행
 
   /**
    * 지도 중심을 설정하고 검색 마커를 추가하는 함수
@@ -543,7 +545,7 @@ const HereMap = ({
             evt.currentPointer.viewportX,
             evt.currentPointer.viewportY
           );
-          
+
           setClickedCoords(clickedCoords); // 클릭된 좌표 저장
           setDisableCentering(true); // 중심 자동 조정 비활성화
 
@@ -569,6 +571,26 @@ const HereMap = ({
         console.error('Failed to load HERE Maps API scripts:', error)
       );
   }, []);
+
+  useEffect(() => {
+    if (onClearMap && mapInstance.current) {
+      // 초기 좌표 가져오기
+      const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE) || 0;
+      const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE) || 0;
+      const defaultZoom = Number(process.env.REACT_APP_ZOOM) || 17;
+
+      // 지도 중심 및 줌 초기화
+      centerMapWithoutMarker(defaultLat, defaultLng, defaultZoom);
+
+      // 기존 엔터티 제거
+      clearEntities('routes');
+      clearEntities('spaces');
+      clearMarkers();
+
+      // disableCentering을 false로 설정하여 다시 자동 중심 조정 가능
+      setDisableCentering(false);
+    }
+  }, [onClearMap]);
 
   return <div ref={mapRef} style={{ height: '87.8vh' }} />;
 };

@@ -16,6 +16,7 @@ import Error from '../alerts/Error';
  * @param {object} props.clickedNode - 클릭된 노드 데이터
  * @param {function} props.routeColors - 경로 색상 처리 함수
  * @param {Array} props.spaceFullCoords - 전체 공간 데이터
+ * @param {function} props.onClearMap - 지도 초기화 함수
  */
 export default function HereMapHandler({
   selectedCoords,
@@ -25,6 +26,7 @@ export default function HereMapHandler({
   clickedNode,
   routeColors = () => {},
   spaceFullCoords = [],
+  onClearMap,
 }) {
   // 선택된 노드에서 file_id를 추출
   const checkedFileIds = checkedNode.map((node) => node.file_id);
@@ -55,6 +57,7 @@ export default function HereMapHandler({
       routeColors={routeColors} // 경로 색상 처리 함수
       spaceFullCoords={filteredSpaces} // 필터링된 공간 데이터
       checkedNode={checkedNode} // 선택된 노드 데이터
+      onClearMap={onClearMap} // 지도 초기화 함수
     />
   );
 }
