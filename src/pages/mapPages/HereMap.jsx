@@ -54,6 +54,7 @@ const HereMap = ({
   const [getCentered, setCentered] = useState(false); // 지도 중심 조정 상태
   const [disableCentering, setDisableCentering] = useState(false); // 자동 중심 조정 비활성화 상태
   const [clickedCoords, setClickedCoords] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
   const apiKey = process.env.REACT_APP_HERE_MAP_API; // HERE Maps API 키
 
   useEffect(() => {
@@ -127,6 +128,7 @@ const HereMap = ({
     } else if (!getCentered) {
       centerMapOnLatLng(lat, lng);
     }
+    console.log('lat:', lat, 'lng:', lng);
   }, [lat, lng, getCentered, clickedCoords, disableCentering]);
 
   // routeFullCoords와 spaceFullCoords가 빈 리스트일 경우 지도 중심 초기화
@@ -140,7 +142,7 @@ const HereMap = ({
       clearEntities('routes');
       clearEntities('spaces');
 
-      if (!disableCentering) {
+      if (!disableCentering && lat === undefined && lng === undefined) {
         const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE) || 0;
         const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE) || 0;
         const defaultZoom = Number(process.env.REACT_APP_ZOOM) || 17;

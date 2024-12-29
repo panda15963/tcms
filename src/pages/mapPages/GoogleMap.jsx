@@ -70,7 +70,6 @@ export default function GoogleMap({
   const [previousRouteCoords, setPreviousRouteCoords] = useState([]);
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
   const [isClickedNodeActive, setIsClickedNodeActive] = useState(false);
-  const [maintainedCoords, setMaintainedCoords] = useState(false);
 
   useEffect(() => {
     routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
@@ -125,7 +124,6 @@ export default function GoogleMap({
       mapInstance.addListener('click', (event) => {
         const clickedLat = event.latLng.lat();
         const clickedLng = event.latLng.lng();
-        setMaintainedCoords(true); // 클릭한 좌표 유지
         locationCoords({ lat: clickedLat, lng: clickedLng });
       });
     }
@@ -431,48 +429,52 @@ export default function GoogleMap({
   // 경로 변경 처리
   useEffect(() => {
     if (!map) return;
-
-    if (!maintainedCoords) {
-      // maintainedCoords가 false일 경우 기본 중심 좌표와 줌 레벨로 이동하지 않도록 처리
-      if (routeFullCoords.length === 0 && spaceFullCoords.length === 0) {
-        // 모든 경로(route)와 공간(space)이 제거되었을 때
-        clearRoutePolylines(); // 경로에 대한 폴리라인 제거
-        clearRouteMarkers(); // 경로에 대한 마커 제거
-        clearSpacePolylines(); // 공간에 대한 폴리라인 제거
-        clearSpaceMarkers(); // 공간에 대한 마커 제거
-        clearMarkers(); // 기타 모든 마커 제거
-
-        // 클릭된 노드 상태 초기화
-        setIsClickedNodeActive(false); // 클릭된 노드 비활성화 상태로 설정
-
-        return; // 효과 종료
-      }
+  
+    if (routeFullCoords.length === 0 && spaceFullCoords.length === 0 && lat === undefined && lng === undefined) {
+      // Clear all markers and polylines
+      clearRoutePolylines();
+      clearRouteMarkers();
+      clearSpacePolylines();
+      clearSpaceMarkers();
+      clearMarkers();
+  
+      // Reset map center and zoom level to default
+      const defaultCenter = {
+        lat: parseFloat(process.env.REACT_APP_LATITUDE) || 0,
+        lng: parseFloat(process.env.REACT_APP_LONGITUDE) || 0,
+      };
+      const defaultZoom = parseInt(process.env.REACT_APP_ZOOM, 10) || 12;
+  
+      map.setCenter(defaultCenter);
+      map.setZoom(defaultZoom);
+  
+      // Exit early since there are no routes or spaces
+      return;
+    }
+  
+    const bounds = new window.google.maps.LatLngBounds();
+  
+    if (isClickedNodeActive && clickedNode) {
+      // Handle clicked node case
+      const startCoord = clickedNode.start_coord.split(',').map(Number);
+      const goalCoord = clickedNode.goal_coord.split(',').map(Number);
+  
+      const clickedRoute = [
+        {
+          coords: [
+            { lat: startCoord[1], lng: startCoord[0] },
+            { lat: goalCoord[1], lng: goalCoord[0] },
+          ],
+        },
+      ];
+  
+      renderRoutes(clickedRoute, bounds);
+      map.fitBounds(bounds);
     } else {
-      // maintainedCoords가 true일 경우 기존 좌표 유지
-      const bounds = new window.google.maps.LatLngBounds(); // 맵의 경계(Bounds) 객체 생성
-
-      if (isClickedNodeActive && clickedNode) {
-        // 클릭된 노드가 활성화되어 있을 때 처리 로직
-        const startCoord = clickedNode.start_coord.split(',').map(Number); // 클릭된 노드의 시작 좌표
-        const goalCoord = clickedNode.goal_coord.split(',').map(Number); // 클릭된 노드의 목표 좌표
-
-        const clickedRoute = [
-          {
-            coords: [
-              { lat: startCoord[1], lng: startCoord[0] }, // 시작 좌표
-              { lat: goalCoord[1], lng: goalCoord[0] }, // 목표 좌표
-            ],
-          },
-        ];
-
-        renderRoutes(clickedRoute, bounds); // 클릭된 경로 렌더링
-        map.fitBounds(bounds); // 맵의 경계를 클릭된 경로에 맞게 조정
-      } else {
-        // 모든 경로와 공간 렌더링
-        renderRoutes(routeFullCoords, bounds); // 전체 경로 렌더링
-        if (!bounds.isEmpty()) {
-          map.fitBounds(bounds); // 경계가 비어 있지 않다면 맵의 경계를 조정
-        }
+      // Render all routes and spaces
+      renderRoutes(routeFullCoords, bounds);
+      if (!bounds.isEmpty()) {
+        map.fitBounds(bounds);
       }
     }
   }, [
@@ -481,8 +483,8 @@ export default function GoogleMap({
     clickedNode,
     isClickedNodeActive,
     map,
-    maintainedCoords,
   ]);
+  
 
   // clickedNode 상태 업데이트
   useEffect(() => {
