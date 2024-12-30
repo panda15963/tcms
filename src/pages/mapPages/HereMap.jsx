@@ -515,10 +515,10 @@ const HereMap = ({
       if (!window.H || !apiKey || mapInstance.current) {
         return;
       }
-    
+
       platformInstance.current = new H.service.Platform({ apiKey });
       const defaultLayers = platformInstance.current.createDefaultLayers();
-    
+
       mapInstance.current = new H.Map(
         mapRef.current,
         defaultLayers.vector.normal.map,
@@ -527,14 +527,14 @@ const HereMap = ({
           center: initialCoords,
         }
       );
-    
+
       new H.mapevents.Behavior(new H.mapevents.MapEvents(mapInstance.current));
       mapInstance.current.addEventListener('tap', (evt) => {
         const clickedCoords = mapInstance.current.screenToGeo(
           evt.currentPointer.viewportX,
           evt.currentPointer.viewportY
         );
-    
+
         setClickedCoords(clickedCoords);
         setDisableCentering(true);
         locationCoords({ lat: clickedCoords.lat, lng: clickedCoords.lng });
@@ -560,50 +560,48 @@ const HereMap = ({
     if (!mapInstance.current || lat === undefined || lng === undefined) {
       return;
     }
-  
+
     // 기존 마커 제거
     if (markerRef.current) {
       mapInstance.current.removeObject(markerRef.current);
     }
-  
+
     // 새 마커 추가
     const newMarker = new H.map.Marker({ lat, lng });
     mapInstance.current.addObject(newMarker);
     markerRef.current = newMarker;
-  
+
     // 지도 중심 설정
     mapInstance.current.setCenter({ lat, lng });
-  
+
     console.log(`Marker added and map centered at: ${lat}, ${lng}`);
   }, [lat, lng]);
-  
 
   useEffect(() => {
     if (onClearMap && mapInstance.current) {
       const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE) || 0;
       const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE) || 0;
       const defaultZoom = Number(process.env.REACT_APP_ZOOM) || 17;
-  
+
       // Reset map view
       centerMapWithoutMarker(defaultLat, defaultLng, defaultZoom);
-  
+
       // Clear all entities
       clearEntities('routes');
       clearEntities('spaces');
       clearMarkers();
-  
+
       // Reset states
       setAdjustedRouteCoords([]);
       setPreviousRouteCoords([]);
       setAdjustedSpaceCoords([]);
       setPreviousSpaceCoords([]);
-  
+
       setDisableCentering(false);
       setCentered(false);
       console.log('Map fully reset to defaults');
     }
   }, [onClearMap]);
-  
 
   return <div ref={mapRef} style={{ height: '87.8vh' }} />;
 };
