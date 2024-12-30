@@ -70,6 +70,7 @@ export default function GoogleMap({
   const [previousRouteCoords, setPreviousRouteCoords] = useState([]);
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
   const [isClickedNodeActive, setIsClickedNodeActive] = useState(false);
+  const [locationCoord, setLocationCoord] = useState({ lat: 0, lng: 0 });
 
   useEffect(() => {
     routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
@@ -124,6 +125,7 @@ export default function GoogleMap({
       mapInstance.addListener('click', (event) => {
         const clickedLat = event.latLng.lat();
         const clickedLng = event.latLng.lng();
+        setLocationCoord({ lat: clickedLat, lng: clickedLng });
         locationCoords({ lat: clickedLat, lng: clickedLng });
       });
     }
@@ -432,12 +434,7 @@ export default function GoogleMap({
     if (!map) return;
 
     // 경로(route) 및 공간(space) 데이터가 없고, 중심 좌표(lat, lng)가 설정되지 않은 경우
-    if (
-      routeFullCoords.length === 0 &&
-      spaceFullCoords.length === 0 &&
-      lat === undefined &&
-      lng === undefined
-    ) {
+    if (locationCoord.lat === 0 && locationCoord.lng === 0) {
       // 모든 마커와 폴리라인 제거
       clearRoutePolylines(); // 경로 폴리라인 제거
       clearRouteMarkers(); // 경로 마커 제거
