@@ -385,7 +385,7 @@ const HereMap = ({
    * @param {string} type - 엔터티 유형 ("routes" 또는 "spaces")
    */
   const renderEntities = (coords, type) => {
-    clearEntities(type); // Clear previous entities
+    clearEntities(type);
 
     if (!mapInstance.current || !coords) return;
 
@@ -437,7 +437,7 @@ const HereMap = ({
   const clearMarkers = () => {
     if (markerRef.current) {
       mapInstance.current.removeObject(markerRef.current);
-      markerRef.current = null; // Clear the search marker
+      markerRef.current = null
     }
 
     Object.keys(markerRefs.current).forEach((key) => {
@@ -495,7 +495,7 @@ const HereMap = ({
     const loadScript = (src) => {
       return new Promise((resolve, reject) => {
         if (document.querySelector(`script[src="${src}"]`)) {
-          resolve(); // Script already loaded
+          resolve();
           return;
         }
         const script = document.createElement('script');
