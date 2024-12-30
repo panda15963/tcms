@@ -122,6 +122,8 @@ const HereMap = ({
       return;
     }
 
+    console.log('Centering map on:', lat, lng);
+
     if (lat === undefined || lng === undefined) {
       clearMarkers();
     } else if (!getCentered) {
@@ -283,10 +285,10 @@ const HereMap = ({
   }, [spaceFullCoords]);
 
   useEffect(() => {
-    if (spaceFullCoords.length > 0) {
-      setDisableCentering(false); // 공간 검색 시 자동 중심 조정을 활성화
+    if (routeFullCoords.length > 0 || spaceFullCoords.length > 0) {
+      setDisableCentering(false); // 검색 시 중심 자동 조정 활성화
     }
-  }, [spaceFullCoords]);
+  }, [routeFullCoords, spaceFullCoords]);
 
   /**
    * 지도에 표시된 엔티티(좌표들)를 중심으로 지도 중심 및 줌을 조정하는 함수
@@ -510,52 +512,34 @@ const HereMap = ({
     };
 
     const initializeMap = () => {
-      if (!window.H) {
+      if (!window.H || !apiKey || mapInstance.current) {
         return;
       }
-      if (!apiKey) {
-        return;
-      }
-      if (mapInstance.current) {
-        return;
-      }
-
-      try {
-        platformInstance.current = new H.service.Platform({ apiKey });
-        const defaultLayers = platformInstance.current.createDefaultLayers();
-
-        mapInstance.current = new H.Map(
-          mapRef.current,
-          defaultLayers.vector.normal.map,
-          {
-            zoom: Number(process.env.REACT_APP_ZOOM) || 17,
-            center: initialCoords,
-          }
+    
+      platformInstance.current = new H.service.Platform({ apiKey });
+      const defaultLayers = platformInstance.current.createDefaultLayers();
+    
+      mapInstance.current = new H.Map(
+        mapRef.current,
+        defaultLayers.vector.normal.map,
+        {
+          zoom: Number(process.env.REACT_APP_ZOOM) || 17,
+          center: initialCoords,
+        }
+      );
+    
+      new H.mapevents.Behavior(new H.mapevents.MapEvents(mapInstance.current));
+      mapInstance.current.addEventListener('tap', (evt) => {
+        const clickedCoords = mapInstance.current.screenToGeo(
+          evt.currentPointer.viewportX,
+          evt.currentPointer.viewportY
         );
-
-        new H.mapevents.Behavior(
-          new H.mapevents.MapEvents(mapInstance.current)
-        );
-        window.addEventListener('resize', () =>
-          mapInstance.current.getViewPort().resize()
-        );
-
-        mapInstance.current.addEventListener('tap', (evt) => {
-          const clickedCoords = mapInstance.current.screenToGeo(
-            evt.currentPointer.viewportX,
-            evt.currentPointer.viewportY
-          );
-
-          setClickedCoords(clickedCoords); // 클릭된 좌표 저장
-          setDisableCentering(true); // 중심 자동 조정 비활성화
-
-          if (typeof locationCoords === 'function') {
-            locationCoords({ lat: clickedCoords.lat, lng: clickedCoords.lng });
-          }
-        });
-      } catch (error) {
-        console.error('Map initialization error:', error);
-      }
+    
+        setClickedCoords(clickedCoords);
+        setDisableCentering(true);
+        locationCoords({ lat: clickedCoords.lat, lng: clickedCoords.lng });
+        // centerMapOnLatLng(clickedCoords.lat, clickedCoords.lng);
+      });
     };
 
     loadScript('https://js.api.here.com/v3/3.1/mapsjs-core.js')
@@ -571,6 +555,28 @@ const HereMap = ({
         console.error('Failed to load HERE Maps API scripts:', error)
       );
   }, []);
+
+  useEffect(() => {
+    if (!mapInstance.current || lat === undefined || lng === undefined) {
+      return;
+    }
+  
+    // 기존 마커 제거
+    if (markerRef.current) {
+      mapInstance.current.removeObject(markerRef.current);
+    }
+  
+    // 새 마커 추가
+    const newMarker = new H.map.Marker({ lat, lng });
+    mapInstance.current.addObject(newMarker);
+    markerRef.current = newMarker;
+  
+    // 지도 중심 설정
+    mapInstance.current.setCenter({ lat, lng });
+  
+    console.log(`Marker added and map centered at: ${lat}, ${lng}`);
+  }, [lat, lng]);
+  
 
   useEffect(() => {
     if (onClearMap && mapInstance.current) {
