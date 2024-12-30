@@ -580,23 +580,30 @@ const HereMap = ({
 
   useEffect(() => {
     if (onClearMap && mapInstance.current) {
-      // 초기 좌표 가져오기
       const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE) || 0;
       const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE) || 0;
       const defaultZoom = Number(process.env.REACT_APP_ZOOM) || 17;
-
-      // 지도 중심 및 줌 초기화
+  
+      // Reset map view
       centerMapWithoutMarker(defaultLat, defaultLng, defaultZoom);
-
-      // 기존 엔터티 제거
+  
+      // Clear all entities
       clearEntities('routes');
       clearEntities('spaces');
       clearMarkers();
-
-      // disableCentering을 false로 설정하여 다시 자동 중심 조정 가능
+  
+      // Reset states
+      setAdjustedRouteCoords([]);
+      setPreviousRouteCoords([]);
+      setAdjustedSpaceCoords([]);
+      setPreviousSpaceCoords([]);
+  
       setDisableCentering(false);
+      setCentered(false);
+      console.log('Map fully reset to defaults');
     }
   }, [onClearMap]);
+  
 
   return <div ref={mapRef} style={{ height: '87.8vh' }} />;
 };
