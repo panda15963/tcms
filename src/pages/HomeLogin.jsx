@@ -21,7 +21,6 @@ const initialRequest = {
   pw: '',
   mpass_type: 2, // 1:OTP , 2:FIDO
   otp: '',
-  request_type: 1, //웹
 };
 
 const initFidoParams = {
