@@ -7,6 +7,8 @@ import StatLogService from '../service/StatLogService';
  * @returns {Promise<Object|null>} 실행 카운트 데이터 또는 null
  */
 const EXECUTION_COUNT_TOOL = async (inputCond) => {
+  console.log('inputCond ===>', inputCond);
+
   try {
     const result = await StatLogService.EXECUTION_COUNT({ cond: inputCond });
     if (typeof result === 'string') {
