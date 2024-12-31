@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import End_Point from '../../assets/images/multi_end_point.svg'; // Import your custom End Point icon
 import Start_Point from '../../assets/images/multi_start_point.svg'; // Import your custom Start Point icon
@@ -44,6 +44,8 @@ function calculateBounds(coordsArray) {
  * @param {function} error - 오류 메시지 콜백
  * @param {function} routeColors - 경로 색상을 업데이트하는 콜백
  * @param {Array} spaceFullCoords - 공간 데이터를 나타내는 좌표 배열
+ * @param {boolean} onClearMap - 지도 초기화 여부
+ * @param {Array} checkedNode - 선택된 노드 데이터
  */
 export default function GoogleMap({
   lat,
@@ -70,7 +72,7 @@ export default function GoogleMap({
   const [previousRouteCoords, setPreviousRouteCoords] = useState([]);
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
   const [isClickedNodeActive, setIsClickedNodeActive] = useState(false);
-  const [locationCoord, setLocationCoord] = useState({ lat: 0, lng: 0 });
+  const [isClickedMap, setIsClickedMap] = useState(false);
 
   useEffect(() => {
     routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
@@ -125,7 +127,7 @@ export default function GoogleMap({
       mapInstance.addListener('click', (event) => {
         const clickedLat = event.latLng.lat();
         const clickedLng = event.latLng.lng();
-        setLocationCoord({ lat: clickedLat, lng: clickedLng });
+        setIsClickedMap(true);
         locationCoords({ lat: clickedLat, lng: clickedLng });
       });
     }
@@ -433,8 +435,16 @@ export default function GoogleMap({
     // 지도 객체(map)가 없는 경우 실행하지 않음
     if (!map) return;
 
+    if (routeFullCoords.length > 0 || spaceFullCoords.length > 0) {
+      setIsClickedMap(false); // 새로운 검색 시 클릭 상태 초기화
+    }
+
     // 경로(route) 및 공간(space) 데이터가 없고, 중심 좌표(lat, lng)가 설정되지 않은 경우
-    if (locationCoord.lat === 0 && locationCoord.lng === 0) {
+    if (
+      routeFullCoords.length === 0 &&
+      spaceFullCoords.length === 0 &&
+      !isClickedMap
+    ) {
       // 모든 마커와 폴리라인 제거
       clearRoutePolylines(); // 경로 폴리라인 제거
       clearRouteMarkers(); // 경로 마커 제거
