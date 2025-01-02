@@ -192,18 +192,19 @@ export default function RoutoMap({
     if (onClearMap) {
       clearRoutesAndMarkers();
       clearSpaceAndMarkers();
-
+  
       mapRef.current = new routo.maps.Map('map', {
         center: { lat: center.lat, lng: center.lng },
         zoom: Number(process.env.REACT_APP_ZOOM),
       });
-
+  
       // onClearMap 상태 리셋
       setTimeout(() => {
         onClearMap = false; // 부모 컴포넌트에서 상태 리셋
       }, 100);
     }
   }, [onClearMap]);
+  
 
   /**
    * 경로와 마커를 모두 삭제하는 함수
@@ -619,6 +620,7 @@ export default function RoutoMap({
 
     return () => {
       if (mapRef.current) {
+        routo.maps.event.clearListeners(mapRef.current, 'dragend'); // 드래그 리스너 제거
         routo.maps.event.clearListeners(mapRef.current, 'click'); // 클릭 리스너 제거
       }
       if (markerRef.current) {
@@ -642,12 +644,14 @@ export default function RoutoMap({
    * 위도(lat)와 경도(lng)가 변경될 때 지도 중심과 마커를 업데이트하는 useEffect
    */
   useEffect(() => {
-    const newCenter = calculateCenterAndMarker(lat, lng); // 새로운 중심 좌표 계산
-    setCenter(newCenter); // 중심 좌표 상태 업데이트
-    if (mapRef.current) {
-      mapRef.current.setCenter(newCenter); // 지도 중심 좌표 업데이트
+    if (lat !== undefined && lng !== undefined) {
+      const newCenter = calculateCenterAndMarker(lat, lng);
+      setCenter(newCenter);
+      if (mapRef.current) {
+        mapRef.current.setCenter(newCenter);
+      }
+      updateMarker(newCenter);
     }
-    updateMarker(newCenter); // 마커 업데이트 또는 생성
   }, [lat, lng]);
 
   return <div id="map" className="map" style={{ height: '87.8vh' }} />;

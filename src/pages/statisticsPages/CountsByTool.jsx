@@ -47,11 +47,21 @@ export default function CountsByTool() {
    * 컴포넌트 마운트 시 초기 데이터 설정
    */
   useEffect(() => {
-    const newData = Array.isArray(location.state?.data?.result)
-      ? location.state?.data?.result
-      : [];
-    setData(newData); // 상태 업데이트
-  }, [location.state]); // location.state가 변경될 때마다 실행
+    if (location.state?.data?.result) {
+      const newData = Array.isArray(location.state.data.result)
+        ? location.state.data.result
+        : [];
+      setData(newData);
+      // 데이터를 localStorage에 저장
+      localStorage.setItem('countsByToolData', JSON.stringify(newData));
+    } else {
+      // localStorage에서 데이터 불러오기
+      const savedData = localStorage.getItem('countsByToolData');
+      if (savedData) {
+        setData(JSON.parse(savedData));
+      }
+    }
+  }, [location.state]);
 
   return (
     <div

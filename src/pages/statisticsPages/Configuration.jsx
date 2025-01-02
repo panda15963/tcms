@@ -28,8 +28,29 @@ export default function Configuration() {
    * 컴포넌트가 처음 마운트되거나 location.state의 데이터가 변경될 때 데이터를 초기화
    */
   useEffect(() => {
-    setData(initialData.result || []);
-  }, [location.state?.data]);
+    try {
+      if (location.state?.data?.result) {
+        const newData = Array.isArray(location.state.data.result)
+          ? location.state.data.result
+          : [];
+        setData(newData);
+        // 데이터를 localStorage에 저장
+        localStorage.setItem('countsByToolData', JSON.stringify(newData));
+      } else {
+        // localStorage에서 데이터 불러오기
+        const savedData = localStorage.getItem('countsByToolData');
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          setData(Array.isArray(parsedData) ? parsedData : []);
+        } else {
+          setData([]); // 기본 빈 배열로 설정
+        }
+      }
+    } catch (error) {
+      console.error('데이터 로드 중 오류:', error);
+      setData([]); // 오류가 발생해도 빈 배열로 초기화
+    }
+  }, [location.key]);
 
   /**
    * 데이터에서 도구 이름의 공백을 제거하여 처리

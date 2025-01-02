@@ -8,11 +8,14 @@ import * as d3 from 'd3';
  * @returns {string} 변환된 날짜 문자열 (YYYY-MM-DD 형식)
  */
 const formatMonthDateToLocalISO = (date) => {
-  if (!date) return ''; // 유효하지 않은 날짜는 빈 문자열 반환
-  const year = date.getFullYear(); // 연도 추출
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // 월 추출 및 2자리로 맞춤
-  const day = String(date.getDate()).padStart(2, '0'); // 일 추출 및 2자리로 맞춤
-  return `${year}-${month}-${day}`; // ISO 형식으로 반환
+  if (!(date instanceof Date) || isNaN(date)) {
+    console.error('Invalid date:', date);
+    return ''; // Return empty string for invalid dates
+  }
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 /**
@@ -37,16 +40,24 @@ const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
   /**
    * 데이터를 그룹화하여 차트에 표시할 형식으로 변환
    */
-  const groupedData = Array.from(
-    d3.group(data, (d) => d[groupKey]), // groupBy 기준으로 데이터를 그룹화
-    ([key, entries]) => ({
-      key, // 그룹 키 (예: toolname 또는 toolver)
-      data: entries.map((entry) => ({
-        date: formatMonthDateToLocalISO(new Date(entry.date)), // 날짜 형식 변환
-        value: entry.count, // 데이터 값
-      })),
-    })
-  );
+  const groupedData = data
+    ? Array.from(
+        d3.group(data, (d) => d[groupKey]),
+        ([key, entries]) => ({
+          key,
+          data: entries.map((entry) => {
+            const date = new Date(entry.date);
+            if (isNaN(date)) {
+              console.error('Invalid date entry:', entry);
+            }
+            return {
+              date: formatMonthDateToLocalISO(date),
+              value: entry.count,
+            };
+          }),
+        })
+      )
+    : [];
 
   useEffect(() => {
     // 데이터가 없는 경우 차트를 초기화하고 반환
@@ -81,15 +92,30 @@ const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
     const allDates = groupedData.flatMap((group) =>
       group.data.map((d) => new Date(d.date))
     );
+
     const allValues = groupedData.flatMap((group) =>
       group.data.map((d) => d.value)
     );
 
+    const validDates = allDates.filter(
+      (date) => date instanceof Date && !isNaN(date)
+    );
+    if (validDates.length === 0) {
+      console.error('No valid dates found in the data.');
+      return; // Exit the useEffect or function to avoid further errors
+    }
+
     // 날짜 및 값 범위 설정
-    const minDate = d3.min(allDates); // 최소 날짜
-    const maxDate = d3.max(allDates); // 최대 날짜
+    const minDate = d3.min(validDates); // 최소 날짜
+    const maxDate = d3.max(validDates); // 최대 날짜
+    if (!minDate || !maxDate) {
+      console.error('Invalid date range. Min or Max date is undefined.');
+      return; // Exit to avoid further errors
+    }
+
     const paddedMinDate = new Date(minDate);
     paddedMinDate.setDate(minDate.getDate() - 1); // 최소 날짜 패딩
+
     const paddedMaxDate = new Date(maxDate);
     paddedMaxDate.setDate(maxDate.getDate() + 1); // 최대 날짜 패딩
 
@@ -186,9 +212,14 @@ const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
         .style('fill', 'black') // 텍스트 색상
         .style('font-size', '14px') // 텍스트 크기
         .style('font-weight', 'bold') // 텍스트 두께
-        .text(
-          group.key.length > 10 ? `${group.key.slice(0, 10)}...` : group.key // 텍스트 자르기
-        );
+        .text(() => {
+          if (!group.key) {
+            return 'Unknown'; // Provide a fallback for invalid keys
+          }
+          return group.key.length > 10
+            ? `${group.key.slice(0, 10)}...`
+            : group.key;
+        });
     });
 
     // X축 추가

@@ -27,9 +27,30 @@ export default function Logs() {
   /**
    * location.state 데이터 변경 시 데이터 업데이트
    */
-  useEffect(() => {
-    setData(initialData.result || []); // 새 데이터로 업데이트
-  }, [location.state?.data]);
+ useEffect(() => {
+     try {
+       if (location.state?.data?.result) {
+         const newData = Array.isArray(location.state.data.result)
+           ? location.state.data.result
+           : [];
+         setData(newData);
+         // 데이터를 localStorage에 저장
+         localStorage.setItem('countsByToolData', JSON.stringify(newData));
+       } else {
+         // localStorage에서 데이터 불러오기
+         const savedData = localStorage.getItem('countsByToolData');
+         if (savedData) {
+           const parsedData = JSON.parse(savedData);
+           setData(Array.isArray(parsedData) ? parsedData : []);
+         } else {
+           setData([]); // 기본 빈 배열로 설정
+         }
+       }
+     } catch (error) {
+       console.error('데이터 로드 중 오류:', error);
+       setData([]); // 오류가 발생해도 빈 배열로 초기화
+     }
+   }, [location.key]);
 
   /**
    * 새로고침 버튼 클릭 시 데이터 새로고침

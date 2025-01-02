@@ -56,8 +56,30 @@ export default function CountsByVersion() {
    * location.state가 변경될 때 데이터를 업데이트
    */
   useEffect(() => {
-    setData(location.state?.data?.result || []); // 데이터 업데이트
-  }, [location.state]); // location.state가 변경될 때 실행
+    try {
+      if (location.state?.data?.result) {
+        const newData = Array.isArray(location.state.data.result)
+          ? location.state.data.result
+          : [];
+        setData(newData);
+        // 데이터를 localStorage에 저장
+        localStorage.setItem('countsByToolData', JSON.stringify(newData));
+      } else {
+        // localStorage에서 데이터 불러오기
+        const savedData = localStorage.getItem('countsByToolData');
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          setData(Array.isArray(parsedData) ? parsedData : []);
+        } else {
+          setData([]); // 기본 빈 배열로 설정
+        }
+      }
+    } catch (error) {
+      console.error('데이터 로드 중 오류:', error);
+      setData([]); // 오류가 발생해도 빈 배열로 초기화
+    }
+  }, [location.key]);
+  
 
   return (
     <div

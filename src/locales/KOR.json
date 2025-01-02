@@ -143,7 +143,7 @@
     "PreviousButton": "이전",
     "NextButton": "다음",
     "PaginationText": "{{first}}부터 {{last}}까지의 {{total}}개의 항목 표시",
-    "NoPages": "0부터 0까지의 0}개의 항목 표시"
+    "NoPages": "0부터 0까지의 0개의 항목 표시"
   },
   "SpaceModal": {
     "ModalSearch": "공간 검색",

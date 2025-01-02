@@ -9,7 +9,9 @@ export default function UsageCounts() {
   const location = useLocation(); // React Router로 전달된 위치 정보
 
   // 초기 데이터 설정: location.state에서 데이터를 추출
-  const initialData = location.state?.data?.result || []; // 기본값: 빈 배열
+  const initialData = Array.isArray(location.state?.data?.result)
+  ? location.state?.data?.result
+  : [];
   const [data, setData] = useState(initialData); // 데이터 상태 관리
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
   const pcName = location.state?.pcname || '전체'; // 선택된 PC 이름
@@ -51,8 +53,29 @@ export default function UsageCounts() {
    * `location.state` 변경 시 데이터 초기화
    */
   useEffect(() => {
-    setData(location.state?.data?.result || []); // 새 데이터로 설정
-  }, [location.state]);
+    try {
+      if (location.state?.data?.result) {
+        const newData = Array.isArray(location.state.data.result)
+          ? location.state.data.result
+          : [];
+        setData(newData);
+        // 데이터를 localStorage에 저장
+        localStorage.setItem('countsByToolData', JSON.stringify(newData));
+      } else {
+        // localStorage에서 데이터 불러오기
+        const savedData = localStorage.getItem('countsByToolData');
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          setData(Array.isArray(parsedData) ? parsedData : []);
+        } else {
+          setData([]); // 기본 빈 배열로 설정
+        }
+      }
+    } catch (error) {
+      console.error('데이터 로드 중 오류:', error);
+      setData([]); // 오류가 발생해도 빈 배열로 초기화
+    }
+  }, [location.key]);
 
   return (
     <div
