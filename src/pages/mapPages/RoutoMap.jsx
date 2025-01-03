@@ -58,7 +58,7 @@ export default function RoutoMap({
   const [previousSpaceCoords, setPreviousSpaceCoords] = useState([]);
   const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
   const [focusedNode, setFocusedNode] = useState(null);
-  const [maintainedCoords, setMaintainedCoords] = useState(false);
+  const [shouldResetToDefault, setShouldResetToDefault] = useState(true); // 기본 좌표 복귀 여부
   const routesColors = useRef(new Map());
 
   useEffect(() => {
@@ -66,6 +66,7 @@ export default function RoutoMap({
     spaceFullCoords = []; // 공간 좌표 배열을 빈 배열로 초기화
     routeColors = []; // 경로 색상 배열을 빈 배열로 초기화
     clickedNode = null; // 클릭된 노드 값을 null로 초기화
+    setShouldResetToDefault(true); // 클릭한 좌표 유지
   }, []); // 빈 dependency 배열로 설정하여 컴포넌트 마운트 시 한 번만 실행
 
   /**
@@ -192,19 +193,19 @@ export default function RoutoMap({
     if (onClearMap) {
       clearRoutesAndMarkers();
       clearSpaceAndMarkers();
-  
+
       mapRef.current = new routo.maps.Map('map', {
         center: { lat: center.lat, lng: center.lng },
         zoom: Number(process.env.REACT_APP_ZOOM),
       });
-  
+
       // onClearMap 상태 리셋
       setTimeout(() => {
         onClearMap = false; // 부모 컴포넌트에서 상태 리셋
       }, 100);
+      setShouldResetToDefault(true); // 클릭한 좌표 유지
     }
-  }, [onClearMap]);
-  
+  }, [onClearMap]);  
 
   /**
    * 경로와 마커를 모두 삭제하는 함수
@@ -234,17 +235,19 @@ export default function RoutoMap({
     const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
     const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
 
-    // spaceFullCoords와 routeFullCoords가 빈 리스트일 때 기본 좌표로 돌아가기
-    if (!maintainedCoords) {
-      setCenter({ lat: defaultLat, lng: defaultLng }); // 기본 좌표로 설정
+    // 모든 경로와 공간이 해제되었고 기본 좌표 복귀가 활성화된 경우만 실행
+    if (
+      spaceFullCoords.length === 0 &&
+      routeFullCoords.length === 0 &&
+      shouldResetToDefault
+    ) {
+      setCenter({ lat: defaultLat, lng: defaultLng }); // 기본 좌표 설정
       if (mapRef.current) {
-        mapRef.current.setCenter({ lat: defaultLat, lng: defaultLng });
-        mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM));
+        mapRef.current.setCenter({ lat: defaultLat, lng: defaultLng }); // 지도 중심 설정
+        mapRef.current.setZoom(Number(process.env.REACT_APP_ZOOM)); // 기본 줌 설정
       }
-      clearSpaceAndMarkers();
-      clearRoutesAndMarkers();
     }
-  }, [spaceFullCoords, routeFullCoords, maintainedCoords]);
+  }, [spaceFullCoords, routeFullCoords, shouldResetToDefault]);
 
   /**
    * 공간 경로와 마커를 지도에서 제거하는 함수
@@ -537,6 +540,7 @@ export default function RoutoMap({
       mapRef.current.addListener('click', (event) => {
         const clickedLat = event.latLng.lat();
         const clickedLng = event.latLng.lng();
+        setShouldResetToDefault(false); // 기본 좌표 복귀 비활성화
         locationCoords({ lat: clickedLat, lng: clickedLng }); // 클릭한 좌표를 전달
       });
     }
@@ -605,7 +609,7 @@ export default function RoutoMap({
         const clickedLat = event.latLng.lat();
         const clickedLng = event.latLng.lng();
 
-        setMaintainedCoords(true); // 클릭한 좌표 유지
+        setShouldResetToDefault(false); // 클릭한 좌표 유지
         // 부모 컴포넌트로 클릭된 좌표 전달
         locationCoords({ lat: clickedLat, lng: clickedLng });
       });
@@ -629,6 +633,16 @@ export default function RoutoMap({
       }
     };
   }, [center]);
+
+  useEffect(() => {
+    setShouldResetToDefault(false); // 초기 상태를 false로 설정
+  }, []);
+
+  useEffect(() => {
+    if(routeFullCoords.length > 0 || spaceFullCoords.length > 0) {
+      setShouldResetToDefault(true);
+    }
+  }, [routeFullCoords, spaceFullCoords]);
 
   /**
    * 경로 좌표가 변경될 때 기존 경로와 마커를 제거하고 새로운 경로와 마커를 그리는 useEffect
