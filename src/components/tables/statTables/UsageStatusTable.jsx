@@ -39,7 +39,7 @@ export default function UsageStatusTable({ data }) {
 
   return (
     <div className="h-full w-full overflow-auto">
-      <div className="w-full h-[500px] overflow-y-auto border border-gray-300">
+      <div className="w-full h-[500px] overflow-y-auto">
         <table
           className="w-full table-auto border-separate border-spacing-0"
           style={{ borderCollapse: 'separate' }}
@@ -50,7 +50,7 @@ export default function UsageStatusTable({ data }) {
               {columns.map((header) => (
                 <th
                   key={header.id}
-                  className="px-4 py-3 border-l border-r border-gray-300 text-center text-sm font-semibold text-black uppercase tracking-wider whitespace-nowrap bg-gray-100 shadow-sm"
+                  className="px-4 py-3 border-l border-r border-t  border-gray-300 text-center text-sm font-semibold text-black uppercase tracking-wider whitespace-nowrap bg-gray-100 shadow-sm"
                   style={{ boxShadow: '0 2px 2px -1px rgba(0, 0, 0, 0.1)' }}
                 >
                   {header.name}
@@ -77,7 +77,7 @@ export default function UsageStatusTable({ data }) {
                     ].map((field) => (
                       <td
                         key={`${data.id}-${field}`}
-                        className="border-t border-l border-r border-gray-300 px-6 py-4 text-lg text-gray-700 text-center"
+                        className="border border-gray-300 px-6 py-4 text-lg text-gray-700 text-center"
                       >
                         {field === 'runstatus' ? (
                           <>

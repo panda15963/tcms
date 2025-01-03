@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import UsageStatusTable from '../../components/tables/statTables/UsageStatusTable';
 import { IoReloadSharp } from 'react-icons/io5';
+import { useLocation } from 'react-router-dom'; // React Router의 useLocation 추가
 import { LIVE_TOOL } from '../../components/StatRequestData';
 
 export default function UsageStatus() {
   const { t } = useTranslation(); // 다국어 번역 훅
   const [data, setData] = useState(null); // 데이터 상태 관리
   const [timer, setTimer] = useState(30); // 30초 타이머
+  const location = useLocation(); // 현재 경로를 감지
 
   /**
    * 타이머 로직
@@ -37,12 +39,13 @@ export default function UsageStatus() {
    * 컴포넌트가 마운트될 때 초기 데이터 가져오기 및 자동 갱신 설정
    */
   useEffect(() => {
+    setTimer(30); // 타이머 초기화
     fetchData(); // 초기 데이터 가져오기
     const interval = setInterval(fetchData, 30000); // 30초마다 데이터 갱신
 
     // 컴포넌트 언마운트 시 인터벌 제거
     return () => clearInterval(interval);
-  }, []);
+  }, [location]);
 
   /**
    * 수동 새로고침 버튼 클릭 시 실행되는 핸들러
