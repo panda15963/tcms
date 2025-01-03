@@ -603,7 +603,7 @@ const HereMap = ({
     }
   }, [onClearMap]);
 
-  return <div ref={mapRef} style={{ height: '87.8vh' }} />;
+  return <div ref={mapRef} style={{ height: `calc(100vh - 102px)`, zIndex: '1' }} />;
 };
 
 export default HereMap;

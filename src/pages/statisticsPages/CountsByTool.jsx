@@ -66,7 +66,7 @@ export default function CountsByTool() {
   return (
     <div
       className="flex flex-col items-center justify-start pt-20 bg-gray-100 px-4 sm:px-6 lg:px-8"
-      style={{ height: '87.5vh' }} // 화면 높이 설정
+      style={{ height: `calc(100vh - 102px)`, zIndex: '1' }}
     >
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">

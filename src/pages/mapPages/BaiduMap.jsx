@@ -218,5 +218,5 @@ export default function BaiduMap({
     }
   }, [origins, destinations]);
 
-  return <div id="allmap" className="map" />;
+  return <div id="allmap" className="map" style={{ height: `calc(100vh - 102px)`, zIndex: '1' }} />;
 }
