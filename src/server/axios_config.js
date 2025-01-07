@@ -3,8 +3,7 @@ import useAuth from '../hooks/useAuth';
 
 const API_BASE_URL = process.env.REACT_APP_BASE_URL; // 환경 변수에서 API 서버의 기본 URL 가져오기
 const MAP_API_PORT = process.env.REACT_APP_MAP_API_PORT;
-// const STAT_API_PORT = process.env.REACT_APP_STAT_API_PORT;
-const STAT_API_PORT = process.env.REACT_APP_MAP_API_PORT;
+const STAT_API_PORT = process.env.REACT_APP_STAT_API_PORT;
 
 const TIME_OUT = process.env.REACT_APP_TIMEOUT; // 환경 변수에서 요청 타임아웃 설정 가져오기
 
