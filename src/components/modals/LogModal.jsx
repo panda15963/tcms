@@ -30,6 +30,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   const { t } = useTranslation();
   const location = useLocation();
   const { loading, setLoading } = useLoading();
+  const accessToken = localStorage.getItem('ACCESS_TOKEN');
 
   // 초기 검색 조건
   const initialCond = {
@@ -184,7 +185,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   useEffect(() => {
     console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
     console.log('🚀 ~ useEffect ~ location:', location);
-    if (isDirect) {
+    if (isDirect == true && accessToken) {
       const splittedPath = location.pathname.split('/');
       const selectedLang = splittedPath[2];
       console.log('🚀 ~ useEffect ~ selectedLang:', selectedLang);
@@ -195,6 +196,12 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
         i18next.changeLanguage('eng');
       }
       setOpen(true);
+    } else if (isEmpty(accessToken)) {
+      if (window.confirm('권한이 없습니다. 창이 닫힙니다.')) {
+        window.close();
+      } else {
+        console.log('사용자가 창 닫기를 취소했습니다.');
+      }
     }
   }, []);
 

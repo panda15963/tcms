@@ -25,6 +25,7 @@ const SpaceModal = forwardRef(
     const { t } = useTranslation();
     const location = useLocation();
     const { loading, setLoading } = useLoading();
+    const accessToken = localStorage.getItem('ACCESS_TOKEN');
 
     const [error, setError] = useState(false);
     const [errorValue, setErrorValue] = useState('');
@@ -50,19 +51,26 @@ const SpaceModal = forwardRef(
     }, [selectedCoords]);
 
     useEffect(() => {
-      // console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
+      console.log('🚀 ~ useEffect ~ isDirect:', isDirect);
       // console.log('🚀 ~ useEffect ~ location:', location);
-      if (isDirect) {
+
+      if (isDirect == true && accessToken) {
         const splittedPath = location.pathname.split('/');
         const selectedLang = splittedPath[2];
         console.log('🚀 ~ useEffect ~ selectedLang:', selectedLang);
         console.log('🚀 ~ useEffect ~ splittedPath:', splittedPath);
-        if (selectedLang === 'kr') {
+        if (selectedLang === 'kr' && accessToken) {
           i18next.changeLanguage('kor');
-        } else {
+        } else if (selectedLang === 'en' && accessToken) {
           i18next.changeLanguage('eng');
         }
         setOpen(true);
+      } else if (isEmpty(accessToken)) {
+        if (window.confirm('권한이 없습니다. 창이 닫힙니다.')) {
+          window.close();
+        } else {
+          console.log('사용자가 창 닫기를 취소했습니다.');
+        }
       }
     }, []);
 
