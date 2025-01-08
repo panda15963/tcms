@@ -265,6 +265,7 @@ const TopMenuBar = ({
           clickedNode={clickedNode}
           onClearMap={onClearMap}
           selectedAPI={selectedAPI.apiKey}
+          routeColors={routeColors}
         />
       );
     } else if (selectedAPI?.name === 'HERE') {

@@ -127,29 +127,7 @@ export default function Tmap({
       return; // 실행 중단
     }
 
-    // Tmapv2 객체가 이미 로드되어 있는지 확인
-    if (!window.Tmapv2) {
-      // 스크립트 URL을 안전하게 생성
-      const scriptUrl = new URL('https://apis.openapi.com/tmap/jsv2'); // 기본 URL 설정
-      scriptUrl.searchParams.append('version', '1'); // URL에 버전 정보 추가
-      scriptUrl.searchParams.append('appKey', selectedAPI); // API 키 추가
-
-      // <script> 태그 생성 및 속성 설정
-      const script = document.createElement('script');
-      script.src = scriptUrl.href; // 생성된 URL을 src로 설정
-      script.async = true; // 비동기 로드 설정
-      script.onload = () => {
-        initMap(); // 스크립트 로드 완료 후 지도 초기화 함수 호출
-      };
-      script.onerror = () => {
-        console.error('TMap 스크립트 로드 실패:', scriptUrl.href); // 스크립트 로드 실패 시 오류 출력
-      };
-
-      // <script> 태그를 <body>에 추가
-      document.body.appendChild(script);
-    } else {
-      initMap(); // Tmapv2 객체가 이미 로드된 경우 지도 초기화 함수 호출
-    }
+    initMap(); // Tmapv2 객체가 이미 로드된 경우 지도 초기화 함수 호출
   }, []); // 의존성 배열을 비워두어 컴포넌트가 마운트될 때 한 번만 실행
 
   /**
