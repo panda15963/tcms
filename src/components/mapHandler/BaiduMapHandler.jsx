@@ -12,6 +12,7 @@ import Error from '../alerts/Error';
  * @param {Array} props.destinations - 도착지 배열
  * @param {Array} props.checkedNode - 선택된 노드 목록
  * @param {object} props.clickedNode - 클릭된 노드 정보
+ * @param {string} props.selectedAPIKey - 선택된 API 키
  */
 export default function BaiduMapHandler({
   selectedCoords,
@@ -20,6 +21,7 @@ export default function BaiduMapHandler({
   destinations,
   checkedNode,
   clickedNode,
+  selectedAPI,
 }) {
   if (!baiduLocation) {
     return <Error message="지도를 표시할 수 없습니다. 위치 정보가 없습니다." />;
@@ -34,6 +36,7 @@ export default function BaiduMapHandler({
       destinations={destinations}
       checkedNodes={checkedNode}
       clickedNode={clickedNode}
+      selectedAPI={selectedAPI}
     />
   );
 }

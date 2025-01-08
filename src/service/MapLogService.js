@@ -417,6 +417,34 @@ const MapLogService = {
 
     return result.data;
   },
+  /**
+   * WEB_KEY: 웹키 데이터 요청
+   * @param {Object} obj - 요청 조건(cond) 및 취소 토큰(cancelToken)을 포함한 객체
+   * @returns {Promise<Object>} - API 응답 데이터
+   */
+  WEB_KEY: async (obj) => {
+    const { cond, cancelToken } = obj;
+    try {
+      const result = await axiosInstance.get('/main/webkey', {
+        params: cond,
+        cancelToken,
+      });
+      return result.data;
+    } catch (error) {
+      console.error('API Error:', error);
+      if (error.response) {
+        alert('Request failed.\nPlease check and try again.');
+        return error.response;
+      } else if (error.request) {
+        alert('No response from server.\nPlease check and try again.');
+        return error.request;
+      } else if (axios.isCancel(error)) {
+        console.log('Request canceled:', error);
+        return null;
+      }
+      return error;
+    }
+  },
 };
 
 export default MapLogService;

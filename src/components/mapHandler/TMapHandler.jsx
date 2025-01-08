@@ -19,6 +19,7 @@ import Error from '../alerts/Error';
  * @param {object} props.clickedNode - 클릭된 노드 데이터
  * @param {function} props.routeColors - 경로 색상 처리 함수
  * @param {function} props.onClearMap - 지도 초기화 함수
+ * @param {string} props.selectedAPIKey - 선택된 API 키
  */
 export default function TMapHandler({
   selectedCoords,
@@ -30,6 +31,7 @@ export default function TMapHandler({
   clickedNode,
   routeColors = () => {},
   onClearMap,
+  selectedAPI,
 }) {
   const [error, setError] = useState(false); // 오류 상태 관리
   const [errorValue, setErrorValue] = useState(''); // 오류 메시지 상태 관리
@@ -64,6 +66,7 @@ export default function TMapHandler({
       clickedNode={clickedNode} // 클릭된 노드 데이터
       routeColors={routeColors} // 경로 색상 처리 함수
       onClearMap={onClearMap} // 지도 초기화 함수
+      selectedAPI={selectedAPI} // 선택된 API 키
     />
   );
 }

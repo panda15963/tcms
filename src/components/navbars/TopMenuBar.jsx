@@ -203,6 +203,7 @@ const TopMenuBar = ({
           clickedNode={clickedNodes} // 클릭된 노드 데이터
           routeColors={routeColors} // 경로 색상
           onClearMap={onClearMap} // 지도 초기화 함수
+          selectedAPI={selectedAPI.apiKey} // 선택된 API 키
         />
       );
     } else if (selectedAPI?.name === 'ROUTO') {
@@ -217,6 +218,7 @@ const TopMenuBar = ({
           clickedNode={clickedNode}
           routeColors={routeColors}
           onClearMap={onClearMap}
+          selectedAPI={selectedAPI.apiKey}
         />
       );
     } else if (selectedAPI?.name === 'TMAP') {
@@ -231,6 +233,7 @@ const TopMenuBar = ({
           clickedNode={clickedNode}
           routeColors={routeColors}
           onClearMap={onClearMap}
+          selectedAPI={selectedAPI.apiKey}
         />
       );
     } else if (selectedAPI?.name === 'TOMTOM') {
@@ -245,6 +248,7 @@ const TopMenuBar = ({
           clickedNode={clickedNode}
           routeColors={routeColors}
           onClearMap={onClearMap}
+          selectedAPI={selectedAPI.apiKey}
         />
       );
     } else if (selectedAPI?.name === 'BAIDU') {
@@ -260,6 +264,7 @@ const TopMenuBar = ({
           checkedNode={checkedNodes}
           clickedNode={clickedNode}
           onClearMap={onClearMap}
+          selectedAPI={selectedAPI.apiKey}
         />
       );
     } else if (selectedAPI?.name === 'HERE') {
@@ -274,6 +279,7 @@ const TopMenuBar = ({
           clickedNode={clickedNodes}
           routeColors={routeColors}
           onClearMap={onClearMap}
+          selectedAPI={selectedAPI.apiKey}
         />
       );
     }

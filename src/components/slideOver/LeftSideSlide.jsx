@@ -90,8 +90,6 @@ export default function LeftSideSlide({
   // 맵 변경에 따라 필터링된 데이터 적용
   useEffect(() => {
     if (onMapChange?.name === 'ROUTO' || onMapChange?.name === 'TMAP') {
-      console.log('onMapChange is ROUTO or TMAP, applying filters.');
-
       // 필터링 로직
       const filteredByCountry = data.filter(
         (item) => item.country_str === 'KOR' || item.country_str === 'SAU'

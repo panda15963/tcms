@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import End_Point from '../../assets/images/multi_end_point.svg'; // Import your custom End Point icon
-import Start_Point from '../../assets/images/multi_start_point.svg'; // Import your custom Start Point icon
-import '../../style/MapStyle.css'; // Ensure this CSS file exists
+import End_Point from '../../assets/images/multi_end_point.svg';
+import Start_Point from '../../assets/images/multi_start_point.svg';
+import '../../style/MapStyle.css';
 
 /**
  * 좌표 문자열을 파싱하여 객체로 변환하는 함수
@@ -37,7 +37,6 @@ function handleCoordinateInput(input) {
       })
       .filter((coord) => coord !== null); // 유효하지 않은 좌표 필터링
   }
-  console.error('Input is not a valid array:', input);
   return []; // 유효하지 않은 입력일 경우 빈 배열 반환
 }
 
@@ -73,6 +72,7 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {Object} searchedLocation - 검색된 위치의 좌표
  * @param {Array} routeColors - 경로 색상의 배열
  * @param {function} onClearMap - 지도를 초기화하는 함수
+ * @param {string} selectedAPI - 선택된 API 키
  */
 export default function Tmap({
   lat,
@@ -85,6 +85,7 @@ export default function Tmap({
   searchedLocation,
   routeColors = () => {},
   onClearMap,
+  selectedAPI,
 }) {
   const routesColors = useRef(new Map());
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 계산
@@ -121,7 +122,7 @@ export default function Tmap({
    */
   useEffect(() => {
     // 환경 변수에 TMAP API 키가 설정되어 있는지 확인
-    if (!process.env.REACT_APP_TMAP_API) {
+    if (!selectedAPI) {
       console.error('TMAP API 키가 누락되었습니다!'); // API 키가 없을 경우 오류 출력
       return; // 실행 중단
     }
@@ -129,9 +130,9 @@ export default function Tmap({
     // Tmapv2 객체가 이미 로드되어 있는지 확인
     if (!window.Tmapv2) {
       // 스크립트 URL을 안전하게 생성
-      const scriptUrl = new URL('https://api2.sktelecom.com/tmap/djs'); // 기본 URL 설정
+      const scriptUrl = new URL('https://apis.openapi.com/tmap/jsv2'); // 기본 URL 설정
       scriptUrl.searchParams.append('version', '1'); // URL에 버전 정보 추가
-      scriptUrl.searchParams.append('appKey', process.env.REACT_APP_TMAP_API); // API 키 추가
+      scriptUrl.searchParams.append('appKey', selectedAPI); // API 키 추가
 
       // <script> 태그 생성 및 속성 설정
       const script = document.createElement('script');
@@ -455,7 +456,7 @@ export default function Tmap({
 
     const { Tmapv2 } = window; // Tmapv2 객체 확인
     mapRef.current = new Tmapv2.Map('map_div', {
-      center: new Tmapv2.LatLng(center.lat, center.lng), // 초기 중심 좌표 설정
+      center: new Tmapv2.LatLng(center.lat, center.lng), // 지도 초기화 시 중심 좌표 설정
       zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨 설정
     });
 
@@ -469,5 +470,11 @@ export default function Tmap({
     updateMapCenter(); // 초기 중심 마커 설정
   }
 
-  return <div id="map_div" className="map" style={{ height: `calc(100vh - 102px)`, zIndex: '1' }} />;
+  return (
+    <div
+      id="map_div"
+      className="map"
+      style={{ height: `calc(100vh - 102px)`, zIndex: '1' }}
+    />
+  );
 }

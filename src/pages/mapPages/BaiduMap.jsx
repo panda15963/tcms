@@ -55,6 +55,7 @@ function parseCoordinates(coords) {
  * @param {string} destinations - 도착지 좌표 문자열
  * @param {Array} checkedNodes - 체크된 노드 배열
  * @param {Object} clickedNode - 클릭된 노드 객체
+ * @param {String} selectedAPI - 선택된 API 키
  */
 export default function BaiduMap({
   lat,
@@ -64,6 +65,10 @@ export default function BaiduMap({
   destinations,
   checkedNodes,
   clickedNode,
+  selectedAPI,
+  routeFullCoords,
+  spaceFullCoords,
+  routeColors = () => {},
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 중심 좌표 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 상태 관리
@@ -141,7 +146,7 @@ export default function BaiduMap({
      * Baidu 지도 API를 로드하는 함수
      */
     const loadBaiduMap = () => {
-      const apiKey = process.env.REACT_APP_BAIDU_MAP_API;
+      const apiKey = selectedAPI;
 
       // 환경 변수 검증 (알파벳과 숫자만 허용)
       if (!apiKey || !/^[A-Za-z0-9]+$/.test(apiKey)) {

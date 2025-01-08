@@ -33,7 +33,7 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {Array} spaceFullCoords
  * @param {object} clickedNode
  * @param {function} onClearMap
- * @returns {JSX.Element}
+ * @param {string} selectedAPI
  */
 export default function RoutoMap({
   lat,
@@ -44,6 +44,7 @@ export default function RoutoMap({
   spaceFullCoords,
   clickedNode,
   onClearMap,
+  selectedAPI,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 좌표 상태 관리
@@ -551,22 +552,10 @@ export default function RoutoMap({
    */
   useEffect(() => {
     const loadMapScript = () => {
-      const apiKey = process.env.REACT_APP_ROUTTO_MAP_API;
-
-      // API 키가 존재하며 예상된 형식을 따르는지 확인
-      if (
-        !apiKey ||
-        typeof apiKey !== 'string' ||
-        !/^[A-Za-z0-9_-]+$/.test(apiKey)
-      ) {
-        console.error('유효하지 않거나 누락된 Routo Map API 키입니다.');
-        return;
-      }
-
       const script = document.createElement('script');
       const baseUrl = 'https://api.routo.com/v2/maps/map'; // Routo Maps API의 기본 URL
       const url = new URL(baseUrl); // URL 객체를 사용하여 URL을 안전하게 생성
-      url.searchParams.append('key', apiKey); // API 키를 URL의 query parameter로 추가
+      url.searchParams.append('key', selectedAPI); // API 키를 URL의 query parameter로 추가
 
       script.src = url.toString(); // 안전하게 구성된 URL을 script의 src로 설정
       script.async = true; // 비동기적으로 스크립트를 로드
