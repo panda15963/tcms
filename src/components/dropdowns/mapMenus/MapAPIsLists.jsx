@@ -91,7 +91,7 @@ export default function MapAPIsLists({ setSelectedAPI }) {
       }
 
       const apiKey = await fetchAPIKey(selected.name.toLowerCase());
-      setSelectedAPI({ ...selected, apiKey }); // Include API key with selected API
+      setSelectedAPI({ ...selected, apiKey });
     };
 
     loadAPIKey();

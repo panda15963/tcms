@@ -540,7 +540,6 @@ const HereMap = ({
         setClickedCoords(clickedCoords);
         setDisableCentering(true);
         locationCoords({ lat: clickedCoords.lat, lng: clickedCoords.lng });
-        // centerMapOnLatLng(clickedCoords.lat, clickedCoords.lng);
       });
     };
 
@@ -584,16 +583,10 @@ const HereMap = ({
       const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE) || 0;
       const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE) || 0;
       const defaultZoom = Number(process.env.REACT_APP_ZOOM) || 17;
-
-      // Reset map view
       centerMapWithoutMarker(defaultLat, defaultLng, defaultZoom);
-
-      // Clear all entities
       clearEntities('routes');
       clearEntities('spaces');
       clearMarkers();
-
-      // Reset states
       setAdjustedRouteCoords([]);
       setPreviousRouteCoords([]);
       setAdjustedSpaceCoords([]);
@@ -601,7 +594,6 @@ const HereMap = ({
 
       setDisableCentering(false);
       setCentered(false);
-      console.log('Map fully reset to defaults');
     }
   }, [onClearMap]);
 
