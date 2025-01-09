@@ -392,7 +392,7 @@ const HereMap = ({
     if (!mapInstance.current || !coords) return;
 
     coords
-      .filter((coord) => coord && checkedNode[coord.file_id] !== false) // Render if checked or undefined in `checkedNode`
+      .filter((coord) => coord && checkedNode[coord.file_id] !== false)
       .forEach((coord, index) => {
         if (Array.isArray(coord.coords)) {
           const lineString = new H.geo.LineString();
@@ -446,7 +446,7 @@ const HereMap = ({
       markerRefs.current[key].forEach((marker) =>
         mapInstance.current.removeObject(marker)
       );
-      markerRefs.current[key] = []; // Clear route and space markers
+      markerRefs.current[key] = [];
     });
   };
 
@@ -574,8 +574,6 @@ const HereMap = ({
 
     // 지도 중심 설정
     mapInstance.current.setCenter({ lat, lng });
-
-    console.log(`Marker added and map centered at: ${lat}, ${lng}`);
   }, [lat, lng]);
 
   useEffect(() => {

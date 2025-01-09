@@ -155,7 +155,7 @@ export default function RoutoMap({
    */
   useEffect(() => {
     if (mapRef.current && Array.isArray(adjustedSpaceCoords)) {
-      clearSpaceAndMarkers(); // Clear existing markers and routes
+      clearSpaceAndMarkers();
       if (adjustedSpaceCoords.length > 0) {
         drawSpaceRoutes(mapRef.current, adjustedSpaceCoords); // Draw new routes
       }
@@ -301,7 +301,6 @@ export default function RoutoMap({
    */
   const drawCheckedRoutes = (mapInstance, routeFullCoords) => {
     if (!Array.isArray(routeFullCoords) || routeFullCoords.length === 0) {
-      console.warn('No routes to center on.');
       return;
     }
     clearRoutesAndMarkers(); // 기존 경로와 마커 삭제
@@ -313,7 +312,6 @@ export default function RoutoMap({
     if (Array.isArray(routeFullCoords)) {
       adjustedRouteCoords.forEach((route, index) => {
         if (!route) {
-          console.warn(`Skipping null route at index ${index}`); // null 경로 건너뛰기
           return;
         }
 
