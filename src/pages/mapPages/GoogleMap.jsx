@@ -105,23 +105,19 @@ const GoogleMaps = ({
     }
   }, [spaceFullCoords, routeFullCoords, map]);
 
-  useEffect(() => {
-    const resetToDefaultView = () => {
-      if (map) {
-        map.panTo(defaultCenter);
-        map.setZoom(defaultZoom);
-      }
-    };
+  const resetToDefaultView = () => {
+    if (map) {
+      map.panTo(defaultCenter);
+      map.setZoom(defaultZoom);
+    }
+  };
 
-    if (
-      spaceFullCoords.length === 0 &&
-      routeFullCoords.length === 0 &&
-      !userInteracted
-    ) {
+  useEffect(() => {
+    if (spaceFullCoords.length === 0 && routeFullCoords.length === 0 && routesColors.current.size > 0) {
       resetToDefaultView();
       setUserInteracted(false);
     }
-  }, [spaceFullCoords, routeFullCoords, map, userInteracted]);
+  }, [spaceFullCoords, routeFullCoords, userInteracted]);
 
   useEffect(() => {
     setUserInteracted(true);
@@ -129,8 +125,12 @@ const GoogleMaps = ({
 
   useEffect(() => {
     if (onClearMap && map) {
+      // 지도 초기화
       map.panTo(defaultCenter);
       map.setZoom(defaultZoom);
+
+      // routesColors 초기화
+      routesColors.current = new Map();
     }
   }, [onClearMap, map]);
 
