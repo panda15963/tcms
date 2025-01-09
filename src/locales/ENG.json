@@ -34,7 +34,7 @@
   },
   "TopMenuBar": {
     "MapSelection": "Map Selection",
-    "StoreSearch": "Store Search",
+    "StoreSearch": "POI Search",
     "LogSearch": "Log Search",
     "SpaceSearch": "Space Search",
     "CoordsOutput": "Location",
