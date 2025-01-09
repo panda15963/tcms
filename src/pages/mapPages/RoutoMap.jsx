@@ -33,7 +33,7 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {Array} spaceFullCoords
  * @param {object} clickedNode
  * @param {function} onClearMap
- * @returns {JSX.Element}
+ * @param {string} selectedAPI
  */
 export default function RoutoMap({
   lat,
@@ -44,6 +44,7 @@ export default function RoutoMap({
   spaceFullCoords,
   clickedNode,
   onClearMap,
+  selectedAPI,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 좌표 상태 관리
@@ -154,7 +155,7 @@ export default function RoutoMap({
    */
   useEffect(() => {
     if (mapRef.current && Array.isArray(adjustedSpaceCoords)) {
-      clearSpaceAndMarkers(); // Clear existing markers and routes
+      clearSpaceAndMarkers();
       if (adjustedSpaceCoords.length > 0) {
         drawSpaceRoutes(mapRef.current, adjustedSpaceCoords); // Draw new routes
       }
@@ -205,7 +206,7 @@ export default function RoutoMap({
       }, 100);
       setShouldResetToDefault(true); // 클릭한 좌표 유지
     }
-  }, [onClearMap]);  
+  }, [onClearMap]);
 
   /**
    * 경로와 마커를 모두 삭제하는 함수
@@ -300,7 +301,6 @@ export default function RoutoMap({
    */
   const drawCheckedRoutes = (mapInstance, routeFullCoords) => {
     if (!Array.isArray(routeFullCoords) || routeFullCoords.length === 0) {
-      console.warn('No routes to center on.');
       return;
     }
     clearRoutesAndMarkers(); // 기존 경로와 마커 삭제
@@ -312,7 +312,6 @@ export default function RoutoMap({
     if (Array.isArray(routeFullCoords)) {
       adjustedRouteCoords.forEach((route, index) => {
         if (!route) {
-          console.warn(`Skipping null route at index ${index}`); // null 경로 건너뛰기
           return;
         }
 
@@ -546,52 +545,40 @@ export default function RoutoMap({
     }
   };
 
+  const loadMapScript = () => {
+    const script = document.createElement('script');
+    const baseUrl = 'https://api.routo.com/v2/maps/map'; // Routo Maps API의 기본 URL
+    const url = new URL(baseUrl); // URL 객체를 사용하여 URL을 안전하게 생성
+    url.searchParams.append('key', selectedAPI); // API 키를 URL의 query parameter로 추가
+
+    script.src = url.toString(); // 안전하게 구성된 URL을 script의 src로 설정
+    script.async = true; // 비동기적으로 스크립트를 로드
+
+    script.onload = () => {
+      // mapRef가 초기화되지 않은 경우 지도 인스턴스를 생성
+      if (!mapRef.current) {
+        mapRef.current = new routo.maps.Map(document.getElementById('map'), {
+          center: { lat: center.lat, lng: center.lng }, // 초기 중심 좌표 설정
+          zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨 설정
+        });
+      }
+
+      updateMarker(center); // 초기 마커를 설정
+      attachClickListener(); // 지도 클릭 리스너를 연결
+
+      // 공간 경로를 초기 렌더링
+      if (Array.isArray(spaceFullCoords)) {
+        drawSpaceRoutes(mapRef.current, spaceFullCoords); // 공간 경로를 지도에 그리기
+      }
+    };
+
+    document.body.appendChild(script); // script 태그를 body에 추가하여 스크립트를 로드
+  };
+
   /**
    * 초기 중심점으로 마커를 표시하며 지도를 초기화하는 useEffect
    */
   useEffect(() => {
-    const loadMapScript = () => {
-      const apiKey = process.env.REACT_APP_ROUTTO_MAP_API;
-
-      // API 키가 존재하며 예상된 형식을 따르는지 확인
-      if (
-        !apiKey ||
-        typeof apiKey !== 'string' ||
-        !/^[A-Za-z0-9_-]+$/.test(apiKey)
-      ) {
-        console.error('유효하지 않거나 누락된 Routo Map API 키입니다.');
-        return;
-      }
-
-      const script = document.createElement('script');
-      const baseUrl = 'https://api.routo.com/v2/maps/map'; // Routo Maps API의 기본 URL
-      const url = new URL(baseUrl); // URL 객체를 사용하여 URL을 안전하게 생성
-      url.searchParams.append('key', apiKey); // API 키를 URL의 query parameter로 추가
-
-      script.src = url.toString(); // 안전하게 구성된 URL을 script의 src로 설정
-      script.async = true; // 비동기적으로 스크립트를 로드
-
-      script.onload = () => {
-        // mapRef가 초기화되지 않은 경우 지도 인스턴스를 생성
-        if (!mapRef.current) {
-          mapRef.current = new routo.maps.Map(document.getElementById('map'), {
-            center: { lat: center.lat, lng: center.lng }, // 초기 중심 좌표 설정
-            zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨 설정
-          });
-        }
-
-        updateMarker(center); // 초기 마커를 설정
-        attachClickListener(); // 지도 클릭 리스너를 연결
-
-        // 공간 경로를 초기 렌더링
-        if (Array.isArray(spaceFullCoords)) {
-          drawSpaceRoutes(mapRef.current, spaceFullCoords); // 공간 경로를 지도에 그리기
-        }
-      };
-
-      document.body.appendChild(script); // script 태그를 body에 추가하여 스크립트를 로드
-    };
-
     if (!window.routo) {
       loadMapScript();
     } else {
@@ -639,7 +626,7 @@ export default function RoutoMap({
   }, []);
 
   useEffect(() => {
-    if(routeFullCoords.length > 0 || spaceFullCoords.length > 0) {
+    if (routeFullCoords.length > 0 || spaceFullCoords.length > 0) {
       setShouldResetToDefault(true);
     }
   }, [routeFullCoords, spaceFullCoords]);
@@ -668,5 +655,11 @@ export default function RoutoMap({
     }
   }, [lat, lng]);
 
-  return <div id="map" className="map" style={{ height: `calc(100vh - 102px)`, zIndex: '1' }} />;
+  return (
+    <div
+      id="map"
+      className="map"
+      style={{ height: `calc(100vh - 102px)`, zIndex: '1' }}
+    />
+  );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import GoogleMap from '../../pages/mapPages/GoogleMap';
+import GoogleMaps from '../../pages/mapPages/GoogleMap';
 import Error from '../alerts/Error';
 
 /**
@@ -16,6 +16,7 @@ import Error from '../alerts/Error';
  * @param {object} props.clickedNode - 클릭된 노드 데이터
  * @param {function} props.routeColors - 경로 색상 처리 함수
  * @param {Array} props.spaceFullCoords - 전체 공간 데이터
+ * @param {function} props.onClearMap - 지도 초기화 함수
  */
 export default function GoogleMapHandler({
   selectedCoords,
@@ -26,6 +27,7 @@ export default function GoogleMapHandler({
   routeColors = () => {},
   spaceFullCoords = [],
   onClearMap,
+  selectedAPI,
 }) {
   const [isError, setIsError] = useState(false); // 오류 상태
   const [errorText, setErrorText] = useState(null); // 오류 메시지 상태
@@ -61,7 +63,7 @@ export default function GoogleMapHandler({
   
   // GoogleMap 컴포넌트 렌더링
   return (
-    <GoogleMap
+    <GoogleMaps
       lat={selectedCoords?.lat} // 선택된 위도
       lng={selectedCoords?.lng} // 선택된 경도
       locationCoords={googleLocation} // Google 지도 위치 데이터
@@ -72,6 +74,7 @@ export default function GoogleMapHandler({
       spaceFullCoords={filteredSpaces} // 필터링된 공간 데이터
       onClearMap={onClearMap}
       checkedNode={checkedNode} // 선택된 노드 데이터
+      selectedAPI={selectedAPI}
     />
   );
 }

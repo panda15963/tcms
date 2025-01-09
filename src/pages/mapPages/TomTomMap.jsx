@@ -49,6 +49,8 @@ const parseCoordinateString = (coordString) => {
  * @param {Array} spaceFullCoords - 공간 좌표 배열
  * @param {Array} routeColors - 경로 색상 배열
  * @param {function} onClearMap - 지도 초기화 함수
+ * @param {function} onMapClick - 지도 클릭 이벤트 함수
+ * @param {string} selectedAPI -  지도 API 키
  */
 export default function TomTomMap({
   lat,
@@ -61,6 +63,7 @@ export default function TomTomMap({
   spaceFullCoords,
   routeColors = () => {},
   onClearMap,
+  selectedAPI,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 상태 관리
@@ -89,43 +92,44 @@ export default function TomTomMap({
     setCenter(calculateCenterAndMarker(lat, lng));
   }, [lat, lng]);
 
+  
+  const initializeMap = (APIKey) => {
+    // TomTom 지도 초기화
+    mapRef.current = tt.map({
+      key: APIKey,
+      container: 'map-container', // 지도가 렌더링될 HTML 컨테이너 ID
+      center: [center.lng, center.lat], // 초기 중심 좌표
+      zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨
+    });
+
+    // 지도 클릭 이벤트 리스너 추가
+    mapRef.current.on('click', (event) => {
+      const { lat, lng } = event.lngLat; // 클릭된 좌표
+      locationCoords({ lat, lng }); // 부모로 클릭된 좌표 전달
+    });
+
+    // 초기 마커 추가 (기본 좌표가 아닌 경우)
+    if (!center.isDefault) {
+      markerRef.current = new tt.Marker()
+        .setLngLat([center.lng, center.lat]) // 현재 중심 좌표
+        .addTo(mapRef.current); // 지도에 마커 추가
+    }
+
+    // 지도 스타일이 로드된 후 경로를 그림
+    mapRef.current.on('style.load', () => {
+      if (routeFullCoords) {
+        drawRoutes(mapRef.current, routeFullCoords); // 초기 경로 렌더링
+      }
+    });
+  };
+
   /**
    * TomTom API를 로드하고 지도를 초기화하는 useEffect
    */
   useEffect(() => {
-    const initializeMap = () => {
-      // TomTom 지도 초기화
-      mapRef.current = tt.map({
-        key: process.env.REACT_APP_TOMTOM_MAP_API, // TomTom API 키
-        container: 'map-container', // 지도가 렌더링될 HTML 컨테이너 ID
-        center: [center.lng, center.lat], // 초기 중심 좌표
-        zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨
-      });
-
-      // 지도 클릭 이벤트 리스너 추가
-      mapRef.current.on('click', (event) => {
-        const { lat, lng } = event.lngLat; // 클릭된 좌표
-        locationCoords({ lat, lng }); // 부모로 클릭된 좌표 전달
-      });
-
-      // 초기 마커 추가 (기본 좌표가 아닌 경우)
-      if (!center.isDefault) {
-        markerRef.current = new tt.Marker()
-          .setLngLat([center.lng, center.lat]) // 현재 중심 좌표
-          .addTo(mapRef.current); // 지도에 마커 추가
-      }
-
-      // 지도 스타일이 로드된 후 경로를 그림
-      mapRef.current.on('style.load', () => {
-        if (routeFullCoords) {
-          drawRoutes(mapRef.current, routeFullCoords); // 초기 경로 렌더링
-        }
-      });
-    };
-
     // 지도 인스턴스가 없으면 초기화
     if (!mapRef.current) {
-      initializeMap();
+      initializeMap(selectedAPI);
     }
   }, [center, routeFullCoords, place]); // center, routeFullCoords, place 변경 시 업데이트
 
@@ -332,9 +336,7 @@ export default function TomTomMap({
 
     if (!bounds.isEmpty()) {
       map.fitBounds(bounds, { padding: 50 });
-    } else {
-      console.error('No valid routes to display');
-    }
+    } 
   };
 
   /**
@@ -391,6 +393,10 @@ export default function TomTomMap({
   }, [clickedNode]);
 
   return (
-    <div id="map-container" className="map" style={{ height: `calc(100vh - 102px)`, zIndex: '1' }} />
+    <div
+      id="map-container"
+      className="map"
+      style={{ height: `calc(100vh - 102px)`, zIndex: '1' }}
+    />
   );
 }

@@ -30,6 +30,7 @@ export default function ToolLists({
   selectedTool,
   setSelectedTool = () => {},
   resetTrigger,
+  pageData,
 }) {
   const { t } = useTranslation(); // 다국어 번역 훅
   const location = useLocation(); // 현재 URL 경로
@@ -51,10 +52,17 @@ export default function ToolLists({
         new Map(formattedToolList.map((item) => [item.name, item]))
       ).map(([, value]) => value);
 
-      // "ALL" 옵션 추가 (ID 1)
-      setToolList([{ id: 1, name: t('ToolList.All') }, ...uniqueToolList]);
+      console.log('pageData:', pageData);
+      console.log(ToolList);
+      const updatedToolList =
+        pageData !== '도구 실행 횟수(버전 별)'
+          ? [{ id: 1, name: t('ToolList.All') }, ...uniqueToolList]
+          : uniqueToolList;
+      setToolList(updatedToolList);
+      setSelected(updatedToolList[0]);
+      setSelectedTool(updatedToolList[0]);
     }
-  }, [selectedTool, t]);
+  }, [selectedTool, pageData, t, setSelectedTool]);
 
   /**
    * 현재 URL 경로를 기준으로 선택된 툴을 업데이트하거나 기본값 설정

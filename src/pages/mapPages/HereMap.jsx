@@ -28,6 +28,7 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {Array} spaceFullCoords - 공간 데이터를 나타내는 좌표 배열
  * @param {Object} checkedNode - 선택된 노드 데이터 상태
  * @param {function} onClearMap - 지도 초기화 함수
+ * @param {String} selectedAPI - API 키
  */
 const HereMap = ({
   lat,
@@ -39,6 +40,7 @@ const HereMap = ({
   spaceFullCoords, // 공간 전체 좌표
   checkedNode, // 선택된 노드 상태
   onClearMap,
+  selectedAPI,
 }) => {
   const routesColors = useRef(new Map());
   const mapRef = useRef(null); // 지도 DOM 요소 참조
@@ -54,7 +56,7 @@ const HereMap = ({
   const [getCentered, setCentered] = useState(false); // 지도 중심 조정 상태
   const [disableCentering, setDisableCentering] = useState(false); // 자동 중심 조정 비활성화 상태
   const [clickedCoords, setClickedCoords] = useState(null);
-  const apiKey = process.env.REACT_APP_HERE_MAP_API; // HERE Maps API 키
+  const apiKey = selectedAPI;
 
   useEffect(() => {
     routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
@@ -390,7 +392,7 @@ const HereMap = ({
     if (!mapInstance.current || !coords) return;
 
     coords
-      .filter((coord) => coord && checkedNode[coord.file_id] !== false) // Render if checked or undefined in `checkedNode`
+      .filter((coord) => coord && checkedNode[coord.file_id] !== false)
       .forEach((coord, index) => {
         if (Array.isArray(coord.coords)) {
           const lineString = new H.geo.LineString();
@@ -444,7 +446,7 @@ const HereMap = ({
       markerRefs.current[key].forEach((marker) =>
         mapInstance.current.removeObject(marker)
       );
-      markerRefs.current[key] = []; // Clear route and space markers
+      markerRefs.current[key] = [];
     });
   };
 
@@ -538,7 +540,6 @@ const HereMap = ({
         setClickedCoords(clickedCoords);
         setDisableCentering(true);
         locationCoords({ lat: clickedCoords.lat, lng: clickedCoords.lng });
-        // centerMapOnLatLng(clickedCoords.lat, clickedCoords.lng);
       });
     };
 
@@ -573,8 +574,6 @@ const HereMap = ({
 
     // 지도 중심 설정
     mapInstance.current.setCenter({ lat, lng });
-
-    console.log(`Marker added and map centered at: ${lat}, ${lng}`);
   }, [lat, lng]);
 
   useEffect(() => {
@@ -582,16 +581,10 @@ const HereMap = ({
       const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE) || 0;
       const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE) || 0;
       const defaultZoom = Number(process.env.REACT_APP_ZOOM) || 17;
-
-      // Reset map view
       centerMapWithoutMarker(defaultLat, defaultLng, defaultZoom);
-
-      // Clear all entities
       clearEntities('routes');
       clearEntities('spaces');
       clearMarkers();
-
-      // Reset states
       setAdjustedRouteCoords([]);
       setPreviousRouteCoords([]);
       setAdjustedSpaceCoords([]);
@@ -599,7 +592,6 @@ const HereMap = ({
 
       setDisableCentering(false);
       setCentered(false);
-      console.log('Map fully reset to defaults');
     }
   }, [onClearMap]);
 

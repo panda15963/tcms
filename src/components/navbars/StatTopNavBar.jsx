@@ -110,7 +110,7 @@ export default function StatTopMenuBar() {
           starttime: startDate ? formatDateToLocalISO(startDate) : '',
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: 'version',
-          toolname: 'TestCourseManagementSystem',
+          toolname: selectedTool?.name || '',
           pcname: '',
         };
         navigate('countsByVersion', {
@@ -251,6 +251,7 @@ export default function StatTopMenuBar() {
               selectedTool={toolNames}
               setSelectedTool={setSelectedTool}
               resetTrigger={resetTrigger}
+              pageData={data.name}
             />
           </div>
   
@@ -308,5 +309,4 @@ export default function StatTopMenuBar() {
       </div>
     </Disclosure>
   );
-  
 }

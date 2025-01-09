@@ -14,6 +14,7 @@ import hereLogo from '../../../assets/images/mapLogo/here.png';
 import baiduLogo from '../../../assets/images/mapLogo/baidu.png';
 import tmapLogo from '../../../assets/images/mapLogo/tmap.png';
 import tomtomLogo from '../../../assets/images/mapLogo/tomtom.png';
+import MapLogService from '../../../service/MapLogService';
 
 // 사용 가능한 지도 API 목록 주석 처리한 부분은 당분간 사용 금지
 const mapAPIs = [
@@ -22,7 +23,7 @@ const mapAPIs = [
   { id: 3, name: 'GOOGLE', logo: googleLogo },
   { id: 4, name: 'HERE', logo: hereLogo },
   { id: 5, name: 'TMAP', logo: tmapLogo },
-  // { id: 6, name: 'BAIDU', logo: baiduLogo },
+  { id: 6, name: 'BAIDU', logo: baiduLogo },
 ];
 
 // classNames 함수는 여러 클래스를 결합할 때 유용함
@@ -39,6 +40,30 @@ export default function MapAPIsLists({ setSelectedAPI }) {
   const location = useLocation(); // 현재 경로 정보를 얻기 위한 useLocation 훅 사용
   const [selected, setSelected] = useState(null); // 선택된 지도 API를 상태로 저장
 
+  /**
+   * API 키를 가져오는 함수
+   * @param {string} mapName - 지도 API 이름 (예: 'here', 'google' 등)
+   * @returns {Promise<string|null>} - API 키 반환 또는 null 반환
+   */
+  const fetchAPIKey = async (mapName) => {
+    try {
+      if (!mapName) {
+        throw new Error('Map name is required to fetch the API key');
+      }
+
+      const response = await MapLogService.WEB_KEY({ cond: { map: mapName } });
+
+      if (!response || typeof response !== 'string') {
+        throw new Error('Invalid response format while fetching API key');
+      }
+
+      return response; // API 키 반환
+    } catch (error) {
+      console.error(`Error fetching API Key for ${mapName}:`, error.message);
+      return null; // 에러 시 null 반환
+    }
+  };
+
   // 경로가 변경될 때마다 실행되어 경로에 맞는 지도 API를 선택합니다.
   useEffect(() => {
     const path = location.pathname.split('/').pop().toUpperCase(); // 현재 경로의 마지막 부분을 추출하여 대문자로 변환
@@ -51,16 +76,26 @@ export default function MapAPIsLists({ setSelectedAPI }) {
    * 사용자가 지도 API를 선택했을 때 호출되는 함수
    * 선택된 API를 상태로 업데이트합니다.
    */
-  const handleOnSelectMap = (selectedMap) => {
+  const handleOnSelectMap = async (selectedMap) => {
     setSelected(selectedMap);
+
+    // Fetch API Key and send both selected API and API key
+    const apiKey = await fetchAPIKey(selectedMap.name.toLowerCase());
+    setSelectedAPI({ ...selectedMap, apiKey }); // Pass the selected API with the API key
   };
 
-  // 선택된 API가 변경될 때마다 부모 컴포넌트로 해당 API를 전달합니다.
   useEffect(() => {
-    if (selected) {
-      setSelectedAPI(selected); // 선택된 API를 부모 컴포넌트에 전달
-    }
-  }, [selected, navigate]); // selected와 navigate가 변경될 때마다 실행
+    const loadAPIKey = async () => {
+      if (!selected || !selected.name) {
+        return;
+      }
+
+      const apiKey = await fetchAPIKey(selected.name.toLowerCase());
+      setSelectedAPI({ ...selected, apiKey });
+    };
+
+    loadAPIKey();
+  }, [selected, navigate]);
 
   // 선택된 API가 없으면 null 반환
   if (!selected) return null;
