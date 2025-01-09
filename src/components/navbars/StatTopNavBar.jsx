@@ -197,7 +197,7 @@ export default function StatTopMenuBar() {
               <StatGraphsLists requestData={setData} />
             </div>
           </div>
-  
+
           {/* 조회 기간 */}
           <div
             className="flex items-center h-[52px] space-x-4"
@@ -221,7 +221,7 @@ export default function StatTopMenuBar() {
               />
             </div>
           </div>
-  
+
           {/* 도구 선택 */}
           <div
             className="flex items-center h-[52px] space-x-4"
@@ -251,10 +251,10 @@ export default function StatTopMenuBar() {
               selectedTool={toolNames}
               setSelectedTool={setSelectedTool}
               resetTrigger={resetTrigger}
-              pageData={data.name}
+              pageData={data?.name || ''}
             />
           </div>
-  
+
           {/* PC 선택 */}
           <div
             className="flex items-center h-[52px] space-x-4"
@@ -276,7 +276,7 @@ export default function StatTopMenuBar() {
               resetTrigger={resetTrigger}
             />
           </div>
-  
+
           {/* 조회 및 초기화 버튼 */}
           <div className="flex items-center h-[52px] space-x-4">
             <button
@@ -291,7 +291,7 @@ export default function StatTopMenuBar() {
             >
               {t('StatNavBar.Search')}
             </button>
-  
+
             <button
               type="button"
               onClick={handleReset}
