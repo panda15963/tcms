@@ -23,7 +23,7 @@ const mapAPIs = [
   { id: 3, name: 'GOOGLE', logo: googleLogo },
   { id: 4, name: 'HERE', logo: hereLogo },
   { id: 5, name: 'TMAP', logo: tmapLogo },
-  { id: 6, name: 'BAIDU', logo: baiduLogo },
+  // { id: 6, name: 'BAIDU', logo: baiduLogo },
 ];
 
 // classNames 함수는 여러 클래스를 결합할 때 유용함
@@ -59,7 +59,6 @@ export default function MapAPIsLists({ setSelectedAPI }) {
 
       return response; // API 키 반환
     } catch (error) {
-      console.error(`Error fetching API Key for ${mapName}:`, error.message);
       return null; // 에러 시 null 반환
     }
   };
