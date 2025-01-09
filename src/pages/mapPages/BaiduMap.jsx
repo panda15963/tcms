@@ -450,8 +450,14 @@ export default function BaiduMap({
         Number(process.env.REACT_APP_ZOOM || 14)
       );
       mapInstance.enableScrollWheelZoom(true);
-      marker = new window.BMapGL.Marker(point);
-      mapInstance.addOverlay(marker);
+
+      // 마커를 기본 좌표가 아닌 경우에만 추가
+      const isDefaultCoordinates =
+        center.lat === Number(process.env.REACT_APP_LATITUDE) && center.lng === Number(process.env.REACT_APP_LONGITUDE); // 기본 서울 좌표
+      if (!isDefaultCoordinates) {
+        marker = new window.BMapGL.Marker(point);
+        mapInstance.addOverlay(marker);
+      }
 
       mapInstance.addEventListener('tilesloaded', () => {
         mapRef.current.mapInstance = mapInstance;
@@ -480,7 +486,7 @@ export default function BaiduMap({
 
   // 지도 중심 및 마커 위치 업데이트
   useEffect(() => {
-    if (mapRef.current.mapInstance) {
+    if (mapRef.current?.mapInstance && mapRef.current?.marker) {
       const { mapInstance, marker } = mapRef.current;
       const point = new window.BMapGL.Point(center.lng, center.lat);
       mapInstance.centerAndZoom(
@@ -489,7 +495,7 @@ export default function BaiduMap({
       );
       marker.setPosition(point);
     }
-  }, [center]);
+  }, [center]);  
 
   // 출발지와 도착지가 변경될 때 경로 업데이트
   useEffect(() => {
