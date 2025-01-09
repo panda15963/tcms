@@ -120,6 +120,7 @@ export default function StatTopMenuBar() {
             toolname: selectedTool?.name || '',
           },
         });
+        console.log(CountsByVersion);
         break;
 
       case '도구 기능별 사용 횟수':

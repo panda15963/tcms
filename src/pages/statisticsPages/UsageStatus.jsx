@@ -55,7 +55,6 @@ export default function UsageStatus() {
       const { result: response } = await LIVE_TOOL(); // API 호출
       if (Array.isArray(response)) {
         setData([...response]); // 데이터 복사하여 상태에 업데이트
-        console.log('Data refreshed'); // 새로고침 확인 로그
       } else {
         console.log('No new data found, keeping existing data'); // 데이터 없음 로그
       }
@@ -68,7 +67,7 @@ export default function UsageStatus() {
   return (
     <div
       className="flex flex-col items-center justify-start pt-20 bg-gray-100 px-4 sm:px-6 lg:px-8"
-      style={{ height: `calc(100vh - 102px)`, zIndex: '1' }}
+      style={{ height: `calc(100vh - 115px)`, zIndex: '1' }}
     >
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
