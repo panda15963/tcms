@@ -1,53 +1,65 @@
-import axios from 'axios';
-
-const API_URL = 'https://api.routo.com/v1/places/findplacefromtext'; // Routo API의 엔드포인트 URL
-const API_KEY = process.env.REACT_APP_ROUTTO_MAP_API; // 환경 변수에 저장된 Routo API 키
-
-// Axios 클라이언트 설정
-const apiClient = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
 /**
- * 주어진 텍스트로 장소를 검색하는 함수
- * 
- * @param {string} query - 검색어로 사용할 텍스트
- * @returns {Object} - API 응답 데이터
- */
-export const findPlaceFromText = async (query) => {
-  try {
-    // API 요청을 통해 장소 검색
-    const response = await apiClient.get('', {
-      params: { input: query, key: API_KEY }, // 요청 파라미터로 검색어와 API 키 전송
-    });
-    return response.data; // 응답 데이터 반환
-  } catch (error) {
-    console.error('Error fetching data', error); // 에러 발생 시 콘솔에 로그 출력
-    throw error; // 에러 발생 시 에러를 다시 던짐
-  }
-};
-
-/**
- * Routo API를 사용하여 장소 검색을 수행하는 함수
+ * Google Places API를 사용하여 장소 검색을 수행하는 함수
  * 
  * @param {string} value - 검색어로 사용할 텍스트
  * @returns {Array} - 검색 결과로부터 장소 이름, 위도(latitude), 경도(longitude)를 포함한 객체 배열
  */
+const loadGoogleMapsApi = () =>
+  new Promise((resolve, reject) => {
+    if (window.google) {
+      resolve();
+    } else {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAP_API}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    }
+  });
+
+/**
+ * Google Places API를 사용하여 텍스트 검색을 수행하는 함수
+ * 
+ * @param {string} value - 검색어로 사용할 텍스트
+ * @returns {Promise<Array>} - 검색 결과로부터 장소 이름, 위도(latitude), 경도(longitude)를 포함한 객체 배열
+ */
 export const RoutoSearch = async (value) => {
   try {
-    // findPlaceFromText 함수를 호출하여 검색 결과 가져옴
-    const data = await findPlaceFromText(value);
-    
-    // 검색 결과에서 필요한 데이터 매핑
-    return data.result.map((place) => ({
-      name: place.title, // 장소 이름
-      latitude: place.center.lat, // 위도
-      longitude: place.center.lon, // 경도
-    }));
+    // Google Maps API가 로드되었는지 확인
+    await loadGoogleMapsApi();
+
+    if (!window.google || !window.google.maps) {
+      throw new Error('Google Maps API 스크립트를 로드하지 못했습니다.');
+    }
+
+    // PlacesService 인스턴스 생성
+    const service = new window.google.maps.places.PlacesService(document.createElement('div'));
+
+    // 검색 요청 구성
+    const request = {
+      query: value,
+      fields: ['name', 'geometry.location'],
+    };
+
+    // 검색 수행
+    return new Promise((resolve, reject) => {
+      service.textSearch(request, (results, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+          const places = results.map((place) => ({
+            name: place.name,
+            latitude: place.geometry.location.lat(),
+            longitude: place.geometry.location.lng(),
+          }));
+          resolve(places);
+        } else {
+          reject(`장소 검색에 실패했습니다: ${status}`);
+        }
+      });
+    });
   } catch (error) {
-    console.error('Error fetching data', error); // 에러 발생 시 콘솔에 로그 출력
+    console.error('HereSearch에서 오류 발생:', error);
+    return [];
   }
 };

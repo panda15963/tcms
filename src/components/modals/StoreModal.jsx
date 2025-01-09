@@ -4,34 +4,34 @@ import {
   DialogPanel,
   Transition,
   TransitionChild,
-} from '@headlessui/react';
-import { MdClose } from 'react-icons/md';
-import StoreTable from '../tables/mapTables/StoreTable';
-import { GoogleSearch } from '../searchResults/GoogleSearch';
-import { TMapSearch } from '../searchResults/TMapSearch';
-import { RoutoSearch } from '../searchResults/RoutoSearch';
-import { TomTomSearch } from '../searchResults/TomTomSearch';
-import { BaiduSearch } from '../searchResults/BaiduSearch';
-import { HereSearch } from '../searchResults/HereSearch';
-import { useTranslation } from 'react-i18next';
-import { FaSearch } from 'react-icons/fa';
+} from '@headlessui/react'; // 모달 대화 상자를 위한 Headless UI 컴포넌트
+import { MdClose } from 'react-icons/md'; // 닫기 아이콘
+import StoreTable from '../tables/mapTables/StoreTable'; // StoreTable 컴포넌트
+import { GoogleSearch } from '../searchResults/GoogleSearch'; // Google 검색 함수
+import { TMapSearch } from '../searchResults/TMapSearch'; // TMap 검색 함수
+import { RoutoSearch } from '../searchResults/RoutoSearch'; // Routo 검색 함수
+import { TomTomSearch } from '../searchResults/TomTomSearch'; // TomTom 검색 함수
+import { BaiduSearch } from '../searchResults/BaiduSearch'; // Baidu 검색 함수
+import { HereSearch } from '../searchResults/HereSearch'; // Here 검색 함수
+import { useTranslation } from 'react-i18next'; // i18n 훅을 통한 다국어 지원
+import { FaSearch } from 'react-icons/fa'; // 검색 아이콘
 
 const StoreModal = forwardRef(
   (
     {
-      enters: pressedEnter, // Enter key state
-      values: bringValue, // Search input value
-      onDataReceiveBack, // Callback to parent
-      chosenMapAPIs, // Selected map API
+      enters: pressedEnter, // Enter 키 상태
+      values: bringValue, // 검색 입력 값
+      onDataReceiveBack, // 부모 컴포넌트로 데이터를 전달하는 콜백
+      chosenMapAPIs, // 선택된 지도 API
     },
     ref
   ) => {
-    const [open, setOpen] = useState(false); // Modal open state
-    const [searches, setSearches] = useState([]); // Search results
-    const [searchQuery, setSearchQuery] = useState(''); // Search query
-    const { t } = useTranslation(); // i18n hook for translations
+    const [open, setOpen] = useState(false); // 모달 열림/닫힘 상태
+    const [searches, setSearches] = useState([]); // 검색 결과
+    const [searchQuery, setSearchQuery] = useState(''); // 검색 쿼리
+    const { t } = useTranslation(); // 다국어 번역 훅
 
-    // Effect for handling Enter key
+    // Enter 키를 감지하여 검색 처리
     useEffect(() => {
       if (pressedEnter === 'Enter' && chosenMapAPIs && chosenMapAPIs.name) {
         setSearchQuery(bringValue);
@@ -39,12 +39,12 @@ const StoreModal = forwardRef(
       }
     }, [pressedEnter, bringValue, chosenMapAPIs]);
 
-    // Search handler
+    // 검색 처리 함수
     const handleSearch = async (query, apiName) => {
       if (query && apiName) {
-        console.log("Searching with:", { query, apiName }); // Debug log
         let results = [];
         try {
+          // 선택된 API에 따라 검색 호출
           switch (apiName) {
             case 'GOOGLE':
               results = await GoogleSearch(query);
@@ -71,7 +71,7 @@ const StoreModal = forwardRef(
           if (results.length === 0) {
             console.warn("No results found for query:", query);
           }
-          setSearches(results); // Update search results
+          setSearches(results); // 검색 결과를 상태에 저장
         } catch (error) {
           console.error("Search failed:", error);
         }
@@ -80,14 +80,14 @@ const StoreModal = forwardRef(
       }
     };
 
-    // Handle Enter key
+    // Enter 키로 검색 실행
     const handleEnter = (event) => {
       if (event.key === 'Enter' && chosenMapAPIs && chosenMapAPIs.name) {
         handleSearch(searchQuery || bringValue, chosenMapAPIs.name);
       }
     };
 
-    // Handle search button click
+    // 검색 버튼 클릭 처리
     const handleEvent = () => {
       if (
         (bringValue || searchQuery) !== '' &&
@@ -98,7 +98,7 @@ const StoreModal = forwardRef(
       }
     };
 
-    // Handle table data selection
+    // 테이블에서 선택된 데이터 처리
     const handleDataSelect = (dataFromStoreTable) => {
       let normalizedData = dataFromStoreTable;
 
@@ -112,17 +112,17 @@ const StoreModal = forwardRef(
           longitude: dataFromStoreTable.position.lng,
         };
       }
-      onDataReceiveBack(normalizedData);
-      setSearches([]); // Clear search results
-      handleClosed(); // Close modal
+      onDataReceiveBack(normalizedData); // 부모로 데이터 전달
+      setSearches([]); // 검색 결과 초기화
+      handleClosed(); // 모달 닫기
     };
 
-    // Close modal
+    // 모달 닫기 처리
     const handleClosed = () => {
       setOpen(false);
     };
 
-    // Imperative handle for external control
+    // 외부에서 모달을 열거나 닫을 수 있도록 참조를 제공
     useImperativeHandle(ref, () => ({
       show() {
         setOpen(true);
@@ -135,6 +135,7 @@ const StoreModal = forwardRef(
     return (
       <Transition show={open}>
         <Dialog className="relative z-50" onClose={() => handleClosed()}>
+          {/* 모달 배경 */}
           <TransitionChild
             enter="ease-out duration-300"
             enterFrom="opacity-0"
@@ -155,10 +156,12 @@ const StoreModal = forwardRef(
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
+                {/* 모달 콘텐츠 */}
                 <DialogPanel
                   className="relative rounded-lg shadow-xl bg-white"
                   style={{ width: '800px' }}
                 >
+                  {/* 모달 헤더 */}
                   <div className="flex justify-between py-3 px-5 bg-blue-900 rounded-t-lg">
                     <h1 className="text-sm font-semibold text-white pt-0.5">
                       {t('StoreModal.ModalName')}
@@ -169,6 +172,7 @@ const StoreModal = forwardRef(
                       onClick={() => handleClosed()}
                     />
                   </div>
+                  {/* 검색 섹션 */}
                   <div className="flex items-center justify-center gap-2 px-1 py-2">
                     <label className="text-sm ml-1 font-semibold text-slate-700 px-2">
                       {t('StoreModal.SearchName')}
@@ -194,6 +198,7 @@ const StoreModal = forwardRef(
                       </span>
                     </button>
                   </div>
+                  {/* 테이블 섹션 */}
                   <div className="p-3">
                     <StoreTable
                       stores={searches}
