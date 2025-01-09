@@ -65,7 +65,7 @@ export default function CountsByTool() {
 
   return (
     <div
-      className="flex flex-col items-center justify-start pt-20 bg-gray-100 px-4 sm:px-6 lg:px-8"
+      className="flex flex-col items-center justify-start py-20 border-spacing-4 px-4 sm:px-6 lg:px-8"
       style={{ height: `calc(100vh - 115px)`, zIndex: '1' }}
     >
       {/* 헤더 섹션 */}

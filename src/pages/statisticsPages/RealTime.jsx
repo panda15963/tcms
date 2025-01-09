@@ -67,7 +67,7 @@ export default function RealTime() {
 
   return (
     <div
-      className="flex flex-col items-center justify-start pt-20 bg-gray-100 p-8"
+      className="flex flex-col items-center justify-start pt-20 p-8"
       style={{ height: `calc(100vh - 115px)`, zIndex: '1' }}
     >
       {/* 헤더 섹션 */}

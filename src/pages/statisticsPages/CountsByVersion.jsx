@@ -79,11 +79,10 @@ export default function CountsByVersion() {
       setData([]); // 오류가 발생해도 빈 배열로 초기화
     }
   }, [location.key]);
-  
 
   return (
     <div
-      className="flex flex-col items-center justify-start pt-20 bg-gray-100 px-4 sm:px-6 lg:px-8"
+      className="flex flex-col items-center justify-start pt-20  px-4 sm:px-6 lg:px-8"
       style={{ height: `calc(100vh - 115px)`, zIndex: '1' }}
     >
       {/* 헤더 섹션 */}
