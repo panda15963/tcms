@@ -1301,7 +1301,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           setSelectedLogList(initialList);
           setOpen(false);
         }}
-        className="relative z-40"
+        className="relative z-50"
       >
         <Transition.Child
           enter="ease-out duration-300"
