@@ -250,7 +250,7 @@ const SpaceTable = ({ list, onSelectionChange }) => {
   }, [rowSelection, onSelectionChange]);
 
   return (
-    <div className="overflow-auto h-[400px]" style={{ maxHeight: '500px' }}>
+    <div className="overflow-auto h-[350px]" style={{ maxHeight: '500px' }}>
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
