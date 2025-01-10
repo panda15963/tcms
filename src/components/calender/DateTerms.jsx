@@ -22,8 +22,24 @@ const dateTerms = (t) => [
  */
 export default function DateTerms({ terms, initialTerm }) {
   const { t } = useTranslation(); // 다국어 번역 훅
-  const termsList = useMemo(() => dateTerms(t), [t]); // 날짜 간격 옵션 목록
+  const [termsList, setTermsList] = useState(dateTerms(t)); // 날짜 간격 옵션 상태
   const [selected, setSelected] = useState(initialTerm); // 현재 선택된 항목 상태
+
+  /**
+   * 다국어 번역 변경 시 날짜 간격 옵션 업데이트
+   */
+  useEffect(() => {
+    const updatedTermsList = dateTerms(t);
+    setTermsList(updatedTermsList);
+
+    // 초기 선택 항목이 있을 경우, 업데이트된 termsList에서 해당 항목을 다시 찾음
+    const updatedSelected = updatedTermsList.find(
+      (term) => term.value === selected.value
+    );
+    if (updatedSelected) {
+      setSelected(updatedSelected);
+    }
+  }, [t, selected.value]);
 
   /**
    * 초기 선택 항목 변경 시 상태 업데이트
@@ -43,14 +59,16 @@ export default function DateTerms({ terms, initialTerm }) {
     <div className="flex items-center gap-2">
       {/* 조회 기간 레이블 */}
       <span className="text-sm font-semibold text-white">
-        {t('DateTerms.Inquiryperiod')}
+        {t('DateTerms.DatePeriod')}
       </span>
 
       {/* 드롭다운 컴포넌트 */}
       <Listbox value={selected} onChange={setSelected}>
         {({ open }) => (
           <>
-            <div className="relative w-16">
+            <div className="relative w-32">
+              {' '}
+              {/* 너비를 w-32로 확장 */}
               <Listbox.Button className="relative h-9 w-full cursor-default rounded-md bg-white py-1 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm">
                 <span className="block truncate">{selected.name}</span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -60,7 +78,6 @@ export default function DateTerms({ terms, initialTerm }) {
                   />
                 </span>
               </Listbox.Button>
-
               {/* 드롭다운 옵션 */}
               <Transition
                 show={open}
