@@ -8,6 +8,8 @@ export default function UsageCounts() {
   const { t } = useTranslation(); // 다국어 번역 훅
   const location = useLocation(); // React Router로 전달된 위치 정보
 
+  console.log(location)
+
   // 초기 데이터 설정: location.state에서 데이터를 추출
   const initialData = Array.isArray(location.state?.data?.result)
   ? location.state?.data?.result

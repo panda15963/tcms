@@ -336,12 +336,12 @@
   },
   "LineChart": {
     "NoDataFound": "조회된 데이터가 없습니다.",
-    "Value": "데이터 값",
+    "Value": "실행 횟수",
     "Date": "날짜"
   },
   "BarChart": {
     "NoDataFound": "조회된 데이터가 없습니다.",
-    "Value": "데이터 값",
+    "Value": "사용 횟수",
     "Date": "날짜"
   },
   "PCList": {

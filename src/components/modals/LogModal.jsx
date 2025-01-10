@@ -688,7 +688,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       target: selectedIds.includes('target') ? cond.target : '',
       format: selectedIds.includes('format') ? cond.format : '',
       feature: selectedIds.includes('feature') ? cond.feature : '',
-      virtual: selectedIds.includes('virtual') ? cond.virtual : '',
+      virtual: selectedIds.includes('virtual') ? cond.virtual : -1,
       tag: selectedIds.includes('tag') ? cond.tag : '',
       group_id: -1,
       operation: selectedIds.includes('tag') ? cond.operation : 0,

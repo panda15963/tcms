@@ -32,14 +32,15 @@ export default function DateTerms({ terms, initialTerm }) {
     const updatedTermsList = dateTerms(t);
     setTermsList(updatedTermsList);
 
-    // 초기 선택 항목이 있을 경우, 업데이트된 termsList에서 해당 항목을 다시 찾음
-    const updatedSelected = updatedTermsList.find(
-      (term) => term.value === selected.value
-    );
-    if (updatedSelected) {
-      setSelected(updatedSelected);
+    if (initialTerm) {
+      const updatedSelected = updatedTermsList.find(
+        (term) => term.value === initialTerm.value
+      );
+      if (updatedSelected) {
+        setSelected(updatedSelected);
+      }
     }
-  }, [t, selected.value]);
+  }, [t, initialTerm]);
 
   /**
    * 초기 선택 항목 변경 시 상태 업데이트
@@ -53,7 +54,7 @@ export default function DateTerms({ terms, initialTerm }) {
    */
   useEffect(() => {
     terms(selected);
-  }, [selected, terms]);
+  }, [selected]);
 
   return (
     <div className="flex items-center gap-2">

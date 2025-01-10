@@ -7,16 +7,16 @@ import LineChart from '../../components/D3Charts/LineChart';
 export default function CountsByTool() {
   const { t } = useTranslation(); // 다국어 번역 훅
   const location = useLocation(); // React Router를 통해 전달된 위치 정보
-
   // 초기 데이터 설정: 데이터가 배열인지 확인하고, 기본값 설정
   const initialData = Array.isArray(location.state?.data?.result)
     ? location.state?.data?.result
     : [];
   const [data, setData] = useState(initialData); // 데이터 상태 관리
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 
 
   const pcName = location.state?.pcname || '전체'; // 선택된 PC 이름 (기본값: "전체")
 
+  const dateTerm = location.state?.dateTerm || 'day'; // 선택된 날짜 기간 (기본값: "day")
   /**
    * 데이터 필터링: 선택된 PC 이름에 따라 데이터 필터링
    */
@@ -96,7 +96,7 @@ export default function CountsByTool() {
       >
         {filteredData.length > 0 ? (
           // 데이터가 있을 경우 차트 컴포넌트 렌더링
-          <LineChart data={filteredData} groupBy="tools" />
+          <LineChart data={filteredData} groupBy="tools" dateTerm={dateTerm} />
         ) : (
           // 데이터가 없을 경우 "데이터 없음" 메시지 표시
           <p>{t('UsageCounts.NoDataFound')}</p>

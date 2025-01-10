@@ -350,12 +350,12 @@
   },
   "LineChart": {
     "NoDataFound": "No Data Found.",
-    "Value": "Data Value",
+    "Value": "Process Counts",
     "Date": "Date"
   },
   "BarChart": {
     "NoDataFound": "No Data Found.",
-    "Value": "Data Value",
+    "Value": "Usage Counts",
     "Date": "Date"
   },
   "PCList": {

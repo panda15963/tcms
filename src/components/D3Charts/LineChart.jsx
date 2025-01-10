@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as d3 from 'd3';
 
@@ -9,8 +9,7 @@ import * as d3 from 'd3';
  */
 const formatMonthDateToLocalISO = (date) => {
   if (!(date instanceof Date) || isNaN(date)) {
-    console.error('Invalid date:', date);
-    return ''; // Return empty string for invalid dates
+    return '';
   }
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -25,14 +24,9 @@ const formatMonthDateToLocalISO = (date) => {
  * @param {string} props.groupBy - 데이터를 그룹화할 기준 (예: 'tools' 또는 'toolver')
  * @returns {JSX.Element} 차트를 렌더링할 SVG 또는 데이터 없음 메시지
  */
-const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
+const LineChart = ({ data, groupBy, dateTerm }) => {
   const { t } = useTranslation(); // 다국어 번역 훅
   const svgRef = useRef(); // SVG 요소를 참조하는 ref
-
-  // 차트 여백 및 크기 설정
-  const margin = { top: 60, right: 20, bottom: 50, left: 70 };
-  const width = 1200 - margin.left - margin.right; // 차트 너비
-  const height = 500 - margin.top - margin.bottom; // 차트 높이
 
   // 데이터를 그룹화할 기준 (toolname 또는 toolver)
   const groupKey = groupBy === 'tools' ? 'toolname' : 'toolver';
@@ -60,20 +54,16 @@ const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
     : [];
 
   useEffect(() => {
-    // 데이터가 없는 경우 차트를 초기화하고 반환
-    if (!groupedData || groupedData.length === 0) {
-      d3.select(svgRef.current).selectAll('*').remove(); // 기존 요소 제거
-      return;
-    }
+    if (!data || data.length === 0) return;
 
-    // SVG 초기화
-    d3.select(svgRef.current).selectAll('*').remove();
-    const svg = d3
-      .select(svgRef.current)
-      .attr('width', width + margin.left + margin.right) // 전체 너비 설정
-      .attr('height', height + margin.top + margin.bottom) // 전체 높이 설정
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`); // 여백 적용
+    /**
+     * 데이터를 그룹화하여 차트에 표시할 형식으로 변환
+     */
+
+    const svg = d3.select(svgRef.current);
+    const margin = { top: 60, right: 20, bottom: 50, left: 70 };
+    const width = 1200 - margin.left - margin.right; // 차트 너비
+    const height = 500 - margin.top - margin.bottom; // 차트 높이
 
     // 툴팁 생성
     const tooltip = d3
@@ -88,125 +78,120 @@ const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
       .style('pointer-events', 'none')
       .style('opacity', 0); // 기본적으로 숨김 상태
 
-    // 차트의 모든 날짜 및 값 추출
-    const allDates = groupedData.flatMap((group) =>
-      group.data.map((d) => new Date(d.date))
-    );
+    // SVG 초기화
+    svg.selectAll('*').remove();
 
-    const allValues = groupedData.flatMap((group) =>
-      group.data.map((d) => d.value)
-    );
+    svg
+      .attr('width', width)
+      .attr('height', height)
+      .style('overflow', 'visible');
 
-    const validDates = allDates.filter(
-      (date) => date instanceof Date && !isNaN(date)
-    );
-    if (validDates.length === 0) {
-      console.error('No valid dates found in the data.');
-      return; // Exit the useEffect or function to avoid further errors
-    }
-
-    // 날짜 및 값 범위 설정
-    const minDate = d3.min(validDates); // 최소 날짜
-    const maxDate = d3.max(validDates); // 최대 날짜
-    if (!minDate || !maxDate) {
-      console.error('Invalid date range. Min or Max date is undefined.');
-      return; // Exit to avoid further errors
-    }
-
-    const paddedMinDate = new Date(minDate);
-    paddedMinDate.setDate(minDate.getDate() - 1); // 최소 날짜 패딩
-
-    const paddedMaxDate = new Date(maxDate);
-    paddedMaxDate.setDate(maxDate.getDate() + 1); // 최대 날짜 패딩
-
-    // X축 스케일 설정
+    // X축 범위 설정 (전체 데이터의 날짜 범위)
     const xScale = d3
       .scaleTime()
-      .domain([paddedMinDate, paddedMaxDate])
-      .range([0, width]);
+      .domain([
+        d3.min(groupedData, (group) =>
+          d3.min(group.data, (d) => new Date(d.date))
+        ),
+        d3.max(groupedData, (group) =>
+          d3.max(group.data, (d) => new Date(d.date))
+        ),
+      ])
+      .range([margin.left, width - margin.right]);
 
-    // Y축 스케일 설정
+    const filteredDates =
+    dateTerm === '주'
+      ? groupedData.flatMap((group) => group.data.map((d) => new Date(d.date)))
+      : (() => {
+          const startDate = xScale.domain()[0];
+          const endDate = xScale.domain()[1];
+          const dates = [];
+          let currentDate = new Date(startDate);
+
+          while (currentDate <= endDate) {
+            dates.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+          return dates;
+        })();
+
     const yScale = d3
       .scaleLinear()
-      .domain([0, d3.max(allValues)]) // 최대값 기준으로 스케일 설정
-      .range([height, 0]);
+      .domain([
+        0,
+        d3.max(groupedData, (group) => d3.max(group.data, (d) => d.value)),
+      ])
+      .range([height - margin.bottom, margin.top]);
 
-    // 라인 생성기
-    const line = d3
-      .line()
-      .x((d) => xScale(new Date(d.date))) // X축 스케일에 날짜 매핑
-      .y((d) => yScale(d.value)) // Y축 스케일에 값 매핑
-      .curve(d3.curveMonotoneX); // 부드러운 곡선 적용
+    groupedData.forEach((group, index) => {
+      const sanitizedKey = (group.key || 'unknown').replace(
+        /[^a-zA-Z0-9-_]/g,
+        '_'
+      );
+      const color = d3.schemeCategory10[index % 10];
 
-    // 색상 스케일
-    const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+      const line = d3
+        .line()
+        .x((d) => xScale(new Date(d.date)))
+        .y((d) => yScale(d.value))
+        .curve(d3.curveMonotoneX);
 
-    // 그룹별 라인과 데이터 포인트 추가
-    groupedData.forEach((group, idx) => {
-      // 데이터 라인 추가
-      if (group.data.length > 1) {
-        svg
-          .append('path')
-          .datum(group.data) // 그룹 데이터를 경로에 연결
-          .attr('fill', 'none') // 채우기 없음
-          .attr('stroke', colorScale(idx)) // 그룹별 색상
-          .attr('stroke-width', 2) // 라인 두께
-          .attr('d', line) // 초기 라인 경로
-          .transition()
-          .duration(2000) // 애니메이션 시간 (ms)
-          .ease(d3.easeLinear) // 선형 보간
-      }
+      svg
+        .append('path')
+        .datum(group.data)
+        .attr('fill', 'none')
+        .attr('stroke', color)
+        .attr('stroke-width', 2)
+        .attr('d', line);
 
-      // 데이터 포인트 추가
-      group.data.forEach((point) => {
-        svg
-          .append('circle')
-          .attr('cx', xScale(new Date(point.date))) // X축 위치
-          .attr('cy', yScale(point.value)) // Y축 위치
-          .attr('r', 5) // 점 크기
-          .attr('fill', colorScale(idx)) // 색상
-          .attr('stroke', 'black') // 외곽선 색상
-          .attr('stroke-width', 1) // 외곽선 두께
-          .on('mouseover', (event) => {
-            tooltip
-              .style('opacity', 1) // 툴팁 표시
-              .html(
-                `<strong>${group.key}</strong><br>${t('LineChart.Date')}: ${
-                  point.date
-                }<br>${t('LineChart.Value')}: ${point.value}`
-              );
-          })
-          .on('mousemove', (event) => {
-            tooltip
-              .style('left', event.pageX + 10 + 'px') // 툴팁 X 위치
-              .style('top', event.pageY - 30 + 'px'); // 툴팁 Y 위치
-          })
-          .on('mouseout', () => {
-            tooltip.style('opacity', 0); // 툴팁 숨김
-          });
-      });
+      svg
+        .selectAll(`.circle-${sanitizedKey}`)
+        .data(group.data)
+        .enter()
+        .append('circle')
+        .attr('cx', (d) => xScale(new Date(d.date)))
+        .attr('cy', (d) => yScale(d.value))
+        .attr('r', 4)
+        .attr('fill', color)
+        .on('mouseover', (event, d) => {
+          tooltip
+            .style('opacity', 1) // 툴팁 표시
+            .html(
+              `<strong>${group.key}</strong><br>${t('LineChart.Date')}: ${
+                d.date
+              }<br>${t('LineChart.Value')}: ${d.value}`
+            );
+        })
+        .on('mousemove', (event) => {
+          tooltip
+            .style('left', event.pageX + 10 + 'px') // 툴팁 X 위치
+            .style('top', event.pageY - 30 + 'px'); // 툴팁 Y 위치
+        })
+        .on('mouseout', () => {
+          tooltip.style('opacity', 0); // 툴팁 숨김
+        });
 
-      // 범례 추가
+      // 범례 색상 박스
       svg
         .append('line')
         .attr('x1', width - 150)
-        .attr('y1', idx * 15 - 45)
+        .attr('y1', index * 15 - 45)
         .attr('x2', width - 120)
-        .attr('y2', idx * 15 - 45)
-        .attr('stroke', colorScale(idx)) // 범례 색상
+        .attr('y2', index * 15 - 45)
+        .attr('stroke', color) // 범례 색상
         .attr('stroke-width', 2); // 범례 선 두께
 
       svg
         .append('text')
         .attr('x', width - 110)
-        .attr('y', idx * 15 - 40)
+        .attr('y', index * 15 - 40)
         .attr('text-anchor', 'start')
         .style('fill', 'black') // 텍스트 색상
         .style('font-size', '14px') // 텍스트 크기
         .style('font-weight', 'bold') // 텍스트 두께
         .text(() => {
           if (!group.key) {
-            return 'Unknown'; // Provide a fallback for invalid keys
+            return 'Unknown';
           }
           return group.key.length > 10
             ? `${group.key.slice(0, 10)}...`
@@ -214,58 +199,47 @@ const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
         });
     });
 
-    // X축 추가
-    const tickInterval =
-      dateTerm === 'week'
-        ? d3.timeWeek.every(1)
-        : dateTerm === 'month'
-        ? d3.timeMonth.every(1)
-        : d3.timeDay.every(1);
-
+    // X 축
     svg
       .append('g')
-      .attr('transform', `translate(0, ${height})`) // X축 위치
+      .attr('transform', `translate(0, ${height - margin.bottom})`)
       .call(
         d3
           .axisBottom(xScale)
-          .ticks(tickInterval) // X축 틱 간격
+          .tickValues(filteredDates) // 모든 날짜를 tick 값으로 설정
           .tickFormat((d) => formatMonthDateToLocalISO(d)) // X축 레이블 포맷
       )
+      .attr('font-size', '12px')
       .selectAll('text')
       .style('text-anchor', 'end')
       .attr('dx', '-0.8em') // X축 레이블 위치
       .attr('dy', '0.15em')
       .attr('transform', 'rotate(-45)'); // X축 레이블 회전
 
-    // Y축 추가
+    svg
+      .append('text')
+      .attr('text-anchor', 'end')
+      .attr('x', width / 2)
+      .attr('y', height + margin.bottom - 10)
+      .text(t('LineChart.Date')); // X축 라벨
+
+    // Y 축
     svg
       .append('g')
-      .call(d3.axisLeft(yScale).ticks(5)) // Y축 설정
+      .attr('transform', `translate(${margin.left}, 0)`)
+      .call(d3.axisLeft(yScale))
+      .attr('font-size', '12px');
+
+    svg
       .append('text')
+      .attr('text-anchor', 'end')
+      .attr('transform', 'rotate(-90)')
       .attr('x', -height / 2)
-      .attr('y', -50)
-      .attr('fill', 'black')
-      .style('text-anchor', 'middle')
-      .attr('transform', 'rotate(-90)') // 텍스트 회전
-      .text(t('LineChart.Value')) // Y축 레이블
-      .style('font-size', '16px');
+      .attr('y', -margin.left + 20)
+      .text(t('LineChart.Value')); // Y축 라벨
+  }, [data, groupBy, dateTerm]);
 
-    // 컴포넌트가 언마운트될 때 툴팁 제거
-    return () => {
-      tooltip.remove();
-    };
-  }, [data, groupedData, groupBy, t]);
-
-  // 데이터가 없는 경우
-  if (!groupedData || groupedData.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '20px' }}>
-        {t('LineChart.NoDataFound')} {/* 데이터 없음 메시지 */}
-      </div>
-    );
-  }
-
-  // 차트 렌더링
-  return <svg ref={svgRef} />;
+  return <svg ref={svgRef}></svg>;
 };
+
 export default LineChart;

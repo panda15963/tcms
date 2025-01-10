@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Disclosure } from '@headlessui/react';
 import StatGraphsLists from '../dropdowns/statMenus/StatGraphsLists'; // 통계 그래프 목록 컴포넌트
@@ -40,8 +40,10 @@ export default function StatTopMenuBar() {
   const [resetTrigger, setResetTrigger] = useState(0);
 
   useEffect(() => {
+  if (data?.name) {
     handleSearch();
-  }, [data]);
+  }
+}, [data?.name]);
 
   const handleReset = () => {
     setStartDate(initialStartDate);
@@ -84,7 +86,7 @@ export default function StatTopMenuBar() {
     fetchToolNames();
   }, []);
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     switch (data?.name) {
       case '도구 실행 횟수(도구 별)':
         const countsByTool = {
@@ -100,6 +102,7 @@ export default function StatTopMenuBar() {
             data: await EXECUTION_COUNT_TOOL(countsByTool),
             pcname: selectedPC?.name || '',
             toolname: selectedTool?.name || '',
+            dateTerm: dateTerm?.name || '',
           },
         });
         break;
@@ -118,6 +121,7 @@ export default function StatTopMenuBar() {
             data: await EXECUTION_COUNT_VERSION(CountsByVersion),
             pcname: selectedPC?.name || '',
             toolname: selectedTool?.name || '',
+            dateTerm: dateTerm?.name || '',
           },
         });
         console.log(CountsByVersion);
@@ -139,6 +143,7 @@ export default function StatTopMenuBar() {
             toolname: selectedTool?.name || '',
           },
         });
+        console.log(UsageCounts);
         break;
 
       case '도구 로그 확인':
@@ -180,7 +185,7 @@ export default function StatTopMenuBar() {
       default:
         break;
     }
-  };
+  }, [data, dateTerm, startDate, endDate, selectedPC, selectedTool]);
 
   return (
     <Disclosure as="nav" className="bg-gray-800">

@@ -51,9 +51,7 @@ export default function ToolLists({
       const uniqueToolList = Array.from(
         new Map(formattedToolList.map((item) => [item.name, item]))
       ).map(([, value]) => value);
-
-      console.log('pageData:', pageData);
-      console.log(ToolList);
+      
       const updatedToolList =
         pageData !== '도구 실행 횟수(버전 별)'
           ? [{ id: 1, name: t('ToolList.All') }, ...uniqueToolList]
