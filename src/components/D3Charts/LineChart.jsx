@@ -99,21 +99,43 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
       ])
       .range([margin.left, width - margin.right]);
 
-    const filteredDates =
-    dateTerm === '주'
-      ? groupedData.flatMap((group) => group.data.map((d) => new Date(d.date)))
-      : (() => {
-          const startDate = xScale.domain()[0];
-          const endDate = xScale.domain()[1];
-          const dates = [];
-          let currentDate = new Date(startDate);
-
-          while (currentDate <= endDate) {
-            dates.push(new Date(currentDate));
-            currentDate.setDate(currentDate.getDate() + 1);
-          }
-          return dates;
-        })();
+      const filteredDates =
+      dateTerm === '주'
+        ? groupedData.flatMap((group) => group.data.map((d) => new Date(d.date)))
+        : dateTerm === '달'
+        ? (() => {
+            const startDate = new Date(
+              xScale.domain()[0].getFullYear(),
+              xScale.domain()[0].getMonth(),
+              1
+            );
+            const endDate = new Date(
+              xScale.domain()[1].getFullYear(),
+              xScale.domain()[1].getMonth() + 1,
+              1
+            );
+            const dates = [];
+            let currentDate = new Date(startDate);
+    
+            while (currentDate <= endDate) {
+              dates.push(new Date(currentDate));
+              currentDate.setMonth(currentDate.getMonth() + 1);
+            }
+            return dates;
+          })()
+        : (() => {
+            const startDate = xScale.domain()[0];
+            const endDate = xScale.domain()[1];
+            const dates = [];
+            let currentDate = new Date(startDate);
+    
+            while (currentDate <= endDate) {
+              dates.push(new Date(currentDate));
+              currentDate.setDate(currentDate.getDate() + 1);
+            }
+            return dates;
+          })();
+    
 
     const yScale = d3
       .scaleLinear()
