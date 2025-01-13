@@ -240,7 +240,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
 
     svg
       .append('text')
-      .attr('text-anchor', 'end')
+      .attr('text-anchor', 'middle')
       .attr('x', width / 2)
       .attr('y', height + margin.bottom - 10)
       .text(t('LineChart.Date')); // X축 라벨
@@ -254,14 +254,13 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
 
     svg
       .append('text')
-      .attr('text-anchor', 'end')
+      .attr('text-anchor', 'middle')
       .attr('transform', 'rotate(-90)')
       .attr('x', -height / 2)
-      .attr('y', -margin.left + 20)
       .text(t('LineChart.Value')); // Y축 라벨
   }, [data, groupBy, dateTerm]);
 
-  return <svg ref={svgRef}></svg>;
+  return <svg ref={svgRef} />;
 };
 
 export default LineChart;

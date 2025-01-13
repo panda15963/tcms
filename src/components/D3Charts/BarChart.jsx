@@ -83,22 +83,50 @@ const BarChart = ({ data }) => {
       .attr('y', -margin.left + 20)
       .text(t('BarChart.Value')); // Y축 라벨
 
+    // 툴팁 생성
+    const tooltip = d3
+      .select(chartRef.current)
+      .append('div')
+      .style('position', 'absolute')
+      .style('background-color', 'white')
+      .style('border', '1px solid #ccc')
+      .style('padding', '10px')
+      .style('border-radius', '4px')
+      .style('opacity', 0);
+
     // 바 생성
     svg
       .append('g')
       .selectAll('g')
       .data(groupedData)
       .join('g')
-      .attr('transform', (d) => `translate(${x0(d[0])},0)`) // 날짜별 위치 지정
+      .attr('transform', (d) => `translate(${x0(d[0])},0)`)
       .selectAll('rect')
-      .data((d) => d[1]) // 날짜별 데이터 바인딩
+      .data((d) => d[1])
       .join('rect')
-      .attr('x', (d) => x1(d.funcname)) // funcname별 위치 지정
-      .attr('y', (d) => y(d.count)) // 바의 Y축 위치
-      .attr('width', x1.bandwidth()) // 바의 너비
-      .attr('height', (d) => height - y(d.count)) // 바의 높이
-      .attr('fill', (d) => colorScale(d.funcname)); // 색상 적용
-  }, [data]);
+      .attr('x', (d) => x1(d.funcname))
+      .attr('y', (d) => y(d.count))
+      .attr('width', x1.bandwidth())
+      .attr('height', (d) => height - y(d.count))
+      .attr('fill', (d) => colorScale(d.funcname))
+      .on('mouseover', (event, d) => {
+        tooltip
+          .style('opacity', 1)
+          .html(
+            `<strong>${d.funcname}</strong><br>${t('BarChart.Date')}: ${
+              d.date
+            }<br>${t('BarChart.Value')}: ${d.count}`
+          );
+      })
+      .on('mousemove', (event) => {
+        tooltip
+          .style('left', event.pageX + 10 + 'px')
+          .style('top', event.pageY - 30 + 'px');
+      })
+      .on('mouseout', () => {
+        tooltip.style('opacity', 0);
+      });
+  }, [data, t]); // 종속성 배열에 t 추가
 
   return <div ref={chartRef} />;
 };
