@@ -91,7 +91,7 @@
     "C": "C"
   },
   "Format": {
-    "Hippo": "HIPPO (*.hippo)",
+    "Hippo": "HIPPO (*.hip)",
     "Kml": "KML (*.kml)",
     "Nmea": "NMEA (*.nmea)"
   },
