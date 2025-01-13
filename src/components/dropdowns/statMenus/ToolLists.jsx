@@ -31,6 +31,7 @@ export default function ToolLists({
   setSelectedTool = () => {},
   resetTrigger,
   pageData,
+  selectedToolName,
 }) {
   const { t } = useTranslation(); // 다국어 번역 훅
   const location = useLocation(); // 현재 URL 경로
@@ -51,14 +52,18 @@ export default function ToolLists({
       const uniqueToolList = Array.from(
         new Map(formattedToolList.map((item) => [item.name, item]))
       ).map(([, value]) => value);
-      
+
       const updatedToolList =
-        pageData !== '도구 실행 횟수(버전 별)'
+        pageData !== '도구 실행 횟수(버전 별)' &&
+        pageData !== '도구 기능별 사용 횟수'
           ? [{ id: 1, name: t('ToolList.All') }, ...uniqueToolList]
           : uniqueToolList;
       setToolList(updatedToolList);
       setSelected(updatedToolList[0]);
       setSelectedTool(updatedToolList[0]);
+      if (typeof selectedToolName === 'function') {
+        selectedToolName(uniqueToolList[0]);
+      }
     }
   }, [selectedTool, pageData, t, setSelectedTool]);
 
@@ -81,6 +86,9 @@ export default function ToolLists({
       const defaultSelection = ToolList[0]; // 기본값은 "ALL"
       setSelected(defaultSelection);
       setSelectedTool(defaultSelection); // 부모 상태와 동기화
+      if (typeof selectedToolName === 'function') {
+        selectedToolName(defaultSelection);
+      }
     }
   }, [resetTrigger, ToolList, setSelectedTool]);
 
@@ -91,6 +99,9 @@ export default function ToolLists({
   const handleOnSelectMap = (selectedMap) => {
     setSelected(selectedMap); // 선택 상태 업데이트
     setSelectedTool(selectedMap); // 부모 상태와 동기화
+    if (typeof selectedToolName === 'function') {
+      selectedToolName(selectedMap);
+    }
   };
 
   if (!selected) return null; // 선택된 툴이 없으면 렌더링하지 않음

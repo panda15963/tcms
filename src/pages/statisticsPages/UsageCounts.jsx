@@ -8,16 +8,12 @@ export default function UsageCounts() {
   const { t } = useTranslation(); // 다국어 번역 훅
   const location = useLocation(); // React Router로 전달된 위치 정보
 
-  console.log(location)
-
   // 초기 데이터 설정: location.state에서 데이터를 추출
   const initialData = Array.isArray(location.state?.data?.result)
-  ? location.state?.data?.result
-  : [];
+    ? location.state?.data?.result
+    : [];
   const [data, setData] = useState(initialData); // 데이터 상태 관리
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
-  const pcName = location.state?.pcname || '전체'; // 선택된 PC 이름
-  const toolName = location.state?.toolname || '전체'; // 선택된 도구 이름
 
   /**
    * 데이터 처리: toolname에서 공백 제거 및 null 값 처리
@@ -26,15 +22,6 @@ export default function UsageCounts() {
     ...item,
     toolname: item.toolname ? item.toolname.replace(/\s+/g, '') : '', // toolname 공백 제거 및 null 처리
   }));
-
-  /**
-   * 데이터 필터링: 선택된 PC 이름 및 도구 이름에 따라 데이터 필터링
-   */
-  const filteredData = processedData.filter(
-    (item) =>
-      (toolName === '전체' || item.toolname === toolName) && // 도구 이름 필터링
-      (pcName === '전체' || item.pc === pcName) // PC 이름 필터링
-  );
 
   /**
    * 새로고침 버튼 클릭 시 데이터를 다시 가져오는 함수
@@ -74,7 +61,6 @@ export default function UsageCounts() {
         }
       }
     } catch (error) {
-      console.error('데이터 로드 중 오류:', error);
       setData([]); // 오류가 발생해도 빈 배열로 초기화
     }
   }, [location.key]);
@@ -110,9 +96,9 @@ export default function UsageCounts() {
         className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
         style={{ height: '60vh' }} // 차트 섹션 높이 설정
       >
-        {filteredData.length > 0 ? (
+        {processedData.length > 0 ? (
           // 필터링된 데이터가 있을 경우 BarChart 컴포넌트 렌더링
-          <BarChart data={filteredData} />
+          <BarChart data={data} width={600} height={400} />
         ) : (
           // 데이터가 없을 경우 "데이터 없음" 메시지 표시
           <p>{t('UsageCounts.NoDataFound')}</p>

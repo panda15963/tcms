@@ -38,12 +38,13 @@ export default function StatTopMenuBar() {
   const [selectedPC, setSelectedPC] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
   const [resetTrigger, setResetTrigger] = useState(0);
+  const [specialToolName, setSpecialToolName] = useState('');
 
   useEffect(() => {
-  if (data?.name) {
-    handleSearch();
-  }
-}, [data?.name]);
+    if (data?.name) {
+      handleSearch();
+    }
+  }, [data?.name]);
 
   const handleReset = () => {
     setStartDate(initialStartDate);
@@ -113,18 +114,20 @@ export default function StatTopMenuBar() {
           starttime: startDate ? formatDateToLocalISO(startDate) : '',
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: 'version',
-          toolname: selectedTool?.name || '',
+          toolname:
+            specialToolName?.name === '전체'
+              ? 'TestCourseManagementSystem'
+              : specialToolName?.name || '',
           pcname: '',
         };
         navigate('countsByVersion', {
           state: {
             data: await EXECUTION_COUNT_VERSION(CountsByVersion),
             pcname: selectedPC?.name || '',
-            toolname: selectedTool?.name || '',
+            toolname: CountsByVersion.toolname,
             dateTerm: dateTerm?.name || '',
           },
         });
-        console.log(CountsByVersion);
         break;
 
       case '도구 기능별 사용 횟수':
@@ -133,17 +136,21 @@ export default function StatTopMenuBar() {
           starttime: startDate ? formatDateToLocalISO(startDate) : '',
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: '',
-          toolname: 'TestCourseManagementSystem',
-          pcname: '',
+          toolname:
+            specialToolName?.name === '전체'
+              ? 'TestCourseManagementSystem'
+              : specialToolName?.name || '',
+          pcname: selectedPC?.name === '전체'
+          ? ''
+          : selectedPC?.name || '',
         };
         navigate('usageFunctionCounts', {
           state: {
             data: await FUNCTION_COUNT(UsageCounts),
-            pcname: selectedPC?.name || '',
-            toolname: selectedTool?.name || '',
+            pcname: UsageCounts?.pcname || '',
+            toolname: specialToolName?.name || '',
           },
         });
-        console.log(UsageCounts);
         break;
 
       case '도구 로그 확인':
@@ -258,6 +265,7 @@ export default function StatTopMenuBar() {
               setSelectedTool={setSelectedTool}
               resetTrigger={resetTrigger}
               pageData={data?.name || ''}
+              selectedToolName={setSpecialToolName}
             />
           </div>
 
