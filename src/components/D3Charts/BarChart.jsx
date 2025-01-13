@@ -11,7 +11,7 @@ const BarChart = ({ data }) => {
     d3.select(chartRef.current).select('svg').remove();
 
     // 차트 크기 설정
-    const margin = { top: 50, right: 30, bottom: 100, left: 60 };
+    const margin = { top: 50, right: 150, bottom: 100, left: 60 }; // right 공간을 확장하여 범례 배치
     const width = 1200 - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
 
@@ -19,7 +19,9 @@ const BarChart = ({ data }) => {
     const groupedData = d3.group(data, (d) => d.date);
 
     // funcname의 고유 값 가져오기
-    const funcnames = Array.from(new Set(data.map((d) => d.funcname)));
+    const funcnames = Array.from(
+      new Set(data.map((d) => d.funcname).filter(Boolean)) // Filter null/undefined
+    );
 
     // 색상 스케일 설정
     const colorScale = d3
@@ -126,6 +128,35 @@ const BarChart = ({ data }) => {
       .on('mouseout', () => {
         tooltip.style('opacity', 0);
       });
+
+    const legend = svg
+      .append('g')
+      .attr('transform', `translate(${width + 20}, 0)`)
+      .style('cursor', 'default'); // 마우스 커서를 기본 상태로 설정
+
+    funcnames.forEach((funcname, i) => {
+      const legendRow = legend
+        .append('g')
+        .attr('transform', `translate(0, ${i * 25})`)
+        .style('cursor', 'default'); // 각 범례 항목에도 적용 가능
+
+      // 색상 박스
+      legendRow
+        .append('rect')
+        .attr('width', 20)
+        .attr('height', 20)
+        .attr('fill', colorScale(funcname));
+
+      // 텍스트 라벨
+      legendRow
+        .append('text')
+        .attr('x', 30)
+        .attr('y', 15)
+        .style('text-anchor', 'start')
+        .style('cursor', 'default') // 텍스트에도 적용 가능
+        .attr('title', funcname) // title 속성 추가
+        .text(funcname.length > 10 ? funcname.slice(0, 10) + '...' : funcname); // 텍스트 자르기
+    });
   }, [data, t]); // 종속성 배열에 t 추가
 
   return <div ref={chartRef} />;

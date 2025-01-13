@@ -37,21 +37,32 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
   const groupedData = data
     ? Array.from(
         d3.group(data, (d) => d[groupKey]),
-        ([key, entries]) => ({
-          key,
-          data: entries.map((entry) => {
-            const date = new Date(entry.date);
-            if (isNaN(date)) {
-              console.error('Invalid date entry:', entry);
-            }
-            return {
-              date: formatMonthDateToLocalISO(date),
-              value: entry.count,
-            };
-          }),
-        })
+        ([key, entries]) => {
+          const processedData =
+            dateTerm === '달'
+              ? Array.from(
+                  d3.group(entries, (d) => {
+                    const date = new Date(d.date);
+                    return `${date.getFullYear()}-${String(
+                      date.getMonth() + 1
+                    ).padStart(2, '0')}`;
+                  }),
+                  ([month, groupedEntries]) => ({
+                    date: `${month}-01`,
+                    value: d3.sum(groupedEntries, (entry) => entry.count),
+                  })
+                )
+              : entries.map((entry) => ({
+                  date: formatMonthDateToLocalISO(new Date(entry.date)),
+                  value: entry.count,
+                }));
+
+          return { key, data: processedData };
+        }
       )
     : [];
+
+    console.log(groupedData, dateTerm);
 
   useEffect(() => {
     if (!data || data.length === 0) return;
@@ -98,44 +109,46 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
         ),
       ])
       .range([margin.left, width - margin.right]);
+    groupedData.flatMap((group) => group.data.map((d) => new Date(d.date)));
 
-      const filteredDates =
-      dateTerm === '주'
-        ? groupedData.flatMap((group) => group.data.map((d) => new Date(d.date)))
-        : dateTerm === '달'
-        ? (() => {
-            const startDate = new Date(
-              xScale.domain()[0].getFullYear(),
-              xScale.domain()[0].getMonth(),
-              1
-            );
-            const endDate = new Date(
-              xScale.domain()[1].getFullYear(),
-              xScale.domain()[1].getMonth() + 1,
-              1
-            );
-            const dates = [];
-            let currentDate = new Date(startDate);
-    
-            while (currentDate <= endDate) {
+    const filteredDates = (() => {
+      switch (dateTerm) {
+        case '일':
+          // 모든 날짜를 생성 (startDate부터 endDate까지)
+          const startDate = xScale.domain()[0];
+          const endDate = xScale.domain()[1];
+          const allDates = [];
+          let currentDate = new Date(startDate);
+
+          while (currentDate <= endDate) {
+            allDates.push(new Date(currentDate)); // 모든 날짜 추가
+            currentDate.setDate(currentDate.getDate() + 1); // 하루씩 증가
+          }
+          return allDates;
+
+        case '주':
+          // 주 단위 데이터 처리
+          return groupedData.flatMap((group) =>
+            group.data.map((d) => new Date(d.date))
+          );
+
+        default: {
+          const startDate = xScale.domain()[0];
+          const endDate = xScale.domain()[1];
+          const dates = [];
+          let currentDate = new Date(startDate);
+
+          while (currentDate <= endDate) {
+            if (currentDate.toISOString().endsWith('-01T00:00:00.000Z')) {
+              // 월별 1일만 포함
               dates.push(new Date(currentDate));
-              currentDate.setMonth(currentDate.getMonth() + 1);
             }
-            return dates;
-          })()
-        : (() => {
-            const startDate = xScale.domain()[0];
-            const endDate = xScale.domain()[1];
-            const dates = [];
-            let currentDate = new Date(startDate);
-    
-            while (currentDate <= endDate) {
-              dates.push(new Date(currentDate));
-              currentDate.setDate(currentDate.getDate() + 1);
-            }
-            return dates;
-          })();
-    
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+          return dates;
+        }
+      }
+    })();
 
     const yScale = d3
       .scaleLinear()

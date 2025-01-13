@@ -15,7 +15,7 @@ export default function CountsByVersion() {
 
   const pcName = location.state?.pcname || '전체'; // PC 이름 초기값 설정
   const toolName = location.state?.toolname || '전체'; // 도구 이름 초기값 설정
-
+  const dateTerm = location.state?.dateTerm || 'day'; // 선택된 날짜 기간 (기본값: "day")
   /**
    * 데이터 처리: toolname에서 공백 제거 및 null 값 처리
    */
@@ -113,7 +113,7 @@ export default function CountsByVersion() {
       >
         {filteredData.length > 0 ? (
           // 필터링된 데이터가 있을 경우 차트 컴포넌트 렌더링
-          <LineChart data={filteredData} groupBy="versions" />
+          <LineChart data={filteredData} groupBy="versions" dateTerm={dateTerm} />
         ) : (
           // 데이터가 없을 경우 "데이터 없음" 메시지 표시
           <p>{t('UsageCounts.NoDataFound')}</p>
