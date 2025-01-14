@@ -14,6 +14,7 @@ export default function UsageCounts() {
     : [];
   const [data, setData] = useState(initialData); // 데이터 상태 관리
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
+  const dateTerm = location.state?.dateTerm || 'day'; 
 
   /**
    * 데이터 처리: toolname에서 공백 제거 및 null 값 처리
@@ -98,7 +99,7 @@ export default function UsageCounts() {
       >
         {processedData.length > 0 ? (
           // 필터링된 데이터가 있을 경우 BarChart 컴포넌트 렌더링
-          <BarChart data={data} width={600} height={400} />
+          <BarChart data={data} dateTerm={dateTerm} />
         ) : (
           // 데이터가 없을 경우 "데이터 없음" 메시지 표시
           <p>{t('UsageCounts.NoDataFound')}</p>

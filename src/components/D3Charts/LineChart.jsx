@@ -62,8 +62,6 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
       )
     : [];
 
-    console.log(groupedData, dateTerm);
-
   useEffect(() => {
     if (!data || data.length === 0) return;
 
@@ -188,7 +186,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
         .attr('cy', (d) => yScale(d.value))
         .attr('r', 4)
         .attr('fill', color)
-        .on('mouseover', (event, d) => {
+        .on('mouseover', (_, d) => {
           tooltip
             .style('opacity', 1) // 툴팁 표시
             .html(

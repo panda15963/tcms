@@ -149,6 +149,7 @@ export default function StatTopMenuBar() {
             data: await FUNCTION_COUNT(UsageCounts),
             pcname: UsageCounts?.pcname || '',
             toolname: specialToolName?.name || '',
+            dateTerm: dateTerm?.name || '',
           },
         });
         break;
