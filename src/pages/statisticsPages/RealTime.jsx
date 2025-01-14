@@ -55,7 +55,6 @@ export default function RealTime() {
       const { result: response } = await LIVE_TC(); // API 호출
       if (Array.isArray(response)) {
         setData([...response]); // 데이터 복사하여 상태에 업데이트
-        console.log('Data refreshed'); // 새로고침 확인 로그
       } else {
         console.log('No new data found, keeping existing data'); // 데이터 없음 로그
       }

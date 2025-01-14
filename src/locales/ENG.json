@@ -356,7 +356,9 @@
   "BarChart": {
     "NoDataFound": "No Data Found.",
     "Value": "Usage Counts",
-    "Date": "Date"
+    "Date": "Date",
+    "PreviousButton": "Previous",
+    "NextButton": "Next"
   },
   "PCList": {
     "All": "All"

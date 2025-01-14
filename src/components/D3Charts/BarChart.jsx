@@ -126,46 +126,126 @@ const BarChart = ({ data }) => {
         .attr('width', x1.bandwidth()) // 바 너비
         .attr('height', (d) => height - y(d.count)) // 데이터 값에 따른 바 높이
         .attr('fill', (d) => colorScale(d.funcname)) // 색상 설정
-        .on('mouseover', (event, d) => { // 마우스 오버 이벤트
-          tooltip.transition().duration(200).style('opacity', 0.9);
+        .on('mouseover', (_, d) => {
           tooltip
+            .style('opacity', 1)
             .html(
-              `<div>${t('BarChart.Date')}: ${d.date}</div>
-             <div>${t('BarChart.Function')}: ${d.funcname}</div>
-             <div>${t('BarChart.Count')}: ${d.count}</div>`
-            )
-            .style('left', `${event.pageX}px`)
-            .style('top', `${event.pageY - 28}px`);
+              `<strong>${d.funcname}</strong><br>${t('BarChart.Date')}: ${
+                d.date
+              }<br>${t('BarChart.Value')}: ${d.count}`
+            );
         })
-        .on('mouseout', () =>
-          tooltip.transition().duration(200).style('opacity', 0)
-        );
+        .on('mousemove', (event) => {
+          tooltip
+            .style('left', event.pageX + 10 + 'px')
+            .style('top', event.pageY - 30 + 'px');
+        })
+        .on('mouseout', () => {
+          tooltip.style('opacity', 0);
+        });
     });
 
-    // 범례 생성
     const legend = svg
       .append('g')
-      .attr('transform', `translate(${width + 20}, 0)`)
-      .style('cursor', 'default'); // 기본 커서 설정
+      .attr('transform', `translate(${width}, 0)`)
+      .style('cursor', 'default'); // 마우스 이벤트 방지
 
-    funcnames.forEach((funcname, i) => {
-      const legendRow = legend
+    const itemsPerPage = 10;
+    let currentPage = 0;
+
+    const renderLegend = (page) => {
+      legend.selectAll('*').remove(); // 이전 범례를 제거
+      const start = page * itemsPerPage;
+      const end = start + itemsPerPage;
+      const visibleFuncnames = funcnames.slice(start, end);
+
+      // 범례 배경 사각형
+      legend
+        .append('rect')
+        .attr('x', -10)
+        .attr('y', -10)
+        .attr('width', 150)
+        .attr('height', itemsPerPage * 25 + 50) // 아래에 페이지네이션 버튼 공간 추가
+        .attr('fill', '#f9f9f9') // 배경색
+        .attr('stroke', '#ccc') // 테두리 색상
+        .attr('stroke-width', 1);
+
+      // 각 funcname에 대한 범례 항목 생성
+      visibleFuncnames.forEach((funcname, i) => {
+        const legendRow = legend
+          .append('g')
+          .attr('transform', `translate(0, ${i * 25})`);
+
+        legendRow
+          .append('rect')
+          .attr('width', 20)
+          .attr('height', 20)
+          .attr('fill', colorScale(funcname)); // 색상
+
+        legendRow
+          .append('text')
+          .attr('x', 30)
+          .attr('y', 15)
+          .style('text-anchor', 'start')
+          .text(
+            funcname.length > 10 ? `${funcname.slice(0, 10)}...` : funcname
+          );
+      });
+
+      // 페이지네이션 버튼 생성
+      const paginationGroup = legend
         .append('g')
-        .attr('transform', `translate(0, ${i * 25})`); // 범례 항목 간격
+        .attr('transform', `translate(0, ${itemsPerPage * 25})`);
 
-      legendRow
-        .append('rect') // 색상 박스
-        .attr('width', 20)
-        .attr('height', 20)
-        .attr('fill', colorScale(funcname));
+      // 이전 버튼
+      paginationGroup
+        .append('text')
+        .attr('x', 0)
+        .attr('y', 25)
+        .style('cursor', 'default')
+        .style('fill', currentPage > 0 ? '#007BFF' : '#ccc') // 첫 페이지는 비활성화
+        .text(`< ${t('BarChart.PreviousButton')}`)
+        .on('click', () => {
+          if (currentPage > 0) {
+            currentPage--;
+            renderLegend(currentPage); // 이전 페이지 렌더링
+          }
+        });
 
-      legendRow
-        .append('text') // 범례 텍스트
-        .attr('x', 30)
-        .attr('y', 15)
-        .style('text-anchor', 'start')
-        .attr('title', funcname) // 마우스오버 툴팁
-        .text(funcname.length > 10 ? funcname.slice(0, 10) + '...' : funcname); // 긴 텍스트 자르기
+      // 다음 버튼
+      paginationGroup
+        .append('text')
+        .attr('x', 80)
+        .attr('y', 25)
+        .style('cursor', 'default')
+        .style(
+          'fill',
+          (currentPage + 1) * itemsPerPage < funcnames.length
+            ? '#007BFF'
+            : '#ccc'
+        ) // 마지막 페이지는 비활성화
+        .text(`${t('BarChart.NextButton')} >`)
+        .on('click', () => {
+          if ((currentPage + 1) * itemsPerPage < funcnames.length) {
+            currentPage++;
+            renderLegend(currentPage); // 다음 페이지 렌더링
+          }
+        });
+    };
+
+    renderLegend(currentPage);
+
+    d3.select(chartRef.current).on('wheel', (event) => {
+      event.preventDefault();
+      const delta = event.deltaY;
+
+      if (delta > 0 && (currentPage + 1) * itemsPerPage < funcnames.length) {
+        currentPage++;
+      } else if (delta < 0 && currentPage > 0) {
+        currentPage--;
+      }
+
+      renderLegend(currentPage);
     });
   }, [data, t]); // 종속성 배열에 data와 t 추가
 

@@ -342,7 +342,9 @@
   "BarChart": {
     "NoDataFound": "조회된 데이터가 없습니다.",
     "Value": "사용 횟수",
-    "Date": "날짜"
+    "Date": "날짜",
+    "PreviousButton": "이전",
+    "NextButton": "다음"
   },
   "PCList": {
     "All": "전체"
