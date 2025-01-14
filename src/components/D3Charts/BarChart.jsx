@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as d3 from 'd3';
 
-const BarChart = ({ data }) => {
+const BarChart = ({ data, dateTerm }) => {
   const { t } = useTranslation(); // 다국어 번역 훅
   const chartRef = useRef(); // 차트를 렌더링할 DOM 요소 참조
 
@@ -15,12 +15,36 @@ const BarChart = ({ data }) => {
     const width = 1200 - margin.left - margin.right; // 차트 너비
     const height = 500 - margin.top - margin.bottom; // 차트 높이
 
+    // dateTerm이 "달"이면 날짜를 1일로 변경
+    const transformedData =
+      dateTerm === '달' || dateTerm === 'Month'
+        ? data.map((d) => {
+            const dateObj = new Date(d.date);
+            return {
+              ...d,
+              date: `${dateObj.getFullYear()}년 ${String(
+                dateObj.getMonth() + 1
+              ).padStart(2, '0')}월`, // "YYYY년 MM월" 형식으로 변경
+            };
+          })
+        : data;
+
     // 데이터를 날짜별로 그룹화
-    const groupedData = d3.group(data, (d) => d.date);
+    const groupedData = d3.group(transformedData, (d) =>
+      dateTerm === '주' || dateTerm === 'Week'
+        ? `${new Date(d.date).getFullYear()}년 ${
+            new Date(d.date).getMonth() + 1
+          }월 ${Math.ceil(
+            (new Date(d.date).getDate() + new Date(d.date).getDay()) / 7
+          )}째주`
+        : d.date
+    );
+
+    const xLabels = Array.from(groupedData.keys());
 
     // funcname(함수 이름)의 고유 값 가져오기
     const funcnames = Array.from(
-      new Set(data.map((d) => d.funcname).filter(Boolean)) // null/undefined 값 제거
+      new Set(transformedData.map((d) => d.funcname).filter(Boolean)) // null/undefined 값 제거
     );
 
     // 날짜별 funcname 매핑
@@ -49,14 +73,15 @@ const BarChart = ({ data }) => {
     // X축 스케일 설정 (날짜)
     const x0 = d3
       .scaleBand()
-      .domain(Array.from(groupedData.keys())) // 그룹화된 데이터의 키(날짜) 설정
+      // .domain(Array.from(groupedData.keys())) // 그룹화된 데이터의 키(날짜) 설정
+      .domain(xLabels)
       .range([0, width])
       .padding(0.2); // X축 간격
 
     // Y축 스케일 설정 (값)
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(data, (d) => d.count)]) // 데이터에서 최대값 설정
+      .domain([0, d3.max(transformedData, (d) => d.count)])
       .nice() // 라운드 처리
       .range([height, 0]);
 
