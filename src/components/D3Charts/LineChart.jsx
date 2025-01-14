@@ -2,11 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as d3 from 'd3';
 
-/**
- * 날짜를 ISO 로컬 형식으로 변환
- * @param {Date} date - 변환할 날짜 객체
- * @returns {string} 변환된 날짜 문자열 (YYYY-MM-DD 형식)
- */
 const formatMonthDateToLocalISO = (date) => {
   if (!(date instanceof Date) || isNaN(date)) {
     return '';
@@ -17,23 +12,11 @@ const formatMonthDateToLocalISO = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-/**
- * LineChart 컴포넌트 - 데이터를 시각화하기 위한 라인 차트
- * @param {object} props - 컴포넌트에 전달되는 속성
- * @param {Array} props.data - 차트에 표시할 데이터 배열
- * @param {string} props.groupBy - 데이터를 그룹화할 기준 (예: 'tools' 또는 'toolver')
- * @returns {JSX.Element} 차트를 렌더링할 SVG 또는 데이터 없음 메시지
- */
 const LineChart = ({ data, groupBy, dateTerm }) => {
-  const { t } = useTranslation(); // 다국어 번역 훅
-  const svgRef = useRef(); // SVG 요소를 참조하는 ref
-
-  // 데이터를 그룹화할 기준 (toolname 또는 toolver)
+  const { t } = useTranslation();
+  const svgRef = useRef();
   const groupKey = groupBy === 'tools' ? 'toolname' : 'toolver';
-  
-  /**
-   * 데이터를 그룹화하여 차트에 표시할 형식으로 변환
-   */
+
   const groupedData = data
     ? Array.from(
         d3.group(data, (d) => d[groupKey]),
@@ -65,16 +48,11 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
   useEffect(() => {
     if (!data || data.length === 0) return;
 
-    /**
-     * 데이터를 그룹화하여 차트에 표시할 형식으로 변환
-     */
-
     const svg = d3.select(svgRef.current);
     const margin = { top: 60, right: 20, bottom: 50, left: 70 };
-    const width = 1200 - margin.left - margin.right; // 차트 너비
-    const height = 500 - margin.top - margin.bottom; // 차트 높이
+    const width = 1200 - margin.left - margin.right;
+    const height = 500 - margin.top - margin.bottom;
 
-    // 툴팁 생성
     const tooltip = d3
       .select('body')
       .append('div')
@@ -85,9 +63,8 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
       .style('padding', '5px 10px')
       .style('font-size', '12px')
       .style('pointer-events', 'none')
-      .style('opacity', 0); // 기본적으로 숨김 상태
+      .style('opacity', 0);
 
-    // SVG 초기화
     svg.selectAll('*').remove();
 
     svg
@@ -95,7 +72,6 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
       .attr('height', height)
       .style('overflow', 'visible');
 
-    // X축 범위 설정 (전체 데이터의 날짜 범위)
     const xScale = d3
       .scaleTime()
       .domain([
@@ -107,45 +83,125 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
         ),
       ])
       .range([margin.left, width - margin.right]);
-    groupedData.flatMap((group) => group.data.map((d) => new Date(d.date)));
 
     const filteredDates = (() => {
       switch (dateTerm) {
-        case '일':
-        case 'Day':
-          // 모든 날짜를 생성 (startDate부터 endDate까지)
+        case '주': {
           const startDate = xScale.domain()[0];
           const endDate = xScale.domain()[1];
-          const allDates = [];
+          const weeks = [];
           let currentDate = new Date(startDate);
 
           while (currentDate <= endDate) {
-            allDates.push(new Date(currentDate)); // 모든 날짜 추가
-            currentDate.setDate(currentDate.getDate() + 1); // 하루씩 증가
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+
+            const firstDayOfMonth = new Date(year, month - 1, 1);
+            const weekNumber = Math.ceil(
+              (currentDate.getDate() + firstDayOfMonth.getDay()) / 7
+            );
+
+            weeks.push({
+              label: `${year}년 ${month}월 ${weekNumber}주차`,
+              date: new Date(currentDate),
+            });
+
+            currentDate.setDate(currentDate.getDate() + 7);
           }
-          return allDates;
 
-        case '주':
-        case 'Week':
-          // 주 단위 데이터 처리
-          return groupedData.flatMap((group) =>
-            group.data.map((d) => new Date(d.date))
-          );
+          return weeks;
+        }
+        case 'Week': {
+          const startDate = xScale.domain()[0];
+          const endDate = xScale.domain()[1];
+          const weeks = [];
+          let currentDate = new Date(startDate);
 
-        default: {
+          while (currentDate <= endDate) {
+            const year = currentDate.getFullYear();
+            const month = currentDate.toLocaleString('en-US', {
+              month: 'short',
+            });
+            const weekNumber = Math.ceil(currentDate.getDate() / 7);
+
+            const getOrdinalSuffix = (num) => {
+              const j = num % 10;
+              const k = num % 100;
+              if (j === 1 && k !== 11) return `${num}st`;
+              if (j === 2 && k !== 12) return `${num}nd`;
+              if (j === 3 && k !== 13) return `${num}rd`;
+              return `${num}th`;
+            };
+
+            const weekLabel = `${month} ${getOrdinalSuffix(
+              weekNumber
+            )} W, ${year}`;
+
+            weeks.push({
+              label: weekLabel,
+              date: new Date(currentDate),
+            });
+
+            currentDate.setDate(currentDate.getDate() + 7);
+          }
+          return weeks;
+        }
+
+        case '달': {
           const startDate = xScale.domain()[0];
           const endDate = xScale.domain()[1];
           const dates = [];
           let currentDate = new Date(startDate);
 
           while (currentDate <= endDate) {
-            if (currentDate.toISOString().endsWith('-01T00:00:00.000Z')) {
-              // 월별 1일만 포함
-              dates.push(new Date(currentDate));
+            if (currentDate.getDate() === 1) {
+              const year = currentDate.getFullYear();
+              const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+
+              dates.push({
+                label: `${year}년 ${month}월`,
+                date: new Date(currentDate),
+              });
             }
             currentDate.setDate(currentDate.getDate() + 1);
           }
           return dates;
+        }
+
+        case 'Month': {
+          const startDate = xScale.domain()[0];
+          const endDate = xScale.domain()[1];
+          const dates = [];
+          let currentDate = new Date(startDate);
+
+          while (currentDate <= endDate) {
+            if (currentDate.getDate() === 1) {
+              const year = currentDate.getFullYear();
+              const month = currentDate.toLocaleString('en-US', {
+                month: 'long',
+              });
+
+              dates.push({
+                label: `${month}, ${year}`,
+                date: new Date(currentDate),
+              });
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+          return dates;
+        }
+
+        default: {
+          const startDate = xScale.domain()[0];
+          const endDate = xScale.domain()[1];
+          const allDates = [];
+          let currentDate = new Date(startDate);
+
+          while (currentDate <= endDate) {
+            allDates.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+          }
+          return allDates;
         }
       }
     })();
@@ -190,7 +246,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
         .attr('fill', color)
         .on('mouseover', (_, d) => {
           tooltip
-            .style('opacity', 1) // 툴팁 표시
+            .style('opacity', 1)
             .html(
               `<strong>${group.key}</strong><br>${t('LineChart.Date')}: ${
                 d.date
@@ -199,31 +255,30 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
         })
         .on('mousemove', (event) => {
           tooltip
-            .style('left', event.pageX + 10 + 'px') // 툴팁 X 위치
-            .style('top', event.pageY - 30 + 'px'); // 툴팁 Y 위치
+            .style('left', event.pageX + 10 + 'px')
+            .style('top', event.pageY - 30 + 'px');
         })
         .on('mouseout', () => {
-          tooltip.style('opacity', 0); // 툴팁 숨김
+          tooltip.style('opacity', 0);
         });
 
-      // 범례 색상 박스
       svg
         .append('line')
         .attr('x1', width - 150)
         .attr('y1', index * 15 - 45)
         .attr('x2', width - 120)
         .attr('y2', index * 15 - 45)
-        .attr('stroke', color) // 범례 색상
-        .attr('stroke-width', 2); // 범례 선 두께
+        .attr('stroke', color)
+        .attr('stroke-width', 2);
 
       svg
         .append('text')
         .attr('x', width - 110)
         .attr('y', index * 15 - 40)
         .attr('text-anchor', 'start')
-        .style('fill', 'black') // 텍스트 색상
-        .style('font-size', '14px') // 텍스트 크기
-        .style('font-weight', 'bold') // 텍스트 두께
+        .style('fill', 'black')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
         .text(() => {
           if (!group.key) {
             return 'Unknown';
@@ -234,31 +289,35 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
         });
     });
 
-    // X 축
     svg
       .append('g')
       .attr('transform', `translate(0, ${height - margin.bottom})`)
       .call(
         d3
           .axisBottom(xScale)
-          .tickValues(filteredDates) // 모든 날짜를 tick 값으로 설정
-          .tickFormat((d) => formatMonthDateToLocalISO(d)) // X축 레이블 포맷
+          .tickValues(filteredDates.map((d) => d.date || d))
+          .tickFormat((d, i) =>
+            dateTerm === '달' || dateTerm === 'Month'
+              ? filteredDates[i].label // Use the formatted "YYYY년 MM월"
+              : dateTerm === '주' || dateTerm === 'Week'
+              ? filteredDates[i].label // Use "YYYY년 MM월 nth째주" for weeks
+              : formatMonthDateToLocalISO(d)
+          )
       )
       .attr('font-size', '12px')
       .selectAll('text')
       .style('text-anchor', 'end')
-      .attr('dx', '-0.8em') // X축 레이블 위치
+      .attr('dx', '-0.8em')
       .attr('dy', '0.15em')
-      .attr('transform', 'rotate(-45)'); // X축 레이블 회전
+      .attr('transform', 'rotate(-45)');
 
     svg
       .append('text')
       .attr('text-anchor', 'middle')
       .attr('x', width / 2)
       .attr('y', height + margin.bottom - 10)
-      .text(t('LineChart.Date')); // X축 라벨
+      .text(t('LineChart.Date'));
 
-    // Y 축
     svg
       .append('g')
       .attr('transform', `translate(${margin.left}, 0)`)
@@ -270,10 +329,24 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
       .attr('text-anchor', 'middle')
       .attr('transform', 'rotate(-90)')
       .attr('x', -height / 2)
-      .text(t('LineChart.Value')); // Y축 라벨
+      .text(t('LineChart.Value'));
   }, [data, groupBy, dateTerm]);
 
-  return <svg ref={svgRef} />;
+  return (
+    <div>
+      {dateTerm === 'Week' && (
+        <div
+          style={{ textAlign: 'center', marginBottom: '10px', color: 'red' }}
+        >
+          {t('LineChart.Notification', {
+            term: 'W',
+            meaning: 'Week',
+          })}
+        </div>
+      )}
+      <svg ref={svgRef} />
+    </div>
+  );
 };
 
 export default LineChart;
