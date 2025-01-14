@@ -15,7 +15,8 @@ export default function CountsByVersion() {
 
   const pcName = location.state?.pcname || '전체'; // PC 이름 초기값 설정
   const toolName = location.state?.toolname || '전체'; // 도구 이름 초기값 설정
-  const dateTerm = location.state?.dateTerm || 'day'; // 선택된 날짜 기간 (기본값: "day")
+  const dateTerm = location.state?.dateTerm || 'Day'; // 선택된 날짜 기간 (기본값: "day")
+
   /**
    * 데이터 처리: toolname에서 공백 제거 및 null 값 처리
    */
@@ -31,8 +32,8 @@ export default function CountsByVersion() {
    */
   const filteredData = processedData.filter(
     (item) =>
-      (toolName === '전체' || item.toolname === toolName) && // "전체" 또는 일치하는 도구 이름
-      (pcName === '전체' || item.pc === pcName) // "전체" 또는 일치하는 PC 이름
+      (toolName === '전체' || pcName === 'All' || item.toolname === toolName) && // "전체" 또는 일치하는 도구 이름
+      (pcName === '전체' || pcName === 'All' || item.pc === pcName) // "전체" 또는 일치하는 PC 이름
   );
 
   /**
@@ -75,7 +76,6 @@ export default function CountsByVersion() {
         }
       }
     } catch (error) {
-      console.error('데이터 로드 중 오류:', error);
       setData([]); // 오류가 발생해도 빈 배열로 초기화
     }
   }, [location.key]);
@@ -113,7 +113,11 @@ export default function CountsByVersion() {
       >
         {filteredData.length > 0 ? (
           // 필터링된 데이터가 있을 경우 차트 컴포넌트 렌더링
-          <LineChart data={filteredData} groupBy="versions" dateTerm={dateTerm} />
+          <LineChart
+            data={filteredData}
+            groupBy="versions"
+            dateTerm={dateTerm}
+          />
         ) : (
           // 데이터가 없을 경우 "데이터 없음" 메시지 표시
           <p>{t('UsageCounts.NoDataFound')}</p>

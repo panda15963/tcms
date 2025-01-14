@@ -12,18 +12,19 @@ export default function CountsByTool() {
     ? location.state?.data?.result
     : [];
   const [data, setData] = useState(initialData); // 데이터 상태 관리
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 
+  const [isLoading, setIsLoading] = useState(false); // 로딩 상태
 
   const pcName = location.state?.pcname || '전체'; // 선택된 PC 이름 (기본값: "전체")
 
-  const dateTerm = location.state?.dateTerm || 'day'; // 선택된 날짜 기간 (기본값: "day")
+  const dateTerm = location.state?.dateTerm || 'Day'; // 선택된 날짜 기간 (기본값: "day")
   /**
    * 데이터 필터링: 선택된 PC 이름에 따라 데이터 필터링
    */
   const filteredData = Array.isArray(data)
-    ? data.filter((item) => pcName === '전체' || item.pc === pcName) // "전체" 또는 일치하는 PC만 포함
+    ? data.filter(
+        (item) => pcName === '전체' || pcName === 'All' || item.pc === pcName
+      ) // "전체", "All" 또는 일치하는 PC만 포함
     : [];
-
   /**
    * 새로고침 버튼 클릭 시 데이터를 다시 로드하는 함수
    */

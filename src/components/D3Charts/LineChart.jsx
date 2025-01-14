@@ -30,7 +30,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
 
   // 데이터를 그룹화할 기준 (toolname 또는 toolver)
   const groupKey = groupBy === 'tools' ? 'toolname' : 'toolver';
-
+  
   /**
    * 데이터를 그룹화하여 차트에 표시할 형식으로 변환
    */
@@ -39,7 +39,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
         d3.group(data, (d) => d[groupKey]),
         ([key, entries]) => {
           const processedData =
-            dateTerm === '달'
+            dateTerm === '달' || dateTerm === 'Month'
               ? Array.from(
                   d3.group(entries, (d) => {
                     const date = new Date(d.date);
@@ -112,6 +112,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
     const filteredDates = (() => {
       switch (dateTerm) {
         case '일':
+        case 'Day':
           // 모든 날짜를 생성 (startDate부터 endDate까지)
           const startDate = xScale.domain()[0];
           const endDate = xScale.domain()[1];
@@ -125,6 +126,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
           return allDates;
 
         case '주':
+        case 'Week':
           // 주 단위 데이터 처리
           return groupedData.flatMap((group) =>
             group.data.map((d) => new Date(d.date))

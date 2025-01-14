@@ -312,7 +312,7 @@
     "NoDataFound": "No Data Found.",
     "ToolName": "Tool Name",
     "VersionName": "Version Name",
-    "LogReceivedTime": "Log Received Time",
+    "LogReceivedTime": "Received Log Time",
     "LogLevel": "Log Level",
     "LogDetail": "Log Detail"
   },

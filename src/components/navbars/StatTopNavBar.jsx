@@ -62,8 +62,8 @@ export default function StatTopMenuBar() {
   };
 
   const isDisabled =
-    data?.name === 'TC 기반 도구 실시간 사용 현황' ||
-    data?.name === '실시간 도구 사용 정보';
+    data?.name === t('StatNavBar.TUSRT') ||
+    data?.name === t('StatNavBar.RTTUI');
 
   useEffect(() => {
     const fetchPCNames = async () => {
@@ -89,7 +89,8 @@ export default function StatTopMenuBar() {
 
   const handleSearch = useCallback(async () => {
     switch (data?.name) {
-      case '도구 실행 횟수(도구 별)':
+      /* 도구 실행 횟수(도구 별) */
+      case t('StatNavBar.TECT'):
         const countsByTool = {
           interval: dateTerm?.value || '',
           starttime: startDate ? formatDateToLocalISO(startDate) : '',
@@ -107,15 +108,15 @@ export default function StatTopMenuBar() {
           },
         });
         break;
-
-      case '도구 실행 횟수(버전 별)':
+      /* 도구 실행 횟수(버전 별) */
+      case t('StatNavBar.TECV'):
         const CountsByVersion = {
           interval: dateTerm?.value || '',
           starttime: startDate ? formatDateToLocalISO(startDate) : '',
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: 'version',
           toolname:
-            specialToolName?.name === '전체'
+            specialToolName?.name === '전체' || specialToolName?.name === 'All'
               ? 'TestCourseManagementSystem'
               : specialToolName?.name || '',
           pcname: '',
@@ -129,20 +130,21 @@ export default function StatTopMenuBar() {
           },
         });
         break;
-
-      case '도구 기능별 사용 횟수':
+      /* 도구 기능별 사용 횟수 */
+      case t('StatNavBar.TUCF'):
         const UsageCounts = {
           interval: dateTerm?.value || '',
           starttime: startDate ? formatDateToLocalISO(startDate) : '',
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: '',
           toolname:
-            specialToolName?.name === '전체'
+            specialToolName?.name === '전체' || specialToolName?.name === 'All'
               ? 'TestCourseManagementSystem'
               : specialToolName?.name || '',
-          pcname: selectedPC?.name === '전체'
-          ? ''
-          : selectedPC?.name || '',
+          pcname:
+            selectedPC?.name === '전체' || selectedPC?.name === 'All'
+              ? ''
+              : selectedPC?.name || '',
         };
         navigate('usageFunctionCounts', {
           state: {
@@ -153,8 +155,8 @@ export default function StatTopMenuBar() {
           },
         });
         break;
-
-      case '도구 로그 확인':
+      /* 도구 로그 확인 */
+      case t('StatNavBar.CTL'):
         const Logs = {
           interval: dateTerm?.value || '',
           starttime: startDate ? formatDateToLocalISO(startDate) : '',
@@ -171,8 +173,8 @@ export default function StatTopMenuBar() {
           },
         });
         break;
-
-      case '도구 설정 정보 변경 사항':
+      /* 도구 설정 정보 변경 사항 */
+      case t('StatNavBar.TCIC'):
         const Configuration = {
           interval: dateTerm?.value || '',
           starttime: startDate ? formatDateToLocalISO(startDate) : '',
@@ -241,15 +243,17 @@ export default function StatTopMenuBar() {
             className="flex items-center h-[52px] space-x-4"
             style={{
               opacity:
-                data?.name === '도구 실행 횟수(도구 별)' ||
-                data?.name === 'TC 기반 도구 실시간 사용 현황' ||
-                data?.name === '실시간 도구 사용 정보'
+                data?.name === t('StatNavBar.TECT') ||
+                data?.name === t('StatNavBar.TCIC') ||
+                data?.name === t('StatNavBar.RTTUI') ||
+                data?.name === t('StatNavBar.TUSRT')
                   ? 0.5
                   : 1,
               pointerEvents:
-                data?.name === '도구 실행 횟수(도구 별)' ||
-                data?.name === 'TC 기반 도구 실시간 사용 현황' ||
-                data?.name === '실시간 도구 사용 정보'
+                data?.name === t('StatNavBar.TECT') ||
+                data?.name === t('StatNavBar.TCIC') ||
+                data?.name === t('StatNavBar.RTTUI') ||
+                data?.name === t('StatNavBar.TUSRT')
                   ? 'none'
                   : 'auto',
               userSelect: 'none', // 드래그 방지

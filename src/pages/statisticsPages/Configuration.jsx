@@ -18,7 +18,6 @@ export default function Configuration() {
    * 데이터를 새로 고침하는 함수
    */
   const handleReload = () => {
-    console.log('Reloading data...');
     // 데이터 새로 고침 또는 재요청 (여기서는 location.state의 데이터를 사용)
     const updatedData = location.state?.data || {}; // 실제 데이터 요청 로직으로 교체 가능
     setData(updatedData.result || []); // 상태 업데이트
@@ -65,8 +64,8 @@ export default function Configuration() {
    */
   const filteredData = processedData.filter(
     (item) =>
-      (toolName === '전체' || item.toolname === toolName) && // "전체"이거나 선택된 도구 이름과 일치
-      (pcName === '전체' || item.pc === pcName) // "전체"이거나 선택된 PC 이름과 일치
+      (toolName === '전체' || pcName === 'All' || item.toolname === toolName) && // "전체" 또는 일치하는 도구 이름
+      (pcName === '전체' || pcName === 'All' || item.pc === pcName) // "전체" 또는 일치하는 PC 이름
   );
 
   return (

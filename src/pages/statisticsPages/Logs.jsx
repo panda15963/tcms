@@ -83,8 +83,8 @@ export default function Logs() {
    */
   const filteredData = processedData.filter(
     (item) =>
-      (toolName === '전체' || item.toolname === toolName) && // 도구 이름 필터링
-      (pcName === '전체' || item.pc === pcName) // PC 이름 필터링
+      (toolName === '전체' || pcName === 'All' || item.toolname === toolName) && // "전체" 또는 일치하는 도구 이름
+      (pcName === '전체' || pcName === 'All' || item.pc === pcName) // "전체" 또는 일치하는 PC 이름
   );
 
   return (
