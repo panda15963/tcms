@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from 'react';
 import { select } from 'd3-selection';
-import { transition } from 'd3-transition';
 import { scaleLinear } from 'd3-scale';
 
 /**

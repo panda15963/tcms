@@ -1,7 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as d3 from 'd3';
-
+/**
+ * BarChart 컴포넌트 - 데이터 값을 기반으로 진행률 막대 생성
+ * @param {object} props - 컴포넌트에 전달되는 속성
+ * @param {Array<object>} props.data - 차트 데이터
+ * @param {string} props.dateTerm - 날짜 단위
+ * @returns {JSX.Element} BarChart 컴포넌트
+ */
 const BarChart = ({ data, dateTerm }) => {
   const { t } = useTranslation(); // 다국어 번역 훅
   const chartRef = useRef(); // 차트를 렌더링할 DOM 요소 참조

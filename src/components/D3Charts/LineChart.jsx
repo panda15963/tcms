@@ -2,6 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as d3 from 'd3';
 
+/**
+ * 날짜를 ISO 형식으로 변환
+ * @param {Date} date - 날짜
+ * @returns {string} ISO 형식의 날짜
+ */
 const formatMonthDateToLocalISO = (date) => {
   if (!(date instanceof Date) || isNaN(date)) {
     return '';
@@ -12,6 +17,14 @@ const formatMonthDateToLocalISO = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+/**
+ * BarChart 컴포넌트 - 데이터 값을 기반으로 진행률 막대 생성
+ * @param {object} props - 컴포넌트에 전달되는 속성
+ * @param {Array<object>} props.data - 진행률 값 (객체 배열)
+ * @param {string} props.groupBy - 그룹화 기준 (tools 또는 toolver)
+ * @param {string} props.dateTerm - 날짜 단위 (일, 주, 달, Month)
+ * @returns {JSX.Element} BarChart 컴포넌트
+ */
 const LineChart = ({ data, groupBy, dateTerm }) => {
   const { t } = useTranslation();
   const svgRef = useRef();
