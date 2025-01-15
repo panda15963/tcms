@@ -351,6 +351,7 @@
   "LineChart": {
     "NoDataFound": "No Data Found.",
     "Value": "Process Counts",
+    "Date": "Date",
     "Notification": "※ The 'W' stands for the Week."
   },
   "BarChart": {
