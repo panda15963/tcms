@@ -27,30 +27,30 @@ export default function Logs() {
   /**
    * location.state 데이터 변경 시 데이터 업데이트
    */
- useEffect(() => {
-     try {
-       if (location.state?.data?.result) {
-         const newData = Array.isArray(location.state.data.result)
-           ? location.state.data.result
-           : [];
-         setData(newData);
-         // 데이터를 localStorage에 저장
-         localStorage.setItem('countsByToolData', JSON.stringify(newData));
-       } else {
-         // localStorage에서 데이터 불러오기
-         const savedData = localStorage.getItem('countsByToolData');
-         if (savedData) {
-           const parsedData = JSON.parse(savedData);
-           setData(Array.isArray(parsedData) ? parsedData : []);
-         } else {
-           setData([]); // 기본 빈 배열로 설정
-         }
-       }
-     } catch (error) {
-       console.error('데이터 로드 중 오류:', error);
-       setData([]); // 오류가 발생해도 빈 배열로 초기화
-     }
-   }, [location.key]);
+  useEffect(() => {
+    try {
+      if (location.state?.data?.result) {
+        const newData = Array.isArray(location.state.data.result)
+          ? location.state.data.result
+          : [];
+        setData(newData);
+        // 데이터를 localStorage에 저장
+        localStorage.setItem('countsByToolData', JSON.stringify(newData));
+      } else {
+        // localStorage에서 데이터 불러오기
+        const savedData = localStorage.getItem('countsByToolData');
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          setData(Array.isArray(parsedData) ? parsedData : []);
+        } else {
+          setData([]); // 기본 빈 배열로 설정
+        }
+      }
+    } catch (error) {
+      console.error('데이터 로드 중 오류:', error);
+      setData([]); // 오류가 발생해도 빈 배열로 초기화
+    }
+  }, [location.key]);
 
   /**
    * 새로고침 버튼 클릭 시 데이터 새로고침
@@ -90,7 +90,7 @@ export default function Logs() {
   return (
     <div
       className="flex flex-col items-center justify-start pt-20 px-4 sm:px-6 lg:px-8"
-      style={{ height: `calc(100vh - 115px)`, zIndex: '1' }}
+      style={{ height: `calc(100vh - 108px)`, zIndex: '1' }}
     >
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">

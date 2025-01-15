@@ -14,7 +14,7 @@ export default function UsageCounts() {
     : [];
   const [data, setData] = useState(initialData); // 데이터 상태 관리
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
-  const dateTerm = location.state?.dateTerm || 'day'; 
+  const dateTerm = location.state?.dateTerm || 'day';
 
   /**
    * 데이터 처리: toolname에서 공백 제거 및 null 값 처리
@@ -69,7 +69,7 @@ export default function UsageCounts() {
   return (
     <div
       className="flex flex-col items-center justify-start pt-20 px-4 sm:px-6 lg:px-8"
-      style={{ height: `calc(100vh - 115px)`, zIndex: '1' }}
+      style={{ height: `calc(100vh - 108px)`, zIndex: '1' }}
     >
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
