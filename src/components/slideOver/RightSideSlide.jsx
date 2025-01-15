@@ -190,20 +190,6 @@ export default function RightSideSlide({ data, onMapChange, isCleared }) {
               col1: t('RightSideSlide.Destination'),
               col2: item?.goal_name || 'Unknown',
               children: [
-                ...item.passingpts
-                  .map((pt, ptIndex) => [
-                    {
-                      id: `${index + 1}-${ptIndex + 1}-addr`,
-                      col1: t('RightSideSlide.Address'),
-                      col2: pt.addr || 'None',
-                    },
-                    {
-                      id: `${index + 1}-${ptIndex + 1}-road`,
-                      col1: t('RightSideSlide.RoadName'),
-                      col2: pt.road || 'None',
-                    },
-                  ])
-                  .flat(),
                 {
                   id: `${index + 1}-16-1`,
                   col1: t('RightSideSlide.Lon'),
