@@ -669,7 +669,7 @@ const TopMenuBar = ({
         {({ open }) => (
           <>
             <div className="mx-auto inset-x-0">
-              <div className="flex h-[52px] justify-between">
+              <div className="flex h-[50px] justify-between">
                 <div className="flex items-center lg:px-0">
                   <div className="hidden lg:block scale-90 z-40">
                     <div className="flex">
@@ -1043,7 +1043,10 @@ const TopMenuBar = ({
           </>
         )}
       </Disclosure>
-      <div className="map-container">
+      <div
+        className="map-container"
+        style={{ height: `calc(100vh - 100px)`, zIndex: '1' }}
+      >
         {/* 좌표나 경로를 보여주기 위한 지도 표출 */}
         {selectedAPI && handleChoosingMapAPIs()}
       </div>

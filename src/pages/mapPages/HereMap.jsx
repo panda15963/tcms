@@ -439,7 +439,7 @@ const HereMap = ({
   const clearMarkers = () => {
     if (markerRef.current) {
       mapInstance.current.removeObject(markerRef.current);
-      markerRef.current = null
+      markerRef.current = null;
     }
 
     Object.keys(markerRefs.current).forEach((key) => {
@@ -595,7 +595,9 @@ const HereMap = ({
     }
   }, [onClearMap]);
 
-  return <div ref={mapRef} style={{ height: `calc(100vh - 102px)`, zIndex: '1' }} />;
+  return (
+    <div ref={mapRef} style={{ height: `calc(100vh - 105px)`, zIndex: '1' }} />
+  );
 };
 
 export default HereMap;

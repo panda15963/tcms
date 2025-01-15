@@ -452,7 +452,7 @@ export default function Tmap({
     <div
       id="map_div"
       className="map"
-      style={{ height: `calc(100vh - 102px)`, zIndex: '1' }}
+      style={{ height: `calc(100vh - 105px)`, zIndex: '1' }}
     />
   );
 }

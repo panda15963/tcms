@@ -659,7 +659,7 @@ export default function RoutoMap({
     <div
       id="map"
       className="map"
-      style={{ height: `calc(100vh - 102px)`, zIndex: '1' }}
+      style={{ height: `calc(100vh - 105px)`, zIndex: '1' }}
     />
   );
 }

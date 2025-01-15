@@ -431,7 +431,8 @@ export default function BaiduMap({
 
       // 마커를 기본 좌표가 아닌 경우에만 추가
       const isDefaultCoordinates =
-        center.lat === Number(process.env.REACT_APP_LATITUDE) && center.lng === Number(process.env.REACT_APP_LONGITUDE); // 기본 서울 좌표
+        center.lat === Number(process.env.REACT_APP_LATITUDE) &&
+        center.lng === Number(process.env.REACT_APP_LONGITUDE); // 기본 서울 좌표
       if (!isDefaultCoordinates) {
         marker = new window.BMapGL.Marker(point);
         mapInstance.addOverlay(marker);
@@ -473,7 +474,7 @@ export default function BaiduMap({
       );
       marker.setPosition(point);
     }
-  }, [center]);  
+  }, [center]);
 
   // 출발지와 도착지가 변경될 때 경로 업데이트
   useEffect(() => {
@@ -486,7 +487,7 @@ export default function BaiduMap({
     <div
       id="allmap"
       className="map"
-      style={{ height: `calc(100vh - 102px)`, zIndex: '1' }}
+      style={{ height: `calc(100vh - 105px)`, zIndex: '1' }}
     />
   );
 }

@@ -92,7 +92,6 @@ export default function TomTomMap({
     setCenter(calculateCenterAndMarker(lat, lng));
   }, [lat, lng]);
 
-  
   const initializeMap = (APIKey) => {
     // TomTom 지도 초기화
     mapRef.current = tt.map({
@@ -336,7 +335,7 @@ export default function TomTomMap({
 
     if (!bounds.isEmpty()) {
       map.fitBounds(bounds, { padding: 50 });
-    } 
+    }
   };
 
   /**
@@ -396,7 +395,7 @@ export default function TomTomMap({
     <div
       id="map-container"
       className="map"
-      style={{ height: `calc(100vh - 102px)`, zIndex: '1' }}
+      style={{ height: `calc(100vh - 105px)`, zIndex: '1' }}
     />
   );
 }
