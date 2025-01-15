@@ -12,6 +12,8 @@ const BarChart = ({ data, dateTerm }) => {
   const { t } = useTranslation(); // 다국어 번역 훅
   const chartRef = useRef(); // 차트를 렌더링할 DOM 요소 참조
 
+  console.log('data', data);
+
   useEffect(() => {
     // 기존 차트를 제거하여 중복 생성 방지
     d3.select(chartRef.current).select('svg').remove();
@@ -206,7 +208,7 @@ const BarChart = ({ data, dateTerm }) => {
       '#c6dbef',
       '#e6550d',
     ];
-    
+
     const colorScale = d3
       .scaleOrdinal()
       .domain(Array.from(dateFuncnames.values()).flat())
@@ -339,7 +341,9 @@ const BarChart = ({ data, dateTerm }) => {
         .attr('height', itemsPerPage * 25 + 50) // 아래에 페이지네이션 버튼 공간 추가
         .attr('fill', '#f9f9f9') // 배경색
         .attr('stroke', '#ccc') // 테두리 색상
-        .attr('stroke-width', 1);
+        .attr('stroke-width', 1)
+        .attr('rx', 10) // 모서리를 둥글게
+        .attr('ry', 10); // 모서리를 둥글게
 
       // 각 funcname에 대한 범례 항목 생성
       visibleFuncnames.forEach((funcname, i) => {
