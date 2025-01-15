@@ -330,23 +330,44 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
       .attr('transform', 'rotate(-90)')
       .attr('x', -height / 2)
       .text(t('LineChart.Value'));
+
+    if (dateTerm === 'Week') {
+      const noticeGroup = svg
+        .append('g')
+        .attr('transform', `translate(0, -80)`);
+
+      // 공지사항 배경 및 테두리
+      const noticeWidth = 400;
+      const noticeHeight = 30;
+      const noticeX = (width - noticeWidth) / 2; // 중앙 정렬
+      const noticeY = 50;
+
+      noticeGroup
+        .append('rect')
+        .attr('x', noticeX)
+        .attr('y', noticeY)
+        .attr('width', noticeWidth)
+        .attr('height', noticeHeight)
+        .attr('rx', 10) // 둥근 모서리
+        .attr('ry', 10)
+        .style('fill', '#f9f9f9') // 배경색
+        .style('stroke', '#000000') // 테두리 색상
+        .style('stroke-width', 1.5); // 테두리 두께
+
+      // 공지사항 텍스트
+      noticeGroup
+        .append('text')
+        .attr('x', width / 2) // 중앙 정렬
+        .attr('y', noticeY + noticeHeight / 2 + 5) // 텍스트 세로 정렬
+        .attr('text-anchor', 'middle')
+        .style('font-size', '16px')
+        .style('font-weight', 'bold')
+        .style('fill', '#000000')
+        .text(t('LineChart.Notification')); // 공지사항 텍스트
+    }
   }, [data, groupBy, dateTerm]);
 
-  return (
-    <div>
-      {dateTerm === 'Week' && (
-        <div
-          style={{ textAlign: 'center', marginBottom: '10px', color: 'red' }}
-        >
-          {t('LineChart.Notification', {
-            term: 'W',
-            meaning: 'Week',
-          })}
-        </div>
-      )}
-      <svg ref={svgRef} />
-    </div>
-  );
+  return <svg ref={svgRef} />;
 };
 
 export default LineChart;

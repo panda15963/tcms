@@ -15,32 +15,154 @@ const BarChart = ({ data, dateTerm }) => {
     const width = 1200 - margin.left - margin.right; // 차트 너비
     const height = 500 - margin.top - margin.bottom; // 차트 높이
 
-    // dateTerm이 "달"이면 날짜를 1일로 변경
-    const transformedData =
-      dateTerm === '달' || dateTerm === 'Month'
-        ? data.map((d) => {
-            const dateObj = new Date(d.date);
-            return {
-              ...d,
-              date: `${dateObj.getFullYear()}년 ${String(
-                dateObj.getMonth() + 1
-              ).padStart(2, '0')}월`, // "YYYY년 MM월" 형식으로 변경
-            };
-          })
-        : data;
+    // 데이터 변환
+    let transformedData;
+    switch (dateTerm) {
+      case '달': {
+        transformedData = data.map((d) => {
+          const dateObj = new Date(d.date);
+          return {
+            ...d,
+            date: `${dateObj.getFullYear()}년 ${String(
+              dateObj.getMonth() + 1
+            ).padStart(2, '0')}월`,
+          };
+        });
+        break;
+      }
 
-    // 데이터를 날짜별로 그룹화
-    const groupedData = d3.group(transformedData, (d) =>
-      dateTerm === '주' || dateTerm === 'Week'
-        ? `${new Date(d.date).getFullYear()}년 ${
-            new Date(d.date).getMonth() + 1
-          }월 ${Math.ceil(
-            (new Date(d.date).getDate() + new Date(d.date).getDay()) / 7
-          )}째주`
-        : d.date
-    );
+      case 'Month': {
+        // 데이터 범위를 추출 (데이터가 날짜순으로 정렬되었다고 가정)
+        const xScale = d3.scaleTime().domain([
+          new Date(d3.min(data, (d) => new Date(d.date))), // 데이터 중 가장 이른 날짜
+          new Date(d3.max(data, (d) => new Date(d.date))), // 데이터 중 가장 늦은 날짜
+        ]);
 
-    const xLabels = Array.from(groupedData.keys());
+        // 월별 라벨 생성
+        const startDate = xScale.domain()[0]; // 범위 시작 날짜
+        const endDate = xScale.domain()[1]; // 범위 끝 날짜
+        const dates = []; // 월별 라벨을 저장할 배열
+        let currentDate = new Date(startDate); // 현재 날짜를 시작 날짜로 초기화
+
+        // 끝 날짜를 포함하여 라벨 생성
+        while (currentDate <= endDate) {
+          const year = currentDate.getFullYear(); // 현재 날짜의 연도
+          const month = currentDate.toLocaleString('en-US', { month: 'long' }); // 현재 날짜의 월 이름
+          dates.push({
+            label: `${month}, ${year}`, // "월, 연도" 형식의 라벨
+            date: new Date(currentDate), // 현재 날짜 객체를 저장
+          });
+          currentDate.setMonth(currentDate.getMonth() + 1); // 다음 달로 이동
+
+          // 월의 첫 번째 날로 조정 (예: 31일로 인해 월이 건너뛰는 경우 방지)
+          if (currentDate.getDate() !== 1) {
+            currentDate.setDate(1);
+          }
+        }
+
+        // 데이터 변환: 생성된 라벨에 따라 데이터의 날짜를 변환
+        transformedData = data.map((d) => {
+          const dateObj = new Date(d.date); // 데이터의 날짜를 객체로 변환
+          const matchingDate = dates.find(
+            (date) =>
+              date.date.getFullYear() === dateObj.getFullYear() && // 연도 비교
+              date.date.getMonth() === dateObj.getMonth() // 월 비교
+          );
+          return {
+            ...d, // 기존 데이터 복사
+            date: matchingDate // 매칭된 라벨이 있으면 사용, 없으면 기본 포맷 사용
+              ? matchingDate.label
+              : `${dateObj.getFullYear()}-${String(
+                  dateObj.getMonth() + 1
+                ).padStart(2, '0')}`, // 매칭 실패 시 "YYYY-MM" 형식으로 표시
+          };
+        });
+        break;
+      }
+
+      case '주': {
+        transformedData = data.map((d) => {
+          const dateObj = new Date(d.date);
+          const weekOfMonth = Math.ceil(
+            (dateObj.getDate() + dateObj.getDay()) / 7
+          );
+          return {
+            ...d,
+            date: `${dateObj.getFullYear()}년 ${
+              dateObj.getMonth() + 1
+            }월 ${weekOfMonth}째주`,
+          };
+        });
+        break;
+      }
+
+      case 'Week': {
+        // Extract the start and end dates from the data
+        const startDate = new Date(d3.min(data, (d) => new Date(d.date)));
+        const endDate = new Date(d3.max(data, (d) => new Date(d.date)));
+
+        // Generate weekly labels
+        const weeks = [];
+        let currentDate = new Date(startDate);
+
+        while (currentDate <= endDate) {
+          const year = currentDate.getFullYear();
+          const month = currentDate.toLocaleString('en-US', { month: 'short' });
+          const weekNumber = Math.ceil(currentDate.getDate() / 7);
+
+          const getOrdinalSuffix = (num) => {
+            const j = num % 10;
+            const k = num % 100;
+            if (j === 1 && k !== 11) return `${num}st`;
+            if (j === 2 && k !== 12) return `${num}nd`;
+            if (j === 3 && k !== 13) return `${num}rd`;
+            return `${num}th`;
+          };
+
+          const weekLabel = `${month} ${getOrdinalSuffix(
+            weekNumber
+          )} W, ${year}`;
+
+          weeks.push({
+            label: weekLabel,
+            date: new Date(currentDate),
+          });
+
+          currentDate.setDate(currentDate.getDate() + 7);
+        }
+
+        // Map the data to the generated weekly labels
+        transformedData = data.map((d) => {
+          const dateObj = new Date(d.date);
+          const matchingWeek = weeks.find(
+            (week) =>
+              week.date.getFullYear() === dateObj.getFullYear() &&
+              week.date.getMonth() === dateObj.getMonth() &&
+              Math.ceil(dateObj.getDate() / 7) ===
+                Math.ceil(week.date.getDate() / 7)
+          );
+
+          return {
+            ...d,
+            date: matchingWeek
+              ? matchingWeek.label
+              : `${dateObj.getFullYear()}-${String(
+                  dateObj.getMonth() + 1
+                ).padStart(2, '0')}`,
+          };
+        });
+        break;
+      }
+
+      default: {
+        transformedData = data;
+        break;
+      }
+    }
+
+    // 데이터를 그룹화
+    const processedData = d3.group(transformedData, (d) => d.date);
+    const xLabels = Array.from(processedData.keys());
 
     // funcname(함수 이름)의 고유 값 가져오기
     const funcnames = Array.from(
@@ -49,7 +171,7 @@ const BarChart = ({ data, dateTerm }) => {
 
     // 날짜별 funcname 매핑
     const dateFuncnames = new Map(
-      Array.from(groupedData, ([date, entries]) => [
+      Array.from(processedData, ([date, entries]) => [
         date,
         Array.from(new Set(entries.map((d) => d.funcname))),
       ])
@@ -71,12 +193,7 @@ const BarChart = ({ data, dateTerm }) => {
       .attr('transform', `translate(${margin.left},${margin.top})`); // 차트 내부 여백 설정
 
     // X축 스케일 설정 (날짜)
-    const x0 = d3
-      .scaleBand()
-      // .domain(Array.from(groupedData.keys())) // 그룹화된 데이터의 키(날짜) 설정
-      .domain(xLabels)
-      .range([0, width])
-      .padding(0.2); // X축 간격
+    const x0 = d3.scaleBand().domain(xLabels).range([0, width]).padding(0.2); // X축 간격
 
     // Y축 스케일 설정 (값)
     const y = d3
@@ -124,7 +241,7 @@ const BarChart = ({ data, dateTerm }) => {
       .style('opacity', 0); // 초기 투명도 설정
 
     // 바 생성
-    Array.from(groupedData).forEach(([date, entries]) => {
+    Array.from(processedData).forEach(([date, entries]) => {
       // 날짜별 funcname 가져오기
       const funcnamesForDate = dateFuncnames.get(date);
 
@@ -272,6 +389,41 @@ const BarChart = ({ data, dateTerm }) => {
 
       renderLegend(currentPage);
     });
+
+    if (dateTerm === 'Week') {
+      const noticeGroup = svg
+        .append('g')
+        .attr('transform', `translate(0, -80)`);
+
+      // 공지사항 배경 및 테두리
+      const noticeWidth = 400;
+      const noticeHeight = 30;
+      const noticeX = (width - noticeWidth) / 2; // 중앙 정렬
+      const noticeY = 40;
+
+      noticeGroup
+        .append('rect')
+        .attr('x', noticeX)
+        .attr('y', noticeY)
+        .attr('width', noticeWidth)
+        .attr('height', noticeHeight)
+        .attr('rx', 10) // 둥근 모서리
+        .attr('ry', 10)
+        .style('fill', '#f9f9f9') // 배경색
+        .style('stroke', '#000000') // 테두리 색상
+        .style('stroke-width', 1.5); // 테두리 두께
+
+      // 공지사항 텍스트
+      noticeGroup
+        .append('text')
+        .attr('x', width / 2) // 중앙 정렬
+        .attr('y', noticeY + noticeHeight / 2 + 5) // 텍스트 세로 정렬
+        .attr('text-anchor', 'middle')
+        .style('font-size', '16px')
+        .style('font-weight', 'bold')
+        .style('fill', '#000000')
+        .text(t('BarChart.Notification')); // 공지사항 텍스트
+    }
   }, [data, t]); // 종속성 배열에 data와 t 추가
 
   return <div ref={chartRef} />; // 차트를 렌더링할 DOM 요소
