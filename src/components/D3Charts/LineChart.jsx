@@ -328,7 +328,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
       .append('text')
       .attr('text-anchor', 'middle')
       .attr('x', width / 2)
-      .attr('y', height + margin.bottom - 10)
+      .attr('y', height + margin.bottom + 10)
       .text(t('LineChart.Date'));
 
     svg

@@ -12,8 +12,6 @@ const BarChart = ({ data, dateTerm }) => {
   const { t } = useTranslation(); // 다국어 번역 훅
   const chartRef = useRef(); // 차트를 렌더링할 DOM 요소 참조
 
-  console.log('data', data);
-
   useEffect(() => {
     // 기존 차트를 제거하여 중복 생성 방지
     d3.select(chartRef.current).select('svg').remove();
