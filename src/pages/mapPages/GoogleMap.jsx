@@ -113,7 +113,11 @@ const GoogleMaps = ({
   };
 
   useEffect(() => {
-    if (spaceFullCoords.length === 0 && routeFullCoords.length === 0 && routesColors.current.size > 0) {
+    if (
+      spaceFullCoords.length === 0 &&
+      routeFullCoords.length === 0 &&
+      routesColors.current.size > 0
+    ) {
       resetToDefaultView();
       setUserInteracted(false);
     }
@@ -170,6 +174,10 @@ const GoogleMaps = ({
         zoom={defaultZoom}
         onLoad={setMap}
         onClick={handleMapClick}
+        options={{
+          mapTypeId: 'roadmap', // 'satellite' 또는 'hybrid'를 제외
+          disableDefaultUI: true, // 기본 UI 비활성화
+        }}
       >
         {markerPosition && <Marker position={markerPosition} />}
         {spaceFullCoords.map((space, index) => {

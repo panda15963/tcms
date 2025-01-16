@@ -152,37 +152,43 @@ const NavBar = () => {
               as="div"
               className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
             >
-              <MenuButton className="text-sm font-semibold">
-                {/* 관리 */}
-                {t('NavBar.Management')} <FaAngleDown className="inline" />
-              </MenuButton>
-              <Transition
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
-                <MenuItems className="absolute z-50 left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <MenuItem>
-                    {({ active }) => (
-                      <>
-                        {AuthPage.map((page) => (
-                          <Link
-                            key={page.id}
-                            to={page.link}
-                            className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50 "
-                            onClick={() => handleLinkClick(page.link)}
-                          >
-                            {page.name}
-                          </Link>
-                        ))}
-                      </>
-                    )}
-                  </MenuItem>
-                </MenuItems>
-              </Transition>
+              {({ open }) => (
+                <>
+                  <MenuButton className="text-sm font-semibold">
+                    {/* 관리 */}
+                    {t('NavBar.Management')} <FaAngleDown className="inline" />
+                  </MenuButton>
+                  <Transition
+                    show={open}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <MenuItems className="absolute z-50 left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      {AuthPage.map((page) => (
+                        <MenuItem key={page.id}>
+                          {({ active }) => (
+                            <Link
+                              to={page.link}
+                              className={`block px-3 py-2 rounded-md text-base font-bold text-gray-700 ${
+                                active ? 'bg-gray-50' : ''
+                              }`}
+                              onClick={() => {
+                                handleLinkClick(page.link);
+                              }}
+                            >
+                              {page.name}
+                            </Link>
+                          )}
+                        </MenuItem>
+                      ))}
+                    </MenuItems>
+                  </Transition>
+                </>
+              )}
             </Menu>
           )}
         </div>

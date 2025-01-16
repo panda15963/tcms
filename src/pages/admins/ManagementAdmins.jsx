@@ -7,15 +7,7 @@ import useToast from '../../hooks/useToast';
 import { ToastTypes } from '../../context/ToastProvider';
 import AddAdminModal from './AddAdminModal';
 import { useTranslation } from 'react-i18next';
-
-/**
- * 여러 클래스 이름을 조합하는 함수
- * @param {string[]} classes - 클래스 이름 배열
- * @returns {string} - 조합된 클래스 이름 문자열
- */
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
+import { Link } from 'react-router-dom';
 
 /**
  * 관리자 관리 페이지 컴포넌트
@@ -126,7 +118,6 @@ export default function ManagementAdmins() {
               className="inline-flex items-center gap-x-1.5 rounded-md bg-blue-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-900"
               onClick={() => {
                 if (addAdminModalRef) {
-                  // console.log('Clicked show add admin modal');
                   addAdminModalRef.current.show();
                 }
               }}
@@ -210,7 +201,7 @@ export default function ManagementAdmins() {
                       {formatStringDate(item.upd_date)}
                     </td>
                     <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                      <a
+                      <Link
                         className="text-blue-900 hover:text-blue-700 font-semibold cursor-pointer"
                         onClick={() => {
                           handleUpdateAdminInfo(item);
@@ -218,10 +209,10 @@ export default function ManagementAdmins() {
                       >
                         {/* 수정 */}
                         {t('admin.Edit')}
-                      </a>
+                      </Link>
                     </td>
                     <td className="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                      <a
+                      <Link
                         className="text-red-600 hover:text-red-700 font-semibold cursor-pointer"
                         onClick={() => {
                           handleDeleteAdminId(item.admin_id);
@@ -229,7 +220,7 @@ export default function ManagementAdmins() {
                       >
                         {/* 삭제 */}
                         {t('admin.Delete')}
-                      </a>
+                      </Link>
                     </td>
                   </tr>
                 ))}

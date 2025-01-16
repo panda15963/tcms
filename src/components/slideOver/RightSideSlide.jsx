@@ -323,7 +323,13 @@ export default function RightSideSlide({ data, onMapChange, isCleared }) {
             </div>
           </div>
           {/* 데이터 테이블 */}
-          <div className="px-2 overflow-x-auto pb-5 scroll-smooth overflow-scroll ">
+          <div
+            className={`px-2 overflow-x-auto pb-5 ${
+              rows.length > 1
+                ? 'scroll-smooth overflow-scroll'
+                : 'overflow-hidden'
+            }`}
+          >
             {rows.length > 0 ? (
               <table className="min-w-full border-collapse border border-gray-200">
                 <tbody>

@@ -436,6 +436,7 @@ export default function Tmap({
     mapRef.current = new Tmapv2.Map('map_div', {
       center: new Tmapv2.LatLng(center.lat, center.lng), // 지도 초기화 시 중심 좌표 설정
       zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨 설정
+      zoomControl: false, // 확대/축소 컨트롤 비활성화
     });
 
     // 지도 클릭 이벤트 리스너 추가
