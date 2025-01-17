@@ -73,6 +73,7 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {Array} routeColors - 경로 색상의 배열
  * @param {function} onClearMap - 지도를 초기화하는 함수
  * @param {string} selectedAPI - 선택된 API 키
+ * @param {string} typeMap - 지도 타입
  */
 export default function Tmap({
   lat,
@@ -86,6 +87,7 @@ export default function Tmap({
   routeColors = () => {},
   onClearMap,
   selectedAPI,
+  typeMap,
 }) {
   const routesColors = useRef(new Map());
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 계산
@@ -121,14 +123,25 @@ export default function Tmap({
    * TMap 스크립트를 로드하고 지도를 초기화하는 useEffect
    */
   useEffect(() => {
-    // 환경 변수에 TMAP API 키가 설정되어 있는지 확인
     if (!selectedAPI) {
-      console.error('TMAP API 키가 누락되었습니다!'); // API 키가 없을 경우 오류 출력
-      return; // 실행 중단
+      console.error('TMAP API key is missing!');
+      return;
     }
-
-    initMap(); // Tmapv2 객체가 이미 로드된 경우 지도 초기화 함수 호출
-  }, []); // 의존성 배열을 비워두어 컴포넌트가 마운트될 때 한 번만 실행
+  
+    const mapType =
+      typeMap === 'Basic Map'
+        ? window.Tmapv2.Map.MapType.ROAD
+        : typeMap === 'Satellite Map'
+        ? window.Tmapv2.Map.MapType.SATELLITE
+        : window.Tmapv2.Map.MapType.HYBRID;
+  
+    if (mapRef.current) {
+      mapRef.current.setMapType(mapType);
+    } else {
+      initMap(typeMap);
+    }
+  }, [typeMap, selectedAPI]);
+  
 
   /**
    * `center` 상태가 변경될 때 지도 중심과 마커를 업데이트하는 useEffect
@@ -425,7 +438,7 @@ export default function Tmap({
   /**
    * 지도를 초기화하는 함수
    */
-  function initMap() {
+  function initMap(MapTypes) {
     if (mapRef.current) {
       // 지도 인스턴스가 이미 초기화된 경우
       updateMapCenter(); // 중심 좌표와 마커를 업데이트
@@ -445,6 +458,7 @@ export default function Tmap({
       const clickedLng = evt.latLng.lng(); // 클릭한 위치의 경도
       locationCoords({ lat: clickedLat, lng: clickedLng }); // 부모로 클릭한 좌표 전달
     });
+    mapRef.current.setMapType(MapTypes); // 위성지도 모드 활성화
 
     updateMapCenter(); // 초기 중심 마커 설정
   }

@@ -20,6 +20,7 @@ import Error from '../alerts/Error';
  * @param {function} props.routeColors - 경로 색상 처리 함수
  * @param {function} props.onClearMap - 지도 초기화 함수
  * @param {string} props.selectedAPIKey - 선택된 API 키
+ * @param {string} props.typeMap - 지도 유형
  */
 export default function TMapHandler({
   selectedCoords,
@@ -32,6 +33,7 @@ export default function TMapHandler({
   routeColors = () => {},
   onClearMap,
   selectedAPI,
+  typeMap,
 }) {
   const [error, setError] = useState(false); // 오류 상태 관리
   const [errorValue, setErrorValue] = useState(''); // 오류 메시지 상태 관리
@@ -67,6 +69,7 @@ export default function TMapHandler({
       routeColors={routeColors} // 경로 색상 처리 함수
       onClearMap={onClearMap} // 지도 초기화 함수
       selectedAPI={selectedAPI} // 선택된 API 키
+      typeMap={typeMap} // 지도 유형
     />
   );
 }

@@ -17,6 +17,8 @@ import Error from '../alerts/Error';
  * @param {function} props.routeColors - 경로 색상 처리 함수
  * @param {Array} props.spaceFullCoords - 전체 공간 데이터
  * @param {function} props.onClearMap - 지도 초기화 함수
+ * @param {string} props.selectedAPI - 선택된 API 키
+ * @param {string} props.typeMap - 지도 유형
  */
 export default function GoogleMapHandler({
   selectedCoords,
@@ -28,6 +30,7 @@ export default function GoogleMapHandler({
   spaceFullCoords = [],
   onClearMap,
   selectedAPI,
+  typeMap,
 }) {
   const [isError, setIsError] = useState(false); // 오류 상태
   const [errorText, setErrorText] = useState(null); // 오류 메시지 상태
@@ -75,6 +78,7 @@ export default function GoogleMapHandler({
       onClearMap={onClearMap}
       checkedNode={checkedNode} // 선택된 노드 데이터
       selectedAPI={selectedAPI}
+      typeMap={typeMap}
     />
   );
 }

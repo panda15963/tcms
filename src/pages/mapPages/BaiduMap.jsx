@@ -89,11 +89,11 @@ function parseCoordinates(coords) {
  * @param {string} destinations - 도착지 좌표 문자열
  * @param {Array} checkedNodes - 체크된 노드 배열
  * @param {Object} clickedNode - 클릭된 노드 객체
- * @param {String} selectedAPI - 선택된 API 키
  * @param {Array} routeFullCoords - 전체 경로 좌표 배열
  * @param {Array} spaceFullCoords - 전체 공간 좌표 배열
  * @param {function} routesColors - 경로 색상을 반환하는 함수
  * @param {function} onClearMap - 지도 초기화 함수
+ * @param {string} typeMap - 지도 타입
  */
 export default function BaiduMap({
   lat,
@@ -103,11 +103,11 @@ export default function BaiduMap({
   destinations,
   checkedNodes,
   clickedNode,
-  selectedAPI,
   routeFullCoords,
   spaceFullCoords = [],
   routesColors = () => {},
   onClearMap,
+  typeMap,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 중심 좌표 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 상태 관리
@@ -191,8 +191,6 @@ export default function BaiduMap({
     const filteredRoutes = routeFullCoords.filter((route) =>
       checkedNodes.some((node) => node.file_id === route.file_id)
     );
-
-    console.log(routeFullCoords);
 
     // 새 경로 추가
     filteredRoutes.forEach((route, index) => {
@@ -415,12 +413,27 @@ export default function BaiduMap({
    * Baidu 지도 초기화 및 로드
    */
   useEffect(() => {
-    let marker;
+    const mapType =
+      typeMap === 'Basic Map'
+        ? window.BMAP_NORMAL_MAP
+        : typeMap === 'Satellite Map'
+        ? window.BMAP_SATELLITE_MAP
+        : window.BMAP_HYBRID_MAP;
 
     /**
      * Baidu 지도 API를 로드하는 함수
      */
-    const initializeMap = () => {
+    const initializeMap = (mapTypes) => {
+      if (mapRef.current.mapInstance) {
+        mapRef.current.mapInstance.setMapType(mapTypes);
+        const point = new window.BMapGL.Point(center.lng, center.lat);
+        mapRef.current.mapInstance.centerAndZoom(
+          point,
+          Number(process.env.REACT_APP_ZOOM || 14)
+        );
+        return;
+      }
+
       const mapInstance = new window.BMapGL.Map('allmap');
       const point = new window.BMapGL.Point(center.lng, center.lat);
       mapInstance.centerAndZoom(
@@ -428,19 +441,19 @@ export default function BaiduMap({
         Number(process.env.REACT_APP_ZOOM || 14)
       );
       mapInstance.enableScrollWheelZoom(true);
+      mapInstance.setMapType(mapTypes);
 
-      // 마커를 기본 좌표가 아닌 경우에만 추가
       const isDefaultCoordinates =
         center.lat === Number(process.env.REACT_APP_LATITUDE) &&
         center.lng === Number(process.env.REACT_APP_LONGITUDE); // 기본 서울 좌표
       if (!isDefaultCoordinates) {
-        marker = new window.BMapGL.Marker(point);
+        const marker = new window.BMapGL.Marker(point);
         mapInstance.addOverlay(marker);
+        mapRef.current.marker = marker;
       }
 
       mapInstance.addEventListener('tilesloaded', () => {
         mapRef.current.mapInstance = mapInstance;
-        mapRef.current.marker = marker;
         addRoute();
       });
 
@@ -450,18 +463,21 @@ export default function BaiduMap({
           locationCoords({ lat: clickedPoint.lat, lng: clickedPoint.lng });
         }
       });
+
+      mapRef.current.mapInstance = mapInstance;
     };
 
-    initializeMap(); // 이미 로드된 경우 초기화만 수행
+    initializeMap(mapType);
 
     return () => {
       if (mapRef.current.mapInstance) {
         mapRef.current.mapInstance.removeEventListener('click');
         mapRef.current.mapInstance.removeEventListener('tilesloaded');
         mapRef.current.mapInstance.clearOverlays();
+        mapRef.current.mapInstance = null;
       }
     };
-  }, [center]);
+  }, [typeMap, center]);
 
   // 지도 중심 및 마커 위치 업데이트
   useEffect(() => {

@@ -64,6 +64,7 @@ export default function TomTomMap({
   routeColors = () => {},
   onClearMap,
   selectedAPI,
+  typeMap,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 상태 관리
@@ -75,6 +76,10 @@ export default function TomTomMap({
   const defaultLat = parseFloat(process.env.REACT_APP_LATITUDE);
   const defaultLng = parseFloat(process.env.REACT_APP_LONGITUDE);
   const routesColors = useRef(new Map());
+  const choosenMap =
+    typeMap === 'Basic Map'
+      ? 'https://api.tomtom.com/style/2/custom/style/dG9tdG9tQEBAVUFERldicE50NHlpZk90RDtiNTVhNjk0NC01N2QyLTQ0ZjItYWE4NS02Yzc5NjBkNmVjMDM=/drafts/0.json'
+      : 'https://api.tomtom.com/style/2/custom/style/dG9tdG9tQEBAVUFERldicE50NHlpZk90RDs2Yjc4ZWZlMC02MmYxLTQzNGEtOTE5NC05Y2NkYzg4ODc5YzE=/drafts/0.json';
 
   useEffect(() => {
     routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
@@ -92,6 +97,13 @@ export default function TomTomMap({
     setCenter(calculateCenterAndMarker(lat, lng));
   }, [lat, lng]);
 
+  useEffect(() => {
+    // 지도 스타일이 변경될 때마다 업데이트
+    if (mapRef.current) {
+      mapRef.current.setStyle(choosenMap);
+    }
+  }, [typeMap]);
+
   const initializeMap = (APIKey) => {
     // TomTom 지도 초기화
     mapRef.current = tt.map({
@@ -99,6 +111,7 @@ export default function TomTomMap({
       container: 'map-container', // 지도가 렌더링될 HTML 컨테이너 ID
       center: [center.lng, center.lat], // 초기 중심 좌표
       zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨
+      style: choosenMap, // 지도 스타일
     });
 
     // 지도 클릭 이벤트 리스너 추가
@@ -254,7 +267,6 @@ export default function TomTomMap({
    * @param {Object} map - 지도 인스턴스
    */
   const clearRoutesAndMarkers = (map) => {
-    // Remove route layers
     if (routeLayerIds.current.length > 0) {
       routeLayerIds.current.forEach((layerId) => {
         if (map.getLayer(layerId)) {
@@ -265,7 +277,6 @@ export default function TomTomMap({
       routeLayerIds.current = [];
     }
 
-    // Remove markers
     if (routeMarkers.current.length > 0) {
       routeMarkers.current.forEach((marker) => marker.remove());
       routeMarkers.current = [];

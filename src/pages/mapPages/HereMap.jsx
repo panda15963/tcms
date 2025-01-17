@@ -29,6 +29,7 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {Object} checkedNode - 선택된 노드 데이터 상태
  * @param {function} onClearMap - 지도 초기화 함수
  * @param {String} selectedAPI - API 키
+ * @param {String} typeMap - 지도 타입
  */
 const HereMap = ({
   lat,
@@ -41,6 +42,7 @@ const HereMap = ({
   checkedNode, // 선택된 노드 상태
   onClearMap,
   selectedAPI,
+  typeMap,
 }) => {
   const routesColors = useRef(new Map());
   const mapRef = useRef(null); // 지도 DOM 요소 참조
@@ -513,22 +515,29 @@ const HereMap = ({
       });
     };
 
-    const initializeMap = () => {
-      if (!window.H || !apiKey || mapInstance.current) {
+    const initializeMap = (typesMap) => {
+      if (!window.H || !apiKey) {
         return;
+      }
+
+      if (mapInstance.current) {
+        // 기존 지도 삭제
+        mapInstance.current.dispose();
       }
 
       platformInstance.current = new H.service.Platform({ apiKey });
       const defaultLayers = platformInstance.current.createDefaultLayers();
+      const selectedLayer =
+        typesMap === 'Basic Map'
+          ? defaultLayers.vector.normal.map // 기본 지도
+          : typesMap === 'Satellite Map'
+          ? defaultLayers.raster.satellite.map // 위성 지도
+          : defaultLayers.vector.hybrid.map; // 하이브리드 지도 (기본값)
 
-      mapInstance.current = new H.Map(
-        mapRef.current,
-        defaultLayers.vector.normal.map,
-        {
-          zoom: Number(process.env.REACT_APP_ZOOM) || 17,
-          center: initialCoords,
-        }
-      );
+      mapInstance.current = new H.Map(mapRef.current, selectedLayer, {
+        zoom: Number(process.env.REACT_APP_ZOOM) || 17,
+        center: initialCoords,
+      });
 
       new H.mapevents.Behavior(new H.mapevents.MapEvents(mapInstance.current));
       mapInstance.current.addEventListener('tap', (evt) => {
@@ -551,11 +560,11 @@ const HereMap = ({
       .then(() =>
         loadScript('https://js.api.here.com/v3/3.1/mapsjs-mapevents.js')
       )
-      .then(() => initializeMap())
+      .then(() => initializeMap(typeMap))
       .catch((error) =>
         console.error('Failed to load HERE Maps API scripts:', error)
       );
-  }, []);
+  }, [typeMap, apiKey, lat, lng]);
 
   useEffect(() => {
     if (!mapInstance.current || lat === undefined || lng === undefined) {

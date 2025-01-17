@@ -3,15 +3,20 @@
 @tailwind utilities;
 
 @layer components {
-  /* Hide the arrows in Chrome, Safari, Edge, and Opera */
+  /* Chrome, Safari, Edge, Opera에서 숫자 입력 필드의 화살표 숨기기 */
   input[type='number']::-webkit-outer-spin-button,
   input[type='number']::-webkit-inner-spin-button {
-    @apply appearance-none;
-    margin: 0;
+    @apply appearance-none; /* 기본 스타일 제거 */
+    margin: 0; /* 마진 제거 */
   }
 
-  /* Hide the arrows in Firefox */
+  /* Firefox에서 숫자 입력 필드의 화살표 숨기기 */
   input[type='number'] {
-    -moz-appearance: textfield;
+    -moz-appearance: textfield; /* 기본 화살표 스타일 제거 */
+  }
+
+  /* id가 'root'인 요소에 스타일 추가 */
+  #root {
+    height: 890px; /* 높이 설정 */
   }
 }

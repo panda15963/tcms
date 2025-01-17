@@ -13,6 +13,11 @@ import Error from '../alerts/Error';
  * @param {Array} props.checkedNode - 선택된 노드 목록
  * @param {object} props.clickedNode - 클릭된 노드 정보
  * @param {string} props.selectedAPI - 선택된 API 키
+ * @param {Array} props.spaceFullCoords - 전체 공간 데이터
+ * @param {Array} props.routeFullCoords - 전체 경로 데이터
+ * @param {Array} props.routeColors - 경로 색상 배열
+ * @param {function} props.onClearMap - 지도 초기화 함수
+ * @param {string} props.typeMap - 지도 유형
  */
 export default function BaiduMapHandler({
   selectedCoords,
@@ -26,6 +31,7 @@ export default function BaiduMapHandler({
   routeFullCoords,
   routeColors,
   onClearMap,
+  typeMap,
 }) {
   if (!baiduLocation) {
     return <Error message="지도를 표시할 수 없습니다. 위치 정보가 없습니다." />;
@@ -45,6 +51,7 @@ export default function BaiduMapHandler({
       routeFullCoords={routeFullCoords}
       routesColors={routeColors}
       onClearMap={onClearMap}
+      typeMap={typeMap}
     />
   );
 }

@@ -34,6 +34,8 @@ const isValidCoordinate = (coord) =>
  * @param {boolean} onClearMap - 지도 초기화 여부
  * @param {Array} checkedNode - 선택된 노드 데이터
  * @param {String} selectedAPI - API 키
+ * @param {Array} routeColors - 경로 색상 배열
+ * @param {String} typeMap - 지도 타입
  */
 const GoogleMaps = ({
   lat,
@@ -45,11 +47,18 @@ const GoogleMaps = ({
   onClearMap,
   selectedAPI,
   routeColors = () => {},
+  typeMap,
 }) => {
   const [map, setMap] = useState(null);
   const [userInteracted, setUserInteracted] = useState(false);
   const [markerPosition, setMarkerPosition] = useState(null);
   const routesColors = useRef(new Map());
+  const choosenMap =
+    typeMap === 'Basic Map'
+      ? 'roadmap'
+      : typeMap === 'Satellite Map'
+      ? 'satellite'
+      : 'hybrid';
 
   useEffect(() => {
     const parsedLat = isNaN(parseFloat(lat)) ? null : parseFloat(lat);
@@ -175,7 +184,7 @@ const GoogleMaps = ({
         onLoad={setMap}
         onClick={handleMapClick}
         options={{
-          mapTypeId: 'roadmap', // 'satellite' 또는 'hybrid'를 제외
+          mapTypeId: choosenMap,
           disableDefaultUI: true, // 기본 UI 비활성화
         }}
       >

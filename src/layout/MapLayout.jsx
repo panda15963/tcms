@@ -1,8 +1,11 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import TopMenuBar from '../components/navbars/TopMenuBar';
 import LeftSideSlide from '../components/slideOver/LeftSideSlide';
 import RightSideSlide from '../components/slideOver/RightSideSlide';
+import BasicType from '../assets/images/typeMap/type_basic.png';
+import HybridType from '../assets/images/typeMap/type_hybrid.png';
+import SatelliteType from '../assets/images/typeMap/type_satellite.png';
 
 /**
  * MapLayout 컴포넌트
@@ -19,7 +22,11 @@ export default function MapLayout() {
   const [currentApi, setCurrentApi] = useState(null);
   const [routeColors, setRouteColors] = useState([]);
   const [isCleared, setIsCleared] = useState(false);
-  
+  const [mapType, setMapType] = useState({
+    label: 'Basic Map',
+    image: SatelliteType,
+  });
+
   // 메모이제이션: 상태 변경으로 인한 불필요한 리렌더링 방지
   const memoizedRouteData = useMemo(() => routeData, [routeData]);
   const memoizedCheckedNodes = useMemo(() => checkedNodes, [checkedNodes]);
@@ -113,6 +120,39 @@ export default function MapLayout() {
     return uniqueData;
   }, [memoizedRouteData]);
 
+  const cycleMapType = () => {
+    if (
+      currentApi?.name === 'TOMTOM' ||
+      currentApi?.name === 'HERE'
+    ) {
+      setMapType((prevType) => {
+        if (prevType.label === 'Basic Map') {
+          return { label: 'Satellite Map', image: BasicType };
+        } else {
+          return { label: 'Basic Map', image: SatelliteType };
+        }
+      });
+    } else {
+      setMapType((prevType) => {
+        if (prevType.label === 'Basic Map') {
+          return { label: 'Satellite Map', image: HybridType };
+        } else if (prevType.label === 'Satellite Map') {
+          return { label: 'Hybrid Map', image: BasicType };
+        } else {
+          return { label: 'Basic Map', image: SatelliteType };
+        }
+      });
+    }
+  };
+
+  useEffect(() => {
+    // currentApi가 변경될 때 기본 맵 타입으로 초기화
+    setMapType({
+      label: 'Basic Map',
+      image: SatelliteType,
+    });
+  }, [currentApi]);
+
   return (
     <>
       {/* 상단 메뉴 바 */}
@@ -123,24 +163,38 @@ export default function MapLayout() {
         setCurrentApi={setCurrentApi}
         routeColors={routeColors}
         onClear={handleClear}
-        handleSpaceData={
-          (data) => {
-            setRouteData(data);
-          }
-        }
+        handleSpaceData={(data) => {
+          setRouteData(data);
+        }}
+        typeMap={mapType.label}
       />
 
-      {/* 좌측 슬라이드 패널 */}
-      <LeftSideSlide
-        data={uniqueRouteData}
-        onCheckedNodesChange={handleCheckedNodes}
-        onClickedNode={handleClickedNode}
-        onMapChange={currentApi}
-        routeColors={handleRouteColors}
-        isCleared={isCleared}
-      />
+      {/* 좌측 슬라이드와 버튼이 함께 움직이는 컨테이너 */}
+      <div className="relative">
+        <LeftSideSlide
+          data={uniqueRouteData}
+          onCheckedNodesChange={handleCheckedNodes}
+          onClickedNode={handleClickedNode}
+          onMapChange={currentApi}
+          routeColors={handleRouteColors}
+          isCleared={isCleared}
+        />
 
-      {/* 우측 슬라이드  */}
+        {/* 왼쪽 하단 버튼 */}
+        <div className="absolute bottom-5 left-5 z-20">
+          <button
+            className="w-16 h-16 shadow-md hover:shadow-lg focus:outline-none"
+            style={{
+              backgroundImage: `url(${mapType.image})`,
+              backgroundSize: 'cover',
+            }}
+            onClick={cycleMapType}
+            title={mapType.label}
+          />
+        </div>
+      </div>
+
+      {/* 오른쪽 슬라이드 */}
       <RightSideSlide
         data={uniqueRouteData}
         onMapChange={currentApi}

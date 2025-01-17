@@ -18,6 +18,8 @@ import Error from '../alerts/Error';
  * @param {function} props.routeColors - 경로 색상 처리 함수
  * @param {Array} props.spaceFullCoords - 전체 공간 데이터
  * @param {function} props.onClearMap - 지도 초기화 함수
+ * @param {string} props.selectedAPI - 선택된 API 키
+ * @param {string} props.typeMap - 지도 유형
  */
 export default function RoutoMapHandler({
   selectedCoords, // 선택된 좌표 (위도 및 경도)
@@ -30,6 +32,7 @@ export default function RoutoMapHandler({
   spaceFullCoords, // 전체 공간 데이터
   onClearMap, // 지도를 초기화하는 함수
   selectedAPI,
+  typeMap,
 }) {
   const [error, setError] = useState(false); // 오류 상태
   const [errorValue, setErrorValue] = useState(''); // 오류 메시지
@@ -76,6 +79,7 @@ export default function RoutoMapHandler({
       spaceFullCoords={filteredSpaces} // 필터링된 공간 데이터 전달
       onClearMap={onClearMap} // 지도 초기화 함수 전달
       selectedAPI={selectedAPI} // 선택된 API 키 전달
+      typeMap={typeMap} // 지도 유형 전달
     />
   );
 }

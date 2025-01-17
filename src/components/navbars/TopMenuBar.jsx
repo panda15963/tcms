@@ -37,6 +37,7 @@ const TopMenuBar = ({
   handleSpaceData,
   onClear,
   routeColors = () => {},
+  typeMap,
 }) => {
   const [inputValue, setInputValue] = useState(''); // 검색 입력값
   const [keyPressed, setKeyPressed] = useState(''); // 마지막으로 입력된 키
@@ -204,6 +205,7 @@ const TopMenuBar = ({
           routeColors={routeColors} // 경로 색상
           onClearMap={onClearMap} // 지도 초기화 함수
           selectedAPI={selectedAPI.apiKey} // 선택된 API 키
+          typeMap={typeMap}
         />
       );
     } else if (selectedAPI?.name === 'ROUTO') {
@@ -219,6 +221,7 @@ const TopMenuBar = ({
           routeColors={routeColors}
           onClearMap={onClearMap}
           selectedAPI={selectedAPI.apiKey}
+          typeMap={typeMap}
         />
       );
     } else if (selectedAPI?.name === 'TMAP') {
@@ -234,6 +237,7 @@ const TopMenuBar = ({
           routeColors={routeColors}
           onClearMap={onClearMap}
           selectedAPI={selectedAPI.apiKey}
+          typeMap={typeMap}
         />
       );
     } else if (selectedAPI?.name === 'TOMTOM') {
@@ -249,6 +253,7 @@ const TopMenuBar = ({
           routeColors={routeColors}
           onClearMap={onClearMap}
           selectedAPI={selectedAPI.apiKey}
+          typeMap={typeMap}
         />
       );
     } else if (selectedAPI?.name === 'BAIDU') {
@@ -266,6 +271,7 @@ const TopMenuBar = ({
           onClearMap={onClearMap}
           selectedAPI={selectedAPI.apiKey}
           routeColors={routeColors}
+          typeMap={typeMap}
         />
       );
     } else if (selectedAPI?.name === 'HERE') {
@@ -281,6 +287,7 @@ const TopMenuBar = ({
           routeColors={routeColors}
           onClearMap={onClearMap}
           selectedAPI={selectedAPI.apiKey}
+          typeMap={typeMap}
         />
       );
     }

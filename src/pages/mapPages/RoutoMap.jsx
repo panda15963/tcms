@@ -34,6 +34,7 @@ function calculateCenterAndMarker(lat, lng) {
  * @param {object} clickedNode
  * @param {function} onClearMap
  * @param {string} selectedAPI
+ * @param {string} typeMap
  */
 export default function RoutoMap({
   lat,
@@ -45,6 +46,7 @@ export default function RoutoMap({
   clickedNode,
   onClearMap,
   selectedAPI,
+  typeMap,
 }) {
   const initialCoords = calculateCenterAndMarker(lat, lng); // 초기 지도 중심 좌표 계산
   const [center, setCenter] = useState(initialCoords); // 지도 중심 좌표 상태 관리
@@ -61,6 +63,12 @@ export default function RoutoMap({
   const [focusedNode, setFocusedNode] = useState(null);
   const [shouldResetToDefault, setShouldResetToDefault] = useState(true); // 기본 좌표 복귀 여부
   const routesColors = useRef(new Map());
+  const choosenMap =
+    typeMap === 'Basic Map'
+      ? 'Roadmap_Half_Basic'
+      : typeMap === 'Satellite Map'
+      ? 'Satellite'
+      : 'Hybrid';
 
   useEffect(() => {
     routeFullCoords = []; // 경로 좌표 배열을 빈 배열로 초기화
@@ -198,6 +206,7 @@ export default function RoutoMap({
       mapRef.current = new routo.maps.Map('map', {
         center: { lat: center.lat, lng: center.lng },
         zoom: Number(process.env.REACT_APP_ZOOM),
+        mapTypeId: choosenMap, // 기존 choosenMap 유지
       });
 
       // onClearMap 상태 리셋
@@ -206,7 +215,7 @@ export default function RoutoMap({
       }, 100);
       setShouldResetToDefault(true); // 클릭한 좌표 유지
     }
-  }, [onClearMap]);
+  }, [onClearMap, choosenMap]); // choosenMap을 dependency로 추가
 
   /**
    * 경로와 마커를 모두 삭제하는 함수
@@ -545,6 +554,13 @@ export default function RoutoMap({
     }
   };
 
+  // 맵 타입이 변경될 때 이를 즉시 반영하는 useEffect
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.setMapTypeId(choosenMap); // mapTypeId를 업데이트
+    }
+  }, [choosenMap]);
+
   const loadMapScript = () => {
     const script = document.createElement('script');
     const baseUrl = 'https://api.routo.com/v2/maps/map'; // Routo Maps API의 기본 URL
@@ -560,6 +576,7 @@ export default function RoutoMap({
         mapRef.current = new routo.maps.Map(document.getElementById('map'), {
           center: { lat: center.lat, lng: center.lng }, // 초기 중심 좌표 설정
           zoom: Number(process.env.REACT_APP_ZOOM), // 초기 줌 레벨 설정
+          mapTypeId: choosenMap,
         });
       }
 
