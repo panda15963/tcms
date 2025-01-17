@@ -183,7 +183,7 @@ export default function MapLayout() {
         {/* 왼쪽 하단 버튼 */}
         <div className="absolute bottom-5 left-5 z-20">
           <button
-            className="w-16 h-16 shadow-md hover:shadow-lg focus:outline-none"
+            className="w-14 h-14 shadow-md hover:shadow-lg focus:outline-none"
             style={{
               backgroundImage: `url(${mapType.image})`,
               backgroundSize: 'cover',
