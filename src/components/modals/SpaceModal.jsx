@@ -423,7 +423,7 @@ const SpaceModal = forwardRef(
             setLongitude(126.978);
             setListCount(0);
           }}
-          className="relative z-40"
+          className="relative z-50"
         >
           <Transition.Child
             enter="ease-out duration-300"
@@ -437,7 +437,8 @@ const SpaceModal = forwardRef(
           </Transition.Child>
 
           <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
+            {/* <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0"> */}
+            <div className="flex min-h-screen items-center justify-center p-4 text-center sm:items-center sm:p-0">
               <Transition.Child
                 enter="ease-out duration-300"
                 enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -447,8 +448,10 @@ const SpaceModal = forwardRef(
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
                 <DialogPanel
-                  className="relative rounded-lg bg-white p-0 shadow-xl text-left transition-all sm:max-w-screen-xl"
-                  style={{ width: '1324px' }}
+                  className="relative rounded-lg bg-white shadow-xl text-left transition-all "
+                  // style={{ width: '1324px', height: '596px' }} 딱맞음
+                  style={{ width: '1324px', height: '596px' }}
+                  static
                 >
                   {!isDirect && (
                     <div className="flex justify-between py-3 px-5 bg-blue-900 rounded-t-lg">
@@ -472,7 +475,7 @@ const SpaceModal = forwardRef(
                     </div>
                   )}
                   {/* Main Layout */}
-                  <div className="flex gap-4 p-3">
+                  <div className="m-2 flex space-x-2">
                     {' '}
                     {/* flex-wrap 제거 */}
                     {/* Left Section */}
@@ -566,42 +569,44 @@ const SpaceModal = forwardRef(
                     </div>
                   </div>
                   {/* Bottom Section for Table */}
-                  <div className="pr-3 pl-3 pb-2">
-                    <SpaceTable
-                      list={list}
-                      onSelectionChange={setCheckedLists}
-                    />
-                    <div className="flex justify-end mt-3">
-                      <button
-                        onClick={
-                          isDirect ? handleSpaceDownload : handleButtonClick
-                        }
-                        className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
-                      >
-                        {isDirect ? (
-                          <>
-                            <FaDownload
-                              className="h-4 w-5 text-blue-900"
-                              aria-hidden="true"
-                            />
-                            <span className="text-base text-blue-900 font-bold">
-                              {/* 다운로드 */}
-                              {t('SpaceModal.Download')}
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <FaCheck
-                              className="h-4 w-5 text-blue-900"
-                              aria-hidden="true"
-                            />
-                            <span className="text-base text-blue-900 font-bold">
-                              {/* 선택 */}
-                              {t('SpaceModal.Select')}
-                            </span>
-                          </>
-                        )}
-                      </button>
+                  <div className="mt-0">
+                    <div className="mr-2 ml-2 mb-2">
+                      <SpaceTable
+                        list={list}
+                        onSelectionChange={setCheckedLists}
+                      />
+                      <div className="flex justify-end mt-3">
+                        <button
+                          onClick={
+                            isDirect ? handleSpaceDownload : handleButtonClick
+                          }
+                          className="h-9 inline-flex items-center border-2 gap-x-2 px-3 py-2 font-semibold text-sm border-slate-300 rounded-md  focus:ring-1 focus:border-sky-500 hover:border-sky-500 cursor-pointer"
+                        >
+                          {isDirect ? (
+                            <>
+                              <FaDownload
+                                className="h-4 w-5 text-blue-900"
+                                aria-hidden="true"
+                              />
+                              <span className="text-sm text-blue-900 font-bold">
+                                {/* 다운로드 */}
+                                {t('SpaceModal.Download')}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <FaCheck
+                                className="h-4 w-5 text-blue-900"
+                                aria-hidden="true"
+                              />
+                              <span className="text-sm text-blue-900 font-bold">
+                                {/* 선택 */}
+                                {t('SpaceModal.Select')}
+                              </span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </DialogPanel>

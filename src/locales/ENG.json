@@ -166,7 +166,8 @@
     "LogType": "Log Type",
     "Target": "Target",
     "Summary": "Summary",
-    "NoResults": "No Results found"
+    "NoResults": "No Results found",
+    "LoadMore": "Load More"
   },
   "GoogleMap": {
     "RouteZeroResults": "Can't find the routes",
