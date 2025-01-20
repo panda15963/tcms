@@ -481,7 +481,7 @@ const SpaceModal = forwardRef(
                     {/* Left Section */}
                     <div className="flex flex-col gap-1.5 w-1/3 border-r pr-3">
                       <div className="flex items-center gap-2">
-                        <label className="text-xs font-semibold flex-shrink-0 mr-2">
+                        <label className="text-xs font-semibold flex-shrink-0 w-16 text-right mr-2">
                           {/* 위도 */}
                           {t('SpaceModal.Lat')}
                         </label>
@@ -499,7 +499,7 @@ const SpaceModal = forwardRef(
                         />
                       </div>
                       <div className="flex items-center gap-2">
-                        <label className="text-xs font-semibold flex-shrink-0 mr-2">
+                        <label className="text-xs font-semibold flex-shrink-0  w-16 text-right mr-2 ">
                           {/* 경도 */}
                           {t('SpaceModal.Lon')}
                         </label>
@@ -517,7 +517,7 @@ const SpaceModal = forwardRef(
                         />
                       </div>
                       <div className="flex items-center gap-2">
-                        <label className="text-xs font-semibold flex-shrink-0 mr-2">
+                        <label className="text-xs font-semibold flex-shrink-0 w-16 text-right mr-2">
                           {/* 미터 */}
                           {t('SpaceModal.Meters')}
                         </label>
