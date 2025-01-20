@@ -25,6 +25,11 @@ export default function StatTopMenuBar() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  const defaultData = {
+    id: 1,
+    name: '도구 실행 횟수(도구 별)',
+    link: '/countsByTool',
+  };
   const [data, setData] = useState({ name: '' });
   const [startDate, setStartDate] = useState(initialStartDate);
   const [endDate, setEndDate] = useState(initialEndDate);
@@ -39,6 +44,13 @@ export default function StatTopMenuBar() {
   const [selectedTool, setSelectedTool] = useState(null);
   const [resetTrigger, setResetTrigger] = useState(0);
   const [specialToolName, setSpecialToolName] = useState('');
+
+  useEffect(() => {
+    // 페이지 이동 시 항상 기본값으로 설정
+    if (location.pathname !== defaultData.link) {
+      setData(defaultData);
+    }
+  }, []);
 
   useEffect(() => {
     if (data?.name) {
@@ -138,7 +150,9 @@ export default function StatTopMenuBar() {
           endtime: endDate ? formatDateToLocalISO(endDate) : '',
           by: '',
           toolname:
-            specialToolName?.name === '전체' || specialToolName?.name === 'All'
+            specialToolName?.name === '전체' ||
+            specialToolName?.name === 'All' ||
+            specialToolName?.name === undefined
               ? 'TestCourseManagementSystem'
               : specialToolName?.name || '',
           pcname:

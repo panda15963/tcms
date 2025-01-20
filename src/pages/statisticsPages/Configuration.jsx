@@ -56,7 +56,7 @@ export default function Configuration() {
    */
   const processedData = data.map((item) => ({
     ...item,
-    toolname: item.toolname.replace(/\s+/g, ''), // 도구 이름의 공백 제거
+    toolname: item.toolname ? item.toolname.replace(/\s+/g, '') : '', // Ensure toolname is valid
   }));
 
   /**
@@ -64,8 +64,10 @@ export default function Configuration() {
    */
   const filteredData = processedData.filter(
     (item) =>
-      (toolName === '전체' || pcName === 'All' || item.toolname === toolName) && // "전체" 또는 일치하는 도구 이름
-      (pcName === '전체' || pcName === 'All' || item.pc === pcName) // "전체" 또는 일치하는 PC 이름
+      (toolName === '전체' ||
+        pcName === 'All' ||
+        item.toolname?.toUpperCase() === toolName) &&
+      (pcName === '전체' || pcName === 'All' || item.pc === pcName)
   );
 
   return (
