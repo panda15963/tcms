@@ -1,5 +1,4 @@
 import BaiduMap from '../../pages/mapPages/BaiduMap';
-import Error from '../alerts/Error';
 
 /**
  * BaiduMapHandler 컴포넌트
@@ -33,10 +32,6 @@ export default function BaiduMapHandler({
   onClearMap,
   typeMap,
 }) {
-  if (!baiduLocation) {
-    return <Error message="지도를 표시할 수 없습니다. 위치 정보가 없습니다." />;
-  }
-
   return (
     <BaiduMap
       lat={selectedCoords?.lat}

@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { HiOutlineDocumentSearch } from 'react-icons/hi';
 import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
 import { FaMagnifyingGlass, FaXmark, FaBars } from 'react-icons/fa6';
+import { ToastContainer, toast, Bounce } from 'react-toastify'; // 토스트 알림 컴포넌트
 import {
   Disclosure,
   DisclosureButton,
@@ -22,8 +23,6 @@ import { DECToMMS, DECToDEC, DECToDEG } from '../calculateCoords/ConvertsDEC';
 import { MMSToDEC } from '../calculateCoords/ConvertsMMS';
 import { DEGToDEC } from '../calculateCoords/ConvertsDEG';
 import { useTranslation } from 'react-i18next';
-import Completion from '../alerts/Completion';
-import Error from '../alerts/Error';
 import spaceIcon2 from '../../assets/icons/spaceicon2.png';
 import downloadIcon2 from '../../assets/icons/downloadicon2.png';
 import clearIcon2 from '../../assets/icons/mapclearicon2.png';
@@ -46,10 +45,6 @@ const TopMenuBar = ({
   const [clickedCoords, setClickedCoords] = useState(null); // 클릭된 좌표
   const [selectedMapList, setSelectedMapList] = useState(null); // 선택된 좌표 형식
   const [convertedCoords, setConvertedCoords] = useState({ lat: '', lng: '' }); // 변환된 좌표
-  const [success, setSuccess] = useState(false); // 성공 메시지 표시 여부
-  const [successValue, setSuccessValue] = useState(''); // 성공 메시지 내용
-  const [error, setError] = useState(false); // 에러 메시지 표시 여부
-  const [errorValue, setErrorValue] = useState(''); // 에러 메시지 내용
   const [displayCoords, setDisplayCoords] = useState(null); // 화면에 표시할 좌표
   const [origins, setOrigins] = useState([]); // 시작 좌표 리스트
   const [destinations, setDestinations] = useState([]); // 도착 좌표 리스트
@@ -295,7 +290,6 @@ const TopMenuBar = ({
 
   useEffect(() => {
     if (selectedAPI) {
-      // Reset states when a new API is selected
       setOrigins([]);
       setDestinations([]);
       setInputValue('');
@@ -303,14 +297,7 @@ const TopMenuBar = ({
       setClickedCoords(null);
       setConvertedCoords({ lat: '', lng: '' });
       setDisplayCoords(null);
-
-      // Set the current API to the selected API
       setCurrentApi(selectedAPI);
-
-      // Display success message
-      setSuccessValue(
-        `${t('TopMenuBar.SelectedAPI')}: ${selectedAPI.name.toUpperCase()}`
-      );
     }
   }, [selectedAPI, setCurrentApi]);
 
@@ -363,19 +350,13 @@ const TopMenuBar = ({
       navigator.clipboard
         .writeText(coordsText) // 클립보드에 텍스트 복사
         .then(() => {
-          setSuccessValue(`${t('TopMenuBar.Copy.Success')}`); // 성공 메시지 설정
-          setSuccess(true); // 성공 상태 활성화
-          setTimeout(() => setSuccess(false), 5000); // 5초 후 성공 상태 비활성화
+          toast.success(`${t('TopMenuBar.Copy.Success')}`); // 성공 메시지 설정
         })
         .catch((err) => {
-          setErrorValue(err.message || `${t('TopMenuBar.Copy.Fail')}`); // 에러 메시지 설정
-          setError(true); // 에러 상태 활성화
-          setTimeout(() => setError(false), 5000); // 5초 후 에러 상태 비활성화
+          toast.error(err.message || `${t('TopMenuBar.Copy.Fail')}`); // 에러 메시지 설정
         });
     } else {
-      setErrorValue(`${t('TopMenuBar.CoordsNotExistence')}`); // 좌표 없음 에러 메시지 설정
-      setError(true);
-      setTimeout(() => setError(false), 5000);
+      toast.error(`${t('TopMenuBar.CoordsNotExistence')}`); // 좌표 없음 에러 메시지 설정
     }
   };
 
@@ -425,26 +406,24 @@ const TopMenuBar = ({
 
     // 좌표가 입력되지 않은 경우 에러 메시지 설정
     if (!lat) {
-      latError = `${latitude} ${t('TopMenuBar.LatError')}`;
+      latError = `${latitude}${t('TopMenuBar.LatError')}`;
     }
     if (!lng) {
-      lngError = `${longitude} ${t('TopMenuBar.LonError')}`;
+      lngError = `${longitude}${t('TopMenuBar.LonError')}`;
     }
 
     // 입력된 좌표가 없을 때 에러 표시
     if (latError || lngError) {
       const combinedError =
         latError && lngError
-          ? `${t('TopMenuBar.CombinedError')}: ${latError} & ${lngError}.`
+          ? `${t('TopMenuBar.CombinedError')} ${t('Common.Latitude')} 와 ${t('Common.Longitude')}${t('TopMenuBar.LatError')}.`
           : latError
           ? `${t('TopMenuBar.ErrorInLat')}: ${latError}.`
           : `${t('TopMenuBar.ErrorInLon')}: ${lngError}.`;
 
       console.log('combinedError ==>', combinedError);
 
-      setErrorValue(combinedError); // 에러 메시지 설정
-      setError(true); // 에러 상태 활성화
-      setTimeout(() => setError(false), 2000); // 2초 후 에러 상태 비활성화
+      toast.error(combinedError); // 에러 메시지 설정
       return;
     }
 
@@ -482,11 +461,11 @@ const TopMenuBar = ({
       }
       if (latSpaceError && lngSpaceError) {
         latError = `${latitude} ${degError}`;
-        lngError = `${longitude} ${degError}`;
+        lngError = `${longitude}${degError}`;
       } else if (latSpaceError) {
-        latError = `${latitude} ${degError}`;
+        latError = `${latitude}${degError}`;
       } else if (lngSpaceError) {
-        lngError = `${longitude} ${degError}`;
+        lngError = `${longitude}${degError}`;
       }
     }
 
@@ -494,13 +473,11 @@ const TopMenuBar = ({
     if (latError || lngError) {
       const combinedError =
         latError && lngError
-          ? `${t('TopMenuBar.CombinedError')}: ${latError} & ${lngError}`
+          ? `${t('TopMenuBar.CombinedError')} ${latError} 그리고 ${lngError}`
           : latError
-          ? `${t('TopMenuBar.ErrorInLat')}: ${latError}`
-          : `${t('TopMenuBar.ErrorInLon')}: ${lngError}`;
-      setErrorValue(combinedError);
-      setError(true);
-      setTimeout(() => setError(false), 2000);
+          ? `${t('TopMenuBar.ErrorInLat')} ${latError}`
+          : `${t('TopMenuBar.ErrorInLon')} ${lngError}`;
+      toast.error(combinedError);
       return;
     }
 
@@ -514,9 +491,7 @@ const TopMenuBar = ({
       } catch (error) {
         console.log('error.message ==>', error.message);
 
-        setErrorValue(error.message); // 변환 에러 메시지 설정
-        setError(true);
-        setTimeout(() => setError(false), 2000);
+        toast.error(error.message); // 변환 에러 메시지 설정
         return;
       }
     } else {
@@ -562,9 +537,7 @@ const TopMenuBar = ({
           lngValue < currentRanges.minLng ||
           lngValue > currentRanges.maxLng)
       ) {
-        setErrorValue(`${t('TopMenuBar.RangeError')}`); // 범위 에러 메시지 설정
-        setError(true);
-        setTimeout(() => setError(false), 2000);
+        toast.error(`${t('TopMenuBar.RangeError')}`); // 범위 에러 메시지 설정
         return;
       }
 
@@ -577,15 +550,10 @@ const TopMenuBar = ({
       } else if (selectedMapList.name === 'DEG') {
         result = DEGToDEC({ lat: latValue, lng: lngValue });
       }
-
-      console.log('result ==>', result);
-
       setSelectedCoords(result); // 변환된 좌표 저장
       setDisplayCoords(result); // 화면에 표시할 좌표 저장
     } else {
-      setErrorValue(`${t('TopMenuBar.WrongCoords')}`); // 유효하지 않은 좌표 에러 메시지
-      setError(true);
-      setTimeout(() => setError(false), 2000);
+      toast.error(`${t('TopMenuBar.WrongCoords')}`); // 유효하지 않은 좌표 에러 메시지
     }
   };
 
@@ -670,8 +638,6 @@ const TopMenuBar = ({
 
   return (
     <>
-      {success && <Completion successfulMessage={successValue} />}
-      {error && <Error errorMessage={errorValue} />}
       <Disclosure as="nav" className="bg-gray-800">
         {({ open }) => (
           <>
@@ -1048,7 +1014,7 @@ const TopMenuBar = ({
               </div>
             </DisclosurePanel>
           </>
-        )}
+        )}        
       </Disclosure>
       <div
         className="map-container"
@@ -1057,6 +1023,19 @@ const TopMenuBar = ({
         {/* 좌표나 경로를 보여주기 위한 지도 표출 */}
         {selectedAPI && handleChoosingMapAPIs()}
       </div>
+      <ToastContainer
+          position="top-center"
+          autoClose={1000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={true}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+          transition={Bounce}
+        />
     </>
   );
 };

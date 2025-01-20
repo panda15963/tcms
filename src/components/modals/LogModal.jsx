@@ -13,12 +13,12 @@ import ConfigGridR from '../tables/mapTables/ConfigGridR';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
 import { FaDownload } from 'react-icons/fa6';
-import Error from '../alerts/Error';
 import useDidMount from '../../hooks/useDidMount';
 import useLoading from '../../hooks/useLoading';
 import RouteModal from './RouteModal';
 import ConfigModal from './ConfigModal';
 import { axiosInstance } from '../../server/axios_config';
+import { ToastContainer, toast, Bounce } from 'react-toastify'; // 토스트 알림 컴포넌트
 
 /**
  * 로그 검색
@@ -117,8 +117,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   // 모달 상태 및 조건 관리
   const [cond, setCond] = useState(initialCond); // 검색 조건
   const [configCond, setConfigCond] = useState(initialConfigCond); // 화면 정보 조건
-  const [error, setError] = useState(null); // 에러 상태
-  const [errorValue, setErrorValue] = useState(''); // 에러 메시지
   const [open, setOpen] = useState(false); // 모달 열림 상태
   const [activeTab, setActiveTab] = useState('route'); // 활성 탭 ('route' 또는 'batch')
 
@@ -675,8 +673,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 경로탭 검색
    */
   const onFindMeta = async () => {
-    setError(null);
-
     console.log('onFindMeta of cond.operation ==>', cond.operation);
     console.log('onFindMeta of selectedIds ==>', selectedIds);
 
@@ -805,9 +801,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
     if (arrayFromList.length == 0) {
       // 아무것도 선택되지 않았습니다.
-      setErrorValue(`${t('SpaceModal.Alert1')}`);
-      setError(true);
-      setTimeout(() => setError(false), 3000);
+      toast.error(`${t('SpaceModal.Alert1')}`);
       setLoading(false);
       return;
     }
@@ -1002,10 +996,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       handleConfigConfirm(flatResultList);
     } else {
       // 아무것도 선택되지 않았습니다.
-      setErrorValue(`${t('SpaceModal.Alert1')}`);
-      setError(true);
-      setTimeout(() => setError(false), 3000);
-      setLoading(false);
+      toast.error(`${t('SpaceModal.Alert1')}`);
       return;
     }
   };
@@ -1058,8 +1049,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 화면정보탭 검색
    */
   const onFindTccfg = async () => {
-    setError(null);
-
     const condTmp = {
       group_id: -1,
       description: selectedConfigIds.includes('description')
@@ -1292,7 +1281,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
 
   return (
     <Transition show={open}>
-      {error && <Error errorMessage={errorValue} />}
       <Dialog
         onClose={() => {
           setList(initialList);
@@ -1554,7 +1542,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           </span>
                         </button>
                       </div>
-                      {error && <p className="text-red-500">{error}</p>}
                       <MainGrid
                         list={list}
                         onSelectionChange={handleSelectionChangeRoute}
@@ -1833,6 +1820,19 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
           </div>
         </div>
       </Dialog>
+      <ToastContainer
+        position="top-center"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={true}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition={Bounce}
+      />
     </Transition>
   );
 });

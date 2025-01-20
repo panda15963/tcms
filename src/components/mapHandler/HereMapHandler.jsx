@@ -1,6 +1,5 @@
 import React from 'react';
 import HereMap from '../../pages/mapPages/HereMap';
-import Error from '../alerts/Error';
 
 /**
  * HereMapHandler 컴포넌트
@@ -44,11 +43,6 @@ export default function HereMapHandler({
   const filteredSpaces = Array.isArray(spaceFullCoords)
     ? spaceFullCoords.filter((space) => checkedFileIds.includes(space.file_id))
     : [];
-
-  // 위치 정보가 없을 경우 오류 메시지 컴포넌트를 반환
-  if (!hereLocation) {
-    return <Error message="지도를 표시할 수 없습니다. 위치 정보가 없습니다." />;
-  }
 
   // HereMap 컴포넌트를 렌더링
   return (

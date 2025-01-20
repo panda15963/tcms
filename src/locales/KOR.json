@@ -48,11 +48,11 @@
     "DECError": "에서는 무조건 소수점이 있어야 합니다.",
     "MMSError": "에서는 무조건 정수여야 합니다.",
     "DEGError": "는 3개의 부분으로 나누어져야 합니다.",
-    "LatError": "이 비어있습니다.",
-    "LonError": "이 비어있습니다.",
+    "LatError": "가 비어있습니다",
+    "LonError": "가 비어있습니다",
     "CombinedError": "위도와 경도에서 발생한 에러:",
-    "ErrorInLat": "위도에서 일어난 오류:",
-    "ErrorInLon": "경도에서 일어난 오류:",
+    "ErrorInLat": "위도에서 일어난 오류",
+    "ErrorInLon": "경도에서 일어난 오류",
     "RangeError": "범위 밖으로 벗어났습니다.",
     "WrongCoords": "잘못된 좌표입니다.",
     "EmptyCoords": "좌표가 없습니다.",
@@ -247,7 +247,10 @@
     "SelectTool": "도구 선택",
     "SelectPC": "PC 선택",
     "Search": "조회",
-    "Reset": "초기화"
+    "Reset": "초기화",
+    "MaxDayExceeded": "{{days}}일 이상 조회할 수 없습니다. 현재 {{currentDays}}일 조회되었습니다.",
+    "MaxWeekExceeded": "{{weeks}}주 이상 조회할 수 없습니다. 현재 {{currentWeeks}}주 조회되었습니다.",
+    "MaxMonthExceeded": "{{months}}월 이상 조회할 수 없습니다. 현재 {{currentMonths}}달 조회되었습니다."
   },
   "StatSideBar": {
     "StatMenu": "도구 사용 현황 메뉴",

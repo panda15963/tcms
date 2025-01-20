@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import GoogleMaps from '../../pages/mapPages/GoogleMap';
-import Error from '../alerts/Error';
+import { ToastContainer, toast, Bounce } from 'react-toastify'; // 토스트 알림 컴포넌트
 
 /**
  * GoogleMapHandler 컴포넌트
@@ -32,16 +31,12 @@ export default function GoogleMapHandler({
   selectedAPI,
   typeMap,
 }) {
-  const [isError, setIsError] = useState(false); // 오류 상태
-  const [errorText, setErrorText] = useState(null); // 오류 메시지 상태
-
   /**
    * 오류 처리를 위한 함수
    * @param {string} message - 오류 메시지
    */
   const handleError = (message) => {
-    setIsError(true);
-    setErrorText(message);
+    toast.error(message);
   };
 
   // checkedNode에서 file_id를 추출
@@ -56,29 +51,36 @@ export default function GoogleMapHandler({
     ? spaceFullCoords.filter((space) => checkedFileIds.includes(space.file_id))
     : [];
 
-  // 오류가 있을 경우 오류 메시지 컴포넌트를 반환
-  if (isError) return <Error errorMessage={errorText} />;
-
-  // googleLocation이 없을 경우 오류 메시지 컴포넌트를 반환
-  if (!googleLocation) {
-    return <Error message="지도를 표시할 수 없습니다. 위치 정보가 없습니다." />;
-  }
-  
   // GoogleMap 컴포넌트 렌더링
   return (
-    <GoogleMaps
-      lat={selectedCoords?.lat} // 선택된 위도
-      lng={selectedCoords?.lng} // 선택된 경도
-      locationCoords={googleLocation} // Google 지도 위치 데이터
-      routeFullCoords={filteredRoutes} // 필터링된 경로 데이터
-      clickedNode={clickedNode} // 클릭된 노드 데이터
-      error={handleError} // 오류 처리 함수
-      routeColors={routeColors} // 경로 색상 처리 함수
-      spaceFullCoords={filteredSpaces} // 필터링된 공간 데이터
-      onClearMap={onClearMap}
-      checkedNode={checkedNode} // 선택된 노드 데이터
-      selectedAPI={selectedAPI}
-      typeMap={typeMap}
-    />
+    <>
+      <GoogleMaps
+        lat={selectedCoords?.lat} // 선택된 위도
+        lng={selectedCoords?.lng} // 선택된 경도
+        locationCoords={googleLocation} // Google 지도 위치 데이터
+        routeFullCoords={filteredRoutes} // 필터링된 경로 데이터
+        clickedNode={clickedNode} // 클릭된 노드 데이터
+        error={handleError} // 오류 처리 함수
+        routeColors={routeColors} // 경로 색상 처리 함수
+        spaceFullCoords={filteredSpaces} // 필터링된 공간 데이터
+        onClearMap={onClearMap}
+        checkedNode={checkedNode} // 선택된 노드 데이터
+        selectedAPI={selectedAPI}
+        typeMap={typeMap}
+      />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={true}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition={Bounce}
+      />
+    </>
   );
 }

@@ -9,10 +9,10 @@ import MapComponent from '../mapAssist/MapComponent';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
 import { FaDownload } from 'react-icons/fa6';
-import Error from '../alerts/Error';
 import { isEmpty } from 'lodash';
 import useLoading from '../../hooks/useLoading';
 import { axiosInstance } from '../../server/axios_config';
+import { ToastContainer, toast, Bounce } from 'react-toastify'; // 토스트 알림 컴포넌트
 
 /**
  * 공간 검색
@@ -26,9 +26,6 @@ const SpaceModal = forwardRef(
     const location = useLocation();
     const { loading, setLoading } = useLoading();
     const accessToken = localStorage.getItem('ACCESS_TOKEN');
-
-    const [error, setError] = useState(false);
-    const [errorValue, setErrorValue] = useState('');
     const [open, setOpen] = useState(false);
     const [latitude, setLatitude] = useState(37.5665);
     const [longitude, setLongitude] = useState(126.978);
@@ -285,9 +282,7 @@ const SpaceModal = forwardRef(
 
       if (isEmpty(checkedLists)) {
         // 아무것도 선택되지 않았습니다.
-        setErrorValue(`${t('SpaceModal.Alert1')}`);
-        setError(true);
-        setTimeout(() => setError(false), 3000);
+        toast.error(`${t('SpaceModal.Alert1')}`);
       }
 
       const arrayFromList = findArray(checkedLists);
@@ -413,7 +408,6 @@ const SpaceModal = forwardRef(
 
     return (
       <Transition show={open}>
-        {error && <Error errorMessage={errorValue} />}
         <Dialog
           onClose={() => {
             setOpen(false);
@@ -609,6 +603,19 @@ const SpaceModal = forwardRef(
             </div>
           </div>
         </Dialog>
+      <ToastContainer
+        position="top-center"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={true}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition={Bounce}
+      />
       </Transition>
     );
   }

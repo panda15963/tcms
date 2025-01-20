@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { ToastContainer, toast, Bounce } from 'react-toastify'; // 토스트 알림 컴포넌트
 import { useNavigate } from 'react-router-dom';
 import { Disclosure } from '@headlessui/react';
 import StatGraphsLists from '../dropdowns/statMenus/StatGraphsLists'; // 통계 그래프 목록 컴포넌트
@@ -16,6 +17,29 @@ import {
   TOOLNAMES,
   PCNAMES,
 } from '../StatRequestData.js'; // 통계 요청 데이터 함수들 가져오기
+
+const calculateDateRanges = (start, end) => {
+  if (!start || !end) return { days: 0, weeks: 0, months: 0 };
+
+  // 날짜 차이 계산 (밀리초 단위로)
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  const diffTime = endDate - startDate; // 밀리초 단위 차이
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // 일 단위 변환
+  const diffWeeks = Math.ceil(diffDays / 7); // 주 단위 변환
+
+  // 월 차이 계산 (연도 및 월 단위)
+  const diffMonths =
+    (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+    (endDate.getMonth() - startDate.getMonth());
+
+  return {
+    days: diffDays,
+    weeks: diffWeeks,
+    months: diffMonths,
+  };
+};
 
 export default function StatTopMenuBar() {
   const initialStartDate = new Date();
@@ -44,6 +68,10 @@ export default function StatTopMenuBar() {
   const [selectedTool, setSelectedTool] = useState(null);
   const [resetTrigger, setResetTrigger] = useState(0);
   const [specialToolName, setSpecialToolName] = useState('');
+
+  const maxDateDays = 365;
+  const maxDateWeeks = 52;
+  const maxDateMonths = 24;
 
   useEffect(() => {
     // 페이지 이동 시 항상 기본값으로 설정
@@ -100,6 +128,19 @@ export default function StatTopMenuBar() {
   }, []);
 
   const handleSearch = useCallback(async () => {
+    // 날짜 범위 검증
+    const dateRange = calculateDateRanges(startDate, endDate);
+    if (dateRange.days > maxDateDays && dateTerm?.value === 'day') {
+      toast.error(t('StatNavBar.MaxDayExceeded', { days: maxDateDays, currentDays: dateRange.days }));
+      return; // 검색 진행 중단
+    } else if (dateRange.weeks > maxDateWeeks && dateTerm?.value === 'week') {
+      toast.error(t('StatNavBar.MaxWeekExceeded', { weeks: maxDateWeeks, currentWeeks: dateRange.weeks }));
+      return; // 검색 진행 중단
+    } else if (dateRange.months > maxDateMonths && dateTerm?.value === 'month') {
+      toast.error(t('StatNavBar.MaxMonthExceeded', { months: maxDateMonths, currentMonths: dateRange.months }));
+      return; // 검색 진행 중단
+    }
+
     switch (data?.name) {
       /* 도구 실행 횟수(도구 별) */
       case t('StatNavBar.TECT'):
@@ -340,6 +381,19 @@ export default function StatTopMenuBar() {
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={true}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition={Bounce}
+      />
     </Disclosure>
   );
 }
