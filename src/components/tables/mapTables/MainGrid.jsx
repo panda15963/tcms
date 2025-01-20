@@ -289,8 +289,8 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
   return (
     // <div className="my-2 h-96 block overflow-x-auto">
     <div className="my-2 h-[400px] block overflow-x-auto">
-      <table className="min-w-full  divide-y divide-gray-200 border-gray-300">
-        <thead className="bg-gray-50 border-2 sticky top-0 ">
+      <table className="min-w-full divide-y divide-gray-200 border-gray-300">
+        <thead className="bg-gray-50 border-2 sticky top-0">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {/* 헤더 렌더링 */}
@@ -338,7 +338,8 @@ const MainGrid = ({ list, onSelectionChange, onCellDoubleClick }) => {
         <div className="flex justify-center mt-1">
           <button
             onClick={handleLoadMore}
-            className="px-4 py-1 bg-blue-500 text-white rounded shadow-lg"
+            // className="px-4 py-1 bg-blue-500 text-white rounded shadow-lg"
+            className="mt-1 px-2 py-1 bg-blue-900 text-white rounded"
           >
             {/* 더 많은 항목 보기 */}
             {t('MainGrid.LoadMore')}
