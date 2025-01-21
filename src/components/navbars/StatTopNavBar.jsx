@@ -239,7 +239,7 @@ export default function StatTopMenuBar() {
 
           {/* 조회 기간 */}
           <div
-            className="flex items-center h-[52px] space-x-4"
+            className="flex items-center h-[52px] space-x-4 cursor-default"
             style={{
               opacity: isDisabled ? 0.5 : 1,
               pointerEvents: isDisabled ? 'none' : 'auto',
@@ -325,7 +325,7 @@ export default function StatTopMenuBar() {
           <div className="flex items-center h-[52px] space-x-4">
             <button
               type="button"
-              className="rounded bg-white px-2 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+              className="rounded bg-white px-2 cursor-default py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
               onClick={handleSearch}
               style={{
                 opacity: isDisabled ? 0.5 : 1,
@@ -339,7 +339,7 @@ export default function StatTopMenuBar() {
             <button
               type="button"
               onClick={handleReset}
-              className="rounded bg-white px-2 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+              className="rounded bg-white px-2 py-2 text-sm cursor-default font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
               style={{
                 opacity: isDisabled ? 0.5 : 1,
                 pointerEvents: isDisabled ? 'none' : 'auto',

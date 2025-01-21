@@ -249,6 +249,10 @@ export default function Login() {
     console.log('[handleLoginSuccess][END] ==> ');
   };
 
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+  };
+
   return (
     <>
       <div className="relative h-screen w-screen bg-cover bg-center">
@@ -258,8 +262,12 @@ export default function Login() {
             src={Background}
             alt="background"
             className="absolute top-0 left-0 w-full h-full object-cover"
+            onContextMenu={handleContextMenu}
           />
-          <div className="relative flex h-full w-full ">
+          <div
+            className="relative flex h-full w-full cursor-default"
+            style={{ userSelect: 'none' }}
+          >
             <div className="flex-[7]" />
             <div className="flex-[3] flex justify-center items-center bg-white">
               <div className="w-full">

@@ -98,7 +98,10 @@ const NavBar = () => {
             className="-m-1.5 p-1.5 "
           >
             <div className="sm:mx-auto sm:w-full sm:max-w-sm transform scale-95">
-              <div className="flex items-center space-x-1">
+              <div
+                className="flex items-center space-x-1 cursor-default"
+                style={{ userSelect: 'none' }}
+              >
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                   TestCourse
                 </h1>
@@ -127,7 +130,8 @@ const NavBar = () => {
           {isActiveManagement && (
             <Link
               to="/main/map"
-              className="text-sm font-semibold flex items-center"
+              className="text-sm font-semibold flex items-center cursor-default"
+              style={{ userSelect: 'none' }}
             >
               {/* 지도 */}
               {t('Common.Map')}
@@ -139,7 +143,8 @@ const NavBar = () => {
               className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
             >
               <MenuButton
-                className="text-sm font-semibold"
+                className="text-sm font-semibold cursor-default"
+                style={{ userSelect: 'none' }}
                 onClick={() => handleLinkClick('/main/dashboard')}
               >
                 {/* 통계 */}
@@ -151,10 +156,11 @@ const NavBar = () => {
             <Menu
               as="div"
               className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
+              style={{ userSelect: 'none' }}
             >
               {({ open }) => (
                 <>
-                  <MenuButton className="text-sm font-semibold">
+                  <MenuButton className="text-sm font-semibold cursor-default">
                     {/* 관리 */}
                     {t('NavBar.Management')} <FaAngleDown className="inline" />
                   </MenuButton>
@@ -173,7 +179,7 @@ const NavBar = () => {
                           {({ active }) => (
                             <Link
                               to={page.link}
-                              className={`block px-3 py-2 rounded-md text-base font-bold text-gray-700 ${
+                              className={`block px-3 py-2 rounded-md cursor-default text-base font-bold text-gray-700 ${
                                 active ? 'bg-gray-50' : ''
                               }`}
                               onClick={() => {
@@ -198,7 +204,7 @@ const NavBar = () => {
           {/* 사용자 메뉴 */}
           <Menu as="div" className="relative ml-3 transform scale-95">
             <MenuButton className="flex items-center">
-              <span className="inline-block size-10 overflow-hidden rounded-full bg-gray-100">
+              <span className="inline-block size-10 cursor-default overflow-hidden rounded-full bg-gray-100">
                 <svg
                   fill="currentColor"
                   viewBox="0 0 24 24"
@@ -259,7 +265,7 @@ const NavBar = () => {
             </Link>
             {/* 관리 */}
             <Disclosure as="div">
-              <DisclosureButton className="flex justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
+              <DisclosureButton className="flex cursor-default justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
                 {t('NavBar.Management')}
                 <FaAngleDown className="h-6 w-6" aria-hidden="true" />
               </DisclosureButton>

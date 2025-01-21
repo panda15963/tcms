@@ -121,10 +121,7 @@ export default function MapLayout() {
   }, [memoizedRouteData]);
 
   const cycleMapType = () => {
-    if (
-      currentApi?.name === 'TOMTOM' ||
-      currentApi?.name === 'HERE'
-    ) {
+    if (currentApi?.name === 'TOMTOM' || currentApi?.name === 'HERE') {
       setMapType((prevType) => {
         if (prevType.label === 'Basic Map') {
           return { label: 'Satellite Map', image: BasicType };
@@ -152,6 +149,10 @@ export default function MapLayout() {
       image: SatelliteType,
     });
   }, [currentApi]);
+
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+  };
 
   return (
     <>
@@ -183,13 +184,14 @@ export default function MapLayout() {
         {/* 왼쪽 하단 버튼 */}
         <div className="absolute bottom-5 left-5 z-20">
           <button
-            className="w-14 h-14 shadow-md hover:shadow-lg focus:outline-none"
+            className="w-14 h-14 shadow-md hover:shadow-lg focus:outline-none cursor-default"
             style={{
               backgroundImage: `url(${mapType.image})`,
               backgroundSize: 'cover',
+              userSelect: 'none',
             }}
             onClick={cycleMapType}
-            title={mapType.label}
+            onContextMenu={handleContextMenu}
           />
         </div>
       </div>

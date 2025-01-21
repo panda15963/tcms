@@ -44,6 +44,10 @@ export default function SwitchLanguages({ onClick }) {
     changeLanguage(newLanguage); // 언어 상태 업데이트
   };
 
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+  };
+
   return (
     <div className="px-4 text-sm font-semibold">
       <button
@@ -54,7 +58,9 @@ export default function SwitchLanguages({ onClick }) {
         <img
           src={isEnglish ? usaflag : korflag} // 현재 언어에 따라 표시할 국기 이미지 선택
           alt={isEnglish ? 'English Flag' : 'Korean Flag'} // 현재 언어에 따라 대체 텍스트 설정
-          className="inline-block h-10 w-10 rounded-full"
+          className="inline-block h-10 w-10 rounded-full cursor-default"
+          style={{ userSelect: 'none' }}
+          onContextMenu={handleContextMenu}
         />
       </button>
     </div>

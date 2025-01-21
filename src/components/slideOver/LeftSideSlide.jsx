@@ -131,10 +131,10 @@ export default function LeftSideSlide({
       {!open && (
         <div className="fixed left-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className="text-white px-2 py-3 rounded-r-full bg-blue-900 hover:bg-blue_lapis"
+            className="text-white px-2 py-3 cursor-default rounded-r-full bg-blue-900 hover:bg-blue_lapis"
             onClick={togglePanel}
           >
-            <FaArrowCircleRight size={30} />
+            <FaArrowCircleRight className='cursor-default' size={30} />
           </button>
         </div>
       )}
@@ -161,7 +161,7 @@ export default function LeftSideSlide({
                   className="relative rounded-md text-indigo-200 hover:text-white focus:outline-none hover:outline-none"
                   onClick={togglePanel}
                 >
-                  <span className="absolute -inset-2.5" />
+                  <span className="absolute -inset-2.5 cursor-default" />
                   <span className="sr-only">Close panel</span>
                   <FaXmark className="h-6 w-6" aria-hidden="true" />
                 </button>

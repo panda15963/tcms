@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
  */
 const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
   const { i18n } = useTranslation();
-  
+
   // 현재 언어에 따라 DatePicker의 locale 설정
   const currentLocale = i18n.language === 'kor' ? ko : enUS;
 
@@ -28,7 +28,7 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
     }
   }, [startDate, startsDate]);
 
-    /**
+  /**
    * 종료 날짜가 변경될 때 부모 컴포넌트로 전달
    */
   useEffect(() => {
@@ -37,51 +37,62 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
     }
   }, [endDate, endsDate]);
 
-  const CustomButton = React.forwardRef(({ value, onClick }, ref) => (
-    <button
-      className="border py-1 px-4 bg-white text-black rounded-md cursor-default"
-      onClick={onClick}
-      ref={ref}
-    >
-      {value || 'Select Date'}
-    </button>
-  ));
+  const handleDateInput = (event, setDate) => {
+    let value = event.target?.value
+      ? event.target.value.replace(/\D/g, '')
+      : ''; // undefined 방지 및 숫자만 유지
+
+    if (value.length > 4) value = value.slice(0, 4) + '-' + value.slice(4);
+    if (value.length > 7) value = value.slice(0, 7) + '-' + value.slice(7, 10);
+
+    event.target.value = value; // 포맷 적용
+
+    // 입력이 YYYY-MM-DD 형식이 되었을 때만 상태 업데이트
+    if (value.length === 10) {
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        setDate(date);
+      } else {
+        console.error('Invalid date:', value);
+      }
+    }
+  };
 
   return (
     <div className="flex items-center">
       {/* 시작 날짜 선택기 */}
-      <div className="flex items-center gap-0">
-      <label className="text-sm font-semibold text-white whitespace-nowrap">
-          {/* 다국어 레이블 */}
-        </label>
+      <div className="flex items-center gap-2">
         <DatePicker
           selected={startDate} // 선택된 시작 날짜
           onChange={(date) => startsDate(date || new Date())} // 날짜 선택 시 부모로 전달
+          onChangeRaw={(event) => handleDateInput(event, startsDate)} // 입력 시 자동 포맷 적용
           selectsStart
           startDate={startDate}
           endDate={endDate}
           maxDate={endDate} // 종료 날짜를 초과하지 않도록 설정
           locale={currentLocale} // 동적으로 설정된 로케일
-          customInput={<CustomButton />} // 커스텀 버튼 추가
+          dateFormat="yyyy-MM-dd" // 날짜 포맷 설정
+          className="border py-1 px-3 rounded-md text-black cursor-default"
+          placeholderText="YYYY-MM-DD" // 입력 필드에 힌트 추가
         />
       </div>
 
-      <span className="pl-2 text-lg text-white font-bold">~</span>
+      <span className="px-2 text-lg text-white font-bold">~</span>
 
       {/* 종료 날짜 선택기 */}
-      <div className="pl-2 flex items-center gap-0">
-      <label className="text-sm font-semibold text-white whitespace-nowrap">
-          {/* 다국어 레이블 */}
-        </label>
+      <div className="flex items-center gap-2">
         <DatePicker
           selected={endDate} // 선택된 종료 날짜
-          onChange={(date) => endsDate(date || new Date())}  // 날짜 선택 시 부모로 전달
+          onChange={(date) => endsDate(date || new Date())} // 날짜 선택 시 부모로 전달
+          onChangeRaw={(event) => handleDateInput(event, endsDate)} // 입력 시 자동 포맷 적용
           selectsEnd
           startDate={startDate}
           endDate={endDate}
           maxDate={new Date()} // 오늘 날짜를 초과하지 않도록 설정
           locale={currentLocale} // 동적으로 설정된 로케일
-          customInput={<CustomButton />} // 커스텀 버튼 추가
+          dateFormat="yyyy-MM-dd" // 날짜 포맷 설정
+          className="border py-1 px-3 rounded-md text-black cursor-default"
+          placeholderText="YYYY-MM-DD" // 입력 필드에 힌트 추가
         />
       </div>
     </div>

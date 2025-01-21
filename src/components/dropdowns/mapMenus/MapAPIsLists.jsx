@@ -99,6 +99,10 @@ export default function MapAPIsLists({ setSelectedAPI }) {
   // 선택된 API가 없으면 null 반환
   if (!selected) return null;
 
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+  };
+
   return (
     // Listbox는 드롭다운을 구현하는 컴포넌트
     <Listbox value={selected} onChange={handleOnSelectMap}>
@@ -112,8 +116,12 @@ export default function MapAPIsLists({ setSelectedAPI }) {
                   src={selected.logo}
                   alt={selected.name}
                   className="h-5 w-5 mr-1"
+                  style={{ userSelect: 'none' }}
+                  onContextMenu={handleContextMenu}
                 />
-                <span className="block truncate">{selected.name}</span>{' '}
+                <span className="block truncate" style={{ userSelect: 'none' }}>
+                  {selected.name}
+                </span>{' '}
               </div>
               {/* 선택된 API 이름 표시 */}
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">

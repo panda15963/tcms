@@ -288,10 +288,10 @@ export default function RightSideSlide({ data, onMapChange, isCleared }) {
         // 패널이 닫혀 있을 때 열기 버튼
         <div className="fixed right-0 top-1/2 transform -translate-y-1/2 z-10">
           <button
-            className="text-white px-2 py-3 rounded-l-full bg-blue-900 hover:bg-blue_lapis"
+            className="text-white px-2 py-3 cursor-default rounded-l-full bg-blue-900 hover:bg-blue_lapis"
             onClick={() => setOpen(true)}
           >
-            <FaArrowCircleLeft size={30} />
+            <FaArrowCircleLeft className='cursor-default' size={30} />
           </button>
         </div>
       )}
@@ -314,7 +314,7 @@ export default function RightSideSlide({ data, onMapChange, isCleared }) {
               <div className="ml-3 flex h-7 items-center">
                 <button
                   type="button"
-                  className="relative rounded-md text-indigo-200 hover:text-white focus:outline-none hover:outline-none"
+                  className="relative rounded-md cursor-default text-indigo-200 hover:text-white focus:outline-none hover:outline-none"
                   onClick={() => setOpen(false)}
                 >
                   <FaXmark className="h-6 w-6" aria-hidden="true" />
@@ -407,7 +407,7 @@ export default function RightSideSlide({ data, onMapChange, isCleared }) {
               </table>
             ) : (
               // 데이터가 없을 때 메시지 표시
-              <div className="text-center py-5">
+              <div className="text-center py-5 cursor-default">
                 <p className="text-gray-500">
                   {t('RightSideSlide.NoDataFound') ||
                     '데이터를 찾을 수 없습니다.'}

@@ -188,7 +188,7 @@ const Tree = ({ data, onCheckedNodesChange, onNodeClick, routeColors }) => {
           />
         ))
       ) : (
-        <div className="text-center py-5">
+        <div className="text-center py-5 cursor-default">
           <p className="text-gray-500">
             {t('LeftSideSlide.NoDataFound') || 'No data found'} {/* 데이터 없음 표시 */}
           </p>

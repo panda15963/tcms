@@ -132,6 +132,10 @@ export const FidoModal = ({
     return open && progressStatus && progressStatus === 'exception';
   };
 
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+  };
+
   return (
     <Dialog open={open} onClose={() => {}} className="relative z-10">
       <DialogBackdrop
@@ -198,7 +202,11 @@ export const FidoModal = ({
                       format={getProgressFormat}
                     />
                   </div>
-                  <img src={fido_guide} alt={'FIDO 인증 방법 안내'} />
+                  <img
+                    src={fido_guide}
+                    alt={'FIDO 인증 방법 안내'}
+                    onContextMenu={handleContextMenu}
+                  />
                 </div>
               )}
             </DialogPanel>
