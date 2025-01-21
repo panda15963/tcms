@@ -111,7 +111,7 @@ export default function StatTopMenuBar() {
   }, []);
 
   const handleSearch = useCallback(async () => {
-    toast.success(t('StatNavBar.SearchSuccess'));
+    // toast.success(t('StatNavBar.SearchSuccess'));
     switch (data?.name) {
       /* 도구 실행 횟수(도구 별) */
       case t('StatNavBar.TECT'):
