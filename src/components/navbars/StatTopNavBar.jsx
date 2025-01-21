@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Disclosure } from '@headlessui/react';
 import StatGraphsLists from '../dropdowns/statMenus/StatGraphsLists'; // 통계 그래프 목록 컴포넌트
 import { useTranslation } from 'react-i18next';
+import { ToastContainer, toast, Bounce } from 'react-toastify'; // 토스트 알림 컴포넌트
 import CustomDatePicker from '../../components/calender/CustomDatePicker'; // 사용자 정의 날짜 선택기 컴포넌트
 import ToolLists from '../../components/dropdowns/statMenus/ToolLists'; // 도구 선택 목록 컴포넌트
 import PCLists from '../../components/dropdowns/statMenus/PCLists'; // PC 선택 목록 컴포넌트
@@ -72,6 +73,7 @@ export default function StatTopMenuBar() {
     setStartDate(initialStartDate);
     setEndDate(initialEndDate);
     setResetTrigger((prev) => prev + 1);
+    toast.success(t('StatNavBar.ResetSuccess'));
   };
 
   const formatDateToLocalISO = (date) => {
@@ -109,6 +111,7 @@ export default function StatTopMenuBar() {
   }, []);
 
   const handleSearch = useCallback(async () => {
+    toast.success(t('StatNavBar.SearchSuccess'));
     switch (data?.name) {
       /* 도구 실행 횟수(도구 별) */
       case t('StatNavBar.TECT'):
@@ -351,6 +354,19 @@ export default function StatTopMenuBar() {
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={true}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition={Bounce}
+      />
     </Disclosure>
   );
 }

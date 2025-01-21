@@ -249,7 +249,9 @@
     "Reset": "Reset",
     "MaxDayExceeded": "The maximum number of days({{days}}) has been exceeded.",
     "MaxWeekExceeded": "The maximum number of weeks({{weeks}}) has been exceeded.",
-    "MaxMonthExceeded": "The maximum number of months({{months}}) has been exceeded."
+    "MaxMonthExceeded": "The maximum number of months({{months}}) has been exceeded.",
+    "SearchSuccess": "Search has been completed.",
+    "ResetSuccess": "Reset has been completed."
   },
   "StatSideBar": {
     "StatMenu": "Tool Usage Status Menu",

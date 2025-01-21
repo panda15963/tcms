@@ -250,7 +250,9 @@
     "Reset": "초기화",
     "MaxDayExceeded": "{{days}}일 이상 조회할 수 없습니다. 현재 {{currentDays}}일 조회되었습니다.",
     "MaxWeekExceeded": "{{weeks}}주 이상 조회할 수 없습니다. 현재 {{currentWeeks}}주 조회되었습니다.",
-    "MaxMonthExceeded": "{{months}}월 이상 조회할 수 없습니다. 현재 {{currentMonths}}달 조회되었습니다."
+    "MaxMonthExceeded": "{{months}}월 이상 조회할 수 없습니다. 현재 {{currentMonths}}달 조회되었습니다.",
+    "SearchSuccess": "조회를 완료했습니다.",
+    "ResetSuccess": "초기화를 완료했습니다."
   },
   "StatSideBar": {
     "StatMenu": "도구 사용 현황 메뉴",
