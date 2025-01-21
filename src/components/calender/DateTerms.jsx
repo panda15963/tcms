@@ -58,11 +58,6 @@ export default function DateTerms({ terms, initialTerm }) {
 
   return (
     <div className="flex items-center gap-2">
-      {/* 조회 기간 레이블 */}
-      <span className="text-sm font-semibold text-white">
-        {t('DateTerms.DatePeriod')}
-      </span>
-
       {/* 드롭다운 컴포넌트 */}
       <Listbox value={selected} onChange={setSelected}>
         {({ open }) => (

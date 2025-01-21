@@ -12,6 +12,8 @@ const BarChart = ({ data, dateTerm }) => {
   const { t } = useTranslation(); // 다국어 번역 훅
   const chartRef = useRef(); // 차트를 렌더링할 DOM 요소 참조
 
+  data.sort((a, b) => new Date(a.date) - new Date(b.date));
+
   useEffect(() => {
     // 기존 차트를 제거하여 중복 생성 방지
     d3.select(chartRef.current).select('svg').remove();
@@ -65,7 +67,6 @@ const BarChart = ({ data, dateTerm }) => {
             currentDate.setDate(1);
           }
         }
-
         // 데이터 변환: 생성된 라벨에 따라 데이터의 날짜를 변환
         transformedData = data.map((d) => {
           const dateObj = new Date(d.date); // 데이터의 날짜를 객체로 변환
@@ -103,11 +104,9 @@ const BarChart = ({ data, dateTerm }) => {
       }
 
       case 'Week': {
-        // Extract the start and end dates from the data
         const startDate = new Date(d3.min(data, (d) => new Date(d.date)));
         const endDate = new Date(d3.max(data, (d) => new Date(d.date)));
 
-        // Generate weekly labels
         const weeks = [];
         let currentDate = new Date(startDate);
 
@@ -137,7 +136,6 @@ const BarChart = ({ data, dateTerm }) => {
           currentDate.setDate(currentDate.getDate() + 7);
         }
 
-        // Map the data to the generated weekly labels
         transformedData = data.map((d) => {
           const dateObj = new Date(d.date);
           const matchingWeek = weeks.find(
