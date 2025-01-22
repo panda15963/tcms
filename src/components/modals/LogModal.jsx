@@ -1738,7 +1738,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
                           </span>
                         </button>
                       </div>
-                      {error && <p className="text-red-500">{error}</p>}
                       {/* 그리드를 2개로 나누어 왼쪽과 오른쪽에 표시 */}
                       <div className="flex flex-row justify-between space-x-2 ">
                         {/* 왼쪽 그리드 */}
