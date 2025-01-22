@@ -568,6 +568,7 @@ const SpaceModal = forwardRef(
                       <SpaceTable
                         list={list}
                         onSelectionChange={setCheckedLists}
+                        isDirect={isDirect}
                       />
                       <div className="flex justify-end mt-3">
                         <button
@@ -608,19 +609,19 @@ const SpaceModal = forwardRef(
             </div>
           </div>
         </Dialog>
-      <ToastContainer
-        position="top-center"
-        autoClose={1000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick={true}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        transition={Bounce}
-      />
+        <ToastContainer
+          position="top-center"
+          autoClose={1000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={true}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+          transition={Bounce}
+        />
       </Transition>
     );
   }

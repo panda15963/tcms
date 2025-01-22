@@ -185,7 +185,7 @@ const ITEMS_PER_PAGE = 20; // 페이지당 아이템 수
  * @param {Function} onSelectionChange - 선택된 데이터 변경 핸들러
  * @returns {JSX.Element} SpaceTable 컴포넌트
  */
-const SpaceTable = ({ list, onSelectionChange }) => {
+const SpaceTable = ({ list, onSelectionChange, isDirect }) => {
   const { t } = useTranslation();
   const [displayedData, setDisplayedData] = useState([]); // 표시할 데이터
   const [page, setPage] = useState(1); // 현재 페이지
@@ -250,10 +250,11 @@ const SpaceTable = ({ list, onSelectionChange }) => {
   }, [rowSelection, onSelectionChange]);
 
   return (
-    // <div className="overflow-auto h-[356px]" style={{ maxHeight: '500px' }}>
-    // <div className="overflow-auto h-[356px]">
-    // <div className="my-2 h-[364px] block overflow-x-auto">
-    <div className="my-2 h-[364px] w-full block overflow-x-auto">
+    <div
+      className={`my-2 w-full block overflow-x-auto ${
+        isDirect ? 'h-[364px]' : 'h-[320px]'
+      }`}
+    >
       <table className="min-w-full h-full border-collapse border border-gray-300">
         <thead className="bg-gray-50 border-2 sticky top-0">
           {table.getHeaderGroups().map((headerGroup) => (
