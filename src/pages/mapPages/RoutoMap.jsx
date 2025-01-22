@@ -669,6 +669,7 @@ export default function RoutoMap({
         mapRef.current.setCenter(newCenter);
       }
       updateMarker(newCenter);
+      locationCoords({ lat, lng });
     }
   }, [lat, lng]);
 

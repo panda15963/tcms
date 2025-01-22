@@ -97,6 +97,7 @@ const HereMap = ({
     setTimeout(() => {
       mapInstance.current.setCenter({ lat: latitude, lng: longitude });
       console.log(`Map centered to: ${latitude}, ${longitude}`);
+      locationCoords({ lat: latitude, lng: longitude });
     }, 0); // 딜레이를 추가해 다른 작업 이후에 중심 설정
   };
 

@@ -188,6 +188,7 @@ export default function TomTomMap({
         .addTo(mapRef.current);
 
       setSearchMarker(newMarker);
+      locationCoords({ lat, lng });
     } else {
       mapRef.current.flyTo({
         center: [defaultLng, defaultLat],

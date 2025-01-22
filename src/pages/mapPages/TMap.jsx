@@ -127,21 +127,20 @@ export default function Tmap({
       console.error('TMAP API key is missing!');
       return;
     }
-  
+
     const mapType =
       typeMap === 'Basic Map'
         ? window.Tmapv2.Map.MapType.ROAD
         : typeMap === 'Satellite Map'
         ? window.Tmapv2.Map.MapType.SATELLITE
         : window.Tmapv2.Map.MapType.HYBRID;
-  
+
     if (mapRef.current) {
       mapRef.current.setMapType(mapType);
     } else {
       initMap(typeMap);
     }
   }, [typeMap, selectedAPI]);
-  
 
   /**
    * `center` 상태가 변경될 때 지도 중심과 마커를 업데이트하는 useEffect
@@ -431,6 +430,7 @@ export default function Tmap({
           icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', // 마커 아이콘 설정
           iconSize: new Tmapv2.Size(32, 32), // 마커 크기 설정
         });
+        locationCoords(center); // 클릭한 좌표를 부모로 전달
       }
     }
   }

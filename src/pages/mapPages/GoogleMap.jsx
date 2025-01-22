@@ -70,6 +70,7 @@ const GoogleMaps = ({
         console.log('map', map);
         map.panTo({ lat: parsedLat, lng: parsedLng });
       }
+      locationCoords({ lat: parsedLat, lng: parsedLng });
     } else {
       setMarkerPosition(null);
       if (map) {

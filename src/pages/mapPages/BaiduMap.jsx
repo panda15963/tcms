@@ -18,9 +18,9 @@ function calculateCenterAndMarker(lat, lng) {
     : 126.978; // 기본 경도 (서울)
 
   if (!isNaN(lat) && !isNaN(lng)) {
-    return { lat: parseFloat(lat), lng: parseFloat(lng) };
+    return { lat: parseFloat(lat), lng: parseFloat(lng), isDefault: false };
   } else {
-    return { lat: defaultLat, lng: defaultLng };
+    return { lat: defaultLat, lng: defaultLng, isDefault: true };
   }
 }
 
@@ -118,6 +118,9 @@ export default function BaiduMap({
   useEffect(() => {
     const newCenter = calculateCenterAndMarker(lat, lng);
     setCenter(newCenter);
+    if(!newCenter.isDefault) {
+      locationCoords({ lat: newCenter.lat, lng: newCenter.lng });
+    }
   }, [lat, lng]);
 
   /**
