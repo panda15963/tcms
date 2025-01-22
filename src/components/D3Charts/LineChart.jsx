@@ -48,6 +48,17 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
                     value: d3.sum(groupedEntries, (entry) => entry.count),
                   })
                 )
+              : dateTerm === '년' || dateTerm === 'Year'
+              ? Array.from(
+                  d3.group(entries, (d) => {
+                    const date = new Date(d.date);
+                    return `${date.getFullYear()}`;
+                  }),
+                  ([year, groupedEntries]) => ({
+                    date: `${year}`,
+                    value: d3.sum(groupedEntries, (entry) => entry.count),
+                  })
+                )
               : entries.map((entry) => ({
                   date: formatMonthDateToLocalISO(new Date(entry.date)),
                   value: entry.count,
@@ -203,6 +214,53 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
           }
           return dates;
         }
+        case '년': {
+          const startDate = xScale.domain()[0];
+          const endDate = xScale.domain()[1];
+
+          // 유효한 날짜 확인
+          if (!startDate || !endDate) {
+            return [];
+          }
+
+          const years = [];
+          let currentDate = new Date(startDate);
+
+          while (currentDate.getFullYear() <= endDate.getFullYear()) {
+            years.push({
+              label: `${currentDate.getFullYear()}년`,
+              date: new Date(currentDate.getFullYear(), 0, 1), // 매년 1월 1일
+            });
+
+            currentDate.setFullYear(currentDate.getFullYear() + 1);
+          }
+
+          return years;
+        }
+
+        case 'Year': {
+          const startDate = xScale.domain()[0];
+          const endDate = xScale.domain()[1];
+
+          // 유효한 날짜 확인
+          if (!startDate || !endDate) {
+            return [];
+          }
+
+          const years = [];
+          let currentDate = new Date(startDate);
+
+          while (currentDate.getFullYear() <= endDate.getFullYear()) {
+            years.push({
+              label: `${currentDate.getFullYear()}`,
+              date: new Date(currentDate.getFullYear(), 0, 1), // 매년 1월 1일
+            });
+
+            currentDate.setFullYear(currentDate.getFullYear() + 1);
+          }
+
+          return years;
+        }
 
         default: {
           const startDate = xScale.domain()[0];
@@ -314,6 +372,8 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
               ? filteredDates[i].label // Use the formatted "YYYY년 MM월"
               : dateTerm === '주' || dateTerm === 'Week'
               ? filteredDates[i].label // Use "YYYY년 MM월 nth째주" for weeks
+              : dateTerm === '년' || dateTerm === 'Year'
+              ? filteredDates[i].label // Use "YYYY년" for years
               : formatMonthDateToLocalISO(d)
           )
       )
@@ -337,14 +397,13 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
       .call(d3.axisLeft(yScale))
       .attr('font-size', '12px');
 
-      svg
+    svg
       .append('text')
-      .attr('text-anchor', 'middle')  // 중앙 정렬
-      .attr('x', -margin.left - 70)   // 더 왼쪽으로 이동 (숫자 조정 가능)
-      .attr('y', height / 2)          // Y축 중간에 배치
+      .attr('text-anchor', 'middle') // 중앙 정렬
+      .attr('x', -margin.left - 70) // 더 왼쪽으로 이동 (숫자 조정 가능)
+      .attr('y', height / 2) // Y축 중간에 배치
       .style('font-size', '14px')
       .text(t('LineChart.Value'));
-    
 
     if (dateTerm === 'Week') {
       const noticeGroup = svg

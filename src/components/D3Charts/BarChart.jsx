@@ -158,6 +158,20 @@ const BarChart = ({ data, dateTerm }) => {
         break;
       }
 
+      case '년': {
+        transformedData = data.map((d) => {
+          const dateObj = new Date(d.date);
+          return {
+            ...d,
+            date: `${dateObj.getFullYear()}년`, // 연도만 추출하여 새로운 라벨 생성
+          };
+        });
+        break;
+      }
+
+      case 'Year': {
+      }
+
       default: {
         transformedData = data;
         break;
@@ -324,7 +338,6 @@ const BarChart = ({ data, dateTerm }) => {
     let currentPage = 0;
 
     const renderLegend = (page) => {
-      console.log("Current Page (State):", page);
       legend.selectAll('*').remove(); // 이전 범례를 제거
       const start = page * itemsPerPage;
       const end = start + itemsPerPage;

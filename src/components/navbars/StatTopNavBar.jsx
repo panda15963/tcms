@@ -17,6 +17,20 @@ import {
   PCNAMES,
 } from '../StatRequestData.js'; // 통계 요청 데이터 함수들 가져오기
 
+const calculateDateRange = (startDate, endDate) => {
+  const diffTime = endDate - startDate;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffWeeks = Math.ceil(diffDays / 7);
+
+  const startYear = startDate.getFullYear();
+  const startMonth = startDate.getMonth();
+  const endYear = endDate.getFullYear();
+  const endMonth = endDate.getMonth();
+  const diffMonths = (endYear - startYear) * 12 + (endMonth - startMonth);
+
+  return { days: diffDays, weeks: diffWeeks, months: diffMonths };
+};
+
 export default function StatTopMenuBar() {
   const initialStartDate = new Date();
   initialStartDate.setDate(initialStartDate.getDate() - 7);
@@ -40,17 +54,14 @@ export default function StatTopMenuBar() {
   const [resetTrigger, setResetTrigger] = useState(0);
   const [specialToolName, setSpecialToolName] = useState('');
   const dateRange = useMemo(() => {
-    if (!startDate || !endDate) return { days: 0, weeks: 0 };
-
-    const diffTime = endDate - startDate;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const diffWeeks = Math.ceil(diffDays / 7);
-
-    return { days: diffDays, weeks: diffWeeks };
+    if (!startDate || !endDate) return { days: 0, weeks: 0, months: 0 };
+    return calculateDateRange(startDate, endDate);
   }, [startDate, endDate]);
 
   const dateTerm =
-    dateRange.weeks >= 52
+    dateRange.months >= 24
+      ? { id: 4, name: t('DateTerms.Year'), value: 'year' }
+      : dateRange.weeks >= 26
       ? { id: 2, name: t('DateTerms.Month'), value: 'month' }
       : dateRange.days >= 60
       ? { id: 3, name: t('DateTerms.Week'), value: 'week' }

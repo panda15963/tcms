@@ -271,8 +271,8 @@
     "Day": "일",
     "Week": "주",
     "Month": "달",
-    "DatePeriod": "날짜",
-    "Inquiryperiod": "조회 기간"
+    "Year": "년",
+    "DatePeriod": "날짜"
   },
   "DateRangePicker": {
     "StartDate": "시작 날짜",
