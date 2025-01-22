@@ -72,7 +72,7 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
           maxDate={endDate} // 종료 날짜를 초과하지 않도록 설정
           locale={currentLocale} // 동적으로 설정된 로케일
           dateFormat="yyyy-MM-dd" // 날짜 포맷 설정
-          className="border py-1 px-3 rounded-md text-black cursor-default"
+          className="border py-1 px-3 w-28 rounded-md text-black cursor-default"
           placeholderText="YYYY-MM-DD" // 입력 필드에 힌트 추가
         />
       </div>
@@ -91,7 +91,7 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
           maxDate={new Date()} // 오늘 날짜를 초과하지 않도록 설정
           locale={currentLocale} // 동적으로 설정된 로케일
           dateFormat="yyyy-MM-dd" // 날짜 포맷 설정
-          className="block border py-1 px-3 rounded-md text-black cursor-default"
+          className="block border py-1 px-3 w-28 rounded-md text-black cursor-default"
           placeholderText="YYYY-MM-DD" // 입력 필드에 힌트 추가
         />
       </div>

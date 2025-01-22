@@ -54,8 +54,8 @@ export default function ToolLists({
       ).map(([, value]) => value);
 
       const updatedToolList =
-        pageData !== '도구 실행 횟수(버전 별)' &&
-        pageData !== '도구 기능별 사용 횟수'
+        pageData !== t('StatNavBar.TECV') &&
+        pageData !== t('StatNavBar.TUCF')
           ? [{ id: 1, name: t('ToolList.All') }, ...uniqueToolList]
           : uniqueToolList;
       setToolList(updatedToolList);
@@ -106,24 +106,15 @@ export default function ToolLists({
 
   if (!selected) return null; // 선택된 툴이 없으면 렌더링하지 않음
 
-  /**
-   * 문자열을 지정된 길이로 자르고 말줄임표(...)를 추가
-   * @param {string} str - 입력 문자열
-   * @param {number} maxLength - 최대 길이
-   * @returns {string} 줄여진 문자열
-   */
-  const truncate = (str, maxLength) =>
-    str.length > maxLength ? `${str.slice(0, maxLength)}...` : str;
-
   return (
     <Listbox value={selected} onChange={handleOnSelectMap}>
       {({ open }) => (
         <>
           <div className="relative min-w-48 border border-black rounded-lg">
             {/* 드롭다운 버튼 */}
-            <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:border-black sm:text-sm sm:leading-6">
-              <span className="block truncate">
-                {truncate(selected.name, 10)}
+            <ListboxButton className="relative w-64 cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:border-black sm:text-sm sm:leading-6">
+              <span className="block">
+                {selected.name}
               </span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <FaAngleDown
@@ -139,7 +130,7 @@ export default function ToolLists({
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+              <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-64 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                 {ToolList.map((api) => (
                   <ListboxOption
                     key={api.id}
@@ -160,7 +151,7 @@ export default function ToolLists({
                             'block truncate'
                           )}
                         >
-                          {truncate(api.name, 10)}
+                          {api.name}
                         </span>
                         {selected && (
                           <span className="absolute inset-y-0 left-0 flex items-center pl-1.5 text-white">
