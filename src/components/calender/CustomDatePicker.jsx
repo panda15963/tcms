@@ -61,7 +61,7 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
   return (
     <div className="flex items-center">
       {/* 시작 날짜 선택기 */}
-      <div className="flex items-center gap-2">
+      <div className="block items-center gap-2">
         <DatePicker
           selected={startDate} // 선택된 시작 날짜
           onChange={(date) => startsDate(date || new Date())} // 날짜 선택 시 부모로 전달
@@ -80,7 +80,7 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
       <span className="px-2 text-lg text-white font-bold">~</span>
 
       {/* 종료 날짜 선택기 */}
-      <div className="flex items-center gap-2">
+      <div className="block items-center gap-2">
         <DatePicker
           selected={endDate} // 선택된 종료 날짜
           onChange={(date) => endsDate(date || new Date())} // 날짜 선택 시 부모로 전달
@@ -91,7 +91,7 @@ const DateRangePicker = ({ startsDate, endsDate, startDate, endDate }) => {
           maxDate={new Date()} // 오늘 날짜를 초과하지 않도록 설정
           locale={currentLocale} // 동적으로 설정된 로케일
           dateFormat="yyyy-MM-dd" // 날짜 포맷 설정
-          className="border py-1 px-3 rounded-md text-black cursor-default"
+          className="block border py-1 px-3 rounded-md text-black cursor-default"
           placeholderText="YYYY-MM-DD" // 입력 필드에 힌트 추가
         />
       </div>

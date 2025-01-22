@@ -62,7 +62,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
     if (!data || data.length === 0) return;
 
     const svg = d3.select(svgRef.current);
-    const margin = { top: 60, right: 20, bottom: 50, left: 70 };
+    const margin = { top: 60, right: 0, bottom: 50, left: 0 };
     const width = 1200 - margin.left - margin.right;
     const height = 500 - margin.top - margin.bottom;
 
@@ -337,12 +337,14 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
       .call(d3.axisLeft(yScale))
       .attr('font-size', '12px');
 
-    svg
+      svg
       .append('text')
-      .attr('text-anchor', 'middle')
-      .attr('transform', 'rotate(-90)')
-      .attr('x', -height / 2)
+      .attr('text-anchor', 'middle')  // 중앙 정렬
+      .attr('x', -margin.left - 70)   // 더 왼쪽으로 이동 (숫자 조정 가능)
+      .attr('y', height / 2)          // Y축 중간에 배치
+      .style('font-size', '14px')
       .text(t('LineChart.Value'));
+    
 
     if (dateTerm === 'Week') {
       const noticeGroup = svg

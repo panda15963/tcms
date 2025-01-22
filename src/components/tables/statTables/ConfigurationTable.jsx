@@ -62,7 +62,16 @@ export default function ConfigurationTable({ data }) {
                     className="px-4 py-3 border-2 text-center text-sm font-medium text-gray-700 whitespace-nowrap"
                     style={{ width: '200px', height: '30px' }}
                   >
-                    {row[field] || '-'} {/* 데이터가 없을 경우 '-' 표시 */}
+                    {['prevalue', 'newvalue'].includes(field) &&
+                    typeof row[field] === 'string' ? (
+                      <div className="text-left">
+                        {row[field]?.split('\r\n').map((line, index) => (
+                          <div key={index}>{line}</div>
+                        ))}
+                      </div>
+                    ) : (
+                      row[field] ?? 'N/A'
+                    )}
                   </td>
                 ))}
               </tr>

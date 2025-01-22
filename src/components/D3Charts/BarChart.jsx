@@ -19,8 +19,8 @@ const BarChart = ({ data, dateTerm }) => {
     d3.select(chartRef.current).select('svg').remove();
 
     // 차트 크기 설정
-    const margin = { top: 50, right: 150, bottom: 100, left: 60 }; // 오른쪽 여백을 확장하여 범례 배치
-    const width = 1200 - margin.left - margin.right; // 차트 너비
+    const margin = { top: 50, right: 250, bottom: 100, left: 100 }; // 오른쪽 여백을 확장하여 범례 배치
+    const width = 1500 - margin.left - margin.right; // 차트 너비
     const height = 500 - margin.top - margin.bottom; // 차트 높이
 
     // 데이터 변환
@@ -251,9 +251,10 @@ const BarChart = ({ data, dateTerm }) => {
     svg
       .append('text') // Y축 라벨
       .attr('text-anchor', 'middle')
-      .attr('transform', 'rotate(-90)') // 회전하여 세로 방향으로 배치
-      .attr('x', -height / 2)
-      .attr('y', -margin.left + 20)
+      .attr('x', -margin.left + 40) // 왼쪽으로 더 이동
+      .attr('y', height / 2) // 차트 중앙에 배치
+      .attr('dy', '0.35em') // 수직 중앙 정렬 보정
+      .style('font-size', '14px') // 원하는 스타일 적용
       .text(t('BarChart.Value')); // 다국어 번역 텍스트
 
     // 툴팁 생성
@@ -323,6 +324,7 @@ const BarChart = ({ data, dateTerm }) => {
     let currentPage = 0;
 
     const renderLegend = (page) => {
+      console.log("Current Page (State):", page);
       legend.selectAll('*').remove(); // 이전 범례를 제거
       const start = page * itemsPerPage;
       const end = start + itemsPerPage;
@@ -331,9 +333,9 @@ const BarChart = ({ data, dateTerm }) => {
       // 범례 배경 사각형
       legend
         .append('rect')
-        .attr('x', -10)
+        .attr('x', 20)
         .attr('y', -10)
-        .attr('width', 150)
+        .attr('width', 220)
         .attr('height', itemsPerPage * 25 + 50) // 아래에 페이지네이션 버튼 공간 추가
         .attr('fill', '#f9f9f9') // 배경색
         .attr('stroke', '#ccc') // 테두리 색상
@@ -345,7 +347,7 @@ const BarChart = ({ data, dateTerm }) => {
       visibleFuncnames.forEach((funcname, i) => {
         const legendRow = legend
           .append('g')
-          .attr('transform', `translate(0, ${i * 25})`);
+          .attr('transform', `translate(40, ${i * 25})`);
 
         legendRow
           .append('rect')
@@ -358,9 +360,7 @@ const BarChart = ({ data, dateTerm }) => {
           .attr('x', 30)
           .attr('y', 15)
           .style('text-anchor', 'start')
-          .text(
-            funcname.length > 10 ? `${funcname.slice(0, 10)}...` : funcname
-          );
+          .text(funcname);
       });
 
       // 페이지네이션 버튼 생성
@@ -371,7 +371,7 @@ const BarChart = ({ data, dateTerm }) => {
       // 이전 버튼
       paginationGroup
         .append('text')
-        .attr('x', 0)
+        .attr('x', 40)
         .attr('y', 25)
         .style('cursor', 'default')
         .style('fill', currentPage > 0 ? '#007BFF' : '#ccc') // 첫 페이지는 비활성화
@@ -383,10 +383,18 @@ const BarChart = ({ data, dateTerm }) => {
           }
         });
 
+      paginationGroup
+        .append('text')
+        .attr('x', 115)
+        .attr('y', 25)
+        .text(
+          `${currentPage + 1} / ${Math.ceil(funcnames.length / itemsPerPage)}`
+        );
+
       // 다음 버튼
       paginationGroup
         .append('text')
-        .attr('x', 80)
+        .attr('x', 170) // 기존 80에서 150으로 조정하여 오른쪽으로 이동
         .attr('y', 25)
         .style('cursor', 'default')
         .style(
