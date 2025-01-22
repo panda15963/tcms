@@ -45,7 +45,7 @@ export default function UsageStatusTable({ data }) {
           style={{ borderCollapse: 'separate' }}
         >
           {/* Table Header */}
-          <thead className="bg-gray-100 sticky top-0">
+          <thead className="bg-gray-100 sticky -top-1">
             <tr>
               {columns.map((header) => (
                 <th

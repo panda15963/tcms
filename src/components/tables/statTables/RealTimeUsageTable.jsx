@@ -32,7 +32,7 @@ export default function RealTimeUsageTable({ data = [] }) {
   return (
     <div className="h-full w-full overflow-auto">
       <table className="w-full h-full table-auto border-collapse border border-gray-300">
-        <thead className="bg-gray-100 sticky top-0 z-10">
+        <thead className="bg-gray-100 sticky -top-1 z-10">
           <tr>
             {columns.map((header) => (
               <th
