@@ -442,9 +442,7 @@ const SpaceModal = forwardRef(
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
                 <DialogPanel
-                  className="relative rounded-lg bg-white shadow-xl text-left transition-all "
-                  // style={{ width: '1324px', height: '596px' }} 딱맞음
-                  style={{ width: '1324px', height: '596px' }}
+                  className="relative rounded-lg bg-white shadow-xl text-left transition-all w-[1324px] h-[596px]"
                   static
                 >
                   {!isDirect && (

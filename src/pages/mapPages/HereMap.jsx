@@ -606,7 +606,7 @@ const HereMap = ({
   }, [onClearMap]);
 
   return (
-    <div ref={mapRef} style={{ height: `calc(100vh - 105px)`, zIndex: '1' }} />
+    <div ref={mapRef} className="inset-0 w-full h-full -z-10" />
   );
 };
 

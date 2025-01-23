@@ -427,10 +427,7 @@ const SpaceModal = forwardRef(
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <DialogPanel
-                  className="relative rounded-lg bg-white p-0 shadow-xl text-left transition-all sm:max-w-screen-xl"
-                  style={{ width: '1324px' }}
-                >
+                <DialogPanel className="relative rounded-lg bg-white p-0 shadow-xl text-left transition-all sm:max-w-screen-xl w-[1324px]">
                   {!isDirect && (
                     <div className="flex justify-between py-3 px-5 bg-blue-600 rounded-t-lg">
                       <h1 className="text-sm font-semibold text-white">

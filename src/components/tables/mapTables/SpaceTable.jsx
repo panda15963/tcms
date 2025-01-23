@@ -144,7 +144,7 @@ const SpaceTableHeaderList = (t) => [
         <>
           <img
             src={`${baseURL}${adjustedImagePath}`}
-            style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
+            className="w-[100px] h-auto cursor-pointer"
             onClick={() => setShowModal(true)}
           />
           {showModal && (
@@ -152,12 +152,7 @@ const SpaceTableHeaderList = (t) => [
               <div className="bg-white p-4 max-w-full max-h-full overflow-auto">
                 <img
                   src={`${baseURL}${adjustedImagePath}`}
-                  style={{
-                    maxWidth: '55vw',
-                    maxHeight: '55vh',
-                    width: 'auto',
-                    height: 'auto',
-                  }}
+                  className="max-w-[55vw] max-h-[55vh] w-auto h-auto"
                 />
                 <button
                   className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
@@ -275,10 +270,7 @@ const SpaceTable = ({ list, onSelectionChange, isDirect }) => {
             </tr>
           ))}
         </thead>
-        <tbody
-          className="bg-white divide-y divide-gray-100"
-          style={{ maxHeight: '300px', overflowY: 'auto' }} // 부모 높이 내에서 스크롤
-        >
+        <tbody className="bg-white divide-y divide-gray-100 max-h-[300px] overflow-y-auto">
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
@@ -287,8 +279,7 @@ const SpaceTable = ({ list, onSelectionChange, isDirect }) => {
               {row.getVisibleCells().map((cell) => (
                 <td
                   key={cell.id}
-                  className="px-3 py-2 whitespace-nowrap text-center border-2 text-xs text-black overflow-hidden text-ellipsis"
-                  style={{ maxWidth: '200px' }} // 셀 길이 제한
+                  className="px-3 py-2 max-w-[200px] whitespace-nowrap text-center border-2 text-xs text-black overflow-hidden text-ellipsis"
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>

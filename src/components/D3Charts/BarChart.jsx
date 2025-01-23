@@ -8,7 +8,7 @@ import * as d3 from 'd3';
  * @param {string} props.dateTerm - 날짜 단위
  * @returns {JSX.Element} BarChart 컴포넌트
  */
-const BarChart = ({ data, dateTerm }) => {
+const BarChart = ({ data, dateTerm, windowSize }) => {
   const { t } = useTranslation(); // 다국어 번역 훅
   const chartRef = useRef(); // 차트를 렌더링할 DOM 요소 참조
 
@@ -19,11 +19,9 @@ const BarChart = ({ data, dateTerm }) => {
     d3.select(chartRef.current).select('svg').remove();
 
     // 차트 크기 설정
-    const margin = { top: 50, right: 250, bottom: 100, left: 100 }; // 오른쪽 여백을 확장하여 범례 배치
-    const width =
-      chartRef.current.parentNode.clientWidth - margin.left - margin.right;
-    const height =
-      chartRef.current.parentNode.clientHeight - margin.top - margin.bottom;
+    const margin = { top: 50, right: 250, bottom: 100, left: 100 };
+    const width = windowSize.width * 0.8 - margin.left - margin.right;
+    const height = windowSize.height * 0.6 - margin.top - margin.bottom;
 
     // 데이터 변환
     let transformedData;
@@ -230,10 +228,10 @@ const BarChart = ({ data, dateTerm }) => {
     const svg = d3
       .select(chartRef.current)
       .append('svg')
-      .attr('width', width + margin.left + margin.right) // 전체 너비
-      .attr('height', height + margin.top + margin.bottom) // 전체 높이
+      .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+      .attr('preserveAspectRatio', 'xMidYMid meet')
       .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`); // 차트 내부 여백 설정
+      .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     // X축 스케일 설정 (날짜)
     const x0 = d3.scaleBand().domain(xLabels).range([0, width]).padding(0.2); // X축 간격

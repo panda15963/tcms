@@ -549,5 +549,5 @@ export default function GoogleMap({
     }
   }, [routeFullCoords, spaceFullCoords]);
 
-  return <div style={{ height: `calc(100vh - 102px)`, zIndex: '1' }} ref={mapRef} />;
+  return <div className="h-[calc(100vh-102px)] z-[1]" ref={mapRef} />;
 }

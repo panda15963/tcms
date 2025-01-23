@@ -37,10 +37,7 @@ const defaultColumns = (t) => [
     header: ({ column }) => {
       const isSorted = column.getIsSorted();
       return (
-        <div
-          className="flex items-center justify-center text-xs"
-          style={{ whiteSpace: 'nowrap' }} // 텍스트 줄바꿈 방지
-        >
+        <div className="flex items-center justify-center text-xs whitespace-nowrap">
           <span>{t('MainGrid.UploadedDate')}</span>
           <button
             className="ml-1 text-gray-500"
@@ -135,7 +132,7 @@ const defaultColumns = (t) => [
         <>
           <img
             src={`${baseURL}${adjustedImagePath}`}
-            style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
+            className="w-[100px] h-auto cursor-pointer"
             onClick={() => setShowModal(true)}
           />
           {showModal && (
@@ -143,12 +140,7 @@ const defaultColumns = (t) => [
               <div className="bg-white p-4 max-w-full max-h-full overflow-auto">
                 <img
                   src={`${baseURL}${adjustedImagePath}`}
-                  style={{
-                    maxWidth: '55vw',
-                    maxHeight: '55vh',
-                    width: 'auto',
-                    height: 'auto',
-                  }}
+                  className="max-w-[55vw] max-h-[55vh] w-auto h-auto"
                 />
                 <button
                   className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"

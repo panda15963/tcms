@@ -650,19 +650,13 @@ const TopMenuBar = ({
                 <div className="flex items-center lg:px-0">
                   <div className="hidden lg:block scale-90 z-40">
                     <div className="flex">
-                      <label
-                        className="px-2 py-2 text-sm font-bold text-white"
-                        style={{ userSelect: 'none' }}
-                      >
+                      <label className="px-2 py-2 text-sm font-bold text-white select-none">
                         {/* 지도 선택 */}
                         {t('TopMenuBar.MapSelection')}
                       </label>
                       <MapAPIsLists setSelectedAPI={setSelectedAPI} />
                       {/* <label className="rounded-md pl-10 py-2 text-sm font-bold text-white px-3 "> */}
-                      <label
-                        className="px-2 py-2 pl-11 text-sm font-bold text-white"
-                        style={{ userSelect: 'none' }}
-                      >
+                      <label className="px-2 py-2 pl-11 text-sm font-bold text-white select-none">
                         {/* 지점 검색 */}
                         {t('TopMenuBar.StoreSearch')}
                       </label>
@@ -674,9 +668,7 @@ const TopMenuBar = ({
                               onChange={handleChange}
                               onKeyDown={handleKeyDown}
                               value={inputValue}
-                              style={{ width: '175px', userSelect: 'none' }}
-                              className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2 cursor-default"
-                              // 지점을 입력해 주세요
+                              className="block w-[175px] select-none rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2 cursor-default"
                               placeholder={t('Common.SearchPlaceholder')}
                             />
                             <button
@@ -688,13 +680,7 @@ const TopMenuBar = ({
                               <img
                                 src={searchIcon2}
                                 alt="Search Icon"
-                                className="object-contain"
-                                style={{
-                                  width: '90%',
-                                  height: '90%',
-                                  marginLeft: '1.5px',
-                                  userSelect: 'none',
-                                }} // 이미지 버튼 안에 꽉 차게
+                                className="object-contain w-[90%] h-[90%] ml-[1.5px] select-none"
                                 onContextMenu={handleContextMenu}
                               />
                               {/* <FaMagnifyingGlass
@@ -713,10 +699,7 @@ const TopMenuBar = ({
                         chosenMapAPIs={selectedAPI}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label
-                          className="rounded-md px-2 py-2 pr-2 text-sm font-bold text-white"
-                          style={{ userSelect: 'none' }}
-                        >
+                        <label className="rounded-md px-2 py-2 pr-2 text-sm font-bold text-white select-none">
                           {/* 로그 검색 */}
                           {t('TopMenuBar.LogSearch')}
                         </label>
@@ -728,14 +711,8 @@ const TopMenuBar = ({
                         >
                           <img
                             src={downloadIcon2}
-                            alt="Download Icon"
-                            className="object-contain"
-                            style={{
-                              width: '90%',
-                              height: '90%',
-                              marginLeft: '1.5px',
-                              userSelect: 'none',
-                            }} // 이미지 버튼 안에 꽉 차게
+                            alt="Search Icon"
+                            className="object-contain w-[90%] h-[90%] ml-[1.5px] select-none"
                             onContextMenu={handleContextMenu}
                           />
                           {/* <HiOutlineDocumentSearch
@@ -750,10 +727,7 @@ const TopMenuBar = ({
                         ref={logModalRef}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label
-                          className="rounded-md px-3 py-2 pr-2 text-sm font-bold text-white whitespace-nowrap cursor-default"
-                          style={{ userSelect: 'none' }}
-                        >
+                        <label className="rounded-md px-3 py-2 pr-2 text-sm font-bold text-white whitespace-nowrap cursor-default select-none">
                           {/* 공간 검색 */}
                           {t('TopMenuBar.SpaceSearch')}
                         </label>
@@ -765,16 +739,11 @@ const TopMenuBar = ({
                         >
                           <img
                             src={spaceIcon2}
-                            alt="Space Search Icon"
-                            className="object-contain"
-                            style={{
-                              width: '90%',
-                              height: '90%',
-                              marginLeft: '1.5px',
-                              userSelect: 'none',
-                            }} // 이미지 버튼 안에 꽉 차게
+                            alt="Search Icon"
+                            className="object-contain w-[90%] h-[90%] ml-[1.5px] select-none"
                             onContextMenu={handleContextMenu}
                           />
+
                           {/* <HiOutlineDocumentSearch
                             className="h-5 w-5 text-white"
                             aria-hidden="true"
@@ -788,10 +757,7 @@ const TopMenuBar = ({
                         selectedCoords={convertedCoords}
                       />
                       <div className="flex flex-1 justify-center lg:ml-3">
-                        <label
-                          className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap"
-                          style={{ userSelect: 'none' }}
-                        >
+                        <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap select-none">
                           {/* 지도 초기화*/}
                           {t('TopMenuBar.MapClear')}
                         </label>
@@ -803,14 +769,8 @@ const TopMenuBar = ({
                         >
                           <img
                             src={clearIcon2}
-                            alt="Clear Icon"
-                            className="object-contain"
-                            style={{
-                              width: '90%',
-                              height: '90%',
-                              marginLeft: '1.5px',
-                              userSelect: 'none',
-                            }} // 이미지 버튼 안에 꽉 차게
+                            alt="Search Icon"
+                            className="object-contain w-[90%] h-[90%] ml-[1.5px] select-none"
                             onContextMenu={handleContextMenu}
                           />
                           {/* <HiOutlineRefresh
@@ -819,10 +779,7 @@ const TopMenuBar = ({
                           /> */}
                         </button>
                       </div>
-                      <label
-                        className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10"
-                        style={{ userSelect: 'none' }}
-                      >
+                      <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10 select-none">
                         {/* 입력 좌표 출력 */}
                         {t('TopMenuBar.CoordsOutput')}
                       </label>
@@ -842,12 +799,11 @@ const TopMenuBar = ({
                             <input
                               id="search"
                               name="lat"
-                              className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white cursor-default focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                              className="block w-36 rounded-md border-0 bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white select-none cursor-default focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                               placeholder={t('Common.Latitude')}
                               value={convertedCoords.lat}
                               onChange={handleCoordsChange}
                               onClick={handleCoordsClick}
-                              style={{ userSelect: 'none' }}
                             />
                           </div>
                         </div>
@@ -865,13 +821,12 @@ const TopMenuBar = ({
                               />
                             </button>
                             <input
-                              className="block w-36 rounded-md border-0 cursor-default bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                              className="block w-36 rounded-md border-0 select-none cursor-default bg-white py-1.5 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                               placeholder={t('Common.Longitude')}
                               name="lng"
                               value={convertedCoords.lng}
                               onChange={handleCoordsChange}
                               onClick={handleCoordsClick}
-                              style={{ userSelect: 'none' }}
                             />
                           </div>
                         </div>
@@ -879,9 +834,8 @@ const TopMenuBar = ({
                       <div className="flex flex-0 justify-center lg:ml-3">
                         <button
                           type="button"
-                          className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset cursor-default"
+                          className="rounded bg-white px-2 select-none py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset cursor-default"
                           onClick={handleSearch}
-                          style={{ userSelect: 'none' }}
                         >
                           {/* 조회 */}
                           {t('Common.Search')}
@@ -890,9 +844,8 @@ const TopMenuBar = ({
                       <div className="flex flex-0 justify-center lg:ml-3">
                         <button
                           type="button"
-                          className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset cursor-default"
+                          className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 select-none shadow-sm ring-1 ring-inset cursor-default"
                           onClick={handleCopy}
-                          style={{ userSelect: 'none' }}
                         >
                           {/* 복사 */}
                           {t('TopMenuBar.CopyButton')}
@@ -917,19 +870,13 @@ const TopMenuBar = ({
             <DisclosurePanel className="lg:hidden">
               <div className="space-y-1 px-2 pb-3 pt-2">
                 <div className="flex flex-1 justify-center lg:justify-end">
-                  <label
-                    className="block rounded-md px-3 py-2 text-base font-medium text-white"
-                    style={{ userSelect: 'none' }}
-                  >
+                  <label className="block rounded-md px-3 py-2 text-base font-medium text-white select-none">
                     {t('TopMenuBar.MapSelection')}
                   </label>
                   <MapAPIsLists setSelectedAPI={setSelectedAPI} />
                 </div>
                 <div className="flex flex-1 justify-center lg:justify-end">
-                  <label
-                    className="block rounded-md px-3 py-2 text-base font-medium text-white"
-                    style={{ userSelect: 'none' }}
-                  >
+                  <label className="block rounded-md px-3 py-2 text-base font-medium text-white select-none">
                     {t('TopMenuBar.StoreSearch')}
                   </label>
                   <div className="w-full max-w-lg lg:max-w-xs">
@@ -938,8 +885,7 @@ const TopMenuBar = ({
                         type="text"
                         onChange={handleChange}
                         onKeyDown={handleKeyDown}
-                        className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2"
-                        style={{ userSelect: 'none' }}
+                        className="block w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-5 text-gray-500 sm:text-sm sm:leading-6 mr-2 select-none"
                         placeholder={t('Common.SearchPlaceholder')}
                       />
                       <button
@@ -956,10 +902,7 @@ const TopMenuBar = ({
                   </div>
                 </div>
                 <div className="flex flex-1 justify-center lg:justify-end">
-                  <label
-                    className="block rounded-md px-3 py-2 text-base font-medium text-white"
-                    style={{ userSelect: 'none' }}
-                  >
+                  <label className="block rounded-md px-3 py-2 text-base font-medium text-white select-none">
                     {t('TopMenuBar.LogSearch')}
                   </label>
                   <button
@@ -974,10 +917,7 @@ const TopMenuBar = ({
                   </button>
                 </div>
                 <div className="flex flex-1 justify-center lg:justify-end">
-                  <label
-                    className="block rounded-md px-3 py-2 text-base font-medium text-white"
-                    style={{ userSelect: 'none' }}
-                  >
+                  <label className="block rounded-md px-3 py-2 text-base font-medium text-white select-none">
                     {t('TopMenuBar.SpaceSearch')}
                   </label>
                   <button
@@ -992,10 +932,7 @@ const TopMenuBar = ({
                   </button>
                 </div>
                 <div className="flex flex-1 justify-center lg:justify-end">
-                  <label
-                    className="block rounded-md px-3 py-2 text-base font-medium text-white"
-                    style={{ userSelect: 'none' }}
-                  >
+                  <label className="block rounded-md px-3 py-2 text-base font-medium text-white select-none">
                     {t('TopMenuBar.CoordsOutput')}
                   </label>
                   <MapCoordLists chosenDisplayCoords={setSelectedMapList} />
@@ -1014,12 +951,11 @@ const TopMenuBar = ({
                         <input
                           id="search"
                           name="lat"
-                          className="block w-36 rounded-md border-0 bg-gray-800 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                          className="block w-36 rounded-md border-0 select-none bg-gray-800 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                           placeholder={t('Common.Latitude')}
                           value={convertedCoords.lat}
                           onChange={handleCoordsChange}
                           onClick={handleCoordsClick}
-                          style={{ userSelect: 'none' }}
                         />
                       </div>
                       <div className="relative">
@@ -1033,13 +969,12 @@ const TopMenuBar = ({
                           />
                         </button>
                         <input
-                          className="block w-36 rounded-md border-0 bg-gray-800 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                          className="block w-36 rounded-md select-none border-0 bg-gray-800 py-1 pl-10 pr-3 text-black placeholder:text-gray-400 focus:bg-white focus:text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
                           placeholder={t('Common.Longitude')}
                           name="lng"
                           value={convertedCoords.lng}
                           onChange={handleCoordsChange}
                           onClick={handleCoordsClick}
-                          style={{ userSelect: 'none' }}
                         />
                       </div>
                     </div>
@@ -1047,9 +982,8 @@ const TopMenuBar = ({
                   <div className="flex flex-0 justify-center lg:ml-3">
                     <button
                       type="button"
-                      className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+                      className="rounded bg-white select-none px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                       onClick={handleSearch}
-                      style={{ userSelect: 'none' }}
                     >
                       {t('Common.Search')}
                     </button>
@@ -1057,9 +991,8 @@ const TopMenuBar = ({
                   <div className="flex flex-0 justify-center lg:ml-3">
                     <button
                       type="button"
-                      className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+                      className="rounded bg-white select-none px-2 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
                       onClick={handleCopy}
-                      style={{ userSelect: 'none' }}
                     >
                       {t('TopMenuBar.Copy')}
                     </button>
@@ -1070,10 +1003,7 @@ const TopMenuBar = ({
           </>
         )}
       </Disclosure>
-      <div
-        className="map-container"
-        style={{ height: `calc(100vh - 100px)`, zIndex: '1' }}
-      >
+      <div className="map-container h-[calc(100vh-100px)] z-[1]">
         {/* 좌표나 경로를 보여주기 위한 지도 표출 */}
         {selectedAPI && handleChoosingMapAPIs()}
       </div>

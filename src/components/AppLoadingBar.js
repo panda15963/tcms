@@ -39,7 +39,7 @@ const AppLoadingBar = () => {
           {/* Lottie 애니메이션 컴포넌트 */}
           <Lottie
             isClickToPauseDisabled={true} // 클릭으로 애니메이션 일시정지 비활성화
-            style={{ cursor: 'wait' }} // 대기 커서 스타일
+            className="cursor-wait" // 커서 스타일
             options={defaultOptions} // Lottie 애니메이션 옵션
           />
         </div>

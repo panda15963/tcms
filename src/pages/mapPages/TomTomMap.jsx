@@ -406,8 +406,7 @@ export default function TomTomMap({
   return (
     <div
       id="map-container"
-      className="map"
-      style={{ height: `calc(100vh - 105px)`, zIndex: '1' }}
+      className="map-container inset-0 w-full h-full z-[1]"
     />
   );
 }

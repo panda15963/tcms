@@ -34,10 +34,7 @@ const defaultColumns = (t) => [
     header: ({ column }) => {
       const isSorted = column.getIsSorted(); // 정렬 상태 확인 (false, 'asc', 'desc')
       return (
-        <div
-          className="flex items-center justify-center text-xs"
-          style={{ whiteSpace: 'nowrap' }} // 텍스트 줄바꿈 방지
-        >
+        <div className="flex items-center justify-center text-xs whitespace-nowrap">
           <span>{t('MainGrid.UploadedDate')}</span>
           <button
             className="ml-1 text-gray-500"
@@ -57,25 +54,6 @@ const defaultColumns = (t) => [
         </span>
       );
     },
-    // header: () => (
-    //   <div
-    //     className="text-xs"
-    //     style={{
-    //       whiteSpace: 'nowrap', // 텍스트 줄바꿈 방지
-    //     }}
-    //   >
-    //     {t('MainGrid.UploadedDate')}
-    //   </div>
-    // ),
-    // cell: ({ getValue }) => {
-    //   const fullDate = getValue(); // 2024-10-20 23:12:11 형식의 데이터
-    //   const shortDate = fullDate.slice(0, 10); // YYYY-MM-DD 부분만 추출
-    //   return (
-    //     <span title={fullDate} className="cursor-pointer text-xs">
-    //       {shortDate}
-    //     </span>
-    //   );
-    // },
   },
   {
     accessorKey: 'log_name',
@@ -177,7 +155,7 @@ const defaultColumns = (t) => [
         <>
           <img
             src={`${baseURL}${adjustedImagePath}`}
-            style={{ width: '100px', height: 'auto', cursor: 'pointer' }}
+            className="w-[100px] h-auto cursor-pointer"
             onClick={() => setShowModal(true)}
           />
           {showModal && (
@@ -185,12 +163,7 @@ const defaultColumns = (t) => [
               <div className="bg-white p-4 max-w-full max-h-full overflow-auto">
                 <img
                   src={`${baseURL}${adjustedImagePath}`}
-                  style={{
-                    maxWidth: '55vw', // 화면 너비의 90%로 제한
-                    maxHeight: '55vh', // 화면 높이의 90%로 제한
-                    width: 'auto',
-                    height: 'auto',
-                  }}
+                  className="max-w-[55vw] max-h-[55vh] w-auto h-auto"
                 />
                 <button
                   className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"

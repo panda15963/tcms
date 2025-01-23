@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { IoReloadSharp } from 'react-icons/io5';
@@ -12,10 +12,23 @@ export default function CountsByVersion() {
   const initialData = location.state?.data?.result || [];
   const [data, setData] = useState(initialData); // 데이터 상태 관리
   const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
   const pcName = location.state?.pcname || '전체'; // PC 이름 초기값 설정
   const toolName = location.state?.toolname || '전체'; // 도구 이름 초기값 설정
   const dateTerm = location.state?.dateTerm || 'Day'; // 선택된 날짜 기간 (기본값: "day")
+
+  const handleResize = useCallback(() => {
+    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleResize]);
 
   /**
    * 데이터 처리: toolname에서 공백 제거 및 null 값 처리
@@ -81,10 +94,7 @@ export default function CountsByVersion() {
   }, [location.key]);
 
   return (
-    <div
-      className="flex flex-col items-center justify-start pt-20  px-4 sm:px-6 lg:px-8"
-      style={{ height: `calc(100vh - 108px)`, zIndex: '1' }}
-    >
+    <div className="flex flex-col items-center justify-start py-20 border-spacing-4 px-4 sm:px-6 lg:px-8 h-[calc(100vh-102px)] z-[1]">
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-2xl font-bold text-center pb-4 text-gray-900">
@@ -107,16 +117,14 @@ export default function CountsByVersion() {
       </div>
 
       {/* 데이터 시각화 섹션 */}
-      <div
-        className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
-        style={{ height: '60vh' }} // 차트 섹션 높이 설정
-      >
+      <div className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black h-[60vh]">
         {filteredData.length > 0 ? (
           // 필터링된 데이터가 있을 경우 차트 컴포넌트 렌더링
           <LineChart
             data={filteredData}
             groupBy="versions"
             dateTerm={dateTerm}
+            windowSize={windowSize}
           />
         ) : (
           // 데이터가 없을 경우 "데이터 없음" 메시지 표시

@@ -1556,8 +1556,7 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <DialogPanel
-                className="relative rounded-lg bg-white shadow-xl text-left transition-all sm:max-w-screen-xl"
-                style={{ width: '1324px' }}
+                className="relative rounded-lg bg-white shadow-xl text-left transition-all sm:max-w-screen-xl w-[1324px]"
                 static
               >
                 {/* 모달 헤더 */}

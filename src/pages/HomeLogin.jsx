@@ -265,8 +265,7 @@ export default function Login() {
             onContextMenu={handleContextMenu}
           />
           <div
-            className="relative flex h-full w-full cursor-default"
-            style={{ userSelect: 'none' }}
+            className="relative flex h-full w-full cursor-default select-none"
           >
             <div className="flex-[7]" />
             <div className="flex-[3] flex justify-center items-center bg-white">

@@ -463,11 +463,5 @@ export default function Tmap({
     updateMapCenter(); // 초기 중심 마커 설정
   }
 
-  return (
-    <div
-      id="map_div"
-      className="map"
-      style={{ height: `calc(100vh - 105px)`, zIndex: '1' }}
-    />
-  );
+  return <div id="map_div" className="inset-0 w-full h-full -z-10" />;
 }

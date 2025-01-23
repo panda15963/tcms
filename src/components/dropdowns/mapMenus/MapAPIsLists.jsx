@@ -115,11 +115,10 @@ export default function MapAPIsLists({ setSelectedAPI }) {
                 <img
                   src={selected.logo}
                   alt={selected.name}
-                  className="h-5 w-5 mr-1"
-                  style={{ userSelect: 'none' }}
+                  className="h-5 w-5 mr-1 select-none"
                   onContextMenu={handleContextMenu}
                 />
-                <span className="block truncate" style={{ userSelect: 'none' }}>
+                <span className="block truncate select-none">
                   {selected.name}
                 </span>{' '}
               </div>

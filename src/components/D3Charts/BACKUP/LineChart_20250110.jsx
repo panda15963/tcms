@@ -154,7 +154,7 @@ const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
           .attr('d', line) // 초기 라인 경로
           .transition()
           .duration(2000) // 애니메이션 시간 (ms)
-          .ease(d3.easeLinear) // 선형 보간
+          .ease(d3.easeLinear); // 선형 보간
       }
 
       // 데이터 포인트 추가
@@ -259,7 +259,7 @@ const LineChart = ({ data, groupBy, dateTerm = 'day' }) => {
   // 데이터가 없는 경우
   if (!groupedData || groupedData.length === 0) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '20px' }}>
+      <div className="text-center mt-5 text-xl">
         {t('LineChart.NoDataFound')} {/* 데이터 없음 메시지 */}
       </div>
     );

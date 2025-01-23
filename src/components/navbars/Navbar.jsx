@@ -99,8 +99,7 @@ const NavBar = () => {
           >
             <div className="sm:mx-auto sm:w-full sm:max-w-sm transform scale-95">
               <div
-                className="flex items-center space-x-1 cursor-default"
-                style={{ userSelect: 'none' }}
+                className="flex items-center space-x-1 cursor-default select-none"
               >
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                   TestCourse
@@ -130,8 +129,7 @@ const NavBar = () => {
           {isActiveManagement && (
             <Link
               to="/main/map"
-              className="text-sm font-semibold flex items-center cursor-default"
-              style={{ userSelect: 'none' }}
+              className="text-sm font-semibold flex items-center cursor-default select-none"
             >
               {/* 지도 */}
               {t('Common.Map')}
@@ -143,8 +141,7 @@ const NavBar = () => {
               className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
             >
               <MenuButton
-                className="text-sm font-semibold cursor-default"
-                style={{ userSelect: 'none' }}
+                className="text-sm font-semibold cursor-default select-none"
                 onClick={() => handleLinkClick('/main/dashboard')}
               >
                 {/* 통계 */}
@@ -155,8 +152,7 @@ const NavBar = () => {
           {isActiveManagement && (
             <Menu
               as="div"
-              className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
-              style={{ userSelect: 'none' }}
+              className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900 select-none"
             >
               {({ open }) => (
                 <>

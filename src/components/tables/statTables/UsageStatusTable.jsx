@@ -40,18 +40,14 @@ export default function UsageStatusTable({ data }) {
   return (
     <div className="h-full w-full overflow-auto">
       <div className="w-full h-[500px] overflow-y-auto">
-        <table
-          className="w-full table-auto border-separate border-spacing-0"
-          style={{ borderCollapse: 'separate' }}
-        >
+        <table className="w-full table-auto border-separate border-spacing-0">
           {/* Table Header */}
           <thead className="bg-gray-100 sticky -top-1">
             <tr>
               {columns.map((header) => (
                 <th
                   key={header.id}
-                  className="px-4 py-3 border-l border-r border-t  border-gray-300 text-center text-sm font-semibold text-black uppercase tracking-wider whitespace-nowrap bg-gray-100 shadow-sm"
-                  style={{ boxShadow: '0 2px 2px -1px rgba(0, 0, 0, 0.1)' }}
+                  className="px-4 py-3 border-l border-r border-t border-gray-300 text-center text-sm font-semibold text-black uppercase tracking-wider whitespace-nowrap bg-gray-100 shadow-[0_2px_2px_-1px_rgba(0,0,0,0.1)]"
                 >
                   {header.name}
                 </th>

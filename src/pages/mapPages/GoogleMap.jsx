@@ -8,8 +8,6 @@ import {
 import Start_Point from '../../assets/images/multi_start_point.svg';
 import End_Point from '../../assets/images/multi_end_point.svg';
 
-const mapContainerStyle = { width: '100%', height: 'calc(100vh - 102px)' };
-
 const defaultCenter = {
   lat: parseFloat(process.env.REACT_APP_LATITUDE) || 0,
   lng: parseFloat(process.env.REACT_APP_LONGITUDE) || 0,
@@ -179,7 +177,7 @@ const GoogleMaps = ({
   return (
     <LoadScript googleMapsApiKey={selectedAPI}>
       <GoogleMap
-        mapContainerStyle={mapContainerStyle}
+        mapContainerStyle={{ width: '100%', height: '100%' }}
         center={defaultCenter}
         zoom={defaultZoom}
         onLoad={setMap}

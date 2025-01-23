@@ -65,10 +65,7 @@ export default function RealTime() {
   };
 
   return (
-    <div
-      className="flex flex-col items-center justify-start pt-20 p-8"
-      style={{ height: `calc(100vh - 108px)`, zIndex: '1' }}
-    >
+    <div className="flex flex-col items-center justify-start py-20 border-spacing-4 px-4 sm:px-6 lg:px-8 h-[calc(100vh-102px)] z-[1]">
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-2xl font-bold text-gray-900">
@@ -81,7 +78,7 @@ export default function RealTime() {
             <div
               className="h-full bg-blue-500 rounded border border-blue-500"
               style={{ width: `${(timer / 30) * 100}%` }} // 타이머 퍼센트 계산
-            ></div>
+            />
           </div>
           <span className="text-gray-700">{timer}s</span> {/* 남은 시간 표시 */}
           <button
@@ -94,10 +91,7 @@ export default function RealTime() {
       </div>
 
       {/* 데이터 테이블 섹션 */}
-      <div
-        className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
-        style={{ height: '60vh' }} // 테이블 높이 설정
-      >
+      <div className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black h-[60vh]">
         {/* 데이터를 props로 전달 */}
         <RealTimeUsageTable data={data} />
       </div>

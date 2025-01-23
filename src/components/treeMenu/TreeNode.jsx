@@ -61,15 +61,9 @@ export default function TreeNode({
         <span className="ml-2 ">{currentIndex + 1}.</span>
         {/* 경로 색상 박스 */}
         <span
-          className="w-4 h-4 ml-1"
-          style={{
-            backgroundColor: routeColor,
-            display: 'inline-block',
-            borderRadius: '3px',
-            // boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-            border: '1px solid rgba(255, 255, 255, 0.5)',
-          }}
-        ></span>
+          className="w-4 h-4 ml-1 inline-block rounded-[3px] border border-[rgba(255,255,255,0.5)]"
+          style={{ backgroundColor: routeColor }}
+        />
         {/* 노드 이름 표시 */}
         <span
           className="pl-2 text-sm flex items-center cursor-pointer hover:text-blue-500 hover:underline"

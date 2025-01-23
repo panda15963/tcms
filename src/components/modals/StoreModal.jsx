@@ -158,8 +158,7 @@ const StoreModal = forwardRef(
               >
                 {/* 모달 콘텐츠 */}
                 <DialogPanel
-                  className="relative rounded-lg shadow-xl bg-white"
-                  style={{ width: '800px' }}
+                  className="relative rounded-lg shadow-xl bg-white w-[800px]"
                 >
                   {/* 모달 헤더 */}
                   <div className="flex justify-between py-3 px-5 bg-blue-900 rounded-t-lg">

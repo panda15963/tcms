@@ -118,7 +118,7 @@ export default function BaiduMap({
   useEffect(() => {
     const newCenter = calculateCenterAndMarker(lat, lng);
     setCenter(newCenter);
-    if(!newCenter.isDefault) {
+    if (!newCenter.isDefault) {
       locationCoords({ lat: newCenter.lat, lng: newCenter.lng });
     }
   }, [lat, lng]);
@@ -502,11 +502,5 @@ export default function BaiduMap({
     }
   }, [origins, destinations]);
 
-  return (
-    <div
-      id="allmap"
-      className="map"
-      style={{ height: `calc(100vh - 105px)`, zIndex: '1' }}
-    />
-  );
+  return <div id="allmap" className="allmap inset-0 w-full h-full z-[1]" />;
 }

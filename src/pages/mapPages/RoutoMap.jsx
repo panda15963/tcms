@@ -670,17 +670,10 @@ export default function RoutoMap({
         mapRef.current.setCenter(newCenter);
       }
       updateMarker(newCenter);
-      setMarkerPosition(newCenter);  // 상태 변경을 통해 강제 리렌더링
+      setMarkerPosition(newCenter); // 상태 변경을 통해 강제 리렌더링
       locationCoords({ lat, lng });
     }
-
   }, [lat, lng, markerPosition]);
 
-  return (
-    <div
-      id="map"
-      className="map"
-      style={{ height: `calc(100vh - 105px)`, zIndex: '1' }}
-    />
-  );
+  return <div id="map"  className="inset-0 w-full h-full -z-10" />;
 }

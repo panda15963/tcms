@@ -25,7 +25,7 @@ const formatMonthDateToLocalISO = (date) => {
  * @param {string} props.dateTerm - 날짜 단위 (일, 주, 달, Month)
  * @returns {JSX.Element} BarChart 컴포넌트
  */
-const LineChart = ({ data, groupBy, dateTerm }) => {
+const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
   const { t } = useTranslation();
   const svgRef = useRef();
   const groupKey = groupBy === 'tools' ? 'toolname' : 'toolver';
@@ -74,10 +74,8 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
 
     const svg = d3.select(svgRef.current);
     const margin = { top: 60, right: 0, bottom: 50, left: 0 };
-    const width =
-      svg.node().parentNode.clientWidth - margin.left - margin.right;
-    const height =
-      svg.node().parentNode.clientHeight - margin.top - margin.bottom;
+    const width = windowSize.width * 0.8 - margin.left - margin.right;
+    const height = windowSize.height * 0.6 - margin.top - margin.bottom;
 
     svg
       .attr(
@@ -448,7 +446,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
         .style('fill', '#000000')
         .text(t('LineChart.Notification')); // 공지사항 텍스트
     }
-  }, [data, groupBy, dateTerm]);
+  }, [data, groupBy, dateTerm, windowSize]);
 
   return <svg ref={svgRef} className="w-11/12 h-full px-2" />;
 };

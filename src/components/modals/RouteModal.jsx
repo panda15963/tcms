@@ -292,8 +292,7 @@ const RouteModal = ({
             </button>
           </div>
           <div
-            className="flex flex-row justify-between space-x-4 my-4"
-            style={{ marginTop: '0px', marginBottom: '0px' }}
+            className="flex flex-row justify-between space-x-4 my-4 mt-0 mb-0"
           >
             <div className="flex-1 border border-gray-300 p-4">
               <h2 className="text-center text-xl font-bold mb-2"></h2>

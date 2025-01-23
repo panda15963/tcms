@@ -58,8 +58,7 @@ export default function SwitchLanguages({ onClick }) {
         <img
           src={isEnglish ? usaflag : korflag} // 현재 언어에 따라 표시할 국기 이미지 선택
           alt={isEnglish ? 'English Flag' : 'Korean Flag'} // 현재 언어에 따라 대체 텍스트 설정
-          className="inline-block h-10 w-10 rounded-full cursor-default"
-          style={{ userSelect: 'none' }}
+          className="inline-block h-10 w-10 rounded-full cursor-default select-none"
           onContextMenu={handleContextMenu}
         />
       </button>

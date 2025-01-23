@@ -88,10 +88,7 @@ export default function Logs() {
   );
 
   return (
-    <div
-      className="flex flex-col items-center justify-start pt-20 px-4 sm:px-6 lg:px-8"
-      style={{ height: `calc(100vh - 108px)`, zIndex: '1' }}
-    >
+    <div className="flex flex-col items-center justify-start py-20 border-spacing-4 px-4 sm:px-6 lg:px-8 h-[calc(100vh-102px)] z-[1]">
       {/* 헤더 섹션 */}
       <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
         <h1 className="text-2xl font-bold text-center pb-4 text-gray-900">
@@ -109,10 +106,7 @@ export default function Logs() {
       </div>
 
       {/* 데이터 테이블 섹션 */}
-      <div
-        className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black"
-        style={{ height: '60vh' }} // 테이블 높이 설정
-      >
+      <div className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black h-[60vh]">
         <LogTable data={filteredData} />
       </div>
     </div>

@@ -25,7 +25,7 @@ export default function DashboardLayout() {
       <StatSideBar />
 
       {/* 메인 콘텐츠 영역 */}
-      <main className="bg-gray-100">
+      <main className="bg-gray-200">
         <Outlet />
       </main>
     </>

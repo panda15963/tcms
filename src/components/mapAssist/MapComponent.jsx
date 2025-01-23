@@ -14,7 +14,6 @@ import { Circle as CircleGeom } from 'ol/geom';
  * OpenLayers 기반 MapComponent
  * - 특정 좌표와 반경을 중심으로 지도 및 원형 표시
  * - 클릭 이벤트를 통해 클릭한 좌표를 부모 컴포넌트로 전달
- * 
  * @param {object} props - 컴포넌트에 전달되는 속성
  * @param {number} props.latitude - 지도 중심의 위도
  * @param {number} props.longitude - 지도 중심의 경도
@@ -85,11 +84,8 @@ const MapComponent = ({ latitude, longitude, radius, onMapClick }) => {
   }, [latitude, longitude, radius, onMapClick]); // 종속성 배열: 속성 변경 시 effect 재실행
 
   return (
-    <div
-      style={{ width: '100%', height: '100%' }}
-      className="rounded-lg overflow-hidden border border-gray-300"
-    >
-      <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+    <div className="w-full h-full rounded-lg overflow-hidden border border-gray-300">
+      <div ref={mapRef} className="w-full h-full" />
     </div>
   );
 };

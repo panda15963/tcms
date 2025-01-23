@@ -57,8 +57,7 @@ export default function LogTable({ data }) {
                 ].map((field) => (
                   <td
                     key={`${row.id}-${field}`}
-                    className="px-4 py-3 border-2 text-center text-sm font-medium text-gray-700 whitespace-nowrap"
-                    style={{ width: '200px', height: '30px' }}
+                    className="px-4 py-3 w-[200px] h-[30px] border-2 text-center text-sm font-medium text-gray-700 whitespace-nowrap"
                   >
                     {row[field] || '-'} {/* 데이터가 없을 경우 '-' 표시 */}
                   </td>

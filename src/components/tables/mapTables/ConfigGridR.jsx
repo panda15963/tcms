@@ -16,10 +16,7 @@ const defaultColumns = (t) => [
     cell: ({ getValue }) => <span className="text-xs">{getValue()}</span>, // 셀 데이터를 표시
     header: ({ column }) => {
       return (
-        <div
-          className="flex items-center justify-center text-xs"
-          style={{ whiteSpace: 'nowrap' }} // 텍스트 줄바꿈 방지
-        >
+        <div className="flex items-center justify-center text-xs whitespace-nowrap">
           <span>{t('ConfigGridR.CFG_name')}</span>
         </div>
       );
@@ -102,10 +99,7 @@ const ConfigGridR = ({ list, onSelectionChange }) => {
   }, [table.getSelectedRowModel().rows, onSelectionChange]);
 
   return (
-    <div
-      className="my-2 h-[400px] w-[510px] block overflow-x-auto"
-      style={{ marginLeft: '0px' }} // 스타일 설정
-    >
+    <div className="my-2 h-[400px] w-[510px] block overflow-x-auto ml-[0px]">
       {/* 테이블 렌더링 */}
       <table className="min-w-full divide-y divide-gray-200 border-gray-300">
         <thead className="bg-gray-50 border-2 sticky top-0">

@@ -437,7 +437,7 @@ const HereMap = ({
       );
   }, []);
 
-  return <div ref={mapRef} style={{ height: '87.8vh' }} />;
+  return <div ref={mapRef} className="h-[87.8vh]" />;
 };
 
 export default HereMap;

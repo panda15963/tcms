@@ -239,10 +239,7 @@ export default function StatTopMenuBar() {
         <div className="relative scale-90 flex h-[52px] z-40 items-center justify-start gap-5">
           {/* 통계 메뉴 */}
           <div className="flex items-center h-[52px] space-x-2">
-            <label
-              className="rounded-md py-2 text-sm font-bold text-white"
-              style={{ userSelect: 'none' }} // 드래그 방지
-            >
+            <label className="rounded-md py-2 text-sm font-bold text-white select-none cursor-default">
               {t('StatNavBar.StatMenu')}
             </label>
             <div>
@@ -252,22 +249,21 @@ export default function StatTopMenuBar() {
 
           {/* 조회 기간 */}
           <div
-            className="flex items-center h-[52px] space-x-4 cursor-default"
-            style={{
-              opacity: isDisabled ? 0.5 : 1,
-              pointerEvents: isDisabled ? 'none' : 'auto',
-              userSelect: 'none', // 부모 요소 드래그 방지
-            }}
+            className={`flex items-center h-[52px] space-x-4 cursor-default select-none ${
+              isDisabled
+                ? 'opacity-50 pointer-events-none'
+                : 'opacity-100 pointer-events-auto'
+            }`}
           >
             {/* 조회 기간 레이블 */}
-            <div style={{ userSelect: 'none' }}>
+            <div className="select-none">
               <span className="text-sm font-semibold text-white">
                 {t('DateTerms.DatePeriod')}
               </span>
             </div>
 
             {/* CustomDatePicker 드래그 방지 */}
-            <div style={{ userSelect: 'none' }}>
+            <div className="select-none">
               <CustomDatePicker
                 startsDate={setStartDate}
                 endsDate={setEndDate}
@@ -278,29 +274,16 @@ export default function StatTopMenuBar() {
           </div>
           {/* 도구 선택 */}
           <div
-            className="flex items-center h-[52px] space-x-4"
-            style={{
-              opacity:
-                data?.name === t('StatNavBar.TECT') ||
-                data?.name === t('StatNavBar.TCIC') ||
-                data?.name === t('StatNavBar.RTTUI') ||
-                data?.name === t('StatNavBar.TUSRT')
-                  ? 0.5
-                  : 1,
-              pointerEvents:
-                data?.name === t('StatNavBar.TECT') ||
-                data?.name === t('StatNavBar.TCIC') ||
-                data?.name === t('StatNavBar.RTTUI') ||
-                data?.name === t('StatNavBar.TUSRT')
-                  ? 'none'
-                  : 'auto',
-              userSelect: 'none', // 드래그 방지
-            }}
+            className={`flex items-center h-[52px] space-x-4 select-none ${
+              data?.name === t('StatNavBar.TECT') ||
+              data?.name === t('StatNavBar.TCIC') ||
+              data?.name === t('StatNavBar.RTTUI') ||
+              data?.name === t('StatNavBar.TUSRT')
+                ? 'opacity-50 pointer-events-none'
+                : 'opacity-100 pointer-events-auto'
+            }`}
           >
-            <label
-              className="text-sm font-bold text-white"
-              style={{ userSelect: 'none' }}
-            >
+            <label className="text-sm font-bold text-white select-none">
               {t('StatNavBar.SelectTool')}
             </label>
             <ToolLists
@@ -314,17 +297,13 @@ export default function StatTopMenuBar() {
 
           {/* PC 선택 */}
           <div
-            className="flex items-center h-[52px] space-x-4"
-            style={{
-              opacity: isDisabled ? 0.5 : 1,
-              pointerEvents: isDisabled ? 'none' : 'auto',
-              userSelect: 'none', // 드래그 방지
-            }}
+            className={`flex items-center h-[52px] space-x-4 select-none ${
+              isDisabled
+                ? 'opacity-50 pointer-events-none'
+                : 'opacity-100 pointer-events-auto'
+            }`}
           >
-            <label
-              className="text-sm font-bold text-white"
-              style={{ userSelect: 'none' }}
-            >
+            <label className="text-sm font-bold text-white select-none">
               {t('StatNavBar.SelectPC')}
             </label>
             <PCLists
@@ -338,13 +317,12 @@ export default function StatTopMenuBar() {
           <div className="flex items-center h-[52px] space-x-4">
             <button
               type="button"
-              className="rounded bg-white px-2 cursor-default py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
+              className={`rounded bg-white px-2 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset cursor-default select-none ${
+                isDisabled
+                  ? 'opacity-50 pointer-events-none'
+                  : 'opacity-100 pointer-events-auto'
+              }`}
               onClick={handleSearch}
-              style={{
-                opacity: isDisabled ? 0.5 : 1,
-                pointerEvents: isDisabled ? 'none' : 'auto',
-                userSelect: 'none', // 드래그 방지
-              }}
             >
               {t('StatNavBar.Search')}
             </button>
@@ -352,12 +330,11 @@ export default function StatTopMenuBar() {
             <button
               type="button"
               onClick={handleReset}
-              className="rounded bg-white px-2 py-2 text-sm cursor-default font-semibold text-gray-900 shadow-sm ring-1 ring-inset"
-              style={{
-                opacity: isDisabled ? 0.5 : 1,
-                pointerEvents: isDisabled ? 'none' : 'auto',
-                userSelect: 'none', // 드래그 방지
-              }}
+              className={`rounded bg-white px-2 py-2 text-sm cursor-default font-semibold text-gray-900 shadow-sm ring-1 ring-inset select-none ${
+                isDisabled
+                  ? 'opacity-50 pointer-events-none'
+                  : 'opacity-100 pointer-events-auto'
+              }`}
             >
               {t('StatNavBar.Reset')}
             </button>

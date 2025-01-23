@@ -36,13 +36,7 @@ const defaultColumns = (t) => [
     header: ({ column }) => {
       const isSorted = column.getIsSorted(); // 정렬 상태 ('asc', 'desc', false)
       return (
-        <div
-          className="flex items-center justify-center text-xs"
-          style={{
-            whiteSpace: 'nowrap', // 텍스트가 줄바꿈되지 않도록 설정
-            width: '100px', // 헤더 셀의 너비 조정
-          }}
-        >
+        <div className="flex items-center justify-center text-xs whitespace-nowrap w-[100px]">
           <span>{t('ConfigGridL.UploadedDate')}</span>
           <button
             className="ml-1 text-gray-500"
@@ -125,13 +119,7 @@ const defaultColumns = (t) => [
     cell: ({ getValue }) => getValue(),
     // 스타일을 추가해 헤더가 한 줄로 나오게 설정
     header: ({ column }) => (
-      <div
-        className="text-xs"
-        style={{
-          whiteSpace: 'nowrap', // 텍스트가 줄바꿈 없이 한 줄로 유지되도록 설정
-          width: '25px', // 헤더 셀의 너비를 넓혀서 한 줄에 맞도록 설정
-        }}
-      >
+      <div className="text-xs whitespace-nowrap w-[25px]">
         {t('ConfigGridL.Version')}
       </div>
     ),
@@ -267,10 +255,7 @@ const ConfigGridL = ({ list, onSelectionChange, onCellDoubleClick }) => {
   };
 
   return (
-    <div
-      className="my-2 h-[400px] w-[720px] block overflow-x-auto"
-      style={{ marginLeft: '0px' }}
-    >
+    <div className="my-2 ml-0 h-[400px] w-[720px] block overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200 border-gray-300">
         <thead className="bg-gray-50 border-2 sticky top-0">
           {table.getHeaderGroups().map((headerGroup) => (
