@@ -517,7 +517,7 @@ const HereMap = ({
     };
 
     const initializeMap = (typesMap) => {
-      if (!window.H || !apiKey) {
+      if (!window.H || !apiKey || mapInstance.current) {
         return;
       }
 

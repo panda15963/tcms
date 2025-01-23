@@ -62,6 +62,7 @@ export default function RoutoMap({
   const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
   const [focusedNode, setFocusedNode] = useState(null);
   const [shouldResetToDefault, setShouldResetToDefault] = useState(true); // 기본 좌표 복귀 여부
+  const [markerPosition, setMarkerPosition] = useState(null);
   const routesColors = useRef(new Map());
   const choosenMap =
     typeMap === 'Basic Map'
@@ -669,9 +670,11 @@ export default function RoutoMap({
         mapRef.current.setCenter(newCenter);
       }
       updateMarker(newCenter);
+      setMarkerPosition(newCenter);  // 상태 변경을 통해 강제 리렌더링
       locationCoords({ lat, lng });
     }
-  }, [lat, lng]);
+
+  }, [lat, lng, markerPosition]);
 
   return (
     <div
