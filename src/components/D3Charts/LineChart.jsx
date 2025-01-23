@@ -73,8 +73,8 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
     if (!data || data.length === 0) return;
 
     const svg = d3.select(svgRef.current);
-    const margin = { top: 60, right: 0, bottom: 50, left: 0 };
-    const width = windowSize.width * 0.8 - margin.left - margin.right;
+    const margin = { top: 60, right: 250, bottom: 50, left: 0 };
+    const width = windowSize.width * 0.9 - margin.left - margin.right;
     const height = windowSize.height * 0.6 - margin.top - margin.bottom;
 
     svg
@@ -115,7 +115,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
           d3.max(group.data, (d) => new Date(d.date))
         ),
       ])
-      .range([margin.left, width - margin.right]);
+      .range([margin.left, width - margin.right + 200]);
 
     const filteredDates = (() => {
       switch (dateTerm) {
@@ -342,29 +342,137 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
           tooltip.style('opacity', 0);
         });
 
-      svg
-        .append('line')
-        .attr('x1', width - 230)
-        .attr('y1', index * 15 + 20)
-        .attr('x2', width - 190)
-        .attr('y2', index * 15 + 20)
-        .attr('stroke', color)
-        .attr('stroke-width', 2);
+      const legend = svg
+        .append('g')
+        .attr('transform', `translate(${width}, 0)`)
+        .style('cursor', 'default'); // 마우스 이벤트 방지
 
-      svg
-        .append('text')
-        .attr('x', width - 180)
-        .attr('y', index * 15 + 20)
-        .attr('text-anchor', 'start')
-        .style('fill', 'black')
-        .style('font-size', '14px')
-        .style('font-weight', 'bold')
-        .text(() => {
-          if (!group.key) {
-            return 'Unknown';
-          }
-          return group.key;
+      const funcnames = groupedData.map((group) => group.key || 'unknown');
+      const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(funcnames);
+
+      const itemsPerPage = 10;
+      let currentPage = 0;
+
+      const renderLegend = (page) => {
+        legend.selectAll('*').remove(); // 이전 범례를 제거
+        const start = page * itemsPerPage;
+        const end = start + itemsPerPage;
+        const visibleFuncnames = funcnames.slice(start, end);
+
+        // 범례 배경 사각형
+        legend
+          .append('rect')
+          .attr('x', 0)
+          .attr('y', -10)
+          .attr('width', 330)
+          .attr('height', itemsPerPage * 25 + 50) // 아래에 페이지네이션 버튼 공간 추가
+          .attr('fill', '#f9f9f9') // 배경색
+          .attr('stroke', '#ccc') // 테두리 색상
+          .attr('stroke-width', 1)
+          .attr('rx', 10) // 모서리를 둥글게
+          .attr('ry', 10); // 모서리를 둥글게
+
+        // 툴팁 요소 생성
+        const legendTooltip = d3
+          .select('body')
+          .append('div')
+          .style('position', 'absolute')
+          .style('background', '#fff')
+          .style('border', '1px solid #ccc')
+          .style('color', '#000')
+          .style('padding', '5px 10px')
+          .style('border-radius', '5px')
+          .style('font-size', '12px')
+          .style('pointer-events', 'none')
+          .style('opacity', 0);
+
+        // 각 funcname에 대한 범례 항목 생성
+        visibleFuncnames.forEach((funcname, i) => {
+          const legendRow = legend
+            .append('g')
+            .attr('transform', `translate(40, ${i * 25})`)
+            .on('mouseover', (event) => {
+              legendTooltip
+                .style('opacity', 1)
+                .html(`<strong>${funcname}</strong>`)
+                .style('left', event.pageX + 10 + 'px')
+                .style('top', event.pageY - 20 + 'px');
+            })
+            .on('mousemove', (event) => {
+              legendTooltip
+                .style('left', event.pageX + 10 + 'px')
+                .style('top', event.pageY - 20 + 'px');
+            })
+            .on('mouseout', () => {
+              legendTooltip.style('opacity', 0);
+            });
+
+          legendRow
+            .append('rect')
+            .attr('x', -20)
+            .attr('y', 0)
+            .attr('width', 20)
+            .attr('height', 20)
+            .attr('fill', colorScale(funcname)); // 색상
+
+            legendRow
+            .append('text')
+            .attr('x', 10)
+            .attr('y', 15)
+            .style('text-anchor', 'start')
+            .text(funcname.length > 30 ? funcname.substring(0, 30) + '...' : funcname);
         });
+
+        // 페이지네이션 버튼 생성
+        const paginationGroup = legend
+          .append('g')
+          .attr('transform', `translate(0, ${itemsPerPage * 25})`);
+
+        // 이전 버튼
+        paginationGroup
+          .append('text')
+          .attr('x', 20)
+          .attr('y', 25)
+          .style('cursor', 'default')
+          .style('fill', currentPage > 0 ? '#007BFF' : '#ccc') // 첫 페이지는 비활성화
+          .text(`< ${t('BarChart.PreviousButton')}`)
+          .on('click', () => {
+            if (currentPage > 0) {
+              currentPage--;
+              renderLegend(currentPage); // 이전 페이지 렌더링
+            }
+          });
+
+        paginationGroup
+          .append('text')
+          .attr('x', 150)
+          .attr('y', 25)
+          .text(
+            `${currentPage + 1} / ${Math.ceil(funcnames.length / itemsPerPage)}`
+          );
+
+        // 다음 버튼
+        paginationGroup
+          .append('text')
+          .attr('x', 265)
+          .attr('y', 25)
+          .style('cursor', 'default')
+          .style(
+            'fill',
+            (currentPage + 1) * itemsPerPage < funcnames.length
+              ? '#007BFF'
+              : '#ccc'
+          ) // 마지막 페이지는 비활성화
+          .text(`${t('BarChart.NextButton')} >`)
+          .on('click', () => {
+            if ((currentPage + 1) * itemsPerPage < funcnames.length) {
+              currentPage++;
+              renderLegend(currentPage); // 다음 페이지 렌더링
+            }
+          });
+      };
+
+      renderLegend(currentPage);
     });
 
     svg
