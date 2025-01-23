@@ -73,8 +73,8 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
     if (!data || data.length === 0) return;
 
     const svg = d3.select(svgRef.current);
-    const margin = { top: 60, right: 250, bottom: 50, left: 0 };
-    const width = windowSize.width * 0.9 - margin.left - margin.right;
+    const margin = { top: 20, right: 250, bottom: 130, left: 100 };
+    const width = windowSize.width * 0.8 - margin.left - margin.right;
     const height = windowSize.height * 0.6 - margin.top - margin.bottom;
 
     svg
@@ -115,7 +115,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
           d3.max(group.data, (d) => new Date(d.date))
         ),
       ])
-      .range([margin.left, width - margin.right + 200]);
+      .range([margin.left, width - margin.right + 450]);
 
     const filteredDates = (() => {
       switch (dateTerm) {
@@ -292,7 +292,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
         0,
         d3.max(groupedData, (group) => d3.max(group.data, (d) => d.value)),
       ])
-      .range([height - margin.bottom, margin.top]);
+      .range([height - margin.bottom + 150, margin.top]);
 
     groupedData.forEach((group, index) => {
       const sanitizedKey = (group.key || 'unknown').replace(
@@ -362,9 +362,9 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
         // 범례 배경 사각형
         legend
           .append('rect')
-          .attr('x', 0)
+          .attr('x', 250)
           .attr('y', -10)
-          .attr('width', 330)
+          .attr('width', 175)
           .attr('height', itemsPerPage * 25 + 50) // 아래에 페이지네이션 버튼 공간 추가
           .attr('fill', '#f9f9f9') // 배경색
           .attr('stroke', '#ccc') // 테두리 색상
@@ -409,18 +409,22 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
 
           legendRow
             .append('rect')
-            .attr('x', -20)
+            .attr('x', 230)
             .attr('y', 0)
             .attr('width', 20)
             .attr('height', 20)
             .attr('fill', colorScale(funcname)); // 색상
 
-            legendRow
+          legendRow
             .append('text')
-            .attr('x', 10)
+            .attr('x', 260)
             .attr('y', 15)
             .style('text-anchor', 'start')
-            .text(funcname.length > 30 ? funcname.substring(0, 30) + '...' : funcname);
+            .text(
+              funcname.length > 10
+                ? funcname.substring(0, 10) + '...'
+                : funcname
+            );
         });
 
         // 페이지네이션 버튼 생성
@@ -431,7 +435,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
         // 이전 버튼
         paginationGroup
           .append('text')
-          .attr('x', 20)
+          .attr('x', 260)
           .attr('y', 25)
           .style('cursor', 'default')
           .style('fill', currentPage > 0 ? '#007BFF' : '#ccc') // 첫 페이지는 비활성화
@@ -445,7 +449,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
 
         paginationGroup
           .append('text')
-          .attr('x', 150)
+          .attr('x', 320)
           .attr('y', 25)
           .text(
             `${currentPage + 1} / ${Math.ceil(funcnames.length / itemsPerPage)}`
@@ -454,7 +458,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
         // 다음 버튼
         paginationGroup
           .append('text')
-          .attr('x', 265)
+          .attr('x', 365)
           .attr('y', 25)
           .style('cursor', 'default')
           .style(
@@ -477,7 +481,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
 
     svg
       .append('g')
-      .attr('transform', `translate(0, ${height - margin.bottom})`)
+      .attr('transform', `translate(0, ${height - margin.bottom + 150})`)
       .call(
         d3
           .axisBottom(xScale)
@@ -499,11 +503,12 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
       .attr('dy', '0.15em')
       .attr('transform', 'rotate(-45)');
 
-    svg
+      svg
       .append('text')
-      .attr('text-anchor', 'middle')
-      .attr('x', width / 2)
-      .attr('y', height + margin.bottom + 10)
+      .attr('text-anchor', 'middle') 
+      .attr('x', (width + margin.left - margin.right) / 2 + 250) 
+      .attr('y', height + margin.bottom + 10) 
+      .style('font-size', '15px')
       .text(t('LineChart.Date'));
 
     svg
@@ -512,13 +517,13 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
       .call(d3.axisLeft(yScale))
       .attr('font-size', '12px');
 
-    svg
+      svg
       .append('text')
       .attr('text-anchor', 'middle') // 중앙 정렬
-      .attr('x', -margin.left - 60) // 더 왼쪽으로 이동 (숫자 조정 가능)
-      .attr('y', height / 2) // Y축 중간에 배치
-      .style('font-size', '14px')
+      .attr('transform', `translate(${margin.left - 100}, ${height / 2 + 30})`)
+      .style('font-size', '15px')
       .text(t('LineChart.Value'));
+    
 
     if (dateTerm === 'Week') {
       const noticeGroup = svg

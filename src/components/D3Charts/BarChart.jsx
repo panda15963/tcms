@@ -228,7 +228,12 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
     const svg = d3
       .select(chartRef.current)
       .append('svg')
-      .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+      .attr(
+        'viewBox',
+        `0 0 ${width + margin.left + margin.right} ${
+          height + margin.top + margin.bottom
+        }`
+      )
       .attr('preserveAspectRatio', 'xMidYMid meet')
       .append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
@@ -257,6 +262,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
       .attr('text-anchor', 'middle')
       .attr('x', width / 2)
       .attr('y', height + margin.bottom - 20)
+      .style('font-size', '15px')
       .text(t('BarChart.Date')); // 다국어 번역 텍스트
 
     // Y축 그리기
@@ -268,7 +274,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
       .attr('x', -margin.left + 40) // 왼쪽으로 더 이동
       .attr('y', height / 2) // 차트 중앙에 배치
       .attr('dy', '0.35em') // 수직 중앙 정렬 보정
-      .style('font-size', '14px') // 원하는 스타일 적용
+      .style('font-size', '15px') // 원하는 스타일 적용
       .text(t('BarChart.Value')); // 다국어 번역 텍스트
 
     // 툴팁 생성
@@ -368,14 +374,42 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
           .attr('y', 0)
           .attr('width', 20)
           .attr('height', 20)
-          .attr('fill', colorScale(funcname)); // 색상
+          .attr('fill', colorScale(funcname)) // 색상
+          .on('mouseover', (event) => {
+            tooltip
+              .style('opacity', 1)
+              .html(
+                `<strong>${funcname}</strong><br>${t(
+                  'BarChart.FuncDescription'
+                )}`
+              );
+          })
+          .on('mousemove', (event) => {
+            tooltip
+              .style('left', event.pageX + 10 + 'px')
+              .style('top', event.pageY - 30 + 'px');
+          })
+          .on('mouseout', () => {
+            tooltip.style('opacity', 0);
+          });
 
         legendRow
           .append('text')
           .attr('x', 10)
           .attr('y', 15)
           .style('text-anchor', 'start')
-          .text(funcname);
+          .text(funcname)
+          .on('mouseover', (event) => {
+            tooltip.style('opacity', 1).html(`<strong>${funcname}</strong>`);
+          })
+          .on('mousemove', (event) => {
+            tooltip
+              .style('left', event.pageX + 10 + 'px')
+              .style('top', event.pageY - 30 + 'px');
+          })
+          .on('mouseout', () => {
+            tooltip.style('opacity', 0);
+          });
       });
 
       // 페이지네이션 버튼 생성
