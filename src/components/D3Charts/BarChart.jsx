@@ -20,8 +20,10 @@ const BarChart = ({ data, dateTerm }) => {
 
     // 차트 크기 설정
     const margin = { top: 50, right: 250, bottom: 100, left: 100 }; // 오른쪽 여백을 확장하여 범례 배치
-    const width = 1500 - margin.left - margin.right; // 차트 너비
-    const height = 500 - margin.top - margin.bottom; // 차트 높이
+    const width =
+      chartRef.current.parentNode.clientWidth - margin.left - margin.right;
+    const height =
+      chartRef.current.parentNode.clientHeight - margin.top - margin.bottom;
 
     // 데이터 변환
     let transformedData;
@@ -256,7 +258,7 @@ const BarChart = ({ data, dateTerm }) => {
       .append('text') // X축 라벨
       .attr('text-anchor', 'middle')
       .attr('x', width / 2)
-      .attr('y', height + margin.bottom - 10)
+      .attr('y', height + margin.bottom - 30)
       .text(t('BarChart.Date')); // 다국어 번역 텍스트
 
     // Y축 그리기
@@ -346,7 +348,7 @@ const BarChart = ({ data, dateTerm }) => {
       // 범례 배경 사각형
       legend
         .append('rect')
-        .attr('x', 20)
+        .attr('x', 0)
         .attr('y', -10)
         .attr('width', 220)
         .attr('height', itemsPerPage * 25 + 50) // 아래에 페이지네이션 버튼 공간 추가
@@ -364,13 +366,15 @@ const BarChart = ({ data, dateTerm }) => {
 
         legendRow
           .append('rect')
+          .attr('x', -20)
+          .attr('y', 0)
           .attr('width', 20)
           .attr('height', 20)
           .attr('fill', colorScale(funcname)); // 색상
 
         legendRow
           .append('text')
-          .attr('x', 30)
+          .attr('x', 10)
           .attr('y', 15)
           .style('text-anchor', 'start')
           .text(funcname);
@@ -384,7 +388,7 @@ const BarChart = ({ data, dateTerm }) => {
       // 이전 버튼
       paginationGroup
         .append('text')
-        .attr('x', 40)
+        .attr('x', 20)
         .attr('y', 25)
         .style('cursor', 'default')
         .style('fill', currentPage > 0 ? '#007BFF' : '#ccc') // 첫 페이지는 비활성화
@@ -398,7 +402,7 @@ const BarChart = ({ data, dateTerm }) => {
 
       paginationGroup
         .append('text')
-        .attr('x', 115)
+        .attr('x', 95)
         .attr('y', 25)
         .text(
           `${currentPage + 1} / ${Math.ceil(funcnames.length / itemsPerPage)}`
@@ -407,7 +411,7 @@ const BarChart = ({ data, dateTerm }) => {
       // 다음 버튼
       paginationGroup
         .append('text')
-        .attr('x', 170) // 기존 80에서 150으로 조정하여 오른쪽으로 이동
+        .attr('x', 160) // 기존 80에서 150으로 조정하여 오른쪽으로 이동
         .attr('y', 25)
         .style('cursor', 'default')
         .style(
@@ -476,7 +480,7 @@ const BarChart = ({ data, dateTerm }) => {
     }
   }, [data, t]); // 종속성 배열에 data와 t 추가
 
-  return <div ref={chartRef} />; // 차트를 렌더링할 DOM 요소
+  return <div ref={chartRef} className="w-full h-full" />;
 };
 
 export default BarChart;

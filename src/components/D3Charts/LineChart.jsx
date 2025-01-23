@@ -74,8 +74,19 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
 
     const svg = d3.select(svgRef.current);
     const margin = { top: 60, right: 0, bottom: 50, left: 0 };
-    const width = 1200 - margin.left - margin.right;
-    const height = 500 - margin.top - margin.bottom;
+    const width =
+      svg.node().parentNode.clientWidth - margin.left - margin.right;
+    const height =
+      svg.node().parentNode.clientHeight - margin.top - margin.bottom;
+
+    svg
+      .attr(
+        'viewBox',
+        `0 0 ${width + margin.left + margin.right} ${
+          height + margin.top + margin.bottom
+        }`
+      )
+      .attr('preserveAspectRatio', 'xMidYMid meet');
 
     const tooltip = d3
       .select('body')
@@ -335,17 +346,17 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
 
       svg
         .append('line')
-        .attr('x1', width - 150)
-        .attr('y1', index * 15 - 45)
-        .attr('x2', width - 120)
-        .attr('y2', index * 15 - 45)
+        .attr('x1', width - 230)
+        .attr('y1', index * 15 + 20)
+        .attr('x2', width - 190)
+        .attr('y2', index * 15 + 20)
         .attr('stroke', color)
         .attr('stroke-width', 2);
 
       svg
         .append('text')
-        .attr('x', width - 110)
-        .attr('y', index * 15 - 40)
+        .attr('x', width - 180)
+        .attr('y', index * 15 + 20)
         .attr('text-anchor', 'start')
         .style('fill', 'black')
         .style('font-size', '14px')
@@ -354,9 +365,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
           if (!group.key) {
             return 'Unknown';
           }
-          return group.key.length > 10
-            ? `${group.key.slice(0, 10)}...`
-            : group.key;
+          return group.key;
         });
     });
 
@@ -400,7 +409,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
     svg
       .append('text')
       .attr('text-anchor', 'middle') // 중앙 정렬
-      .attr('x', -margin.left - 70) // 더 왼쪽으로 이동 (숫자 조정 가능)
+      .attr('x', -margin.left - 60) // 더 왼쪽으로 이동 (숫자 조정 가능)
       .attr('y', height / 2) // Y축 중간에 배치
       .style('font-size', '14px')
       .text(t('LineChart.Value'));
@@ -441,7 +450,7 @@ const LineChart = ({ data, groupBy, dateTerm }) => {
     }
   }, [data, groupBy, dateTerm]);
 
-  return <svg ref={svgRef} />;
+  return <svg ref={svgRef} className="w-11/12 h-full px-2" />;
 };
 
 export default LineChart;
