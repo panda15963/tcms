@@ -19,7 +19,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
     d3.select(chartRef.current).select('svg').remove();
 
     // 차트 크기 설정
-    const margin = { top: 50, right: 250, bottom: 100, left: 100 };
+    const margin = { top: 20, right: 250, bottom: 130, left: 100 };
     const width = windowSize.width * 0.8 - margin.left - margin.right;
     const height = windowSize.height * 0.6 - margin.top - margin.bottom;
 
@@ -256,7 +256,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
       .append('text') // X축 라벨
       .attr('text-anchor', 'middle')
       .attr('x', width / 2)
-      .attr('y', height + margin.bottom - 30)
+      .attr('y', height + margin.bottom - 20)
       .text(t('BarChart.Date')); // 다국어 번역 텍스트
 
     // Y축 그리기
