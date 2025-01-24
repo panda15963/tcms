@@ -170,6 +170,14 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
       }
 
       case 'Year': {
+        transformedData = data.map((d) => {
+          const dateObj = new Date(d.date);
+          return {
+            ...d,
+            date: `${dateObj.getFullYear()}`, // 연도만 추출하여 새로운 라벨 생성
+          };
+        });
+        break;
       }
 
       default: {
