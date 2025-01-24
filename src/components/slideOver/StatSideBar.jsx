@@ -81,9 +81,9 @@ export default function StatSideBar() {
         leaveFrom="translate-x-0"
         leaveTo="-translate-x-full"
       >
-        <div className="fixed inset-y-0 top-32 left-0 w-3/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
+        <div className="fixed inset-y-0 top-32 left-0 w-2/12 bg-stone-50 shadow-lg z-40 flex flex-col space-y-4 h-[800px] rounded-tr-lg">
           {/* 사이드바 상단 메뉴 헤더 */}
-          <div className="bg-blue-600 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
+          <div className="bg-blue-900 px-2 py-2 sm:px-3 shadow-xl rounded-tr-lg">
             <div className="flex items-center justify-between">
               <label className="flex font-semibold leading-6 text-left text-white">
                 {t('StatSideBar.StatMenu')} {/* 'StatMenu' 번역된 텍스트 */}
@@ -94,7 +94,8 @@ export default function StatSideBar() {
                   className="relative rounded-md text-indigo-200 hover:text-white focus:outline-none"
                   onClick={togglePanel}
                 >
-                  <FaXmark className="h-6 w-6" aria-hidden="true" /> {/* 닫기 버튼 */}
+                  <FaXmark className="h-6 w-6" aria-hidden="true" />{' '}
+                  {/* 닫기 버튼 */}
                 </button>
               </div>
             </div>
@@ -109,8 +110,8 @@ export default function StatSideBar() {
                     className={`block w-full px-4 py-2 rounded-md text-left
           ${
             selectedItem?.id === item.id
-              ? 'bg-black text-white font-bold' // 선택된 항목 스타일
-              : 'text-black hover:bg-black hover:text-white' // 기본 및 호버 스타일
+              ? 'bg-gray-800 text-white font-bold' // 선택된 항목 스타일
+              : 'text-black hover:bg-gray-800 hover:text-white' // 기본 및 호버 스타일
           }`}
                   >
                     {item.name} {/* 메뉴 항목 이름 */}
