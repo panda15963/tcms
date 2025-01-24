@@ -39,7 +39,7 @@ export default function UsageStatusTable({ data }) {
 
   return (
     <div className="h-full w-full overflow-auto">
-      <div className="w-full h-[500px] overflow-y-auto">
+      <div className="w-full h-[650px] overflow-y-auto">
         <table className="w-full table-auto border-separate border-spacing-0">
           {/* Table Header */}
           <thead className="bg-gray-100 sticky -top-1">

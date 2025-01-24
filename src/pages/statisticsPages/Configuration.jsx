@@ -87,7 +87,7 @@ export default function Configuration() {
       </div>
 
       {/* 테이블 섹션 */}
-      <div className="flex items-center justify-center w-[97%] bg-white shadow-md rounded-lg p-4 border border-black h-[100vh]">
+      <div className="flex items-center justify-center w-[97%] bg-white shadow-md rounded-lg p-4 border border-black h-[75vh]">
         <ConfigurationTable data={filteredData} />
       </div>
     </div>
