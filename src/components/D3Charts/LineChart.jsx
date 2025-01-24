@@ -383,7 +383,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
       const funcnames = groupedData.map((group) => group.key || 'unknown');
       const colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(funcnames);
 
-      const itemsPerPage = 10;
+      const itemsPerPage = 21;
       let currentPage = 0;
 
       const renderLegend = (page) => {

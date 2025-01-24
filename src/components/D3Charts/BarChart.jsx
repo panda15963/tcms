@@ -401,7 +401,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
       .attr('transform', `translate(${width}, 0)`)
       .style('cursor', 'default'); // 마우스 이벤트 방지
 
-    const itemsPerPage = 10;
+    const itemsPerPage = 19;
     let currentPage = 0;
 
     const renderLegend = (page) => {
@@ -413,9 +413,9 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
       // 범례 배경 사각형
       legend
         .append('rect')
-        .attr('x', 0)
+        .attr('x', 10)
         .attr('y', -10)
-        .attr('width', 220)
+        .attr('width', 230)
         .attr('height', itemsPerPage * 25 + 50) // 아래에 페이지네이션 버튼 공간 추가
         .attr('fill', '#f9f9f9') // 배경색
         .attr('stroke', '#ccc') // 테두리 색상
@@ -431,7 +431,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
 
         legendRow
           .append('rect')
-          .attr('x', -20)
+          .attr('x', -10)
           .attr('y', 0)
           .attr('width', 20)
           .attr('height', 20)
@@ -459,7 +459,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
 
         legendRow
           .append('text')
-          .attr('x', 10)
+          .attr('x', 20)
           .attr('y', 15)
           .style('text-anchor', 'start')
           .text(funcname)
@@ -507,7 +507,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
 
       paginationGroup
         .append('text')
-        .attr('x', 95)
+        .attr('x', 110)
         .attr('y', 25)
         .text(
           `${currentPage + 1} / ${Math.ceil(funcnames.length / itemsPerPage)}`
@@ -516,7 +516,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
       // 다음 버튼
       paginationGroup
         .append('text')
-        .attr('x', 160) // 기존 80에서 150으로 조정하여 오른쪽으로 이동
+        .attr('x', 180) // 기존 80에서 150으로 조정하여 오른쪽으로 이동
         .attr('y', 25)
         .style('cursor', 'default')
         .style(
