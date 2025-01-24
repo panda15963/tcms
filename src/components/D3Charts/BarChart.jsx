@@ -19,7 +19,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
     d3.select(chartRef.current).select('svg').remove();
 
     // 차트 크기 설정
-    const margin = { top: 20, right: 250, bottom: 130, left: 100 };
+    const margin = { top: 30, right: 250, bottom: 100, left: 100 };
     const width = windowSize.width * 0.8 - margin.left - margin.right;
     const height = windowSize.height * 0.6 - margin.top - margin.bottom;
 
@@ -181,7 +181,60 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
       }
 
       default: {
-        transformedData = data;
+        const startDate = new Date(d3.min(data, (d) => new Date(d.date)));
+        const endDate = new Date(d3.max(data, (d) => new Date(d.date)));
+        const allDates = [];
+        let currentDate = new Date(startDate);
+
+        const getOrdinalSuffix = (day) => {
+          if (day > 3 && day < 21) return `${day}th`;
+          switch (day % 10) {
+            case 1:
+              return `${day}st`;
+            case 2:
+              return `${day}nd`;
+            case 3:
+              return `${day}rd`;
+            default:
+              return `${day}th`;
+          }
+        };
+
+        while (currentDate <= endDate) {
+          const year = currentDate.getFullYear();
+          const month = currentDate.toLocaleString('en-US', { month: 'long' });
+          const day = currentDate.getDate();
+
+          if (dateTerm === '일') {
+            allDates.push({
+              label: `${year}년 ${String(currentDate.getMonth() + 1).padStart(
+                2,
+                '0'
+              )}월 ${String(day).padStart(2, '0')}일`,
+              date: new Date(currentDate),
+            });
+          } else {
+            allDates.push({
+              label: `${month} ${getOrdinalSuffix(day)}, ${year}`,
+              date: new Date(currentDate),
+            });
+          }
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        transformedData = data.map((d) => {
+          const dateObj = new Date(d.date);
+          const matchingDate = allDates.find(
+            (date) =>
+              date.date.getFullYear() === dateObj.getFullYear() &&
+              date.date.getMonth() === dateObj.getMonth() &&
+              date.date.getDate() === dateObj.getDate()
+          );
+          return {
+            ...d,
+            date: matchingDate ? matchingDate.label : d.date,
+          };
+        });
         break;
       }
     }
@@ -269,7 +322,7 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
       .append('text') // X축 라벨
       .attr('text-anchor', 'middle')
       .attr('x', width / 2)
-      .attr('y', height + margin.bottom - 20)
+      .attr('y', height + margin.bottom - 10) // 아래로 이동
       .style('font-size', '15px')
       .text(t('BarChart.Date')); // 다국어 번역 텍스트
 
@@ -384,26 +437,22 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
           .attr('height', 20)
           .attr('fill', colorScale(funcname)) // 색상
           .on('mouseover', (event) => {
-            tooltip
-              .style('opacity', 1)
-              .html(
-                `<strong>${funcname}</strong>`
-              );
+            tooltip.style('opacity', 1).html(`<strong>${funcname}</strong>`);
           })
           .on('mousemove', (event) => {
             const tooltipWidth = tooltip.node().offsetWidth; // 툴팁 너비 확인
             const leftPosition = event.pageX - tooltipWidth - 10; // 왼쪽으로 이동
             const topPosition = event.pageY - 30; // Y 위치 유지
-          
+
             // 화면 왼쪽을 벗어나지 않도록 조정
             if (leftPosition < 0) {
               leftPosition = event.pageX + 10; // 오른쪽으로 이동
             }
-          
+
             tooltip
               .style('left', `${leftPosition}px`)
               .style('top', `${topPosition}px`);
-          })          
+          })
           .on('mouseout', () => {
             tooltip.style('opacity', 0);
           });
@@ -421,16 +470,16 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
             const tooltipWidth = tooltip.node().offsetWidth; // 툴팁 너비 확인
             const leftPosition = event.pageX - tooltipWidth - 10; // 왼쪽으로 이동
             const topPosition = event.pageY - 30; // Y 위치 유지
-          
+
             // 화면 왼쪽을 벗어나지 않도록 조정
             if (leftPosition < 0) {
               leftPosition = event.pageX + 10; // 오른쪽으로 이동
             }
-          
+
             tooltip
               .style('left', `${leftPosition}px`)
               .style('top', `${topPosition}px`);
-          })          
+          })
           .on('mouseout', () => {
             tooltip.style('opacity', 0);
           });

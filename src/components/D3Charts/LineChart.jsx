@@ -277,8 +277,41 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
           const allDates = [];
           let currentDate = new Date(startDate);
 
+          const getOrdinalSuffix = (day) => {
+            if (day > 3 && day < 21) return `${day}th`;
+            switch (day % 10) {
+              case 1:
+                return `${day}st`;
+              case 2:
+                return `${day}nd`;
+              case 3:
+                return `${day}rd`;
+              default:
+                return `${day}th`;
+            }
+          };
+
           while (currentDate <= endDate) {
-            allDates.push(new Date(currentDate));
+            const year = currentDate.getFullYear();
+            const month = currentDate.toLocaleString('en-US', {
+              month: 'long',
+            });
+            const day = currentDate.getDate();
+
+            if (dateTerm === '일') {
+              allDates.push({
+                label: `${year}년 ${String(currentDate.getMonth() + 1).padStart(
+                  2,
+                  '0'
+                )}월 ${String(day).padStart(2, '0')}일`,
+                date: new Date(currentDate),
+              });
+            } else {
+              allDates.push({
+                label: `${month} ${getOrdinalSuffix(day)}, ${year}`,
+                date: new Date(currentDate),
+              });
+            }
             currentDate.setDate(currentDate.getDate() + 1);
           }
           return allDates;
@@ -292,7 +325,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
         0,
         d3.max(groupedData, (group) => d3.max(group.data, (d) => d.value)),
       ])
-      .range([height - margin.bottom + 170, margin.top]);
+      .range([height - margin.bottom + 200, margin.top]);
 
     groupedData.forEach((group, index) => {
       const sanitizedKey = (group.key || 'unknown').replace(
@@ -489,19 +522,20 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
 
     svg
       .append('g')
-      .attr('transform', `translate(0, ${height - margin.bottom + 170})`)
+      .attr('transform', `translate(0, ${height - margin.bottom + 200})`)
       .call(
         d3
           .axisBottom(xScale)
           .tickValues(filteredDates.map((d) => d.date || d))
-          .tickFormat((d, i) =>
-            dateTerm === '달' || dateTerm === 'Month'
-              ? filteredDates[i].label // Use the formatted "YYYY년 MM월"
-              : dateTerm === '주' || dateTerm === 'Week'
-              ? filteredDates[i].label // Use "YYYY년 MM월 nth째주" for weeks
-              : dateTerm === '년' || dateTerm === 'Year'
-              ? filteredDates[i].label // Use "YYYY년" for years
-              : formatMonthDateToLocalISO(d)
+          .tickFormat(
+            (d, i) =>
+              dateTerm === '달' || dateTerm === 'Month'
+                ? filteredDates[i].label // Use the formatted "YYYY년 MM월"
+                : dateTerm === '주' || dateTerm === 'Week'
+                ? filteredDates[i].label // Use "YYYY년 MM월 nth째주" for weeks
+                : dateTerm === '년' || dateTerm === 'Year'
+                ? filteredDates[i].label // Use "YYYY년" for years
+                : filteredDates[i].label // Use the formatted "YYYY년 MM월 DD일"
           )
       )
       .attr('font-size', '12px')
@@ -514,8 +548,8 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
     svg
       .append('text')
       .attr('text-anchor', 'middle')
-      .attr('x', (width + margin.left - margin.right) / 2 + 250)
-      .attr('y', height + margin.bottom + 10)
+      .attr('x', (width + margin.left - margin.right) / 2 + 170)
+      .attr('y', height + margin.bottom + 50)
       .style('font-size', '15px')
       .text(t('LineChart.Date'));
 
