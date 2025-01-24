@@ -115,7 +115,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
           d3.max(group.data, (d) => new Date(d.date))
         ),
       ])
-      .range([margin.left, width - margin.right + 450]);
+      .range([margin.left - 50, width - margin.right + 400]);
 
     const filteredDates = (() => {
       switch (dateTerm) {
@@ -292,7 +292,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
         0,
         d3.max(groupedData, (group) => d3.max(group.data, (d) => d.value)),
       ])
-      .range([height - margin.bottom + 150, margin.top]);
+      .range([height - margin.bottom + 170, margin.top]);
 
     groupedData.forEach((group, index) => {
       const sanitizedKey = (group.key || 'unknown').replace(
@@ -362,9 +362,9 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
         // 범례 배경 사각형
         legend
           .append('rect')
-          .attr('x', 250)
+          .attr('x', 170)
           .attr('y', -10)
-          .attr('width', 175)
+          .attr('width', 250)
           .attr('height', itemsPerPage * 25 + 50) // 아래에 페이지네이션 버튼 공간 추가
           .attr('fill', '#f9f9f9') // 배경색
           .attr('stroke', '#ccc') // 테두리 색상
@@ -382,7 +382,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
           .style('color', '#000')
           .style('padding', '5px 10px')
           .style('border-radius', '5px')
-          .style('font-size', '12px')
+          .style('font-size', '15px')
           .style('pointer-events', 'none')
           .style('opacity', 0);
 
@@ -392,16 +392,24 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
             .append('g')
             .attr('transform', `translate(40, ${i * 25})`)
             .on('mouseover', (event) => {
+              const tooltipWidth = legendTooltip.node().offsetWidth; // 툴팁 너비 확인
+              const leftPosition = event.pageX - tooltipWidth - 10; // 왼쪽으로 이동
+              const topPosition = event.pageY - 20; // Y 위치 유지
+
               legendTooltip
                 .style('opacity', 1)
                 .html(`<strong>${funcname}</strong>`)
-                .style('left', event.pageX + 10 + 'px')
-                .style('top', event.pageY - 20 + 'px');
+                .style('left', `${leftPosition}px`)
+                .style('top', `${topPosition}px`);
             })
             .on('mousemove', (event) => {
+              const tooltipWidth = legendTooltip.node().offsetWidth;
+              const leftPosition = event.pageX - tooltipWidth - 10; // 왼쪽으로 이동
+              const topPosition = event.pageY - 20; // Y 위치 유지
+
               legendTooltip
-                .style('left', event.pageX + 10 + 'px')
-                .style('top', event.pageY - 20 + 'px');
+                .style('left', `${leftPosition}px`)
+                .style('top', `${topPosition}px`);
             })
             .on('mouseout', () => {
               legendTooltip.style('opacity', 0);
@@ -409,7 +417,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
 
           legendRow
             .append('rect')
-            .attr('x', 230)
+            .attr('x', 150)
             .attr('y', 0)
             .attr('width', 20)
             .attr('height', 20)
@@ -417,12 +425,12 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
 
           legendRow
             .append('text')
-            .attr('x', 260)
+            .attr('x', 180)
             .attr('y', 15)
             .style('text-anchor', 'start')
             .text(
-              funcname.length > 10
-                ? funcname.substring(0, 10) + '...'
+              funcname.length > 20
+                ? funcname.substring(0, 20) + '...'
                 : funcname
             );
         });
@@ -435,7 +443,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
         // 이전 버튼
         paginationGroup
           .append('text')
-          .attr('x', 260)
+          .attr('x', 180)
           .attr('y', 25)
           .style('cursor', 'default')
           .style('fill', currentPage > 0 ? '#007BFF' : '#ccc') // 첫 페이지는 비활성화
@@ -449,7 +457,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
 
         paginationGroup
           .append('text')
-          .attr('x', 320)
+          .attr('x', 280)
           .attr('y', 25)
           .text(
             `${currentPage + 1} / ${Math.ceil(funcnames.length / itemsPerPage)}`
@@ -458,7 +466,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
         // 다음 버튼
         paginationGroup
           .append('text')
-          .attr('x', 365)
+          .attr('x', 360)
           .attr('y', 25)
           .style('cursor', 'default')
           .style(
@@ -481,7 +489,7 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
 
     svg
       .append('g')
-      .attr('transform', `translate(0, ${height - margin.bottom + 150})`)
+      .attr('transform', `translate(0, ${height - margin.bottom + 170})`)
       .call(
         d3
           .axisBottom(xScale)
@@ -503,27 +511,26 @@ const LineChart = ({ data, groupBy, dateTerm, windowSize }) => {
       .attr('dy', '0.15em')
       .attr('transform', 'rotate(-45)');
 
-      svg
+    svg
       .append('text')
-      .attr('text-anchor', 'middle') 
-      .attr('x', (width + margin.left - margin.right) / 2 + 250) 
-      .attr('y', height + margin.bottom + 10) 
+      .attr('text-anchor', 'middle')
+      .attr('x', (width + margin.left - margin.right) / 2 + 250)
+      .attr('y', height + margin.bottom + 10)
       .style('font-size', '15px')
       .text(t('LineChart.Date'));
 
     svg
       .append('g')
-      .attr('transform', `translate(${margin.left}, 0)`)
+      .attr('transform', `translate(${margin.left - 50}, 0)`)
       .call(d3.axisLeft(yScale))
       .attr('font-size', '12px');
 
-      svg
+    svg
       .append('text')
       .attr('text-anchor', 'middle') // 중앙 정렬
-      .attr('transform', `translate(${margin.left - 100}, ${height / 2 + 30})`)
+      .attr('transform', `translate(${margin.left - 120}, ${height / 2 + 30})`)
       .style('font-size', '15px')
       .text(t('LineChart.Value'));
-    
 
     if (dateTerm === 'Week') {
       const noticeGroup = svg

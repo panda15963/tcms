@@ -65,9 +65,9 @@ export default function UsageStatus() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start py-20 border-spacing-4 px-4 sm:px-6 lg:px-8 h-[calc(100vh-102px)] z-[1]">
+    <div className="flex flex-col items-center justify-start py-8 border-spacing-4 px-4 sm:px-6 lg:px-8 h-[calc(100vh-102px)] z-[1]">
       {/* 헤더 섹션 */}
-      <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
+      <div className="flex justify-between items-center w-[97%] pb-4">
         <h1 className="text-2xl font-bold text-gray-900">
           {/** 실시간 도구 사용 정보 */}
           {t('UsageInformation.ToolUsageInformation')}
@@ -91,7 +91,7 @@ export default function UsageStatus() {
       </div>
 
       {/* 데이터 테이블 섹션 */}
-      <div className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black h-[60vh]">
+      <div className="flex items-center justify-center w-[97%] bg-white shadow-md rounded-lg p-4 border border-black h-[100vh]">
         {/* 데이터를 UsageStatusTable 컴포넌트에 전달 */}
         <UsageStatusTable data={data} />{' '}
       </div>

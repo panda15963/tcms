@@ -379,16 +379,23 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
             tooltip
               .style('opacity', 1)
               .html(
-                `<strong>${funcname}</strong><br>${t(
-                  'BarChart.FuncDescription'
-                )}`
+                `<strong>${funcname}</strong>`
               );
           })
           .on('mousemove', (event) => {
+            const tooltipWidth = tooltip.node().offsetWidth; // 툴팁 너비 확인
+            const leftPosition = event.pageX - tooltipWidth - 10; // 왼쪽으로 이동
+            const topPosition = event.pageY - 30; // Y 위치 유지
+          
+            // 화면 왼쪽을 벗어나지 않도록 조정
+            if (leftPosition < 0) {
+              leftPosition = event.pageX + 10; // 오른쪽으로 이동
+            }
+          
             tooltip
-              .style('left', event.pageX + 10 + 'px')
-              .style('top', event.pageY - 30 + 'px');
-          })
+              .style('left', `${leftPosition}px`)
+              .style('top', `${topPosition}px`);
+          })          
           .on('mouseout', () => {
             tooltip.style('opacity', 0);
           });
@@ -403,10 +410,19 @@ const BarChart = ({ data, dateTerm, windowSize }) => {
             tooltip.style('opacity', 1).html(`<strong>${funcname}</strong>`);
           })
           .on('mousemove', (event) => {
+            const tooltipWidth = tooltip.node().offsetWidth; // 툴팁 너비 확인
+            const leftPosition = event.pageX - tooltipWidth - 10; // 왼쪽으로 이동
+            const topPosition = event.pageY - 30; // Y 위치 유지
+          
+            // 화면 왼쪽을 벗어나지 않도록 조정
+            if (leftPosition < 0) {
+              leftPosition = event.pageX + 10; // 오른쪽으로 이동
+            }
+          
             tooltip
-              .style('left', event.pageX + 10 + 'px')
-              .style('top', event.pageY - 30 + 'px');
-          })
+              .style('left', `${leftPosition}px`)
+              .style('top', `${topPosition}px`);
+          })          
           .on('mouseout', () => {
             tooltip.style('opacity', 0);
           });

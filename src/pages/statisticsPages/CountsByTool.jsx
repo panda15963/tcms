@@ -79,9 +79,9 @@ export default function CountsByTool() {
   }, [location.state]);
 
   return (
-    <div className="flex flex-col items-center justify-start py-20 border-spacing-4 px-4 sm:px-6 lg:px-8 h-[calc(100vh-102px)] z-[1]">
+    <div className="flex flex-col items-center justify-start py-8 border-spacing-4 px-4 sm:px-6 lg:px-8 h-[calc(100vh-102px)] z-[1]">
       {/* 헤더 섹션 */}
-      <div className="flex justify-between items-center w-10/12 max-w-full pb-4">
+      <div className="flex justify-between items-center w-[97%] pb-4">
         <h1 className="text-2xl font-bold text-center pb-4 text-gray-900">
           {/* 도구 실행 횟수(도구 별) */}
           {t('CountsByTool.CBT')}
@@ -102,7 +102,7 @@ export default function CountsByTool() {
       </div>
 
       {/* 데이터 시각화 섹션 */}
-      <div className="flex items-center justify-center w-10/12 max-w-full bg-white shadow-md rounded-lg p-4 border border-black h-[60vh]">
+      <div className="flex items-center justify-center w-[97%] bg-white shadow-md rounded-lg p-4 border border-black h-[100vh]">
         {filteredData.length > 0 ? (
           // 데이터가 있을 경우 차트 컴포넌트 렌더링
           <LineChart
