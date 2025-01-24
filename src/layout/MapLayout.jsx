@@ -181,7 +181,7 @@ export default function MapLayout() {
           isCleared={isCleared}
         />
 
-        <div className="absolute bottom-5 left-5 z-50">
+        <div className="absolute bottom-5 left-5 z-20">
           {/* 왼쪽 하단 버튼 */}
           <button
             className="w-14 h-14 shadow-md hover:shadow-lg focus:outline-none cursor-default bg-cover select-none"
