@@ -254,7 +254,7 @@ export default function StatTopMenuBar() {
                 </div>
 
                 {/* 기본 네비게이션 (데스크탑 전용) */}
-                <div className="hidden xl:block scale-90 z-40">
+                <div className="hidden xl:block scale-90 z-10">
                   <div className="flex gap-5">
                     {/* 통계 메뉴 */}
                     <div className="flex items-center h-[52px] space-x-2">

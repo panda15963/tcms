@@ -656,7 +656,7 @@ const TopMenuBar = ({
                 </div>
 
                 {/* 기본 네비게이션 (데스크탑 전용) */}
-                <div className="hidden xl:block scale-90 z-40">
+                <div className="hidden xl:block scale-90 z-10">
                   <div className="flex">
                     <label className="px-2 py-2 text-sm font-bold text-white select-none">
                       {t('TopMenuBar.MapSelection')}
