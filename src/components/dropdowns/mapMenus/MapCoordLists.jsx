@@ -68,7 +68,7 @@ export default function MapCoordLists({ chosenDisplayCoords = () => {} }) {
                 leaveTo="opacity-0"
               >
                 {/* ListboxOptions: 드롭다운 옵션 목록 */}
-                <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                <ListboxOptions className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 z-20 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                   {mapCoords.map((mapCoord) => (
                     <ListboxOption
                       key={mapCoord.id} // 옵션의 고유 ID

@@ -6,19 +6,21 @@ import {
   MenuItems,
   Transition,
   Dialog,
+  DialogPanel,
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
-  DialogPanel,
+  PopoverGroup,
 } from '@headlessui/react';
-import { FaXmark, FaBars, FaAngleDown } from 'react-icons/fa6';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { FaAngleDown } from 'react-icons/fa6';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SwitchLanguages from '../toggles/SwitchLanguages';
 import useAuth from '../../hooks/useAuth';
 import { isEmpty } from 'lodash';
 
-const NavBar = () => {
+const Navbar = () =>  {
   const { isActiveManagement, logout } = useAuth(); // 사용자 인증 관련 상태와 로그아웃 함수 가져오기
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // 모바일 메뉴 열림 상태 관리
   const navigate = useNavigate(); // 페이지 이동을 위한 네비게이트 훅
@@ -84,7 +86,7 @@ const NavBar = () => {
   };
 
   return (
-    <header className="bg-white pt-1 pb-1 z-50 relative border-b-2">
+    <header className="bg-white pt-1 pb-1 z-40 relative border-b-2">
       {/* 전역 내비게이션 */}
       <nav
         className="mx-auto max-w-full lg:px-8 flex justify-between items-center"
@@ -98,9 +100,7 @@ const NavBar = () => {
             className="-m-1.5 p-1.5 "
           >
             <div className="sm:mx-auto sm:w-full sm:max-w-sm transform scale-95">
-              <div
-                className="flex items-center space-x-1 cursor-default select-none"
-              >
+              <div className="flex items-center space-x-1 cursor-default select-none">
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                   TestCourse
                 </h1>
@@ -112,20 +112,16 @@ const NavBar = () => {
           </Link>
         </div>
         <div className="flex lg:hidden">
-          {/* 모바일 메뉴 버튼 */}
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setMobileMenuOpen(true)}
+            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
           >
-            {mobileMenuOpen ? (
-              <FaXmark className="h-6 w-6" aria-hidden="true" />
-            ) : (
-              <FaBars className="h-6 w-6" aria-hidden="true" />
-            )}
+            <span className="sr-only">Open main menu</span>
+            <Bars3Icon aria-hidden="true" className="size-8 mr-4" />
           </button>
         </div>
-        <div className="hidden lg:flex lg:gap-x-12 text-center transform scale-95">
+        <PopoverGroup className="hidden lg:flex lg:gap-x-12">
           {isActiveManagement && (
             <Link
               to="/main/map"
@@ -136,18 +132,13 @@ const NavBar = () => {
             </Link>
           )}
           {isActiveManagement && (
-            <Menu
-              as="div"
-              className="relative items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
+            <Link
+              to="/main/dashboard"
+              className="text-sm font-semibold flex items-center cursor-default select-none"
             >
-              <MenuButton
-                className="text-sm font-semibold cursor-default select-none"
-                onClick={() => handleLinkClick('/main/dashboard')}
-              >
-                {/* 통계 */}
-                {t('NavBar.Dashboard')}
-              </MenuButton>
-            </Menu>
+              {/* 통계 */}
+              {t('NavBar.Dashboard')}
+            </Link>
           )}
           {isActiveManagement && (
             <Menu
@@ -169,7 +160,7 @@ const NavBar = () => {
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <MenuItems className="absolute z-50 left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <MenuItems className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md text-center bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       {AuthPage.map((page) => (
                         <MenuItem key={page.id}>
                           {({ active }) => (
@@ -193,7 +184,7 @@ const NavBar = () => {
               )}
             </Menu>
           )}
-        </div>
+        </PopoverGroup>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end py">
           {/* 언어 변경 버튼 */}
           <SwitchLanguages onClick={changeLanguage} />
@@ -230,81 +221,109 @@ const NavBar = () => {
           </Menu>
         </div>
       </nav>
-      {/* 모바일 메뉴 */}
       <Dialog
         open={mobileMenuOpen}
         onClose={setMobileMenuOpen}
         className="lg:hidden"
       >
-        <DialogPanel
-          focus="true"
-          className="fixed inset-0 z-10 overflow-y-auto bg-white"
-        >
-          <div className="flex justify-between items-center p-6"></div>
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            {/* 지도 링크 */}
-            <Link
-              to="/main/map"
-              className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
-              onClick={() => handleLinkClick('/main/map')}
+        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+          <div className="flex items-center justify-between">
+            <div className="flex lg:flex-1">
+              {/* 로고 */}
+              <Link
+                to="/main/map"
+                onClick={handleNavigation}
+                className="-m-1.5 p-1.5 "
+              >
+                <div className="sm:mx-auto sm:w-full sm:max-w-sm transform scale-95">
+                  <div className="flex flex-col items-left space-x-0 cursor-default select-none">
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                      TestCourse
+                    </h1>
+                    <h1 className="text-2xl font-semibold tracking-tight text-blue-900">
+                      ManagementSystem
+                    </h1>
+                  </div>
+                </div>
+              </Link>
+            </div>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(false)}
+              className="-m-2.5 rounded-md p-2.5 text-gray-700"
             >
-              {t('Common.Map')}
-            </Link>
-
-            {/* 대시보드 */}
-            <Link
-              to="/main/dashboard"
-              className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
-              onClick={() => handleLinkClick('/main/dashboard')}
-            >
-              {t('NavBar.Dashboard')}
-            </Link>
-            {/* 관리 */}
-            <Disclosure as="div">
-              <DisclosureButton className="flex cursor-default justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
-                {t('NavBar.Management')}
-                <FaAngleDown className="h-6 w-6" aria-hidden="true" />
-              </DisclosureButton>
-              <DisclosurePanel className="px-3 py-1 text-sm text-gray-700">
-                {AuthPage.map((page) => (
+              <span className="sr-only">Close menu</span>
+              <XMarkIcon aria-hidden="true" className="size-8 mr-4" />
+            </button>
+          </div>
+          <div className="mt-6 flow-root">
+            <div className="-my-6 divide-y divide-gray-500/10">
+              <div className="space-y-2 py-6">
+                {isActiveManagement && (
                   <Link
-                    key={page.id}
-                    to={page.link}
+                    to="/main/map"
                     className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
-                    onClick={() => handleLinkClick(page.link)}
+                  >
+                    {/* 지도 */}
+                    {t('Common.Map')}
+                  </Link>
+                )}
+                {/* 대시보드 */}
+                <Link
+                  to="/main/dashboard"
+                  className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
+                  onClick={() => handleLinkClick('/main/dashboard')}
+                >
+                  {t('NavBar.Dashboard')}
+                </Link>
+                {/* 관리 */}
+                <Disclosure as="div">
+                  <DisclosureButton className="flex cursor-default justify-between w-full px-3 py-2 text-base font-bold text-gray-700 hover:bg-gray-50">
+                    {t('NavBar.Management')}
+                    <FaAngleDown className="h-6 w-6" aria-hidden="true" />
+                  </DisclosureButton>
+                  <DisclosurePanel className="px-3 py-1 text-sm text-gray-700 text-center">
+                    {AuthPage.map((page) => (
+                      <Link
+                        key={page.id}
+                        to={page.link}
+                        className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50"
+                        onClick={() => handleLinkClick(page.link)}
+                      >
+                        {page.name}
+                      </Link>
+                    ))}
+                  </DisclosurePanel>
+                </Disclosure>
+              </div>
+              {/* 언어 변경 */}
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <SwitchLanguages onClick={changeLanguage} />
+              </div>
+              {/* 사용자 메뉴 */}
+              <div className="px-2 pb-3 border-t border-gray-200">
+                <svg
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  className="h-10 w-10 rounded-full ml-3 mt-3"
+                >
+                  <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                {userDropMenus.map((page) => (
+                  <span
+                    key={page.id}
+                    className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50 cursor-pointer"
+                    onClick={() => handleLinkClick(page.id)}
                   >
                     {page.name}
-                  </Link>
+                  </span>
                 ))}
-              </DisclosurePanel>
-            </Disclosure>
-          </div>
-          {/* 언어 변경 */}
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            <SwitchLanguages onClick={changeLanguage} />
-          </div>
-          {/* 사용자 메뉴 */}
-          <div className="px-2 pb-3 border-t border-gray-200">
-            <svg
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              className="h-10 w-10 rounded-full ml-3 mt-3"
-            >
-              <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            {userDropMenus.map((page) => (
-              <span
-                key={page.id}
-                className="block px-3 py-2 rounded-md text-base font-bold text-gray-700 hover:bg-gray-50 cursor-pointer"
-                onClick={() => handleLinkClick(page.id)}
-              >
-                {page.name}
-              </span>
-            ))}
+              </div>
+            </div>
           </div>
         </DialogPanel>
       </Dialog>
     </header>
   );
-};
-export default NavBar;
+}
+export default Navbar;

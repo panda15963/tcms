@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Disclosure } from '@headlessui/react';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import StatGraphsLists from '../dropdowns/statMenus/StatGraphsLists'; // 통계 그래프 목록 컴포넌트
 import { useTranslation } from 'react-i18next';
 import { ToastContainer, toast, Bounce } from 'react-toastify'; // 토스트 알림 컴포넌트
@@ -234,113 +235,238 @@ export default function StatTopMenuBar() {
   }, [data, startDate, endDate, selectedPC, selectedTool]);
 
   return (
-    <Disclosure as="nav" className="bg-gray-800">
-      <div className="mx-auto inset-x-0">
-        <div className="relative scale-90 flex h-[52px] z-40 items-center justify-start gap-5">
-          {/* 통계 메뉴 */}
-          <div className="flex items-center h-[52px] space-x-2">
-            <label className="rounded-md py-2 text-sm font-bold text-white select-none cursor-default">
-              {t('StatNavBar.StatMenu')}
-            </label>
-            <div>
-              <StatGraphsLists requestData={setData} />
+    <>
+      <Disclosure as="nav" className="bg-gray-800">
+        {({ open }) => (
+          <>
+            <div className="mx-auto inset-x-0">
+              <div className="flex h-[50px] items-center">
+                {/* 햄버거 메뉴 버튼 (모바일 전용) */}
+                <div className="flex items-center xl:hidden w-full">
+                  <Disclosure.Button className="relative inline-flex items-center justify-between rounded-md p-2 pr-4 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 ml-auto">
+                    <span className="absolute -inset-0.5" />
+                    {open ? (
+                      <XMarkIcon className="block h-8 w-8" aria-hidden="true" />
+                    ) : (
+                      <Bars3Icon className="block h-8 w-8" aria-hidden="true" />
+                    )}
+                  </Disclosure.Button>
+                </div>
+
+                {/* 기본 네비게이션 (데스크탑 전용) */}
+                <div className="hidden xl:block scale-90 z-40">
+                  <div className="flex gap-5">
+                    {/* 통계 메뉴 */}
+                    <div className="flex items-center h-[52px] space-x-2">
+                      <label className="rounded-md py-2 text-sm font-bold text-white select-none cursor-default">
+                        {t('StatNavBar.StatMenu')}
+                      </label>
+                      <div>
+                        <StatGraphsLists requestData={setData} />
+                      </div>
+                    </div>
+
+                    {/* 조회 기간 */}
+                    <div
+                      className={`flex items-center h-[52px] space-x-4 cursor-default select-none ${
+                        isDisabled
+                          ? 'opacity-50 pointer-events-none'
+                          : 'opacity-100 pointer-events-auto'
+                      }`}
+                    >
+                      {/* 조회 기간 레이블 */}
+                      <div className="select-none">
+                        <span className="text-sm font-semibold text-white">
+                          {t('DateTerms.DatePeriod')}
+                        </span>
+                      </div>
+
+                      {/* CustomDatePicker 드래그 방지 */}
+                      <div className="select-none">
+                        <CustomDatePicker
+                          startsDate={setStartDate}
+                          endsDate={setEndDate}
+                          startDate={startDate}
+                          endDate={endDate}
+                        />
+                      </div>
+                    </div>
+                    {/* 도구 선택 */}
+                    <div
+                      className={`flex items-center h-[52px] space-x-4 select-none ${
+                        data?.name === t('StatNavBar.TECT') ||
+                        data?.name === t('StatNavBar.TCIC') ||
+                        data?.name === t('StatNavBar.RTTUI') ||
+                        data?.name === t('StatNavBar.TUSRT')
+                          ? 'opacity-50 pointer-events-none'
+                          : 'opacity-100 pointer-events-auto'
+                      }`}
+                    >
+                      <label className="text-sm font-bold text-white select-none">
+                        {t('StatNavBar.SelectTool')}
+                      </label>
+                      <ToolLists
+                        selectedTool={toolNames}
+                        setSelectedTool={setSelectedTool}
+                        resetTrigger={resetTrigger}
+                        pageData={data?.name || ''}
+                        selectedToolName={setSpecialToolName}
+                      />
+                    </div>
+
+                    {/* PC 선택 */}
+                    <div
+                      className={`flex items-center h-[52px] space-x-4 select-none ${
+                        isDisabled
+                          ? 'opacity-50 pointer-events-none'
+                          : 'opacity-100 pointer-events-auto'
+                      }`}
+                    >
+                      <label className="text-sm font-bold text-white select-none">
+                        {t('StatNavBar.SelectPC')}
+                      </label>
+                      <PCLists
+                        selectedPC={pcNames}
+                        setSelectedPC={setSelectedPC}
+                        resetTrigger={resetTrigger}
+                      />
+                    </div>
+
+                    {/* 조회 및 초기화 버튼 */}
+                    <div className="flex items-center h-[52px] space-x-4">
+                      <button
+                        type="button"
+                        className={`rounded bg-white px-2 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset cursor-default select-none ${
+                          isDisabled
+                            ? 'opacity-50 pointer-events-none'
+                            : 'opacity-100 pointer-events-auto'
+                        }`}
+                        onClick={handleSearch}
+                      >
+                        {t('StatNavBar.Search')}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleReset}
+                        className={`rounded bg-white px-2 py-2 text-sm cursor-default font-semibold text-gray-900 shadow-sm ring-1 ring-inset select-none ${
+                          isDisabled
+                            ? 'opacity-50 pointer-events-none'
+                            : 'opacity-100 pointer-events-auto'
+                        }`}
+                      >
+                        {t('StatNavBar.Reset')}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* 조회 기간 */}
-          <div
-            className={`flex items-center h-[52px] space-x-4 cursor-default select-none ${
-              isDisabled
-                ? 'opacity-50 pointer-events-none'
-                : 'opacity-100 pointer-events-auto'
-            }`}
-          >
-            {/* 조회 기간 레이블 */}
-            <div className="select-none">
-              <span className="text-sm font-semibold text-white">
-                {t('DateTerms.DatePeriod')}
-              </span>
-            </div>
+            {/* 모바일 메뉴 패널 (햄버거 클릭 시 확장) */}
+            <Disclosure.Panel className="xl:hidden bg-gray-700">
+              <div className="space-y-4 px-4 pb-4 pt-2">
+                {/* 통계 메뉴 */}
+                <div className="flex flex-col space-y-2">
+                  <label className="text-sm font-bold text-white select-none cursor-default">
+                    {t('StatNavBar.StatMenu')}
+                  </label>
+                  <div>
+                    <StatGraphsLists requestData={setData} />
+                  </div>
+                </div>
 
-            {/* CustomDatePicker 드래그 방지 */}
-            <div className="select-none">
-              <CustomDatePicker
-                startsDate={setStartDate}
-                endsDate={setEndDate}
-                startDate={startDate}
-                endDate={endDate}
-              />
-            </div>
-          </div>
-          {/* 도구 선택 */}
-          <div
-            className={`flex items-center h-[52px] space-x-4 select-none ${
-              data?.name === t('StatNavBar.TECT') ||
-              data?.name === t('StatNavBar.TCIC') ||
-              data?.name === t('StatNavBar.RTTUI') ||
-              data?.name === t('StatNavBar.TUSRT')
-                ? 'opacity-50 pointer-events-none'
-                : 'opacity-100 pointer-events-auto'
-            }`}
-          >
-            <label className="text-sm font-bold text-white select-none">
-              {t('StatNavBar.SelectTool')}
-            </label>
-            <ToolLists
-              selectedTool={toolNames}
-              setSelectedTool={setSelectedTool}
-              resetTrigger={resetTrigger}
-              pageData={data?.name || ''}
-              selectedToolName={setSpecialToolName}
-            />
-          </div>
+                {/* 조회 기간 */}
+                <div
+                  className={`flex flex-col space-y-2 select-none cursor-default ${
+                    isDisabled
+                      ? 'opacity-50 pointer-events-none'
+                      : 'opacity-100 pointer-events-auto'
+                  }`}
+                >
+                  <span className="text-sm font-semibold text-white">
+                    {t('DateTerms.DatePeriod')}
+                  </span>
+                  <CustomDatePicker
+                    startsDate={setStartDate}
+                    endsDate={setEndDate}
+                    startDate={startDate}
+                    endDate={endDate}
+                  />
+                </div>
 
-          {/* PC 선택 */}
-          <div
-            className={`flex items-center h-[52px] space-x-4 select-none ${
-              isDisabled
-                ? 'opacity-50 pointer-events-none'
-                : 'opacity-100 pointer-events-auto'
-            }`}
-          >
-            <label className="text-sm font-bold text-white select-none">
-              {t('StatNavBar.SelectPC')}
-            </label>
-            <PCLists
-              selectedPC={pcNames}
-              setSelectedPC={setSelectedPC}
-              resetTrigger={resetTrigger}
-            />
-          </div>
+                {/* 도구 선택 */}
+                <div
+                  className={`flex flex-col space-y-2 select-none ${
+                    data?.name === t('StatNavBar.TECT') ||
+                    data?.name === t('StatNavBar.TCIC') ||
+                    data?.name === t('StatNavBar.RTTUI') ||
+                    data?.name === t('StatNavBar.TUSRT')
+                      ? 'opacity-50 pointer-events-none'
+                      : 'opacity-100 pointer-events-auto'
+                  }`}
+                >
+                  <label className="text-sm font-bold text-white select-none">
+                    {t('StatNavBar.SelectTool')}
+                  </label>
+                  <ToolLists
+                    selectedTool={toolNames}
+                    setSelectedTool={setSelectedTool}
+                    resetTrigger={resetTrigger}
+                    pageData={data?.name || ''}
+                    selectedToolName={setSpecialToolName}
+                  />
+                </div>
 
-          {/* 조회 및 초기화 버튼 */}
-          <div className="flex items-center h-[52px] space-x-4">
-            <button
-              type="button"
-              className={`rounded bg-white px-2 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset cursor-default select-none ${
-                isDisabled
-                  ? 'opacity-50 pointer-events-none'
-                  : 'opacity-100 pointer-events-auto'
-              }`}
-              onClick={handleSearch}
-            >
-              {t('StatNavBar.Search')}
-            </button>
+                {/* PC 선택 */}
+                <div
+                  className={`flex flex-col space-y-2 select-none ${
+                    isDisabled
+                      ? 'opacity-50 pointer-events-none'
+                      : 'opacity-100 pointer-events-auto'
+                  }`}
+                >
+                  <label className="text-sm font-bold text-white select-none">
+                    {t('StatNavBar.SelectPC')}
+                  </label>
+                  <PCLists
+                    selectedPC={pcNames}
+                    setSelectedPC={setSelectedPC}
+                    resetTrigger={resetTrigger}
+                  />
+                </div>
 
-            <button
-              type="button"
-              onClick={handleReset}
-              className={`rounded bg-white px-2 py-2 text-sm cursor-default font-semibold text-gray-900 shadow-sm ring-1 ring-inset select-none ${
-                isDisabled
-                  ? 'opacity-50 pointer-events-none'
-                  : 'opacity-100 pointer-events-auto'
-              }`}
-            >
-              {t('StatNavBar.Reset')}
-            </button>
-          </div>
-        </div>
-      </div>
+                {/* 조회 및 초기화 버튼 */}
+                <div className="flex flex-row space-x-4">
+                  <button
+                    type="button"
+                    className={`w-full rounded bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset cursor-default select-none ${
+                      isDisabled
+                        ? 'opacity-50 pointer-events-none'
+                        : 'opacity-100 pointer-events-auto'
+                    }`}
+                    onClick={handleSearch}
+                  >
+                    {t('StatNavBar.Search')}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className={`w-full rounded bg-white px-4 py-2 text-sm cursor-default font-semibold text-gray-900 shadow-sm ring-1 ring-inset select-none ${
+                      isDisabled
+                        ? 'opacity-50 pointer-events-none'
+                        : 'opacity-100 pointer-events-auto'
+                    }`}
+                  >
+                    {t('StatNavBar.Reset')}
+                  </button>
+                </div>
+              </div>
+            </Disclosure.Panel>
+          </>
+        )}
+      </Disclosure>
       <ToastContainer
         position="top-center"
         autoClose={1000}
@@ -354,6 +480,6 @@ export default function StatTopMenuBar() {
         theme="colored"
         transition={Bounce}
       />
-    </Disclosure>
+    </>
   );
 }
