@@ -302,7 +302,7 @@ export default function StatTopMenuBar() {
                           : 'opacity-100 pointer-events-auto'
                       }`}
                     >
-                      <label className="text-sm font-bold text-white select-none">
+                      <label className="text-sm font-bold text-white select-non">
                         {t('StatNavBar.SelectTool')}
                       </label>
                       <ToolLists
