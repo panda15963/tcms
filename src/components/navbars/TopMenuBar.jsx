@@ -715,10 +715,6 @@ const TopMenuBar = ({
                           className="object-contain w-[90%] h-[90%] ml-[1.5px] select-none"
                           onContextMenu={handleContextMenu}
                         />
-                        {/* <HiOutlineDocumentSearch
-                            className="h-5 w-5 text-white"
-                            aria-hidden="true"
-                          /> */}
                       </button>
                     </div>
                     <LogModal
@@ -743,11 +739,6 @@ const TopMenuBar = ({
                           className="object-contain w-[90%] h-[90%] ml-[1.5px] select-none"
                           onContextMenu={handleContextMenu}
                         />
-
-                        {/* <HiOutlineDocumentSearch
-                            className="h-5 w-5 text-white"
-                            aria-hidden="true"
-                          /> */}
                       </button>
                     </div>
                     <SpaceModal
@@ -884,11 +875,13 @@ const TopMenuBar = ({
                   <button
                     type="button"
                     onClick={() => logModalRef.current.show()}
-                    className="px-3 flex items-center border-1 rounded-md p-2 bg-gray-800"
+                    className="flex items-center justify-center rounded-md p-0.5 w-full h-9 bg-gray-800 cursor-default"
                   >
-                    <HiOutlineDocumentSearch
-                      className="h-5 w-5 text-white"
-                      aria-hidden="true"
+                    <img
+                      src={downloadIcon2}
+                      alt="Search Icon"
+                      className="object-contain w-[90%] h-[90%] ml-[1.5px] select-none"
+                      onContextMenu={handleContextMenu}
                     />
                   </button>
                 </div>
@@ -899,11 +892,32 @@ const TopMenuBar = ({
                   <button
                     type="button"
                     onClick={() => spaceModalRef.current.show()}
-                    className="px-3 flex items-center border-1 rounded-md p-2 bg-gray-800"
+                    className="flex items-center justify-center rounded-md w-full h-9 bg-gray-800 cursor-default"
                   >
-                    <HiOutlineDocumentSearch
-                      className="h-5 w-5 text-white"
-                      aria-hidden="true"
+                    <img
+                      src={spaceIcon2}
+                      alt="Search Icon"
+                      className="object-contain w-[90%] h-[90%] ml-[1.5px] select-none"
+                      onContextMenu={handleContextMenu}
+                    />
+                  </button>
+                </div>
+                <div className="flex flex-col">
+                  <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap select-none">
+                    {/* 지도 초기화*/}
+                    {t('TopMenuBar.MapClear')}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleMapClear}
+                    // className="inset-y-5 px-3 flex items-center pr-3 border-1 rounded-md p-2 bg-gray-700"
+                    className="flex items-center justify-center rounded-md p-0.5 w-full h-9 bg-gray-800 cursor-default"
+                  >
+                    <img
+                      src={clearIcon2}
+                      alt="Search Icon"
+                      className="object-contain w-[90%] h-[90%] ml-[1.5px] select-none"
+                      onContextMenu={handleContextMenu}
                     />
                   </button>
                 </div>
