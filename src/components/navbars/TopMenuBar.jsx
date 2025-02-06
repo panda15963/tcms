@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect } from 'react';
-import { HiOutlineDocumentSearch } from 'react-icons/hi';
 import { TbWorldLatitude, TbWorldLongitude } from 'react-icons/tb';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ToastContainer, toast, Bounce } from 'react-toastify'; // 토스트 알림 컴포넌트
