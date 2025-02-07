@@ -641,7 +641,7 @@ const TopMenuBar = ({
         {({ open }) => (
           <>
             <div className="mx-auto inset-x-0">
-              <div className="flex h-[50px] items-center">
+              <div className="flex h-[50px] items-center justify-center">
                 {/* 햄버거 메뉴 버튼 (모바일 전용) */}
                 <div className="flex items-center xl:hidden w-full">
                   <Disclosure.Button className="relative inline-flex items-center justify-between rounded-md p-2 pr-4 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 ml-auto">
@@ -657,11 +657,11 @@ const TopMenuBar = ({
                 {/* 기본 네비게이션 (데스크탑 전용) */}
                 <div className="hidden xl:block scale-90 z-10">
                   <div className="flex">
-                    <label className="px-2 py-2 text-sm font-bold text-white select-none">
+                    <label className="px-2 py-2 text-sm font-bold text-white select-none truncate max-w-[150px]">
                       {t('TopMenuBar.MapSelection')}
                     </label>
                     <MapAPIsLists setSelectedAPI={setSelectedAPI} />
-                    <label className="px-2 py-2 pl-11 text-sm font-bold text-white select-none">
+                    <label className="px-2 py-2 pl-11 text-sm font-bold text-white select-none truncate max-w-[150px]">
                       {t('TopMenuBar.StoreSearch')}
                     </label>
                     <div className="flex flex-1 justify-center lg:justify-end">
@@ -698,7 +698,7 @@ const TopMenuBar = ({
                       chosenMapAPIs={selectedAPI}
                     />
                     <div className="flex flex-1 justify-center lg:ml-3">
-                      <label className="rounded-md px-2 py-2 pr-2 text-sm font-bold text-white select-none">
+                      <label className="rounded-md px-2 py-2 pr-2 text-sm font-bold text-white select-none truncate max-w-[150px]">
                         {/* 로그 검색 */}
                         {t('TopMenuBar.LogSearch')}
                       </label>
@@ -722,7 +722,7 @@ const TopMenuBar = ({
                       ref={logModalRef}
                     />
                     <div className="flex flex-1 justify-center lg:ml-3">
-                      <label className="rounded-md px-3 py-2 pr-2 text-sm font-bold text-white whitespace-nowrap cursor-default select-none">
+                      <label className="rounded-md px-3 py-2 pr-2 text-sm font-bold text-white whitespace-nowrap cursor-default select-none truncate max-w-[150px]">
                         {/* 공간 검색 */}
                         {t('TopMenuBar.SpaceSearch')}
                       </label>
@@ -747,7 +747,7 @@ const TopMenuBar = ({
                       selectedCoords={convertedCoords}
                     />
                     <div className="flex flex-1 justify-center lg:ml-3">
-                      <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap select-none">
+                      <label className="rounded-md px-3 py-2 text-sm font-bold text-white whitespace-nowrap select-none truncate max-w-[150px]">
                         {/* 지도 초기화*/}
                         {t('TopMenuBar.MapClear')}
                       </label>
@@ -769,7 +769,7 @@ const TopMenuBar = ({
                           /> */}
                       </button>
                     </div>
-                    <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10 select-none">
+                    <label className="rounded-md px-3 py-2 text-sm font-bold text-white pl-10 select-none truncate max-w-[150px]">
                       {/* 입력 좌표 출력 */}
                       {t('TopMenuBar.CoordsOutput')}
                     </label>
@@ -824,7 +824,7 @@ const TopMenuBar = ({
                     <div className="flex flex-0 justify-center lg:ml-3">
                       <button
                         type="button"
-                        className="rounded bg-white px-2 select-none py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset cursor-default"
+                        className="rounded bg-white px-2 select-none py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset cursor-default truncate max-w-[150px]"
                         onClick={handleSearch}
                       >
                         {/* 조회 */}
@@ -834,7 +834,7 @@ const TopMenuBar = ({
                     <div className="flex flex-0 justify-center lg:ml-3">
                       <button
                         type="button"
-                        className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 select-none shadow-sm ring-1 ring-inset cursor-default"
+                        className="rounded bg-white px-2 py-1.5 text-sm font-semibold text-gray-900 select-none shadow-sm ring-1 ring-inset cursor-default truncate max-w-[150px]"
                         onClick={handleCopy}
                       >
                         {/* 복사 */}

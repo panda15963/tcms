@@ -240,7 +240,7 @@ export default function StatTopMenuBar() {
         {({ open }) => (
           <>
             <div className="mx-auto inset-x-0">
-              <div className="flex h-[50px] items-center">
+              <div className="flex h-[50px] items-center justify-center">
                 {/* 햄버거 메뉴 버튼 (모바일 전용) */}
                 <div className="flex items-center xl:hidden w-full">
                   <Disclosure.Button className="relative inline-flex items-center justify-between rounded-md p-2 pr-4 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 ml-auto">
@@ -258,12 +258,10 @@ export default function StatTopMenuBar() {
                   <div className="flex gap-5">
                     {/* 통계 메뉴 */}
                     <div className="flex items-center h-[52px] space-x-2">
-                      <label className="rounded-md py-2 text-sm font-bold text-white select-none cursor-default">
+                      <label className="rounded-md py-2 text-sm font-bold text-white select-none cursor-default truncate max-w-[150px]">
                         {t('StatNavBar.StatMenu')}
                       </label>
-                      <div>
-                        <StatGraphsLists requestData={setData} />
-                      </div>
+                      <StatGraphsLists requestData={setData} />
                     </div>
 
                     {/* 조회 기간 */}
@@ -302,7 +300,7 @@ export default function StatTopMenuBar() {
                           : 'opacity-100 pointer-events-auto'
                       }`}
                     >
-                      <label className="text-sm font-bold text-white select-non">
+                      <label className="text-sm font-bold text-white select-non truncate max-w-[150px]">
                         {t('StatNavBar.SelectTool')}
                       </label>
                       <ToolLists
@@ -322,7 +320,7 @@ export default function StatTopMenuBar() {
                           : 'opacity-100 pointer-events-auto'
                       }`}
                     >
-                      <label className="text-sm font-bold text-white select-none">
+                      <label className="text-sm font-bold text-white select-none truncate max-w-[150px]">
                         {t('StatNavBar.SelectPC')}
                       </label>
                       <PCLists
@@ -333,7 +331,7 @@ export default function StatTopMenuBar() {
                     </div>
 
                     {/* 조회 및 초기화 버튼 */}
-                    <div className="flex items-center h-[52px] space-x-4">
+                    <div className="flex items-center h-[52px] space-x-4 truncate max-w-[150px]">
                       <button
                         type="button"
                         className={`rounded bg-white px-2 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset cursor-default select-none ${
@@ -384,7 +382,7 @@ export default function StatTopMenuBar() {
                       : 'opacity-100 pointer-events-auto'
                   }`}
                 >
-                  <span className="text-sm font-semibold text-white">
+                  <span className="text-sm font-semibold text-white truncate max-w-[150px]">
                     {t('DateTerms.DatePeriod')}
                   </span>
                   <CustomDatePicker
@@ -392,6 +390,7 @@ export default function StatTopMenuBar() {
                     endsDate={setEndDate}
                     startDate={startDate}
                     endDate={endDate}
+                    className="truncate max-w-[200px]" // 날짜 선택기도 필요하면 제한 가능
                   />
                 </div>
 
