@@ -5,7 +5,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
-    "@react-google-maps/api": "^2.20.5",
+    "@react-google-maps/api": "^2.20.6",
     "@tanstack/react-table": "^8.20.6",
     "@tomtom-international/web-sdk-maps": "^6.25.0",
     "antd": "^5.23.4",
