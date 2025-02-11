@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import UsageStatusTable from '../../components/tables/statTables/UsageStatusTable';
 import { IoReloadSharp } from 'react-icons/io5';
 import { useLocation } from 'react-router-dom'; // React Router의 useLocation 추가
-import { LIVE_TOOL } from '../../components/StatRequestData';
+import { LIVE_TOOL } from '../../components/requestData/StatRequestData'; // LIVE_TOOL API 추가
 
 export default function UsageStatus() {
   const { t } = useTranslation(); // 다국어 번역 훅

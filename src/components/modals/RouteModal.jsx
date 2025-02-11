@@ -3,7 +3,7 @@ import { Dialog } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck, FaDownload } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-import MapLogService from '../../service/MapLogService';
+import { SPACE_INTERPOLATION } from '../../components/requestData/MapRequestData';
 import MainGridDetail from '../tables/mapTables/MainGridDetail';
 import { axiosInstance } from '../../server/axios_config';
 
@@ -86,48 +86,6 @@ const RouteModal = ({
     } catch (error) {
       console.error('Error fetching data:', error);
       setLoading(false);
-    }
-  };
-
-  /**
-   * 버전 모아보기
-   * 경로 표출 API (SPACE_INTERPOLATION)
-   */
-  const SPACE_INTERPOLATION = async (inputCond) => {
-    try {
-      if (!Array.isArray(inputCond)) {
-        inputCond = [inputCond];
-      }
-
-      const promises = inputCond.map((value) => {
-        return MapLogService.SPACE_INTERPOLATION({
-          cond: { file_id: value },
-        }).then((res) => {
-          try {
-            if (typeof res === 'string') {
-              const preprocessedRes = res.replace(
-                /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                '{"lat":$1,"lng":$2}'
-              );
-              return JSON.parse(preprocessedRes);
-            } else {
-              console.warn('Response is not a string:', res);
-              return res;
-            }
-          } catch (error) {
-            console.error(
-              `Error parsing response for fileId ${fileId}:`,
-              error
-            );
-            return null;
-          }
-        });
-      });
-
-      const results = await Promise.all(promises);
-      return results.filter((res) => res !== null);
-    } catch (e) {
-      console.log('SPACE_INTERPOLATION of error ==>', e);
     }
   };
 
@@ -291,9 +249,7 @@ const RouteModal = ({
               <MdClose className="text-white" size={16} />
             </button>
           </div>
-          <div
-            className="flex flex-row justify-between space-x-4 my-4 mt-0 mb-0"
-          >
+          <div className="flex flex-row justify-between space-x-4 my-4 mt-0 mb-0">
             <div className="flex-1 border border-gray-300 p-4">
               <h2 className="text-center text-xl font-bold mb-2"></h2>
               <MainGridDetail

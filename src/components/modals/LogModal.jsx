@@ -3,7 +3,16 @@ import { Dialog, DialogPanel, Transition } from '@headlessui/react';
 import { MdClose } from 'react-icons/md';
 import { FaCheck, FaSearch } from 'react-icons/fa';
 import MainGrid from '../tables/mapTables/MainGrid';
-import MapLogService from '../../service/MapLogService';
+import {
+  FIND_META,
+  MAIN_COUNTRY,
+  MAIN_FEATURE,
+  MAIN_TARGET,
+  MAIN_TAG,
+  SPACE_INTERPOLATION,
+  FIND_TCCFG,
+  FIND_META_ID,
+} from '../requestData/MapRequestData';
 import MultipleSelectDropDown from '../dropdowns/mapMenus/MultipleSelectDropDown';
 import { isEmpty } from 'lodash';
 import SingleSelectDropDown from '../dropdowns/mapMenus/SingleSelectDropDown';
@@ -165,10 +174,67 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
    * 검색 필드 API 최초 호출
    */
   useDidMount(() => {
-    MAIN_COUNTRY();
-    MAIN_FEATURE();
-    MAIN_TARGET();
-    MAIN_TAG();
+    MAIN_COUNTRY(continentNameMap)
+      .then((res) => {
+        setCountryList((prevState) => {
+          return {
+            ...prevState,
+            list: res.list,
+            continent: res.continent || [],
+            country: res.country || [],
+          };
+        });
+      })
+      .catch((e) => {
+        console.error('MAIN_COUNTRY of error ==>', e);
+      });
+    MAIN_FEATURE()
+      .then((res) => {
+        if (!res || typeof res !== 'object') {
+          return;
+        }
+
+        setFeatureList((prevState) => ({
+          ...prevState,
+          list: res,
+          featureTop: res.featureTop || [],
+          featureBottom: res.featureBottom || [],
+        }));
+      })
+      .catch((e) => {
+        console.error('MAIN_FEATURE of error ==>', e);
+      });
+    MAIN_TARGET()
+      .then((res) => {
+        if (!res || typeof res !== 'object' || !res.target) {
+          return;
+        }
+
+        setTargetList((prevState) => ({
+          ...prevState,
+          list: res,
+          target: res.target || [],
+        }));
+      })
+      .catch((e) => {
+        console.error('MAIN_TARGET of error ==>', e);
+      });
+
+    MAIN_TAG()
+      .then((res) => {
+        if (!res || typeof res !== 'object' || !res.tag) {
+          return;
+        }
+
+        setTagList((prevState) => ({
+          ...prevState,
+          list: res.list || [],
+          tag: res.tag || [],
+        }));
+      })
+      .catch((e) => {
+        console.error('MAIN_TAG of error ==>', e);
+      });
 
     // 검색 필드 특징 관련 처리
     if (featureList.featureTop && featureList.featureTop.length > 0) {
@@ -302,172 +368,6 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
   };
 
   /**
-   * 검색 API (FIND_META_10100)
-   */
-  const FIND_META = async (inputCond) => {
-    setLoading(true);
-    try {
-      await MapLogService.FIND_META_10100({
-        cond: inputCond,
-      }).then((res) => {
-        console.log('FIND_META_10100 of res ==>', res.findMeta);
-        if (res.findMeta) {
-          setList((prevState) => {
-            return {
-              ...prevState,
-              list: res.findMeta,
-            };
-          });
-          setListRouteCount(res.findMeta.length);
-        } else {
-          setListRouteCount(0);
-          setList((prevState) => ({
-            ...prevState,
-            list: [],
-          }));
-        }
-        setLoading(false);
-      });
-    } catch (e) {
-      console.log('FIND_META of error ==>', e);
-      setLoading(false);
-      setListRouteCount(0); // 결과가 없으면 0으로 설정정
-      setList((prevState) => ({
-        ...prevState,
-        list: [],
-      }));
-    }
-  };
-
-  /**
-   * 대륙, 지역 API (MAIN_COUNTRY)
-   * continent, country_Iso2, country_Iso3, country_name
-   */
-  const MAIN_COUNTRY = async () => {
-    try {
-      await MapLogService.MAIN_COUNTRY({}).then((res) => {
-        console.log('MAIN_COUNTRY of res ==>', res.country);
-
-        // 대륙(Continent)
-        const uniqueContinents = [
-          ...new Set(res.country.map((country) => country.continent)),
-        ];
-
-        // 대륙(Continent) 오름차순 정렬
-        uniqueContinents.sort();
-
-        // 대륙(Continent) 분류
-        const continentsList = uniqueContinents.map((continent) => ({
-          id: continent.toLowerCase(),
-          name: continentNameMap[continent] || continent, // 매핑된 이름 사용
-        }));
-
-        // 대륙(Continent) ALL 항목 추가
-        continentsList.unshift({ id: 'all', name: t('Common.All') });
-
-        // 지역 (Country) 주어진 데이터에서 country_Iso3를 name으로, id는 그대로 유지하는 새로운 리스트 생성
-        const processedList = res.country.map((country) => ({
-          id: country.country_Iso3,
-          // name: country.country_Iso3,
-          name: country.country_name,
-        }));
-
-        // 지역 (Country) ALL 항목 추가
-        processedList.unshift({ id: 'all', name: t('Common.All') });
-
-        // 지역 (Country)  정렬
-        processedList.sort((a, b) => {
-          if (a.name < b.name) return -1;
-          if (a.name > b.name) return 1;
-          return 0;
-        });
-
-        console.log(
-          '🚀 ~ awaitMapLogService.MAIN_COUNTRY ~ continentsList:',
-          continentsList
-        );
-
-        setCountryList((prevState) => {
-          return {
-            ...prevState,
-            list: res.country,
-            continent: continentsList || [], // default to empty array
-            country: processedList || [], // default to empty array
-          };
-        });
-        console.log(
-          '🚀 ~ awaitMapLogService.MAIN_COUNTRY ~ featureList:',
-          featureList
-        );
-      });
-    } catch (e) {
-      console.log('MAIN_COUNTRY of error ==>', e);
-    }
-  };
-
-  /**
-   * 특징 API (MAIN_FEATURE)
-   */
-  const MAIN_FEATURE = async () => {
-    try {
-      await MapLogService.MAIN_FEATURE({}).then((res) => {
-        console.log('MAIN_FEATURE of res ==>', res.feature);
-
-        const withHyphen = res.feature.filter((item) =>
-          item.str.startsWith('-')
-        );
-        const withoutHyphen = res.feature.filter(
-          (item) => !item.str.startsWith('-')
-        );
-
-        console.log('With Hyphen:', withHyphen);
-        console.log('Without Hyphen:', withoutHyphen);
-
-        const topFeatureList = withHyphen.map((whn) => ({
-          id: whn.id,
-          name: whn.str.replace('-', ''),
-        }));
-
-        const bottomFeatureList = withoutHyphen.map((whn) => ({
-          id: whn.id,
-          name: whn.str,
-        }));
-
-        console.log(
-          '🚀 ~ awaitMapLogService.MAIN_FEATURE ~ bottomFeatureList:',
-          bottomFeatureList
-        );
-        console.log(
-          '🚀 ~ awaitMapLogService.MAIN_FEATURE ~ topFeatureList:',
-          topFeatureList
-        );
-
-        // 특징 (Feature) TOP 정렬
-        // topFeatureList.sort((a, b) => {
-        //   if (a.name < b.name) return -1;
-        //   if (a.name > b.name) return 1;
-        //   return 0;
-        // });
-
-        // 특징 (Feature) ALL 항목 추가
-        topFeatureList.unshift({ id: 'all', name: t('Common.All') });
-        bottomFeatureList.unshift({ id: 'all', name: t('Common.All') });
-
-        setFeatureList((prevState) => {
-          return {
-            ...prevState,
-            list: res,
-            featureTop: topFeatureList,
-            featureBottom: bottomFeatureList,
-          };
-        });
-      });
-    } catch (e) {
-      console.log('MAIN_FEATURE of error ==>', e);
-    }
-  };
-
-  /**
    * 검색 필드 `특징` 1셀렉트박스 핸들러
    */
   const handleTopFeatureChange = (selectedOption) => {
@@ -504,175 +404,11 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     setFilteredBottomOptions(filteredOptions);
   };
 
-  /**
-   * 대상 API (MAIN_TARGET)
-   */
-  const MAIN_TARGET = async () => {
-    try {
-      await MapLogService.MAIN_TARGET({}).then((res) => {
-        console.log('MAIN_TARGET of res ==>', res.target);
-
-        // 대상 (Target) 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
-        const targetList = res.target.map((target) => ({
-          id: target.str,
-          name: target.str,
-        }));
-
-        // 대상 (Target) ALL 항목 추가
-        targetList.unshift({ id: 'all', name: t('Common.All') });
-
-        // 대상 (Target) 정렬
-        // targetList.sort((a, b) => {
-        //   if (a.name < b.name) return -1;
-        //   if (a.name > b.name) return 1;
-        //   return 0;
-        // });
-
-        setTargetList((prevState) => {
-          return {
-            ...prevState,
-            list: res,
-            target: targetList,
-          };
-        });
-      });
-    } catch (e) {
-      console.log('MAIN_TARGET of error ==>', e);
-    }
-  };
-
-  /**
-   * 태그 API (MAIN_TAG)
-   */
-  const MAIN_TAG = async () => {
-    try {
-      await MapLogService.MAIN_TAG({}).then((res) => {
-        console.log('MAIN_TAG of res ==>', res.tag);
-
-        // 태그 (Tag) 주어진 데이터에서 name, id는 그대로 유지하는 새로운 리스트 생성
-        const tagList = res.tag.map((tag) => ({
-          id: tag.id,
-          name: tag.str,
-        }));
-
-        // 태그 (Tag) ALL 항목 추가
-        tagList.unshift({ id: 'all', name: t('Common.All') });
-
-        // [] 정렬
-        // targetList.sort((a, b) => {
-        //   if (a.name < b.name) return -1;
-        //   if (a.name > b.name) return 1;
-        //   return 0;
-        // });
-
-        setTagList((prevState) => {
-          return {
-            ...prevState,
-            list: res,
-            tag: tagList,
-          };
-        });
-      });
-    } catch (e) {
-      console.log('MAIN_TAG of error ==>', e);
-    }
-  };
-
-  /**
-   * 경로 표출 API (SPACE_INTERPOLATION)
-   */
-  const SPACE_INTERPOLATION = async (fileIds) => {
-    try {
-      if (!Array.isArray(fileIds)) {
-        fileIds = [fileIds];
-      }
-
-      const promises = fileIds.map((fileId) => {
-        return MapLogService.SPACE_INTERPOLATION({
-          cond: { file_id: fileId },
-        }).then((res) => {
-          try {
-            if (typeof res === 'string') {
-              const preprocessedRes = res.replace(
-                /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                '{"lat":$1,"lng":$2}'
-              );
-              return JSON.parse(preprocessedRes);
-            } else {
-              console.warn('Response is not a string:', res);
-              return res;
-            }
-          } catch (error) {
-            console.error(
-              `Error parsing response for fileId ${fileId}:`,
-              error
-            );
-            return null;
-          }
-        });
-      });
-
-      const results = await Promise.all(promises);
-      return results.filter((res) => res !== null);
-    } catch (e) {
-      console.log('SPACE_INTERPOLATION of error ==>', e);
-    }
-  };
-
-  /**
-   * 메타 검색 API (FIND_META_ID)
-   */
-  const FIND_META_ID = async (inputCond) => {
-    try {
-      const res = await MapLogService.FIND_META_ID({
-        cond: inputCond,
-      });
-
-      console.log('FIND_META_ID of res ==>', res.findMeta);
-
-      // res.findMeta 값을 반환하도록 수정
-      return res.findMeta;
-    } catch (e) {
-      console.log('FIND_META_ID of error ==>', e);
-      return null; // 오류가 발생하면 null을 반환하여 처리
-    }
-  };
-
-  /**
-   * 검색 API (FIND TCCFG)
-   */
-  const FIND_TCCFG = async (inputCond) => {
-    setLoading(true);
-    try {
-      const res = await MapLogService.FIND_TCCFG_10003({
-        cond: inputCond,
-      });
-
-      console.log('FIND_TCCFG_10003 of res ==>', res);
-
-      if (res && Array.isArray(res.findTccfg)) {
-        setListConfig((prevState) => ({
-          ...prevState,
-          list: res.findTccfg,
-        }));
-        setListConfigCount(res.findTccfg.length);
-      } else {
-        console.error('Invalid or missing findTccfg field in response:', res);
-        setListConfigCount(0);
-      }
-    } catch (e) {
-      console.log('FIND_TCCFG_10003 of error ==>', e);
-      setListConfigCount(0);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   /****************************************************************************
    * [경로탭 이벤트 시작]
    * 경로탭 검색
    */
-  const onFindMeta = async () => {
+  const onFindMeta = () => {
     console.log('onFindMeta of cond.operation ==>', cond.operation);
     console.log('onFindMeta of selectedIds ==>', selectedIds);
 
@@ -690,8 +426,21 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
       operation: selectedIds.includes('tag') ? cond.operation : 0,
     };
 
-    console.log('onFindMeta of condTmp ==>', condTmp);
-    FIND_META(condTmp);
+    FIND_META(condTmp)
+      .then((result) => {
+        if (!result) {
+          return;
+        }
+        setList((prevState) => ({
+          ...prevState,
+          list: result.list || [], // list가 undefined이면 빈 배열로 설정
+        }));
+
+        setListRouteCount(result.routeCount || 0); // routeCount가 undefined이면 0으로 설정
+      })
+      .catch((error) => {
+        console.error('Error in FIND_META:', error);
+      });
   };
 
   /**
@@ -1059,7 +808,21 @@ const LogModal = forwardRef(({ routeData, routeFullCoords, isDirect }, ref) => {
     };
 
     console.log('onFindMeta of condTmp ==>', condTmp);
-    FIND_TCCFG(condTmp);
+    FIND_TCCFG(condTmp)
+      .then((result) => {
+        console.log('onFindMeta of result ==>', result);
+        if (!result) {
+          return;
+        }
+        setListConfig((prevState) => ({
+          ...prevState,
+          list: result.list || [], // list가 undefined이면 빈 배열로 설정
+        }));
+        setListConfigCount(result.routeCount || 0); // tccfgCount가 undefined이면 0으로 설정
+      })
+      .catch((error) => {
+        console.error('Error in FIND_TCCFG:', error);
+      });
   };
 
   /**

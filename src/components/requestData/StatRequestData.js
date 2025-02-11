@@ -1,4 +1,4 @@
-import StatLogService from '../service/StatLogService';
+import StatLogService from '../../service/StatLogService';
 
 /**
  * EXECUTION_COUNT_TOOL

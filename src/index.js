@@ -7,7 +7,7 @@ import ManagementUsers from './pages/ManagementUsers';
 import MapLayout from './layout/MapLayout';
 import LogModal from './components/modals/LogModal';
 import SpaceModal from './components/modals/SpaceModal';
-import AppLoadingBar from './components/AppLoadingBar';
+import AppLoadingBar from './components/loadingBar/AppLoadingBar';
 import Configuration from './pages/statisticsPages/Configuration';
 import CountsByTool from './pages/statisticsPages/CountsByTool';
 import CountsByVersion from './pages/statisticsPages/CountsByVersion';

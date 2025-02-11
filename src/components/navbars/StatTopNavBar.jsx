@@ -16,7 +16,7 @@ import {
   TOOL_SETTINGS,
   TOOLNAMES,
   PCNAMES,
-} from '../StatRequestData.js'; // 통계 요청 데이터 함수들 가져오기
+} from '../requestData/StatRequestData.js'; // 통계 요청 데이터 함수들 가져오기
 
 const calculateDateRange = (startDate, endDate) => {
   const diffTime = endDate - startDate;

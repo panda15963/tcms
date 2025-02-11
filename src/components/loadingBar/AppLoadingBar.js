@@ -1,5 +1,5 @@
-import useLoading from '../hooks/useLoading'; // 로딩 상태 관리 훅
-import LoadingBar from '../assets/lottie/loading_gradient.json'; // Lottie 애니메이션 데이터
+import useLoading from '../../hooks/useLoading'; // 로딩 상태 관리 훅
+import LoadingBar from '../../assets/lottie/loading_gradient.json'; // Lottie 애니메이션 데이터
 import Lottie from 'react-lottie'; // Lottie 애니메이션 렌더링 라이브러리
 
 /**

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { IoReloadSharp } from 'react-icons/io5';
 import RealTimeUsageTable from '../../components/tables/statTables/RealTimeUsageTable';
 import { useLocation } from 'react-router-dom'; // React Router의 useLocation 추가
-import { LIVE_TC } from '../../components/StatRequestData';
+import { LIVE_TC } from '../../components/requestData/StatRequestData'; // LIVE_TC API 추가
 
 export default function RealTime() {
   const { t } = useTranslation(); // 다국어 번역 훅

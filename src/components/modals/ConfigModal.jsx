@@ -5,7 +5,10 @@ import { FaCheck, FaDownload } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import ConfigGridLDetail from '../tables/mapTables/ConfigGridLDetail';
 import ConfigGridRDetail from '../tables/mapTables/ConfigGridRDetail';
-import MapLogService from '../../service/MapLogService';
+import {
+  SPACE_INTERPOLATION,
+  FIND_META_ID,
+} from '../../components/requestData/MapRequestData';
 import { axiosInstance } from '../../server/axios_config';
 
 /**
@@ -98,67 +101,6 @@ const ConfigModal = ({
     } catch (error) {
       console.error('API Error:', error);
       setLoading(false); // 에러 발생 시 로딩 상태 종료
-    }
-  };
-
-  /**
-   * 메타 검색 API (FIND_META_ID)
-   * 검색 조건에 따라 메타 데이터를 검색
-   */
-  const FIND_META_ID = async (inputCond) => {
-    try {
-      const res = await MapLogService.FIND_META_ID({
-        cond: inputCond,
-      });
-
-      console.log('FIND_META_ID of res ==>', res.findMeta);
-
-      // 검색된 메타 데이터 반환
-      return res.findMeta;
-    } catch (e) {
-      console.log('FIND_META_ID of error ==>', e);
-      return null; // 오류가 발생하면 null 반환
-    }
-  };
-
-  /**
-   * 경로 데이터 생성 API (SPACE_INTERPOLATION)
-   */
-  const SPACE_INTERPOLATION = async (fileIds) => {
-    try {
-      if (!Array.isArray(fileIds)) {
-        fileIds = [fileIds];
-      }
-
-      const promises = fileIds.map((fileId) => {
-        return MapLogService.SPACE_INTERPOLATION({
-          cond: { file_id: fileId },
-        }).then((res) => {
-          try {
-            if (typeof res === 'string') {
-              const preprocessedRes = res.replace(
-                /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                '{"lat":$1,"lng":$2}'
-              );
-              return JSON.parse(preprocessedRes);
-            } else {
-              console.warn('Response is not a string:', res);
-              return res;
-            }
-          } catch (error) {
-            console.error(
-              `Error parsing response for fileId ${fileId}:`,
-              error
-            );
-            return null;
-          }
-        });
-      });
-
-      const results = await Promise.all(promises);
-      return results.filter((res) => res !== null); // 유효한 결과만 반환
-    } catch (e) {
-      console.log('SPACE_INTERPOLATION of error ==>', e);
     }
   };
 

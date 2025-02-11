@@ -4,13 +4,15 @@ import { MdClose } from 'react-icons/md';
 import { FaCheck, FaSearch } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import SpaceTable from '../tables/mapTables/SpaceTable';
-import MapLogService from '../../service/MapLogService';
+import {
+  SPACE_INTERPOLATION,
+  FIND_SPACE,
+} from '../../components/requestData/MapRequestData';
 import MapComponent from '../mapAssist/MapComponent';
 import { useLocation } from 'react-router-dom';
 import i18next from 'i18next';
 import { FaDownload } from 'react-icons/fa6';
 import { isEmpty } from 'lodash';
-import useLoading from '../../hooks/useLoading';
 import { axiosInstance } from '../../server/axios_config';
 import { ToastContainer, toast, Bounce } from 'react-toastify'; // 토스트 알림 컴포넌트
 
@@ -24,7 +26,6 @@ const SpaceModal = forwardRef(
   ({ spaceFullCoords, selectedLists, isDirect, selectedCoords }, ref) => {
     const { t } = useTranslation();
     const location = useLocation();
-    const { loading, setLoading } = useLoading();
     const accessToken = localStorage.getItem('ACCESS_TOKEN');
     const [open, setOpen] = useState(false);
     const [latitude, setLatitude] = useState(37.5665);
@@ -174,79 +175,6 @@ const SpaceModal = forwardRef(
     };
 
     /**
-     * 찾기 API
-     */
-    const FIND_SPACE = async (inputCond) => {
-      setLoading(true);
-      try {
-        const res = await MapLogService.FIND_SPACE({
-          cond: inputCond,
-        });
-        console.log('FIND_SPACE of res ==>', res.findMeta);
-        if (res.findMeta && res.findMeta.length > 0) {
-          setList((prevState) => ({
-            ...prevState,
-            list: res.findMeta,
-          }));
-          setListCount(res.findMeta.length);
-          setLoading(false);
-        } else {
-          console.log('No data found');
-          setList([]);
-          setListCount(0);
-          setLoading(false);
-        }
-      } catch (e) {
-        console.log('FIND_SPACE of error ==>', e);
-        setList([]);
-        setListCount(0);
-        setLoading(false);
-      }
-    };
-
-    /**
-     * 경로 표출 API
-     */
-    const SPACE_INTERPOLATION = async (fileIds) => {
-      setLoading(true);
-      try {
-        if (!Array.isArray(fileIds)) {
-          fileIds = [fileIds]; // Convert single fileId to array
-        }
-        const promises = fileIds.map((fileId) => {
-          return MapLogService.SPACE_INTERPOLATION({
-            cond: { file_id: fileId },
-          }).then((res) => {
-            try {
-              if (typeof res === 'string') {
-                const preprocessedRes = res.replace(
-                  /Coord\(lat=([\d.-]+),\s*lng=([\d.-]+)\)/g,
-                  '{"lat":$1,"lng":$2}'
-                );
-                return JSON.parse(preprocessedRes);
-              } else {
-                console.warn('Response is not a string:', res);
-                return res;
-              }
-            } catch (error) {
-              console.error(
-                `Error parsing response for fileId ${fileId}:`,
-                error
-              );
-              return null;
-            }
-          });
-        });
-        const results = await Promise.all(promises);
-        setLoading(false);
-        return results.filter((res) => res !== null); // Filter out any null values
-      } catch (e) {
-        console.log('SPACE_INTERPOLATION error ==>', e);
-        setLoading(false);
-      }
-    };
-
-    /**
      * 찾기
      */
     const handleFindClick = () => {
@@ -256,7 +184,17 @@ const SpaceModal = forwardRef(
         lng: parseFloat(longitude),
         range: rangeValue === '' ? 100 : rangeValue,
       };
-      FIND_SPACE(condTmp);
+      FIND_SPACE(condTmp)
+        .then((res) => {
+          setList((prevState) => ({
+            ...prevState,
+            list: res.list,
+          }));
+          setListCount(res.routeCount);
+        })
+        .catch((e) => {
+          console.log('FIND_SPACE of error ==>', e);
+        });
     };
 
     /**
