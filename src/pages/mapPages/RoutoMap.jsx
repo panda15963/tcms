@@ -63,6 +63,7 @@ export default function RoutoMap({
   const [focusedNode, setFocusedNode] = useState(null);
   const [shouldResetToDefault, setShouldResetToDefault] = useState(true); // 기본 좌표 복귀 여부
   const [markerPosition, setMarkerPosition] = useState(null);
+  const [isUserMovingMap, setIsUserMovingMap] = useState(false); // 사용자가 이동했는지 여부
   const routesColors = useRef(new Map());
   const choosenMap =
     typeMap === 'Basic Map'
@@ -663,17 +664,49 @@ export default function RoutoMap({
    * 위도(lat)와 경도(lng)가 변경될 때 지도 중심과 마커를 업데이트하는 useEffect
    */
   useEffect(() => {
-    if (lat !== undefined && lng !== undefined) {
-      const newCenter = calculateCenterAndMarker(lat, lng);
-      setCenter(newCenter);
-      if (mapRef.current) {
-        mapRef.current.setCenter(newCenter);
-      }
-      updateMarker(newCenter);
-      setMarkerPosition(newCenter); // 상태 변경을 통해 강제 리렌더링
-      locationCoords({ lat, lng });
-    }
-  }, [lat, lng, markerPosition]);
+    if (!mapRef.current) return;
 
-  return <div id="map"  className="inset-0 w-full h-full -z-10" />;
+    // 사용자가 직접 지도를 이동한 경우, 자동 중심 변경 방지
+    if (isUserMovingMap) return;
+
+    if (lat !== undefined && lng !== undefined) {
+      const newCenter = { lat, lng };
+
+      // 지도 중심 이동 (사용자가 직접 이동하지 않은 경우에만 실행)
+      mapRef.current.panTo(newCenter);
+      setCenter(newCenter);
+
+      // 기존 마커 삭제 후 새 마커 추가
+      if (markerRef.current) {
+        markerRef.current.setMap(null);
+      }
+
+      markerRef.current = new window.google.maps.Marker({
+        position: newCenter,
+        map: mapRef.current,
+      });
+
+      setMarkerPosition(newCenter);
+      locationCoords({ lat: lat, lng: lng });
+    }
+  }, [lat, lng]);
+
+  // 사용자가 지도를 이동하면 자동 중심 변경을 중지하는 이벤트 추가
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    const mapInstance = mapRef.current;
+
+    const handleDragEnd = () => {
+      setIsUserMovingMap(true);
+    };
+
+    mapInstance.addListener('dragend', handleDragEnd);
+
+    return () => {
+      window.google.maps.event.clearListeners(mapInstance, 'dragend');
+    };
+  }, []);
+
+  return <div id="map" className="inset-0 w-full h-full -z-10" />;
 }
