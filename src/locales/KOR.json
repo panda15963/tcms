@@ -15,7 +15,22 @@
     "RegisteredDate": "등록일",
     "EditDate": "수정일",
     "Edit": "수정",
-    "Delete": "삭제"
+    "Delete": "삭제",
+    "Close": "닫기",
+    "Save": "저장",
+    "EditAdministratorInfo": "관리자 정보 수정",
+    "AdminId" : "관리자 아이디",
+    "Toast" : {
+      "Success": "성공",
+      "Error": "오류",
+      "Info": "안내",
+      "EditSuccess": "관리자 정보가 수정되었습니다.",
+      "AddSuccess": "관리자 정보가 추가되었습니다.",
+      "DuplicateError": "중복된 관리자 아이디가 존재합니다. 다른 아이디를 입력해 주세요."
+    },
+    "Error" : {
+      "AdminId" : "관리자 아이디를 입력해 주세요"
+    }
   },
   "toast": {
     "Success": "성공",

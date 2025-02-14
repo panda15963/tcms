@@ -3,21 +3,14 @@ import {
   DialogBackdrop,
   DialogPanel,
   DialogTitle,
-  Label,
   Switch,
 } from '@headlessui/react';
-import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
-import { isEmpty, isFunction, update } from 'lodash';
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
+import { isEmpty, isFunction } from 'lodash';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { addAdmin, updateAdmin } from '../../service/api_services';
 import useToast from '../../hooks/useToast';
 import { ToastTypes } from '../../context/ToastProvider';
+import { useTranslation } from 'react-i18next';
 
 // 초기 요청 객체
 const initialRequest = {
@@ -43,6 +36,7 @@ function classNames(...classes) {
  */
 const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
   const { showToast } = useToast(); // Toast 메시지 훅
+  const { t } = useTranslation();
 
   const [request, setRequest] = useState(initialRequest); // 요청 데이터 상태
   const [open, setOpen] = useState(false); // 모달 열림/닫힘 상태
@@ -99,7 +93,7 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
    */
   const saveAdmin = async () => {
     if (isEmpty(request.admin_id) || !request.admin_id.trim()) {
-      setErrorMessage('관리자 아이디를 입력해 주세요.');
+      setErrorMessage(t('admin.Error.AdminId'));
       inputAdminIdRef.current.focus();
     } else {
       setErrorMessage('');
@@ -111,7 +105,11 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
           if (!isEmpty(data)) {
             console.log('[update admin][data]', data);
             if (data === 'Successfully updated') {
-              showToast(ToastTypes.SUCCESS, '성공', '수정이 완료되었습니다.');
+              showToast(
+                ToastTypes.SUCCESS,
+                t('admin.Toast.Success'),
+                t('admin.Toast.EditSuccess')
+              );
               clearValues();
               setOpen(false);
               if (isFunction(refresh)) {
@@ -120,7 +118,7 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
             }
           }
         } else if (error) {
-          showToast(ToastTypes.ERROR, '오류', error);
+          showToast(ToastTypes.ERROR, t('admin.Toast.Error'), error);
           console.log('Error ==> ', error);
         }
       }
@@ -130,7 +128,11 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
         if (data) {
           if (!isEmpty(data)) {
             console.log('Data ==> ', data);
-            showToast(ToastTypes.SUCCESS, '성공', '관리자 추가 완료했습니다.');
+            showToast(
+              ToastTypes.SUCCESS,
+              t('admin.Toast.Success'),
+              t('admin.Toast.AddSuccess')
+            );
             clearValues();
             setOpen(false);
             if (isFunction(refresh)) {
@@ -145,17 +147,15 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
             if (error.response.data === 'Already registered admin id') {
               showToast(
                 ToastTypes.WARNING,
-                '안내',
-                '이미 등록된 관리자 아이디입니다. 다른 아이디를 입력해 주세요.'
+                t('admin.Toast.Info'),
+                t('admin.Toast.DuplicateError')
               );
-              setErrorMessage(
-                '이미 등록된 관리자 아이디입니다. 다른 아이디를 입력해 주세요.'
-              );
+              setErrorMessage(t('admin.Toast.DuplicateError'));
               // clearValues();
               inputAdminIdRef.current.focus();
             }
           } else {
-            showToast(ToastTypes.ERROR, '오류', error);
+            showToast(ToastTypes.ERROR, t('admin.Toast.Error'), error);
             console.log('Error ==> ', error);
           }
         }
@@ -182,7 +182,9 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
                   as="h3"
                   className="text-base font-semibold text-gray-900"
                 >
-                  {updateMode ? '관리자 정보 수정' : '관리자 추가'}
+                  {updateMode
+                    ? t('admin.EditAdministratorInfo')
+                    : t('admin.AddAdministrators')}
                 </DialogTitle>
                 <div className="mt-6 grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-4">
                   <div className="sm:col-span-2">
@@ -190,7 +192,7 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
                       htmlFor="admin-id"
                       className="block text-sm font-semibold text-gray-700"
                     >
-                      아이디
+                      {t('admin.AdminId')}
                     </label>
                     <div className="mt-2">
                       <input
@@ -227,7 +229,7 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
                   <div>
                     <span className="flex grow flex-col">
                       <label className="block text-sm font-semibold text-gray-700">
-                        사용유무
+                        {t('admin.UseYn')}
                       </label>
                     </span>
                     <Switch
@@ -258,7 +260,7 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
                 onClick={() => saveAdmin()}
                 className="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto"
               >
-                {updateMode ? '수정' : '저장'}
+                {updateMode ? t('admin.Edit') : t('admin.Save')}
               </button>
               <button
                 type="button"
@@ -266,7 +268,7 @@ const AddAdminModal = forwardRef(({ callRefresh: refresh }, ref) => {
                 onClick={() => setOpen(false)}
                 className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
               >
-                닫기
+                {t('admin.Close')}
               </button>
             </div>
           </DialogPanel>

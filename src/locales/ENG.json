@@ -15,7 +15,22 @@
     "RegisteredDate": "RegisteredDate",
     "EditDate": "Modified Date",
     "Edit": "Edit",
-    "Delete": "Delete"
+    "Delete": "Delete",
+    "Close": "Close",
+    "Save": "Save",
+    "EditAdministratorInfo": "Edit Administrator Info",
+    "AdminId": "Admin ID",
+    "Toast" : {
+      "Success": "Success",
+      "Error": "Error",
+      "Info": "Info",
+      "EditSuccess": "The administrator information has been edited successfully.",
+      "AddSuccess": "The administrator information has been added successfully.",
+      "DuplicateError": "The administrator ID already exists. Please enter the administrator ID."
+    },
+    "Error" : {
+      "AdminId" : "Please enter the administrator ID."
+    }
   },
   "toast": {
     "Success": "Success",
