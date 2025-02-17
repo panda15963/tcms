@@ -318,7 +318,9 @@ export default function RoutoMap({
 
     const newRouteObjects = [];
     const newRouteMarkers = [];
-    const bounds = new routo.maps.LatLngBounds(); // 모든 경로를 포함하는 경계를 초기화
+    const bounds = window.routo?.maps
+      ? new window.routo.maps.LatLngBounds()
+      : null;
 
     if (Array.isArray(routeFullCoords)) {
       adjustedRouteCoords.forEach((route, index) => {
@@ -564,6 +566,10 @@ export default function RoutoMap({
   }, [choosenMap]);
 
   const loadMapScript = () => {
+    if (window.routo) {
+      console.log('Routo Maps already loaded');
+      return;
+    }
     const script = document.createElement('script');
     const baseUrl = 'https://api.routo.com/v2/maps/map'; // Routo Maps API의 기본 URL
     const url = new URL(baseUrl); // URL 객체를 사용하여 URL을 안전하게 생성
@@ -598,7 +604,7 @@ export default function RoutoMap({
    * 초기 중심점으로 마커를 표시하며 지도를 초기화하는 useEffect
    */
   useEffect(() => {
-    if (!window.routo) {
+    if (!window.routo || !window.routo.maps) {
       loadMapScript();
     } else {
       if (!mapRef.current) {
@@ -704,7 +710,9 @@ export default function RoutoMap({
     mapInstance.addListener('dragend', handleDragEnd);
 
     return () => {
-      window.google.maps.event.clearListeners(mapInstance, 'dragend');
+      if (window.google && window.google.maps) {
+        window.google.maps.event.clearListeners(mapInstance, 'dragend');
+      }
     };
   }, []);
 
