@@ -168,7 +168,9 @@ export default function Tmap({
    */
   useEffect(() => {
     if (clickedNode && mapRef.current) {
-      const { start_coord, goal_coord } = clickedNode;
+      const { start_coord, goal_coord, file_id } = clickedNode;
+
+      let midLat, midLng;
 
       if (start_coord && goal_coord) {
         // 시작 좌표와 도착 좌표를 파싱
@@ -176,16 +178,33 @@ export default function Tmap({
         const { lat: goalLat, lng: goalLng } = parseCoordinates(goal_coord);
 
         // 중간 지점 계산
-        const midLat = (startLat + goalLat) / 2;
-        const midLng = (startLng + goalLng) / 2;
+        midLat = (startLat + goalLat) / 2;
+        midLng = (startLng + goalLng) / 2;
+      } else if (file_id && routeFullCoords.length > 0) {
+        // routeFullCoords에서 해당 파일 ID와 일치하는 경로 찾기
+        const selectedRoute = routeFullCoords.find(
+          (route) => route.file_id === file_id
+        );
 
-        // 중간 좌표를 지도 중심으로 설정
+        if (selectedRoute && selectedRoute.coords.length > 0) {
+          const parsedCoords = handleCoordinateInput(selectedRoute.coords);
+
+          // 모든 좌표의 평균값을 계산하여 중심을 구함
+          const sumLat = parsedCoords.reduce((acc, cur) => acc + cur.lat, 0);
+          const sumLng = parsedCoords.reduce((acc, cur) => acc + cur.lng, 0);
+          midLat = sumLat / parsedCoords.length;
+          midLng = sumLng / parsedCoords.length;
+        }
+      }
+
+      if (midLat !== undefined && midLng !== undefined) {
+        // 지도 중심을 중간 좌표로 설정
         const midLocation = new window.Tmapv2.LatLng(midLat, midLng);
-        mapRef.current.setCenter(midLocation); // 지도 중심 설정
+        mapRef.current.setCenter(midLocation);
         mapRef.current.setZoom(12); // 줌 레벨 설정 (옵션)
       }
     }
-  }, [clickedNode]);
+  }, [clickedNode, routeFullCoords]);
 
   /**
    * 경로 데이터를 가져와 지도에 업데이트하는 useEffect
@@ -287,6 +306,13 @@ export default function Tmap({
 
     fetchRoutesAndUpdateMap();
   }, [routeFullCoords, checkedNodes]);
+
+  useEffect(() => {
+    if (shouldResetMap) {
+      resetMapToInitial();
+      setShouldResetMap(false);
+    }
+  }, [shouldResetMap]);
 
   useEffect(() => {
     if (shouldResetMap && onClearMap) {
