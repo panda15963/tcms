@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import End_Point from '../../assets/images/multi_end_point.svg'; // Import your custom End Point icon
-import Start_Point from '../../assets/images/multi_start_point.svg'; // Import your custom Start Point icon
+import End_Point from '../../assets/images/multi_end_point.svg';
+import Start_Point from '../../assets/images/multi_start_point.svg';
 
 /**
  * 중심 좌표와 마커 좌표를 계산하는 함수
@@ -395,7 +395,7 @@ export default function RoutoMap({
       });
 
       if (!focusedNode && !bounds.isEmpty()) {
-        mapInstance.fitBounds(bounds); // Only adjust bounds if no focusedNode
+        mapInstance.fitBounds(bounds);
       }
     } else {
       console.warn('routeFullCoords is not an array.'); // 예상치 못한 경로 배열 형식 경고
@@ -692,7 +692,6 @@ export default function RoutoMap({
         map: mapRef.current,
       });
 
-      setMarkerPosition(newCenter);
       locationCoords({ lat: lat, lng: lng });
     }
   }, [lat, lng]);
