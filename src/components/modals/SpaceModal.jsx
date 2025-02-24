@@ -320,9 +320,14 @@ const SpaceModal = forwardRef(
             { responseType: 'blob' }
           );
 
+          console.log('imageResponse ==>', imageResponse);
+
           const imageBlob = new Blob([imageResponse.data]);
           const imageUrl = window.URL.createObjectURL(imageBlob);
           const imageLink = document.createElement('a');
+
+          console.log('imageUrl ==>', imageUrl);
+
           imageLink.href = imageUrl;
           imageLink.download = file.imagePath.split('/').pop();
           document.body.appendChild(imageLink);

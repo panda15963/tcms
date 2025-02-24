@@ -118,7 +118,7 @@ const SpaceTableHeaderList = (t) => [
 
         if (serverKey === 'localserver' || serverKey === 'developserver') {
           // server1에 해당하는 경로 처리
-          return `/images${imagePath.replace('/testcourse/image', '')}`;
+          return `/images${imagePath.replace('/image', '')}`;
         } else if (
           serverKey === 'stageserver' ||
           serverKey === 'productionserver'
