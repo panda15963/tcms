@@ -62,7 +62,6 @@ export default function RoutoMap({
   const [adjustedSpaceCoords, setAdjustedSpaceCoords] = useState([]);
   const [focusedNode, setFocusedNode] = useState(null);
   const [shouldResetToDefault, setShouldResetToDefault] = useState(true); // 기본 좌표 복귀 여부
-  const [markerPosition, setMarkerPosition] = useState(null);
   const [isUserMovingMap, setIsUserMovingMap] = useState(false); // 사용자가 이동했는지 여부
   const routesColors = useRef(new Map());
   const choosenMap =
