@@ -112,10 +112,7 @@ const defaultColumns = (t) => [
           serverKey === 'productionserver'
         ) {
           // server2에 해당하는 경로 처리
-          return `/images${imagePath.replace(
-            '/home/wasadmin/testcourse/image',
-            ''
-          )}`;
+          return `/images${imagePath.replace('/image', '')}`;
         }
         return imagePath; // 기본값 반환
       };
