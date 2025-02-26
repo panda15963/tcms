@@ -9,13 +9,20 @@ const TIME_OUT = process.env.REACT_APP_TIMEOUT; // 환경 변수에서 요청 �
 
 let isRefreshing = false;
 
+console.log('MAP_API_PORT ==>', MAP_API_PORT);
+const baseApiUrl = API_BASE_URL.includes('https')
+  ? API_BASE_URL
+  : `${API_BASE_URL}:${MAP_API_PORT}`;
+
+console.log('baseApiUrl ==>', baseApiUrl);
+
 // 인증이 필요한 요청을 위한 Axios 인스턴스 생성
 export const axiosInstance = axios.create({
   /**
    * [Swagger API Server]
    * 이 인스턴스는 기본적으로 인증 토큰을 포함한 요청에 사용됩니다.
    */
-  baseURL: `${API_BASE_URL}:${MAP_API_PORT}/api`, // API 서버의 기본 URL
+  baseURL: `${baseApiUrl}/api`, // API 서버의 기본 URL
   timeout: TIME_OUT, // 요청 타임아웃 설정
   headers: {
     'Content-Type': 'application/json',
@@ -32,7 +39,7 @@ export const axiosInstanceStat = axios.create({
    * [Swagger API Server]
    * 이 인스턴스는 기본적으로 인증 토큰을 포함한 요청에 사용됩니다.
    */
-  baseURL: `${API_BASE_URL}:${STAT_API_PORT}/api`, // API 서버의 기본 URL
+  baseURL: `${baseApiUrl}/api`, // API 서버의 기본 URL
   timeout: TIME_OUT, // 요청 타임아웃 설정
   headers: {
     'Content-Type': 'application/json',
@@ -51,9 +58,9 @@ export const axiosInstanceStat = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('ACCESS_TOKEN');
-    // console.log('🚀 ~ setTokenToInstance ~ token:', token);
+    console.log('🚀 ~ setTokenToInstance ~ token:', token);
     if (token) {
-      // console.log('SETTING Bearer token ==> ', token);
+      console.log('SETTING Bearer token ==> ', token);
       config.headers.Authorization = `Bearer ${token}`;
     } else {
       console.warn('~ Interceptor ~ Token not found');
