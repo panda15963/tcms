@@ -148,8 +148,8 @@ const defaultColumns = (t) => [
 
       const adjustedImagePath = adjustImagePath(serverKey, imagePath);
 
-      console.log('[MainGrid]baseURL ==>', baseURL);
-      console.log('[MainGrid]adjustedImagePath ==>', adjustedImagePath);
+      // console.log('[MainGrid]baseURL ==>', baseURL);
+      // console.log('[MainGrid]adjustedImagePath ==>', adjustedImagePath);
 
       return imagePath ? (
         <>
