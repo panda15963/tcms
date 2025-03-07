@@ -12,7 +12,7 @@ const createCancelToken = () => {
 export async function tryLogin(data) {
   try {
     // const { token, cancel } = createCancelToken();
-    console.log('[login][data] => ', data);
+    console.log('[tryLogin][login][data] => ', data);
     const response = await axiosInstance.post(`/auth/login`, data);
     return { data: response.data };
   } catch (error) {
