@@ -97,11 +97,11 @@ export const FidoModal = ({
         }
       } else {
         console.log('[checkFidoAuth][Error] ==> ', error);
-        showToast(ToastTypes.ERROR, '오류', t(`msg.authError`));
+        // showToast(ToastTypes.ERROR, '오류', t(`msg.authError`));
       }
     } else if (error) {
       console.log('[checkFidoAuth][Error] ==> ', error);
-      showToast(ToastTypes.ERROR, '오류', t(`msg.authError`) + '\n' + error);
+      // showToast(ToastTypes.ERROR, '오류', t(`msg.authError`) + '\n' + error);
     }
   };
 

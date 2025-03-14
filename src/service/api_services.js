@@ -33,11 +33,19 @@ export async function tryLogin(data) {
  */
 export async function loginWithAD(data) {
   try {
-    console.log('[loginWithAD][data] => ', data);
-    const response = await axiosInstance.post(`/auth/loginWithAD`, data);
+    console.log('[loginWithAD][원본 data] => ', data);
+
+    // ✅ user_id → userId, pw → password 로 변환
+    const requestData = {
+      userId: data.user_id,
+      password: data.pw,
+    };
+
+    console.log('[loginWithAD][변환된 requestData] => ', requestData);
+
+    const response = await axiosInstance.post(`/auth/loginWithAD`, requestData);
     return { data: response.data };
   } catch (error) {
-    // Error handling
     if (axios.isCancel(error)) {
       console.log('[loginWithAD] Request canceled : ', error.message);
       return { data: null, error: 'Request was canceled' };

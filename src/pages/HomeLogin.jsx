@@ -113,7 +113,8 @@ export default function Login() {
 
     // ✅ AD 인증 시도
     console.log('[AD 인증 시도]');
-    const adResponse = await loginWithAD(request); // 이거 주석 풀어야함 API 테스트 종료 후
+    const adResponse = await loginWithAD(request);
+    console.log('[AD 인증] adResponse ==>', adResponse);
 
     // let adResponse = true; // 삭제예정
 
@@ -161,8 +162,7 @@ export default function Login() {
     }
 
     // ✅ AD 인증 실패 처리 (사용자별 적용)
-    if (!adResponse || adResponse.status !== 2000) {
-      // if (adResponse == false) {
+    if (!adResponse || adResponse.data.code !== 2000) {
       setLoading(false);
       console.log('[AD 인증 실패]');
 
