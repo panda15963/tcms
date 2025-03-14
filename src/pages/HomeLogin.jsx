@@ -8,7 +8,7 @@ import { FaRegEyeSlash, FaRegEye } from 'react-icons/fa';
 import { ToastTypes } from '../context/ToastProvider';
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNumber } from 'lodash';
-import { getAdmin, tryLogin } from '../service/api_services';
+import { getAdmin, loginWithAD, tryLogin } from '../service/api_services';
 import { FidoModal } from '../components/modals/FidoModal';
 import { jwtDecode } from 'jwt-decode';
 
@@ -113,9 +113,9 @@ export default function Login() {
 
     // ✅ AD 인증 시도
     console.log('[AD 인증 시도]');
-    // const adResponse = await loginWithAD(request); // 이거 주석 풀어야함 API 테스트 종료 후
+    const adResponse = await loginWithAD(request); // 이거 주석 풀어야함 API 테스트 종료 후
 
-    let adResponse = true; // 삭제예정
+    // let adResponse = true; // 삭제예정
 
     const userId = request.user_id; // 현재 로그인 시도한 사용자 ID
     const lockTimeKey = `FAIL_LOCK_TIME_${userId}`; // 해당 사용자 ID별 잠금 시간 키

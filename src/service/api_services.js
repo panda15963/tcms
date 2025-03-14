@@ -27,6 +27,27 @@ export async function tryLogin(data) {
 }
 
 /**
+ * AD 로그인 요청 함수
+ * @param {AuthWithAdRequest} data
+ * @returns
+ */
+export async function loginWithAD(data) {
+  try {
+    console.log('[loginWithAD][data] => ', data);
+    const response = await axiosInstance.post(`/auth/loginWithAD`, data);
+    return { data: response.data };
+  } catch (error) {
+    // Error handling
+    if (axios.isCancel(error)) {
+      console.log('[loginWithAD] Request canceled : ', error.message);
+      return { data: null, error: 'Request was canceled' };
+    }
+    console.log('[loginWithAD] Request error : ', error);
+    return { data: null, error: error };
+  }
+}
+
+/**
  * Mpass FIDO 인증 확인하는 함수
  * @param {MpassFidoRequestDto} data
  * @returns
