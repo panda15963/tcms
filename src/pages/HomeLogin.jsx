@@ -63,7 +63,7 @@ export default function Login() {
     setRequest(initialRequest); // 입력 필드 초기화
 
     if (idRef.current) {
-      idRef.current.value = ''; // ✅ UI에서도 실제로 값을 초기화
+      idRef.current.value = ''; // UI에서도 실제로 값을 초기화
     }
   };
 
@@ -111,25 +111,23 @@ export default function Login() {
     console.log('[LOGIN][Request object] => ');
     console.table(request);
 
-    // ✅ AD 인증 시도
+    // AD 인증 시도
     console.log('[AD 인증 시도]');
     const adResponse = await loginWithAD(request);
     console.log('[AD 인증] adResponse ==>', adResponse);
-
-    // let adResponse = true; // 삭제예정
 
     const userId = request.user_id; // 현재 로그인 시도한 사용자 ID
     const lockTimeKey = `FAIL_LOCK_TIME_${userId}`; // 해당 사용자 ID별 잠금 시간 키
     const failCountKey = `FAIL_COUNT_${userId}`; // 해당 사용자 ID별 실패 카운트 키
 
-    // ✅ 로그인 차단 여부 체크 (사용자별 적용)
+    // 로그인 차단 여부 체크 (사용자별 적용)
     const currentTime = new Date().getTime();
     const lockUntil = parseInt(localStorage.getItem(lockTimeKey) || '0', 10);
 
     console.log('currentTime ==>', currentTime);
     console.log('lockUntil ==>', lockUntil);
 
-    // 🔹 시간 변환 (밀리초 → yyyy-MM-dd HH:mm:ss)
+    // 시간 변환 (밀리초 → yyyy-MM-dd HH:mm:ss)
     const formatTime = (timestamp) =>
       timestamp > 0 ? new Date(timestamp).toLocaleString() : '제한 없음';
 
@@ -145,7 +143,7 @@ export default function Login() {
     );
 
     if (lockUntil > 0 && currentTime >= lockUntil) {
-      // 🔹 **60분이 지나면 로그인 제한 해제**
+      // **60분이 지나면 로그인 제한 해제**
       console.log('[로그인 제한 해제] 60분이 지나 제한을 초기화합니다.');
       localStorage.removeItem(failCountKey);
       localStorage.removeItem(lockTimeKey);
@@ -161,7 +159,7 @@ export default function Login() {
       return;
     }
 
-    // ✅ AD 인증 실패 처리 (사용자별 적용)
+    // AD 인증 실패 처리 (사용자별 적용)
     if (!adResponse || adResponse.data.code !== 2000) {
       setLoading(false);
       console.log('[AD 인증 실패]');
@@ -196,7 +194,7 @@ export default function Login() {
       }
     }
 
-    // ✅ AD 인증 성공 시 기존 로그인 프로세스 실행
+    // AD 인증 성공 시 기존 로그인 프로세스 실행
     console.log('[AD 인증 성공] => 기존 로그인 시도');
     const { data, cancel, error } = await tryLogin(request);
     console.log('🚀 ~ handleSubmit ~ data:', data);
@@ -242,12 +240,12 @@ export default function Login() {
               login(adminInfo);
             }
 
-            // ✅ 로그인 성공 시 실패 횟수 초기화
+            // 로그인 성공 시 실패 횟수 초기화
             console.log('[로그인 성공] 실패 횟수 초기화');
             localStorage.removeItem(failCountKey);
             localStorage.removeItem(lockTimeKey);
 
-            // ✅ HOME으로 이동
+            // HOME으로 이동
             handleGoHomeWithoutLogin();
           } else {
             showToast(
