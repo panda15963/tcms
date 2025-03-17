@@ -398,7 +398,7 @@ export default function Login() {
                         </div>
                         <div className="mt-2">
                           <input
-                            className="block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3 outline-none"
+                            className="cursor-default block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3 outline-none"
                             placeholder="아이디를 입력하세요"
                             ref={idRef}
                             id="userId"
@@ -433,7 +433,7 @@ export default function Login() {
                         <div className="relative w-full max-w-md mt-2">
                           <input
                             placeholder="비밀번호를 입력하세요"
-                            className="block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3 outline-none"
+                            className="cursor-default block w-full rounded-lg border-0 py-3 text-gray-900 shadow ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-900 sm:text-sm sm:leading-6 pl-3 outline-none"
                             required
                             ref={passRef}
                             id="password"
@@ -452,7 +452,7 @@ export default function Login() {
                             }}
                           />
                           <button
-                            className="absolute inset-y-0 right-0 flex items-center pr-3"
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-default"
                             onMouseDown={handleMouseDown}
                             onMouseUp={handleMouseUp}
                             onMouseLeave={handleMouseUp}
@@ -477,7 +477,7 @@ export default function Login() {
                         </label>
                         <div className="flex items-center space-x-4 mt-2">
                           <button
-                            className={`px-4 py-2 rounded-lg ${
+                            className={`px-4 py-2 rounded-lg cursor-default ${
                               request.mpass_type === 2
                                 ? 'bg-blue-900 text-white'
                                 : 'bg-gray-200 text-gray-600'
@@ -495,7 +495,7 @@ export default function Login() {
                             FIDO
                           </button>
                           <button
-                            className={`px-4 py-2 rounded-lg ${
+                            className={`px-4 py-2 rounded-lg cursor-default ${
                               request.mpass_type === 1
                                 ? 'bg-blue-900 text-white'
                                 : 'bg-gray-200 text-gray-600'
@@ -548,7 +548,7 @@ export default function Login() {
                       <div>
                         <button
                           ref={btnLoginRef}
-                          className="flex w-full justify-center items-center rounded-lg bg-blue-900 px-3 py-4 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900"
+                          className="cursor-default flex w-full justify-center items-center rounded-lg bg-blue-900 px-3 py-4 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900"
                           onClick={(e) => handleSubmit(e)}
                         >
                           로그인
