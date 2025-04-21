@@ -108,131 +108,199 @@ export default function Login() {
     if (checkReturn) return;
 
     setLoading(true);
-    console.log('[LOGIN][Request object] ======> ');
+    console.log('[LOGIN][Request object] => ');
     console.table(request);
 
-    // ✅ 백엔드 응답 처리
-    const adResponse = await loginWithAD(request);
-    console.log('[AD 인증] adResponse ==>', adResponse);
+    //////////////////////////////////// 로컬스토리지 AD인증 카운트 ///////////////
+    // // AD 인증 시도
+    // console.log('[AD 인증 시도]');
+    // const adResponse = await loginWithAD(request);
+    // console.log('[AD 인증] adResponse ==>', adResponse);
 
-    const code = adResponse?.data?.code;
+    // const userId = request.user_id; // 현재 로그인 시도한 사용자 ID
+    // const lockTimeKey = `FAIL_LOCK_TIME_${userId}`; // 해당 사용자 ID별 잠금 시간 키
+    // const failCountKey = `FAIL_COUNT_${userId}`; // 해당 사용자 ID별 실패 카운트 키
 
-    if (code === 4012) {
-      showToast(
-        ToastTypes.ERROR,
-        '잠김',
-        '계정이 잠겨 있습니다. 1시간 뒤 다시 시도해 주세요.'
-      );
+    // // 로그인 차단 여부 체크 (사용자별 적용)
+    // const currentTime = new Date().getTime();
+    // const lockUntil = parseInt(localStorage.getItem(lockTimeKey) || '0', 10);
+
+    // console.log('currentTime ==>', currentTime);
+    // console.log('lockUntil ==>', lockUntil);
+
+    // // 시간 변환 (밀리초 → yyyy-MM-dd HH:mm:ss)
+    // const formatTime = (timestamp) =>
+    //   timestamp > 0 ? new Date(timestamp).toLocaleString() : '제한 없음';
+
+    // console.log(
+    //   `[로그인 제한 검사] 현재 시간: ${currentTime} (${formatTime(
+    //     currentTime
+    //   )})`
+    // );
+    // console.log(
+    //   `[로그인 제한 해제 시간] 제한 해제 시각: ${lockUntil} (${formatTime(
+    //     lockUntil
+    //   )})`
+    // );
+
+    // if (lockUntil > 0 && currentTime >= lockUntil) {
+    //   // **60분이 지나면 로그인 제한 해제**
+    //   console.log('[로그인 제한 해제] 60분이 지나 제한을 초기화합니다.');
+    //   localStorage.removeItem(failCountKey);
+    //   localStorage.removeItem(lockTimeKey);
+    // }
+
+    // if (lockUntil > 0 && currentTime < lockUntil) {
+    //   showToast(
+    //     ToastTypes.ERROR,
+    //     '오류'
+    //     // '비밀번호를 10회 이상 틀려 60분 동안 로그인할 수 없습니다.'
+    //   );
+    //   setLoading(false);
+    //   return;
+    // }
+    //////////////////////////////////// 로컬스토리지 AD인증 카운트 ///////////////
+
+    // AD 인증 성공,실패 체크
+    let isAdChecked = true;
+
+    // AD 인증 실패 처리 (사용자별 적용)
+    if (!adResponse || adResponse.data.code !== 2000) {
+      isAdChecked = false;
       setLoading(false);
-      return;
-    }
+      console.log('[AD 인증 실패]');
 
-    if (code === 4010) {
-      showToast(
-        ToastTypes.WARNING,
-        '오류',
-        '아이디 또는 비밀번호를 다시 확인해 주세요.'
-      );
-      clearFieldValues();
-      if (idRef && idRef.current) {
-        idRef.current.focus();
-      }
-      setLoading(false);
-      return;
-    }
+      let failCount = parseInt(localStorage.getItem(failCountKey) || '0', 10);
+      failCount += 1;
+      localStorage.setItem(failCountKey, failCount);
 
-    if (code !== 2000) {
-      showToast(
-        ToastTypes.ERROR,
-        '오류',
-        adResponse?.data?.message || '알 수 없는 오류가 발생했습니다.'
-      );
-      setLoading(false);
-      return;
-    }
-
-    // ✅ AD 인증 성공 후에만 tryLogin 수행
-    console.log('[AD 인증 성공] => 기존 로그인 시도');
-    const { data, cancel, error } = await tryLogin(request);
-    cancelconds = cancel;
-
-    setLoading(false); // tryLogin 시도 이후 로딩 해제
-
-    if (data) {
-      if (!isEmpty(data) && data.code === 2000 && !isEmpty(data.result)) {
-        //FIDO 인증
-        if (isFidoLoginType()) {
-          console.log('[FIDO 인증][START] ===>');
-          setFidoParams((preVal) => {
-            return {
-              ...preVal,
-              userId: request.user_id,
-              loginKey: data.result.loginKey,
-            };
-          });
-          setShowFidoModal(true);
-        } else {
-          //OTP 인증
-          const accessToken = data.result.accessToken;
-          const refreshToken = data.result.refreshToken;
-
-          if (accessToken && !isEmpty(accessToken)) {
-            const decodedToken = jwtDecode(accessToken);
-
-            localStorage.setItem('ACCESS_TOKEN', accessToken);
-            localStorage.setItem('REFRESH_TOKEN', refreshToken);
-
-            //관리자 정보를 저장한다
-            if (decodedToken.admin_info && !isEmpty(decodedToken.admin_info)) {
-              const adminInfo = {
-                seq: decodedToken.admin_info.seq,
-                admin_id: decodedToken.admin_info.admin_id,
-                admin_use_yn: decodedToken.admin_info.admin_use_yn,
-              };
-              login(adminInfo);
-            }
-
-            handleGoHomeWithoutLogin(); // 로그인 성공 시 홈으로 이동
-          } else {
-            showToast(
-              ToastTypes.ERROR,
-              '오류',
-              '토큰 정보를 못 찾았습니다. 다시 시도해 주십시오!'
-            );
-          }
-        }
-      } else {
+      if (failCount >= 10) {
+        const lockUntil = new Date().getTime() + 60 * 60 * 1000; // 60분 후
+        // const lockUntil = new Date().getTime() + 1 * 60 * 1000; // 1분 후
+        localStorage.setItem(lockTimeKey, lockUntil);
         showToast(
           ToastTypes.ERROR,
           '오류',
-          '로그인 도중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+          '비밀번호를 10회 이상 틀려 60분 동안 로그인할 수 없습니다.'
         );
-      }
-
-      // ✅ OTP 또는 그 외 정상 처리 후에도 반드시 호출
-      setLoading(false);
-    } else if (error) {
-      if (
-        error.status === 404 &&
-        error.response.data === 'Not found admin info'
-      ) {
+        setLoading(false);
+        return;
+      } else {
         showToast(
           ToastTypes.WARNING,
           '안내',
           '아이디 또는 비밀번호가 맞지 않습니다. 다시 입력해 주세요.'
         );
         clearFieldValues();
-        idRef.current?.focus();
-      } else {
-        showToast(
-          ToastTypes.ERROR,
-          '오류',
-          '로그인 중 서버 오류가 발생했습니다.\n' + error
-        );
+        if (idRef && idRef.current) {
+          idRef.current.focus();
+        }
+        setLoading(false);
+        return;
+      }
+    } else {
+      if (adResponse.data.code !== 2000 || adResponse.data.status !== 'OK') {
+        isAdChecked = false;
       }
     }
-    // ✅ 에러 발생 시에도 로딩 해제
-    setLoading(false);
+
+    if (isAdChecked) {
+      // AD 인증 성공 시 기존 로그인 프로세스 실행
+      console.log('[AD 인증 성공] => 기존 로그인 시도');
+      const { data, cancel, error } = await tryLogin(request);
+      console.log('🚀 ~ handleSubmit ~ data:', data);
+      cancelconds = cancel;
+      if (data) {
+        setLoading(false);
+        console.log('[Login data]', data);
+        if (!isEmpty(data) && data.code === 2000 && !isEmpty(data.result)) {
+          //FIDO 인증
+          if (isFidoLoginType()) {
+            console.log('[FIDO 인증][START] ===>');
+            setFidoParams((preVal) => {
+              return {
+                ...preVal,
+                userId: request.user_id,
+                loginKey: data.result.loginKey,
+              };
+            });
+            setShowFidoModal(true);
+          }
+          //OTP 인증
+          else {
+            console.log('[OTP 인증][START] ===>');
+            const accessToken = data.result.accessToken;
+            const refreshToken = data.result.refreshToken;
+            if (accessToken && !isEmpty(accessToken)) {
+              console.log('🚀 ~ jwtToken:', accessToken);
+              const decodedToken = jwtDecode(accessToken);
+              console.log('🚀 ~ decodedToken:', decodedToken);
+              console.log('Decoded token adminInfo ', decodedToken.admin_info);
+
+              //Set token to LOCALSTORAGE
+              localStorage.setItem('ACCESS_TOKEN', accessToken);
+              localStorage.setItem('REFRESH_TOKEN', refreshToken);
+
+              //관리자 정보를 저장한다
+              if (
+                decodedToken.admin_info &&
+                !isEmpty(decodedToken.admin_info)
+              ) {
+                const adminInfo = {
+                  seq: decodedToken.admin_info.seq,
+                  admin_id: decodedToken.admin_info.admin_id,
+                  admin_use_yn: decodedToken.admin_info.admin_use_yn,
+                };
+                login(adminInfo);
+              }
+
+              // 로그인 성공 시 실패 횟수 초기화
+              console.log('[로그인 성공] 실패 횟수 초기화');
+              localStorage.removeItem(failCountKey);
+              localStorage.removeItem(lockTimeKey);
+
+              // HOME으로 이동
+              handleGoHomeWithoutLogin();
+            } else {
+              showToast(
+                ToastTypes.ERROR,
+                '오류',
+                '토큰 정보를 못 찾았습니다. 다시 시도해 주십시오!'
+              );
+            }
+          }
+        } else {
+          showToast(
+            ToastTypes.ERROR,
+            '오류',
+            '로그인 도중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+          );
+        }
+      } else if (error) {
+        setLoading(false);
+        console.log('[Login][Error] ==> ', error);
+        if (
+          error.status === 404 &&
+          error.response.data === 'Not found admin info'
+        ) {
+          showToast(
+            ToastTypes.WARNING,
+            '안내',
+            '아이디 또는 비밀번호가 맞지 않습니다. 다시 입력해 주세요.'
+          );
+          clearFieldValues();
+          if (idRef && idRef.current) {
+            idRef.current.focus();
+          }
+        } else {
+          showToast(
+            ToastTypes.ERROR,
+            '오류',
+            '로그인할때 서버에 오류 났습니다. \n' + error
+          );
+        }
+      }
+    }
   };
 
   /**
