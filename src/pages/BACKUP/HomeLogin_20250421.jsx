@@ -58,8 +58,6 @@ export default function Login() {
   }, []);
 
   const clearFieldValues = () => {
-    console.log('클리어 실행중임니까?');
-
     setRequest(initialRequest); // 입력 필드 초기화
 
     if (idRef.current) {

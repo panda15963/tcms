@@ -58,8 +58,6 @@ export default function Login() {
   }, []);
 
   const clearFieldValues = () => {
-    console.log('클리어 실행중임니까?');
-
     setRequest(initialRequest); // 입력 필드 초기화
 
     if (idRef.current) {
@@ -84,8 +82,7 @@ export default function Login() {
   };
 
   /**
-   * 로그인 요청 처리 함수
-   * @param {Event} e - 이벤트 객체
+   * 로그인 요청 처리 함수 (AD 인증)
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -108,14 +105,14 @@ export default function Login() {
     if (checkReturn) return;
 
     setLoading(true);
-    console.log('[LOGIN][Request object] ======> ');
     console.table(request);
 
     // ✅ 백엔드 응답 처리
-    const adResponse = await loginWithAD(request);
-    console.log('[AD 인증] adResponse ==>', adResponse);
+    const { data } = await loginWithAD(request);
+    console.log('[AD 인증] data ==>', data);
 
-    const code = adResponse?.data?.code;
+    const code = data.code;
+    console.log('data code ==>', data.code);
 
     if (code === 4012) {
       showToast(
@@ -145,18 +142,27 @@ export default function Login() {
       showToast(
         ToastTypes.ERROR,
         '오류',
-        adResponse?.data?.message || '알 수 없는 오류가 발생했습니다.'
+        data?.message || '알 수 없는 오류가 발생했습니다.'
       );
       setLoading(false);
       return;
     }
 
+    if (code === 2000) {
+      await handleSubmitSecond(request);
+    }
+  };
+
+  /**
+   * 로그인 요청 처리 함수 (AD 인증 후)
+   */
+  const handleSubmitSecond = async (request) => {
     // ✅ AD 인증 성공 후에만 tryLogin 수행
     console.log('[AD 인증 성공] => 기존 로그인 시도');
     const { data, cancel, error } = await tryLogin(request);
     cancelconds = cancel;
 
-    setLoading(false); // tryLogin 시도 이후 로딩 해제
+    // setLoading(false); // tryLogin 시도 이후 로딩 해제
 
     if (data) {
       if (!isEmpty(data) && data.code === 2000 && !isEmpty(data.result)) {
@@ -208,7 +214,6 @@ export default function Login() {
           '로그인 도중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
         );
       }
-
       // ✅ OTP 또는 그 외 정상 처리 후에도 반드시 호출
       setLoading(false);
     } else if (error) {
@@ -231,7 +236,7 @@ export default function Login() {
         );
       }
     }
-    // ✅ 에러 발생 시에도 로딩 해제
+    //  ✅ 에러 발생 시에도 로딩 해제
     setLoading(false);
   };
 

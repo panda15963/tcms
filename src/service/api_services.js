@@ -44,6 +44,13 @@ export async function loginWithAD(data) {
     console.log('[loginWithAD][변환된 requestData] => ', requestData);
 
     const response = await axiosInstance.post(`/auth/loginWithAD`, requestData);
+    // const response = await axiosInstance.post(
+    //   `/auth/loginWithAD`,
+    //   requestData,
+    //   {
+    //     timeout: 8000,
+    //   }
+    // );
     return { data: response.data };
   } catch (error) {
     if (axios.isCancel(error)) {
