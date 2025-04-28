@@ -163,6 +163,7 @@ export default function Login() {
     cancelconds = cancel;
 
     // setLoading(false); // tryLogin 시도 이후 로딩 해제
+    console.log('[handleSubmitSecond] of data ==>', data);
 
     if (data) {
       if (!isEmpty(data) && data.code === 2000 && !isEmpty(data.result)) {
@@ -179,8 +180,12 @@ export default function Login() {
           setShowFidoModal(true);
         } else {
           //OTP 인증
+          console.log('[OTP 인증][START] ===>');
           const accessToken = data.result.accessToken;
           const refreshToken = data.result.refreshToken;
+
+          console.log('[OTP 인증] accessToken ==>', accessToken);
+          console.log('[OTP 인증] refreshToken ==>', refreshToken);
 
           if (accessToken && !isEmpty(accessToken)) {
             const decodedToken = jwtDecode(accessToken);
