@@ -14,6 +14,8 @@ export async function tryLogin(data) {
     // const { token, cancel } = createCancelToken();
     console.log('[tryLogin][login][data] => ', data);
     const response = await axiosInstance.post(`/auth/login`, data);
+    console.log('tryLogin of response ==>', response);
+
     return { data: response.data };
   } catch (error) {
     // Error handling
